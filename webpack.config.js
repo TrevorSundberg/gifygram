@@ -1,27 +1,34 @@
-const path = require('path');
-
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+/* eslint-disable @typescript-eslint/no-var-requires */
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  entry: './src/index.tsx',
-  resolve: {
-    extensions: ['.ts', '.tsx', '.js']
-  },
-  output: {
-    path: path.join(__dirname, '/dist'),
-    filename: 'bundle.min.js'
-  },
+  entry: "./src/index.tsx",
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        loader: 'awesome-typescript-loader'
+        loader: "awesome-typescript-loader",
+        test: /\.tsx?$/u
       }
     ]
   },
+  output: {
+    filename: "bundle.min.js",
+    path: path.join(
+      __dirname,
+      "/dist"
+    )
+  },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html'
+      template: "./src/index.html"
     })
-  ]
-}
+  ],
+  resolve: {
+    extensions: [
+      ".ts",
+      ".tsx",
+      ".js"
+    ]
+  }
+};
