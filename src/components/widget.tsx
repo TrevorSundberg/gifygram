@@ -1,5 +1,6 @@
 import * as React from "react";
 import Moveable from "react-moveable";
+import ResizeObserver from "resize-observer-polyfill";
 
 export interface WidgetState {
   rotate: number;
@@ -9,6 +10,8 @@ export interface WidgetState {
 }
 
 export class Widget extends React.Component<{}, WidgetState> {
+  resizeObserver: ResizeObserver;
+
   constructor (props) {
     super(props);
     this.state = {
@@ -23,6 +26,13 @@ export class Widget extends React.Component<{}, WidgetState> {
         0
       ]
     };
+
+    this.resizeObserver = new ResizeObserver(() => {
+      // Force the Movable to update it's bounds by clearing the child and replacing it again
+      const {child} = this.state;
+      this.setState({...this.state, child: null});
+      this.setState({...this.state, child});
+    });
   }
 
   render () {
@@ -40,16 +50,14 @@ export class Widget extends React.Component<{}, WidgetState> {
     return <div>
       <div style={{display: "inline-block"}} ref={(element) => {
         if (element && element !== this.state.child) {
-          // If we set the child immediately, the children may not have had time to layout
-          setTimeout(
-            () => {
-              this.setState((state) => ({
-                ...state,
-                child: element
-              }));
-            },
-            0
-          );
+          if (this.state.child) {
+            this.resizeObserver.unobserve(this.state.child);
+          }
+          this.resizeObserver.observe(element);
+          this.setState((state) => ({
+            ...state,
+            child: element
+          }));
         }
       }}>
         {this.props.children}
