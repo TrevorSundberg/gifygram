@@ -37,10 +37,6 @@ export class Widget extends React.Component<{}, WidgetState> {
 
   render () {
     const {child} = this.state;
-    console.log(
-      "render",
-      child
-    );
     if (child) {
       child.style.transform =
         `translate(${this.state.translate[0]}px, ${this.state.translate[1]}px)` +
