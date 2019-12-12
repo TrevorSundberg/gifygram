@@ -35,6 +35,7 @@ module.exports = {
     "object-property-newline": "off",
     "object-curly-newline": ["error", { "multiline": true, "consistent": true }],
     "multiline-ternary": "off",
+    "function-call-argument-newline": ["error", "consistent"],
 
     "no-console": "off",
     "no-process-env": "off",
