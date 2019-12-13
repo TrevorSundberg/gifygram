@@ -22,7 +22,7 @@ export class Widget extends EventTarget {
       pinchable: true,
       rotatable: true,
       scalable: true,
-      target: document.querySelector("#test") as HTMLElement
+      target: element
     });
     this.moveable = moveable;
 
