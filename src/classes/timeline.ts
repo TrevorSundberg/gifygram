@@ -59,7 +59,7 @@ export class Timeline {
     this.tracks[`#${element.id}`] = track;
 
     const onKeyframe = () => {
-      track[this.scene.getTime()] = {
+      track[this.video.currentTime] = {
         transform: Widget.getTransformCss(widget.getTransform())
       };
       this.scene.set(this.tracks);
