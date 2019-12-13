@@ -69,6 +69,7 @@ export class Timeline {
     const onDestroy = () => {
       delete this.widgets[widget.element.id];
       delete this.tracks[`#${element.id}`];
+      this.scene.set(this.tracks);
       widget.removeEventListener("keyframe", onKeyframe);
       widget.removeEventListener("destroy", onDestroy);
     };
