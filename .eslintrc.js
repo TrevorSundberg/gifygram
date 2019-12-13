@@ -27,6 +27,7 @@ module.exports = {
     "@typescript-eslint/no-explicit-any": "off",
     "no-extra-parens": "off",
     "@typescript-eslint/no-extra-parens": ["error"],
+    "@typescript-eslint/explicit-member-accessibility": ["error"],
 
     "max-statements": ["error", 100],
     "max-lines-per-function": ["error", 200],
