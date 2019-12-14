@@ -3,6 +3,7 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
+  devtool: "source-map",
   entry: "./src/index.tsx",
   module: {
     rules: [
