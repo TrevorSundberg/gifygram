@@ -1,5 +1,7 @@
+// eslint-disable-next-line max-classes-per-file
 import {Gizmo} from "./gizmo";
 import Scene from "scenejs";
+import {Widget} from "./widget";
 
 interface Keyframe {
   transform: string;
@@ -12,6 +14,8 @@ interface Track {
 interface Tracks {
   [selector: string]: Track;
 }
+
+export type ElementFactory = (id: string) => Promise<HTMLElement>;
 
 export class Timeline {
   private video: HTMLVideoElement;
@@ -26,13 +30,14 @@ export class Timeline {
 
   private selection: Gizmo = null;
 
+  private idCounter = 0;
+
   public constructor (video: HTMLVideoElement) {
     this.video = video;
     this.scene = new Scene(this.tracks, {
       easing: "linear",
       selector: true
     });
-    this.scene.setDuration(Number.MAX_VALUE);
     this.update();
   }
 
@@ -50,22 +55,51 @@ export class Timeline {
     }
   }
 
-  public addElement (element: HTMLElement) {
-    if (this.elements[element.id]) {
-      throw new Error(`Element already tracked by timeline: ${element.id}`);
-    }
-    this.elements[element.id] = element;
-
-    const track: Track = {};
-    this.tracks[`#${element.id}`] = track;
+  private static finalizeElement (id: string, element: HTMLElement) {
+    element.id = id;
+    element.style.position = "absolute";
+    document.body.appendChild(element);
   }
 
-  public destroyElement (element: HTMLElement) {
-    if (!this.elements[element.id]) {
-      throw new Error(`Element not tracked by timeline: ${element.id}`);
+  public static createImage (src: string): ElementFactory {
+    return async (id: string) => {
+      const element = document.createElement("img");
+      element.src = src;
+      await new Promise((resolve) => {
+        element.onload = resolve;
+      });
+      Timeline.finalizeElement(id, element);
+      return element;
+    };
+  }
+
+  public static createText (): ElementFactory {
+    return async (id: string) => {
+      const element = document.createElement("input");
+      element.type = "text";
+      document.body.appendChild(element);
+      Timeline.finalizeElement(id, element);
+      return element;
+    };
+  }
+
+  public async addWidget (createElement: ElementFactory): Promise<Widget> {
+    const id = `id${this.idCounter++}`;
+    const element = await createElement(id);
+
+    if (this.elements[id]) {
+      throw new Error(`Element already tracked by timeline: ${id}`);
     }
-    delete this.elements[element.id];
-    delete this.tracks[`#${element.id}`];
+    this.elements[id] = element;
+
+    const track: Track = {};
+    this.tracks[`#${id}`] = track;
+    return new Widget(id, element);
+  }
+
+  public destroyWidget (widget: Widget) {
+    delete this.elements[widget.id];
+    delete this.tracks[`#${widget.id}`];
     this.scene.set(this.tracks);
   }
 
@@ -78,14 +112,11 @@ export class Timeline {
     this.scene.set(this.tracks);
   }
 
-  public selectElement (element: HTMLElement) {
-    if (!this.elements[element.id]) {
-      throw new Error(`Element not tracked by timeline: ${element.id}`);
-    }
+  public selectElement (widget: Widget) {
     if (this.selection) {
       this.selection.destroy();
     }
-    this.selection = new Gizmo(element);
+    this.selection = new Gizmo(widget.element);
     this.selection.addEventListener("keyframe", () => this.onSelectionKeyframe());
   }
 }

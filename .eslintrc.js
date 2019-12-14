@@ -21,7 +21,7 @@ module.exports = {
     es6: true,
   },
   rules: {
-    "indent": ["error", 2],
+    "indent": "off",
     "@typescript-eslint/indent": ["error", 2],
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-explicit-any": "off",
