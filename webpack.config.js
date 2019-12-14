@@ -10,6 +10,10 @@ module.exports = {
       {
         loader: "awesome-typescript-loader",
         test: /\.tsx?$/u
+      },
+      {
+        loader: "style-loader!css-loader",
+        test: /\.css$/u
       }
     ]
   },
@@ -29,7 +33,8 @@ module.exports = {
     extensions: [
       ".ts",
       ".tsx",
-      ".js"
+      ".js",
+      ".css"
     ]
   }
 };
