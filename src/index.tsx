@@ -9,5 +9,6 @@ document.getElementById("add").addEventListener("click", () => {
   ++counter;
   img.src = "https://i.pinimg.com/originals/b2/76/af/b276af58ff041b951321765eec87ce29.png";
   document.body.appendChild(img);
-  timeline.createWidget(img);
+  timeline.addElement(img);
+  timeline.selectElement(img);
 });

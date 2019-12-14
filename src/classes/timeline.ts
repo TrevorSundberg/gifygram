@@ -1,5 +1,5 @@
+import {Gizmo} from "./gizmo";
 import Scene from "scenejs";
-import {Widget} from "./widget";
 
 interface Keyframe {
   transform: string;
@@ -22,7 +22,9 @@ export class Timeline {
 
   private tracks: Tracks = {};
 
-  private widgets: Record<string, Widget> = {};
+  private elements: Record<string, HTMLElement> = {};
+
+  private selection: Gizmo = null;
 
   public constructor (video: HTMLVideoElement) {
     this.video = video;
@@ -43,38 +45,47 @@ export class Timeline {
       this.lastTime = currentTime;
       this.scene.setTime(currentTime);
     }
-    for (const widget of Object.values(this.widgets)) {
-      widget.update();
+    if (this.selection) {
+      this.selection.update();
     }
   }
 
-  public createWidget (element: HTMLElement): Widget {
-    if (this.tracks[element.id]) {
-      throw new Error(`Element being used to create a widget must have a unique id: ${element.id}`);
+  public addElement (element: HTMLElement) {
+    if (this.elements[element.id]) {
+      throw new Error(`Element already tracked by timeline: ${element.id}`);
     }
-    const widget = new Widget(element);
-    this.widgets[element.id] = widget;
+    this.elements[element.id] = element;
 
     const track: Track = {};
     this.tracks[`#${element.id}`] = track;
+  }
 
-    const onKeyframe = () => {
-      track[this.video.currentTime] = {
-        transform: Widget.getTransformCss(widget.getTransform())
-      };
-      this.scene.set(this.tracks);
+  public destroyElement (element: HTMLElement) {
+    if (!this.elements[element.id]) {
+      throw new Error(`Element not tracked by timeline: ${element.id}`);
+    }
+    delete this.elements[element.id];
+    delete this.tracks[`#${element.id}`];
+    this.scene.set(this.tracks);
+  }
+
+  private onSelectionKeyframe () {
+    const {element} = this.selection;
+    const track = this.tracks[`#${element.id}`];
+    track[this.video.currentTime] = {
+      transform: Gizmo.getTransformCss(this.selection.getTransform())
     };
-    widget.addEventListener("keyframe", onKeyframe);
+    this.scene.set(this.tracks);
+  }
 
-    const onDestroy = () => {
-      delete this.widgets[widget.element.id];
-      delete this.tracks[`#${element.id}`];
-      this.scene.set(this.tracks);
-      widget.removeEventListener("keyframe", onKeyframe);
-      widget.removeEventListener("destroy", onDestroy);
-    };
-    widget.addEventListener("destroy", onDestroy);
-
-    return widget;
+  public selectElement (element: HTMLElement) {
+    if (!this.elements[element.id]) {
+      throw new Error(`Element not tracked by timeline: ${element.id}`);
+    }
+    if (this.selection) {
+      this.selection.destroy();
+    }
+    this.selection = new Gizmo(element);
+    this.selection.addEventListener("keyframe", () => this.onSelectionKeyframe());
   }
 }

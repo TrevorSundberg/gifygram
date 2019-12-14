@@ -8,7 +8,7 @@ export interface Transform {
   translate: [number, number];
 }
 
-export class Widget extends EventTarget {
+export class Gizmo extends EventTarget {
   public readonly element: HTMLElement;
 
   private moveable: Moveable;
@@ -65,7 +65,6 @@ export class Widget extends EventTarget {
 
   public destroy () {
     this.moveable.destroy();
-    this.element.remove();
     this.dispatchEvent(new Event("destroy"));
   }
 
@@ -80,7 +79,7 @@ export class Widget extends EventTarget {
   }
 
   public setTransform (state: Transform) {
-    this.element.style.transform = Widget.getTransformCss(state);
+    this.element.style.transform = Gizmo.getTransformCss(state);
   }
 
   public getTransform (): Transform {
