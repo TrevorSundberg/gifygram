@@ -75,8 +75,9 @@ export class Timeline {
 
   public static createText (): ElementFactory {
     return async (id: string) => {
-      const element = document.createElement("input");
-      element.type = "text";
+      const element = document.createElement("div");
+      element.contentEditable = "true";
+      element.textContent = "Text";
       document.body.appendChild(element);
       Timeline.finalizeElement(id, element);
       return element;
