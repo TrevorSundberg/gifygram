@@ -71,6 +71,12 @@ export class Manager {
     this.timeline.updateTracks();
     const widget = new Widget(id, element);
 
+    element.addEventListener("keydown", (event) => {
+      if (event.key === "Delete") {
+        this.destroyWidget(widget);
+      }
+    });
+
     const grabElement = (event) => {
       element.focus();
       this.selection.moveable.dragStart(event);
