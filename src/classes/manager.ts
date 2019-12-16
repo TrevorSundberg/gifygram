@@ -34,6 +34,8 @@ export class Manager {
   private static finalizeElement (id: string, element: HTMLElement) {
     element.id = id;
     element.style.position = "absolute";
+    element.tabIndex = 0;
+    element.draggable = false;
     document.body.appendChild(element);
   }
 
@@ -67,7 +69,35 @@ export class Manager {
     const track: Track = {};
     this.timeline.tracks[`#${id}`] = track;
     this.timeline.updateTracks();
-    return new Widget(id, element);
+    const widget = new Widget(id, element);
+
+    element.addEventListener("mousedown", (event) => {
+      element.focus();
+      this.selection.moveable.dragStart(event);
+    }, true);
+    element.addEventListener("focus", () => {
+      this.selectWidget(widget);
+    });
+
+    element.addEventListener("blur", (event) => {
+      if (this.selection.element === event.target) {
+        this.selection.destroy();
+        this.selection = null;
+      }
+    });
+
+    return widget;
+  }
+
+  private selectWidget (widget: Widget) {
+    if (this.selection && this.selection.element === widget.element) {
+      return;
+    }
+    if (this.selection) {
+      this.selection.destroy();
+    }
+    this.selection = new Gizmo(widget.element);
+    this.selection.addEventListener("keyframe", () => this.onSelectionKeyframe());
   }
 
   public destroyWidget (widget: Widget) {
@@ -84,13 +114,5 @@ export class Manager {
       transform: Gizmo.getTransformCss(this.selection.getTransform())
     };
     this.timeline.updateTracks();
-  }
-
-  public selectElement (widget: Widget) {
-    if (this.selection) {
-      this.selection.destroy();
-    }
-    this.selection = new Gizmo(widget.element);
-    this.selection.addEventListener("keyframe", () => this.onSelectionKeyframe());
   }
 }
