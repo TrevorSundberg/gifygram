@@ -1,6 +1,5 @@
 import Moveable from "moveable";
-import polyfill from "css-typed-om";
-polyfill(window);
+import Unmatrix from "unmatrix";
 
 export interface Transform {
   rotate: number;
@@ -11,7 +10,7 @@ export interface Transform {
 export class Gizmo extends EventTarget {
   public readonly element: HTMLElement;
 
-  private moveable: Moveable;
+  public readonly moveable: Moveable;
 
   public constructor (element: HTMLElement) {
     super();
@@ -70,12 +69,13 @@ export class Gizmo extends EventTarget {
 
   public update () {
     this.moveable.updateTarget();
+    this.moveable.updateRect();
   }
 
   public static getTransformCss (state: Transform) {
     return `translate(${state.translate[0]}px, ${state.translate[1]}px) ` +
       `rotate(${state.rotate}deg) ` +
-      `scale(${state.scale[0]}, ${state.scale[1]}) `;
+      `scale(${state.scale[0]}, ${state.scale[1]})`;
   }
 
   public setTransform (state: Transform) {
@@ -83,39 +83,30 @@ export class Gizmo extends EventTarget {
   }
 
   public getTransform (): Transform {
-    const result: Transform = {
-      rotate: 0,
+    const transform = Unmatrix.getTransform(this.element);
+    if (!transform) {
+      return {
+        rotate: 0,
+        scale: [
+          1,
+          1
+        ],
+        translate: [
+          0,
+          0
+        ]
+      };
+    }
+    return {
+      rotate: transform.rotate,
       scale: [
-        1,
-        1
+        transform.scaleX,
+        transform.scaleY
       ],
       translate: [
-        0,
-        0
+        transform.translateX,
+        transform.translateY
       ]
     };
-
-    const {transform} = this.element.style;
-    if (transform) {
-      const transformValue = CSSStyleValue.parse("transform", transform);
-      if (transformValue instanceof CSSTransformValue) {
-        for (const component of transformValue) {
-          if (component instanceof CSSTranslate) {
-            result.translate = [
-              component.x.to("px").value,
-              component.y.to("px").value
-            ];
-          } else if (component instanceof CSSRotate) {
-            result.rotate = component.angle.to("deg").value;
-          } else if (component instanceof CSSScale) {
-            result.scale = [
-              component.x as number,
-              component.y as number
-            ];
-          }
-        }
-      }
-    }
-    return result;
   }
 }
