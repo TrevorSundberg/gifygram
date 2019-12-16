@@ -1,0 +1,50 @@
+DONE - Refactored into classes
+DONE - Make it so we can add sprites
+DONE - Need a data structure to keep track of all the sprites and the video
+DONE - Create editable text
+
+Remove focus highlight
+
+If we want media to work, we'll probably have to use mediajs
+ - Because the individual audio elements need to seek properly
+ - Need to set a delay I guess then
+ - Kinda sucks, I didn't want to have a separate interface for audio
+
+ - Make our own timeline for the video/scene
+   - Play/pause button
+   - Scrub timeline (capture mouse)
+
+ - Timeline view that lets us delete frames / seek to frames, even if it's minimal
+ - Create sound object
+ - Change text as we seek / animate
+ - Play sounds as we seek / animate
+ - Concept of a selection, which widget we last clicked on
+ - Savable and loadable format
+
+ - Import main video from disk
+ - Import sprite from disk
+ - Import sound from disk
+
+ - Hire animators and meme creators to create stupid meme content
+
+ - Facial recognition
+ - Motion tracking
+ - Green screening
+ - Sound from "text to speech"
+
+ - Import main video from giphy
+ - Import main video from youtube?
+ - Import sprite from giphy
+ - Import sound from some other sound service
+
+ - Draw video and sprites to canvas
+ - Encode canvas into video (mp4/webm)
+ - Encode canvas into gif
+
+ - Share on giphy, imgur, etc.
+
+cake.town
+turd.wtf
+fisfor.fun
+f-is-for.fun
+anim.wtf
