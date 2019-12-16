@@ -71,10 +71,12 @@ export class Manager {
     this.timeline.updateTracks();
     const widget = new Widget(id, element);
 
-    element.addEventListener("mousedown", (event) => {
+    const grabElement = (event) => {
       element.focus();
       this.selection.moveable.dragStart(event);
-    }, true);
+    };
+    element.addEventListener("mousedown", grabElement, true);
+    element.addEventListener("touchstart", grabElement, true);
     element.addEventListener("focus", () => {
       this.selectWidget(widget);
     });
