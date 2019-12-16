@@ -5,7 +5,7 @@ export interface Page {
 }
 
 export class App extends React.Component<Page, {}> {
-  render () {
+  public render () {
     return <div>
       <h1>Welcome to React with Typescript</h1>
       <p>The color of this page is: {this.props.color}</p>
