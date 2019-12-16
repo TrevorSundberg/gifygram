@@ -9,8 +9,6 @@ export class Manager {
 
   private timeline = new Timeline()
 
-  private elements: Record<string, HTMLElement> = {};
-
   private selection: Gizmo = null;
 
   private idCounter = 0;
@@ -66,11 +64,6 @@ export class Manager {
     const id = `id${this.idCounter++}`;
     const element = await createElement(id);
 
-    if (this.elements[id]) {
-      throw new Error(`Element already tracked by timeline: ${id}`);
-    }
-    this.elements[id] = element;
-
     const track: Track = {};
     this.timeline.tracks[`#${id}`] = track;
     this.timeline.updateTracks();
@@ -78,7 +71,7 @@ export class Manager {
   }
 
   public destroyWidget (widget: Widget) {
-    delete this.elements[widget.id];
+    widget.element.remove();
     delete this.timeline.tracks[`#${widget.id}`];
     this.timeline.updateTracks();
   }
