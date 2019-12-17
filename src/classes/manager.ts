@@ -33,7 +33,7 @@ export class Manager {
 
   private static finalizeElement (id: string, element: HTMLElement) {
     element.id = id;
-    element.style.position = "absolute";
+    element.className = "widget";
     element.tabIndex = 0;
     element.draggable = false;
     document.body.appendChild(element);

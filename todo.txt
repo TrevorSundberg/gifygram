@@ -2,8 +2,7 @@ DONE - Refactored into classes
 DONE - Make it so we can add sprites
 DONE - Need a data structure to keep track of all the sprites and the video
 DONE - Create editable text
-
-Remove focus highlight
+DONE - Remove focus highlight
 
 If we want media to work, we'll probably have to use mediajs
  - Because the individual audio elements need to seek properly
