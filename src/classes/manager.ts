@@ -1,8 +1,24 @@
-import {Timeline, Track} from "./timeline";
+import {Timeline, Track, Tracks} from "./timeline";
 import {Gizmo} from "./gizmo";
 import {Widget} from "./widget";
 
 export type ElementFactory = (id: string) => Promise<HTMLElement>;
+
+export interface WidgetImage {
+  type: "image";
+  src: string;
+}
+
+export interface WidgetText {
+  type: "text";
+}
+
+export type WidgetInit = WidgetImage | WidgetText;
+
+export interface SerializedData {
+  tracks: Tracks;
+  widgets: WidgetInit[];
+}
 
 export class Manager {
   private video: HTMLVideoElement;
@@ -18,6 +34,10 @@ export class Manager {
     this.update();
   }
 
+  private save () {
+    return 0;
+  }
+
   private update () {
     requestAnimationFrame(() => {
       this.update();
@@ -31,40 +51,37 @@ export class Manager {
     }
   }
 
-  private static finalizeElement (id: string, element: HTMLElement) {
+  public async addWidget (init: WidgetInit): Promise<Widget> {
+    const element = await (async () => {
+      switch (init.type) {
+        case "image":
+        {
+          const img = document.createElement("img");
+          img.src = init.src;
+          await new Promise((resolve) => {
+            img.onload = resolve;
+          });
+          return img;
+        }
+        case "text":
+        {
+          const div = document.createElement("div");
+          div.contentEditable = "true";
+          div.textContent = "Text";
+          document.body.appendChild(div);
+          return div;
+        }
+        default:
+          throw new Error("Invalid widget init type");
+      }
+    })();
+
+    const id = `id${this.idCounter++}`;
     element.id = id;
     element.className = "widget";
     element.tabIndex = 0;
     element.draggable = false;
     document.body.appendChild(element);
-  }
-
-  public static createImage (src: string): ElementFactory {
-    return async (id: string) => {
-      const element = document.createElement("img");
-      element.src = src;
-      await new Promise((resolve) => {
-        element.onload = resolve;
-      });
-      Manager.finalizeElement(id, element);
-      return element;
-    };
-  }
-
-  public static createText (): ElementFactory {
-    return async (id: string) => {
-      const element = document.createElement("div");
-      element.contentEditable = "true";
-      element.textContent = "Text";
-      document.body.appendChild(element);
-      Manager.finalizeElement(id, element);
-      return element;
-    };
-  }
-
-  public async addWidget (createElement: ElementFactory): Promise<Widget> {
-    const id = `id${this.idCounter++}`;
-    const element = await createElement(id);
 
     const track: Track = {};
     this.timeline.tracks[`#${id}`] = track;
