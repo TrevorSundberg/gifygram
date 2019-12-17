@@ -118,8 +118,8 @@ export class Manager {
     const {element} = this.selection;
     const track = this.timeline.tracks[`#${element.id}`];
     track[this.video.currentTime] = {
-      active: true,
-      transform: Gizmo.getTransformCss(this.selection.getTransform())
+      transform: Gizmo.getTransformCss(this.selection.getTransform()),
+      visibility: "visible"
     };
     this.timeline.updateTracks();
   }
