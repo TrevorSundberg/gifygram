@@ -14,6 +14,18 @@ module.exports = {
       {
         loader: "style-loader!css-loader",
         test: /\.css$/u
+      },
+      {
+        test: /\.png$/u,
+        use: [
+          {
+            loader: "url-loader",
+            options: {
+              limit: 4096,
+              name: "images/[hash]-[name].[ext]"
+            }
+          }
+        ]
       }
     ]
   },

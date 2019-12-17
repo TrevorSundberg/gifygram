@@ -3,7 +3,8 @@ const video = document.getElementById("video") as HTMLVideoElement;
 const timeline = new Manager(video);
 
 document.getElementById("sprite").addEventListener("click", async () => {
-  const src = "https://i.pinimg.com/originals/b2/76/af/b276af58ff041b951321765eec87ce29.png";
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const src = require("./public/sample.png").default;
   const widget = await timeline.addWidget(Manager.createImage(src));
   widget.element.focus();
 });
