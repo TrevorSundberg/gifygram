@@ -1,5 +1,4 @@
 import Moveable from "moveable";
-import Unmatrix from "unmatrix";
 
 export interface Transform {
   rotate: number;
@@ -72,41 +71,48 @@ export class Gizmo extends EventTarget {
     this.moveable.updateRect();
   }
 
-  public static getTransformCss (state: Transform) {
+  public static identityTransform (): Transform {
+    return {
+      rotate: 0,
+      scale: [
+        1,
+        1
+      ],
+      translate: [
+        0,
+        0
+      ]
+    };
+  }
+
+  public static transformToCss (state: Transform): string {
     return `translate(${state.translate[0]}px, ${state.translate[1]}px) ` +
       `rotate(${state.rotate}deg) ` +
       `scale(${state.scale[0]}, ${state.scale[1]})`;
   }
 
+  public static cssToTransform (css: string): Transform {
+    // eslint-disable-next-line max-len
+    const regex = /translate\((?<translateX>-?[0-9.]+)px, (?<translateY>-?[0-9.]+)px\) rotate\((?<rotate>-?[0-9.]+)deg\) scale\((?<scaleX>-?[0-9.]+), (?<scaleY>-?[0-9.]+)\)/u;
+    const result = regex.exec(css);
+    return {
+      rotate: parseFloat(result.groups.rotate),
+      scale: [
+        parseFloat(result.groups.scaleX),
+        parseFloat(result.groups.scaleY)
+      ],
+      translate: [
+        parseFloat(result.groups.translateX),
+        parseFloat(result.groups.translateY)
+      ]
+    };
+  }
+
   public setTransform (state: Transform) {
-    this.element.style.transform = Gizmo.getTransformCss(state);
+    this.element.style.transform = Gizmo.transformToCss(state);
   }
 
   public getTransform (): Transform {
-    const transform = Unmatrix.getTransform(this.element);
-    if (!transform) {
-      return {
-        rotate: 0,
-        scale: [
-          1,
-          1
-        ],
-        translate: [
-          0,
-          0
-        ]
-      };
-    }
-    return {
-      rotate: transform.rotate,
-      scale: [
-        transform.scaleX,
-        transform.scaleY
-      ],
-      translate: [
-        transform.translateX,
-        transform.translateY
-      ]
-    };
+    return Gizmo.cssToTransform(this.element.style.transform);
   }
 }

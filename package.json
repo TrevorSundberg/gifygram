@@ -36,7 +36,6 @@
     "scenejs": "^1.1.5",
     "style-loader": "^1.0.1",
     "typescript": "^3.7.3",
-    "unmatrix": "^1.0.6",
     "url-loader": "^3.0.0",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10",

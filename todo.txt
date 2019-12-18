@@ -4,11 +4,14 @@ DONE - Need a data structure to keep track of all the sprites and the video
 DONE - Create editable text
 DONE - Remove focus highlight
 DONE - Savable and loadable format
+DONE - Use a regex to parse the transform instead of a matrix, because it can't do multiple rotations!
 
  - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)
- - Use a regex to parse the transform instead of a matrix, because it can't do multiple rotations!
 We could attempt to use media scene, but then the problem will probably be that we are
 seeking the scene rather than playing it, so we'll have to play the scene simultaneously with the video
+
+Keyframe bug where it doesn't seek correctly
+ - Make a min repro and report it
 
 If we want media to work, we'll probably have to use mediajs
  - Because the individual audio elements need to seek properly

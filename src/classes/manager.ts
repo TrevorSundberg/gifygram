@@ -124,6 +124,7 @@ export class Manager {
     element.className = "widget";
     element.tabIndex = 0;
     element.draggable = false;
+    element.style.transform = Gizmo.transformToCss(Gizmo.identityTransform());
     document.body.appendChild(element);
 
     const track: Track = {};
@@ -200,7 +201,7 @@ export class Manager {
     const {element} = this.selection;
     const track = this.timeline.tracks[`#${element.id}`];
     track[this.video.currentTime] = {
-      transform: Gizmo.getTransformCss(this.selection.getTransform()),
+      transform: Gizmo.transformToCss(this.selection.getTransform()),
       visibility: "visible"
     };
     this.timeline.updateTracks();
