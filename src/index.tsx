@@ -13,3 +13,13 @@ document.getElementById("text").addEventListener("click", async () => {
   const widget = await timeline.addWidget({type: "text"});
   widget.element.focus();
 });
+
+const data = document.getElementById("data") as HTMLTextAreaElement;
+
+document.getElementById("save").addEventListener("click", async () => {
+  data.value = JSON.stringify(timeline.save());
+});
+
+document.getElementById("load").addEventListener("click", async () => {
+  timeline.load(JSON.parse(data.value));
+});

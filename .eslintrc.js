@@ -58,7 +58,8 @@ module.exports = {
     "no-sync": "off",
 
     "default-case": "off",
-    "no-undef": "off"
+    "no-undef": "off",
+    "max-classes-per-file": "off"
   },
   settings: {
     react: {

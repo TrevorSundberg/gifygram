@@ -16,7 +16,7 @@ export interface Tracks {
 export class Timeline {
   private scene: Scene;
 
-  public readonly tracks: Tracks = {};
+  public tracks: Tracks = {};
 
   private time = 0;
 
