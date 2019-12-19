@@ -1,4 +1,6 @@
 import {Manager} from "./classes/manager";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const html2canvas: typeof import("html2canvas").default = require("html2canvas");
 const video = document.getElementById("video") as HTMLVideoElement;
 const timeline = new Manager(video);
 
@@ -23,3 +25,10 @@ document.getElementById("save").addEventListener("click", async () => {
 document.getElementById("load").addEventListener("click", async () => {
   timeline.load(JSON.parse(data.value));
 });
+
+document.getElementById("screenshot").addEventListener("click", async () => {
+  html2canvas(document.body).then((canvas) => {
+    document.body.appendChild(canvas);
+  });
+});
+
