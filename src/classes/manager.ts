@@ -37,6 +37,8 @@ export class Widget {
 }
 
 export class Manager {
+  private container: HTMLDivElement;
+
   private video: HTMLVideoElement;
 
   private timeline = new Timeline()
@@ -47,9 +49,39 @@ export class Manager {
 
   private widgets: Widget[] = [];
 
-  public constructor (video: HTMLVideoElement) {
+  public constructor (container: HTMLDivElement, video: HTMLVideoElement) {
+    this.container = container;
     this.video = video;
     this.update();
+
+    const updateContainerSize = (scale: number) => {
+      container.style.width = `${video.videoWidth}px`;
+      container.style.height = `${video.videoHeight}px`;
+      container.style.transform = `translate(${0}px, ${0}px) scale(${scale})`;
+
+      const width = video.videoWidth * scale;
+      const height = video.videoHeight * scale;
+
+      container.style.left = `${(window.innerWidth - width) / 2}px`;
+      container.style.top = `${(window.innerHeight - height) / 2}px`;
+    };
+
+    const onResize = () => {
+      if (video.videoWidth === 0 || video.videoHeight === 0) {
+        return;
+      }
+      const videoAspect = video.videoWidth / video.videoHeight;
+      const windowAspect = window.innerWidth / window.innerHeight;
+
+      if (videoAspect > windowAspect) {
+        updateContainerSize(window.innerWidth / video.videoWidth);
+      } else {
+        updateContainerSize(window.innerHeight / video.videoHeight);
+      }
+    };
+    video.addEventListener("canplay", onResize);
+    window.addEventListener("resize", onResize);
+    onResize();
   }
 
   public save (): SerializedData {
@@ -104,7 +136,6 @@ export class Manager {
           const div = document.createElement("div");
           div.contentEditable = "true";
           div.textContent = "Text";
-          document.body.appendChild(div);
           return div;
         }
         default:
@@ -125,7 +156,7 @@ export class Manager {
     element.tabIndex = 0;
     element.draggable = false;
     element.style.transform = Gizmo.transformToCss(Gizmo.identityTransform());
-    document.body.appendChild(element);
+    this.container.appendChild(element);
 
     const track: Track = {};
     this.timeline.tracks[`#${id}`] = track;

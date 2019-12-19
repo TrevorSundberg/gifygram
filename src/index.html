@@ -7,22 +7,53 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Caketown</title>
   <style>
-    .widget {
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0px;
+      padding: 0px;
+      overflow: hidden;
+      background-color: black;
+      top: 0px;
+      left: 0px;
+    }
+
+    * {
       outline: none;
+    }
+
+    .widget {
       position: absolute;
       top: 0px;
       left: 0px;
+    }
+
+    #container {
+      position: absolute;
+      background-color: transparent;
+      top: 0px;
+      left: 0px;
+      transform-origin: top left;
+    }
+
+    #video {
+      width: 100%;
+      height: 100%;
     }
   </style>
 </head>
 
 <body>
-  <video id="video" src="http://techslides.com/demos/sample-videos/small.mp4" controls loop></video>
-  <input id="sprite" type="button" value="Sprite"/>
-  <input id="text" type="button" value="Text"/>
-  <input id="save" type="button" value="Save"/>
-  <input id="load" type="button" value="Load"/>
-  <input id="screenshot" type="button" value="Screenshot"/>
+  <div id="container">
+    <video id="video" src="https://www.sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4" controls
+      loop></video>
+  </div>
+  <input id="sprite" type="button" value="Sprite" />
+  <input id="text" type="button" value="Text" />
+  <input id="save" type="button" value="Save" />
+  <input id="load" type="button" value="Load" />
+  <input id="screenshot" type="button" value="Screenshot" />
   <textarea id="data"></textarea>
   <div id="root">
 

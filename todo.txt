@@ -5,9 +5,9 @@ DONE - Create editable text
 DONE - Remove focus highlight
 DONE - Savable and loadable format
 DONE - Use a regex to parse the transform instead of a matrix, because it can't do multiple rotations!
+DONE - Need to make the widgets as if they are inside the video, and need to scale the video to the min dimension of the screen
 
-Need to make the widgets as if they are inside the video, and need to scale the video to the min dimension of the screen
- - After this we can get canvas rendering because we know it's all consistent
+ - Get canvas rendering because we know it's all consistent
 
  - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)
 We could attempt to use media scene, but then the problem will probably be that we are
