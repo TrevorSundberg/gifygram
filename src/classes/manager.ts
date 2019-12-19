@@ -54,29 +54,28 @@ export class Manager {
     this.video = video;
     this.update();
 
-    const updateContainerSize = (scale: number) => {
-      container.style.width = `${video.videoWidth}px`;
-      container.style.height = `${video.videoHeight}px`;
+    const updateContainerSize = (videoWidth: number, videoHeight: number, scale: number) => {
+      container.style.width = `${videoWidth}px`;
+      container.style.height = `${videoHeight}px`;
       container.style.transform = `translate(${0}px, ${0}px) scale(${scale})`;
 
-      const width = video.videoWidth * scale;
-      const height = video.videoHeight * scale;
+      const width = videoWidth * scale;
+      const height = videoHeight * scale;
 
       container.style.left = `${(window.innerWidth - width) / 2}px`;
       container.style.top = `${(window.innerHeight - height) / 2}px`;
     };
 
     const onResize = () => {
-      if (video.videoWidth === 0 || video.videoHeight === 0) {
-        return;
-      }
-      const videoAspect = video.videoWidth / video.videoHeight;
+      const videoWidth = video.videoWidth || 1280;
+      const videoHeight = video.videoHeight || 720;
+      const videoAspect = videoWidth / videoHeight;
       const windowAspect = window.innerWidth / window.innerHeight;
 
       if (videoAspect > windowAspect) {
-        updateContainerSize(window.innerWidth / video.videoWidth);
+        updateContainerSize(videoWidth, videoHeight, window.innerWidth / videoWidth);
       } else {
-        updateContainerSize(window.innerHeight / video.videoHeight);
+        updateContainerSize(videoWidth, videoHeight, window.innerHeight / videoHeight);
       }
     };
     video.addEventListener("canplay", onResize);
