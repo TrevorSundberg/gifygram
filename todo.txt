@@ -6,8 +6,9 @@ DONE - Remove focus highlight
 DONE - Savable and loadable format
 DONE - Use a regex to parse the transform instead of a matrix, because it can't do multiple rotations!
 DONE - Need to make the widgets as if they are inside the video, and need to scale the video to the min dimension of the screen
+DONE - Code that copies a frame of the video so that the html2canvas code works
+DONE - Get canvas rendering because we know it's all consistent
 
- - Get canvas rendering because we know it's all consistent
  - Get the text working with the animations, maybe need an animation event again like we had before (set value)
 
  - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)

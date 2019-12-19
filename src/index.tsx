@@ -27,9 +27,17 @@ document.getElementById("load").addEventListener("click", async () => {
   timeline.load(JSON.parse(data.value));
 });
 
+const videoCanvas = document.createElement("canvas");
+const context = videoCanvas.getContext("2d");
+document.body.appendChild(videoCanvas);
 document.getElementById("screenshot").addEventListener("click", async () => {
-  html2canvas(document.body).then((canvas) => {
-    document.body.appendChild(canvas);
+  const width = video.videoWidth;
+  const height = video.videoHeight;
+  videoCanvas.width = width;
+  videoCanvas.height = height;
+  const canvasWithoutVideo = await html2canvas(container, {
+    backgroundColor: "rgba(0,0,0,0)"
   });
+  context.drawImage(video, 0, 0, width, height);
+  context.drawImage(canvasWithoutVideo, 0, 0, width, height);
 });
-
