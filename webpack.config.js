@@ -16,13 +16,13 @@ module.exports = {
         test: /\.css$/u
       },
       {
-        test: /\.png$/u,
+        test: /\.png$|\.mp4$/u,
         use: [
           {
             loader: "url-loader",
             options: {
               limit: 4096,
-              name: "images/[hash]-[name].[ext]"
+              name: "public/[hash]-[name].[ext]"
             }
           }
         ]
