@@ -8,6 +8,7 @@ DONE - Use a regex to parse the transform instead of a matrix, because it can't 
 DONE - Need to make the widgets as if they are inside the video, and need to scale the video to the min dimension of the screen
 
  - Get canvas rendering because we know it's all consistent
+ - Get the text working with the animations, maybe need an animation event again like we had before (set value)
 
  - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)
 We could attempt to use media scene, but then the problem will probably be that we are
