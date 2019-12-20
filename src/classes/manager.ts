@@ -1,5 +1,7 @@
 import {Timeline, TimelineEvent, Track, Tracks} from "./timeline";
 import {Gizmo} from "./gizmo";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const uuidv4: typeof import("uuid/v4") = require("uuid/v4");
 
 export type ElementFactory = (id: string) => Promise<HTMLElement>;
 
@@ -150,7 +152,7 @@ export class Manager {
     })();
 
     if (!init.id) {
-      init.id = `id${this.idCounter++}`;
+      init.id = `id-${uuidv4()}`;
     }
     const {id} = init;
     if (this.timeline.tracks[`#${id}`]) {

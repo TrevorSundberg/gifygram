@@ -9,10 +9,7 @@ DONE - Need to make the widgets as if they are inside the video, and need to sca
 DONE - Code that copies a frame of the video so that the html2canvas code works
 DONE - Get canvas rendering because we know it's all consistent
 DONE - Get the text working with the animations, maybe need an animation event again like we had before (set value)
-
-Bug where we can't create new elements after loading (id conflict)
- - use a guid for ids or something
-
+DONE - Bug where we can't create new elements after loading (id conflict) use a guid for ids or something
 
  - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)
 We could attempt to use media scene, but then the problem will probably be that we are
