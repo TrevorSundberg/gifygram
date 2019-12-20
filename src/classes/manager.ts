@@ -1,4 +1,4 @@
-import {Timeline, Track, Tracks} from "./timeline";
+import {Timeline, TimelineEvent, Track, Tracks} from "./timeline";
 import {Gizmo} from "./gizmo";
 
 export type ElementFactory = (id: string) => Promise<HTMLElement>;
@@ -135,6 +135,13 @@ export class Manager {
           const div = document.createElement("div");
           div.contentEditable = "true";
           div.textContent = "Text";
+          div.addEventListener("frame", (event: TimelineEvent) => {
+            const text = event.frame.get("text") || "";
+            div.textContent = text;
+          });
+          div.addEventListener("input", () => {
+            this.keyframe(div);
+          });
           return div;
         }
         default:
@@ -207,7 +214,7 @@ export class Manager {
     }
     if (widget) {
       this.selection = new Gizmo(widget.element);
-      this.selection.addEventListener("keyframe", () => this.onSelectionKeyframe());
+      this.selection.addEventListener("keyframe", () => this.keyframe(this.selection.element));
     }
   }
 
@@ -227,11 +234,11 @@ export class Manager {
     }
   }
 
-  private onSelectionKeyframe () {
-    const {element} = this.selection;
+  private keyframe (element: HTMLElement) {
     const track = this.timeline.tracks[`#${element.id}`];
     track[this.video.currentTime] = {
-      transform: Gizmo.transformToCss(this.selection.getTransform()),
+      text: element.textContent,
+      transform: Gizmo.transformToCss(Gizmo.getTransform(element)),
       visibility: "visible"
     };
     this.timeline.updateTracks();

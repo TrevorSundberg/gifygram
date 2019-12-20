@@ -1,7 +1,8 @@
-import Scene from "scenejs";
+import Scene, {Frame} from "scenejs";
 
 export interface Keyframe {
   transform: string;
+  text: string;
   visibility: "hidden" | "visible";
 }
 
@@ -11,6 +12,15 @@ export interface Track {
 
 export interface Tracks {
   [selector: string]: Track;
+}
+
+export class TimelineEvent extends Event {
+  public readonly frame: Frame;
+
+  public constructor (type: string, frame: Frame) {
+    super(type);
+    this.frame = frame;
+  }
 }
 
 export class Timeline {
@@ -24,6 +34,16 @@ export class Timeline {
     this.scene = new Scene(this.tracks, {
       easing: "linear",
       selector: true
+    });
+    this.scene.on("animate", (event) => {
+      // eslint-disable-next-line guard-for-in
+      for (const selector in event.frames) {
+        const frame: Frame = event.frames[selector];
+        const element = document.querySelector(selector);
+        if (element) {
+          element.dispatchEvent(new TimelineEvent("frame", frame));
+        }
+      }
     });
   }
 

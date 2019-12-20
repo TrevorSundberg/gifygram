@@ -108,11 +108,19 @@ export class Gizmo extends EventTarget {
     };
   }
 
+  public static setTransform (element: HTMLElement, state: Transform) {
+    element.style.transform = Gizmo.transformToCss(state);
+  }
+
+  public static getTransform (element: HTMLElement): Transform {
+    return Gizmo.cssToTransform(element.style.transform);
+  }
+
   public setTransform (state: Transform) {
-    this.element.style.transform = Gizmo.transformToCss(state);
+    Gizmo.setTransform(this.element, state);
   }
 
   public getTransform (): Transform {
-    return Gizmo.cssToTransform(this.element.style.transform);
+    return Gizmo.getTransform(this.element);
   }
 }
