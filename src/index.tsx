@@ -1,4 +1,5 @@
 import {Manager} from "./classes/manager";
+import {createWorker} from "@ffmpeg/ffmpeg";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const html2canvas: typeof import("html2canvas").default = require("html2canvas");
 const video = document.getElementById("video") as HTMLVideoElement;
@@ -27,6 +28,28 @@ document.getElementById("load").addEventListener("click", async () => {
   timeline.load(JSON.parse(data.value));
 });
 
+const canvasToArrayBuffer = async (canvas: HTMLCanvasElement, mimeType: string) => {
+  let resolver: (buffer: ArrayBuffer) => void = null;
+  const promise = new Promise<ArrayBuffer>((resolve) => {
+    resolver = resolve;
+  });
+  canvas.toBlob((blob) => {
+    const reader = new FileReader();
+    reader.addEventListener("loadend", () => {
+      resolver(reader.result as ArrayBuffer);
+    });
+    reader.readAsArrayBuffer(blob);
+  }, mimeType);
+  return promise;
+};
+
+const download = (url: string, filename: string) => {
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename || "download";
+  anchor.click();
+};
+
 const videoCanvas = document.createElement("canvas");
 const context = videoCanvas.getContext("2d");
 document.body.appendChild(videoCanvas);
@@ -40,4 +63,19 @@ document.getElementById("screenshot").addEventListener("click", async () => {
   });
   context.drawImage(video, 0, 0, width, height);
   context.drawImage(canvasWithoutVideo, 0, 0, width, height);
+  const buffer = await canvasToArrayBuffer(videoCanvas, "image/png");
+  const worker = createWorker({
+    logger: (message) => console.log(message)
+  });
+  await worker.load();
+  await worker.write("test.png", new Uint8Array(buffer));
+  await worker.run("-i /data/test.png output.mp4", {
+    output: "output.mp4"
+  });
+  const output = (await worker.read("output.mp4")).data;
+  const blob = new Blob([output], {
+    type: "video/mp4"
+  });
+  download(URL.createObjectURL(blob), "output.mp4");
+  console.log(output);
 });
