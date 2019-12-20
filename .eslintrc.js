@@ -59,7 +59,8 @@ module.exports = {
 
     "default-case": "off",
     "no-undef": "off",
-    "max-classes-per-file": "off"
+    "max-classes-per-file": "off",
+    "prefer-named-capture-group": "off"
   },
   settings: {
     react: {
