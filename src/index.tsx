@@ -1,3 +1,5 @@
+import "bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
 import {Manager} from "./classes/manager";
 import {createWorker} from "@ffmpeg/ffmpeg";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
