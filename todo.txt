@@ -10,6 +10,14 @@ DONE - Code that copies a frame of the video so that the html2canvas code works
 DONE - Get canvas rendering because we know it's all consistent
 DONE - Get the text working with the animations, maybe need an animation event again like we had before (set value)
 DONE - Bug where we can't create new elements after loading (id conflict) use a guid for ids or something
+DONE - Concept of a selection, which widget we last clicked on
+DONE - Draw video and sprites to canvas
+DONE - Choose a framerate and play through each image, saving each into a png
+DONE - Encode canvas into video (mp4/webm)
+
+ - Make the ui more functional (icons, right top aligned, responsive to size changes, etc.)
+ - Timeline view that lets us delete frames / seek to frames, even if it's minimal
+ - Button to hide/show sprites on specific frames (show as transparent while editing)
 
  - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)
 We could attempt to use media scene, but then the problem will probably be that we are
@@ -27,11 +35,8 @@ If we want media to work, we'll probably have to use mediajs
    - Play/pause button
    - Scrub timeline (capture mouse)
 
- - Timeline view that lets us delete frames / seek to frames, even if it's minimal
  - Create sound object
- - Change text as we seek / animate
  - Play sounds as we seek / animate
- - Concept of a selection, which widget we last clicked on
 
  - Import main video from disk
  - Import sprite from disk
@@ -49,8 +54,6 @@ If we want media to work, we'll probably have to use mediajs
  - Import sprite from giphy
  - Import sound from some other sound service
 
- - Draw video and sprites to canvas
- - Encode canvas into video (mp4/webm)
  - Encode canvas into gif
 
  - Share on giphy, imgur, etc.

@@ -54,8 +54,29 @@ const download = (url: string, filename: string) => {
 
 const videoCanvas = document.createElement("canvas");
 const context = videoCanvas.getContext("2d");
-document.body.appendChild(videoCanvas);
-document.getElementById("screenshot").addEventListener("click", async () => {
+
+const workerPromise = (async () => {
+  const worker = createWorker({
+    logger: (message) => console.log(message)
+  });
+  await worker.load();
+  return worker;
+})();
+
+const frameRate = 1 / 30;
+let recording = false;
+let frame = 0;
+document.getElementById("record").addEventListener("click", async () => {
+  video.pause();
+  video.currentTime = 0;
+  recording = true;
+});
+
+video.addEventListener("seeked", async () => {
+  if (!recording) {
+    return;
+  }
+  const worker = await workerPromise;
   const width = video.videoWidth;
   const height = video.videoHeight;
   videoCanvas.width = width;
@@ -66,18 +87,20 @@ document.getElementById("screenshot").addEventListener("click", async () => {
   context.drawImage(video, 0, 0, width, height);
   context.drawImage(canvasWithoutVideo, 0, 0, width, height);
   const buffer = await canvasToArrayBuffer(videoCanvas, "image/png");
-  const worker = createWorker({
-    logger: (message) => console.log(message)
-  });
-  await worker.load();
-  await worker.write("test.png", new Uint8Array(buffer));
-  await worker.run("-i /data/test.png output.mp4", {
-    output: "output.mp4"
-  });
-  const output = (await worker.read("output.mp4")).data;
-  const blob = new Blob([output], {
-    type: "video/mp4"
-  });
-  download(URL.createObjectURL(blob), "output.mp4");
-  console.log(output);
+  await worker.write(`frame${frame}.png`, new Uint8Array(buffer));
+  ++frame;
+
+  if (video.currentTime + frameRate > video.duration) {
+    await worker.run("-i /data/frame%d.png output.mp4", {
+      output: "output.mp4"
+    });
+    const output = (await worker.read("output.mp4")).data;
+    const blob = new Blob([output], {
+      type: "video/mp4"
+    });
+    download(URL.createObjectURL(blob), "output.mp4");
+  } else {
+    // eslint-disable-next-line require-atomic-updates
+    video.currentTime += frameRate;
+  }
 });
