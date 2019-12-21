@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
 
 module.exports = {
   devtool: "source-map",
@@ -39,7 +40,8 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: "./src/index.html"
-    })
+    }),
+    new FaviconsWebpackPlugin("./src/public/sample.png")
   ],
   resolve: {
     extensions: [
