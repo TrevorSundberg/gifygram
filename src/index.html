@@ -46,6 +46,9 @@
       position: absolute;
       top: 0px;
       right: 0px;
+      /* Fix a bug in Chrome with the video drawing over sometimes */
+      transform: translateZ(0);
+      z-index: 1;
     }
 
     .button {
