@@ -83,6 +83,14 @@ export class Manager {
     video.addEventListener("canplay", onResize);
     window.addEventListener("resize", onResize);
     onResize();
+
+    const onUpdate = () => {
+      requestAnimationFrame(onUpdate);
+      window.dispatchEvent(new Event("update"));
+    };
+    onUpdate();
+
+    window.addEventListener("update", () => this.update());
   }
 
   public save (): SerializedData {
@@ -108,9 +116,6 @@ export class Manager {
   }
 
   private update () {
-    requestAnimationFrame(() => {
-      this.update();
-    });
     const {currentTime} = this.video;
     if (this.timeline.getTime() !== currentTime) {
       this.timeline.setTime(currentTime);

@@ -65,7 +65,7 @@ export class VideoPlayer {
       const interpolant = this.video.currentTime / this.video.duration;
       this.position.style.width = `${interpolant * 100}%`;
     };
-    setInterval(updatePosition, 0);
+    window.addEventListener("update", updatePosition);
 
     const updateTimelineFromPoint = (event: Point) => {
       const rect = this.timeline.getBoundingClientRect();
