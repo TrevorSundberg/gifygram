@@ -7,7 +7,7 @@
 .videoControlsContainer {
   background-color: red;
   position: absolute;
-  height: 5%;
+  height: 10%;
   bottom: 0px;
   left: 0px;
   right: 0px;
@@ -21,7 +21,7 @@
   position: absolute;
   left: 0px;
   height: 100%;
-  width: 5%;
+  width: 10%;
 }
 
 .videoTimeline {
@@ -29,7 +29,7 @@
   position: absolute;
   right: 0px;
   height: 100%;
-  width: 95%;
+  width: 90%;
 }
 
 .videoPosition {
