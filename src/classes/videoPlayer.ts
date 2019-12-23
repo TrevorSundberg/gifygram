@@ -13,6 +13,8 @@ export class VideoPlayer {
 
   private timeline: HTMLDivElement;
 
+  private readonly markers: HTMLDivElement[] = [];
+
   public constructor (container: HTMLDivElement) {
     this.container = container;
 
@@ -77,5 +79,20 @@ export class VideoPlayer {
       this.timeline.removeEventListener("pointermove", onPointerMove);
       updateTimelineFromPointer(event);
     });
+  }
+
+  public setMarkers (markerTimes: number[]) {
+    for (const marker of this.markers) {
+      marker.remove();
+    }
+    this.markers.length = 0;
+
+    for (const markerTime of markerTimes) {
+      const marker = document.createElement("div");
+      this.timeline.appendChild(marker);
+      marker.className = "videoMarker";
+      marker.style.left = `${markerTime * 100}%`;
+      this.markers.push(marker);
+    }
   }
 }
