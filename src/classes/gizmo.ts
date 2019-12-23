@@ -92,18 +92,25 @@ export class Gizmo extends EventTarget {
   }
 
   public static cssToTransform (css: string): Transform {
-    // eslint-disable-next-line max-len
-    const regex = /translate\(([-+0-9.e]+)px, ([-+0-9.e]+)px\) rotate\(([-+0-9.e]+)deg\) scale\(([-+0-9.e]+), ([-+0-9.e]+)\)/u;
-    const result = regex.exec(css);
+    const parsed: Record<string, number[]> = {};
+    const regex = /([a-z]+)\(([^)]+)\)/ug;
+    for (;;) {
+      const result = regex.exec(css);
+      if (!result) {
+        break;
+      }
+      const numbers = result[2].split(",").map((str) => parseFloat(str.trim()));
+      parsed[result[1]] = numbers;
+    }
     return {
-      rotate: parseFloat(result[3]),
+      rotate: parsed.rotate[0],
       scale: [
-        parseFloat(result[4]),
-        parseFloat(result[5])
+        parsed.scale[0],
+        parsed.scale[1] || parsed.scale[0]
       ],
       translate: [
-        parseFloat(result[1]),
-        parseFloat(result[2])
+        parsed.translate[0],
+        parsed.translate[1] || 0
       ]
     };
   }
