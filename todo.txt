@@ -15,6 +15,8 @@ DONE - Draw video and sprites to canvas
 DONE - Choose a framerate and play through each image, saving each into a png
 DONE - Encode canvas into video (mp4/webm)
 
+ - Touch does not capture on timeline (mobile)
+ - Can't scale and rotate on mobile easily (both fingers need to be on sprite)
  - Make the ui more functional (icons, right top aligned, responsive to size changes, etc.)
  - Timeline view that lets us delete frames / seek to frames, even if it's minimal
  - Button to hide/show sprites on specific frames (show as transparent while editing)
