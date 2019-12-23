@@ -91,6 +91,7 @@ video.addEventListener("seeked", async () => {
   ++frame;
 
   if (video.currentTime + frameRate > video.duration) {
+    recording = false;
     await worker.run("-i /data/frame%d.png output.mp4", {
       output: "output.mp4"
     });
@@ -100,7 +101,6 @@ video.addEventListener("seeked", async () => {
     });
     download(URL.createObjectURL(blob), "output.mp4");
   } else {
-    // eslint-disable-next-line require-atomic-updates
     video.currentTime += frameRate;
   }
 });

@@ -60,7 +60,8 @@ module.exports = {
     "default-case": "off",
     "no-undef": "off",
     "max-classes-per-file": "off",
-    "prefer-named-capture-group": "off"
+    "prefer-named-capture-group": "off",
+    "require-atomic-updates": "off"
   },
   settings: {
     react: {
