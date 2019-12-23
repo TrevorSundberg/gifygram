@@ -1,12 +1,13 @@
 import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {Manager} from "./classes/manager";
+import {VideoPlayer} from "./classes/videoPlayer";
 import {createWorker} from "@ffmpeg/ffmpeg";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const html2canvas: typeof import("html2canvas").default = require("html2canvas");
-const video = document.getElementById("video") as HTMLVideoElement;
 const container = document.getElementById("container") as HTMLDivElement;
-const timeline = new Manager(container, video);
+const player = new VideoPlayer(container);
+const timeline = new Manager(container, player.video);
 
 document.getElementById("sprite").addEventListener("click", async () => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -67,30 +68,30 @@ const frameRate = 1 / 30;
 let recording = false;
 let frame = 0;
 document.getElementById("record").addEventListener("click", async () => {
-  video.pause();
-  video.currentTime = 0;
+  player.video.pause();
+  player.video.currentTime = 0;
   recording = true;
 });
 
-video.addEventListener("seeked", async () => {
+player.video.addEventListener("seeked", async () => {
   if (!recording) {
     return;
   }
   const worker = await workerPromise;
-  const width = video.videoWidth;
-  const height = video.videoHeight;
+  const width = player.video.videoWidth;
+  const height = player.video.videoHeight;
   videoCanvas.width = width;
   videoCanvas.height = height;
   const canvasWithoutVideo = await html2canvas(container, {
     backgroundColor: "rgba(0,0,0,0)"
   });
-  context.drawImage(video, 0, 0, width, height);
+  context.drawImage(player.video, 0, 0, width, height);
   context.drawImage(canvasWithoutVideo, 0, 0, width, height);
   const buffer = await canvasToArrayBuffer(videoCanvas, "image/png");
   await worker.write(`frame${frame}.png`, new Uint8Array(buffer));
   ++frame;
 
-  if (video.currentTime + frameRate > video.duration) {
+  if (player.video.currentTime + frameRate > player.video.duration) {
     recording = false;
     await worker.run("-i /data/frame%d.png output.mp4", {
       output: "output.mp4"
@@ -101,6 +102,6 @@ video.addEventListener("seeked", async () => {
     });
     download(URL.createObjectURL(blob), "output.mp4");
   } else {
-    video.currentTime += frameRate;
+    player.video.currentTime += frameRate;
   }
 });

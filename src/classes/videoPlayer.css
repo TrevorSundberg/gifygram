@@ -1,0 +1,40 @@
+.videoPlayer {
+  background-size: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.videoControlsContainer {
+  background-color: red;
+  position: absolute;
+  height: 5%;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  opacity: 0.5;
+  /* Fix a bug in Chrome with the video drawing over sometimes */
+  transform: translateZ(0);
+}
+
+.videoPlayPauseButton {
+  background-color: green;
+  position: absolute;
+  left: 0px;
+  height: 100%;
+  width: 5%;
+}
+
+.videoTimeline {
+  background-color: blue;
+  position: absolute;
+  right: 0px;
+  height: 100%;
+  width: 95%;
+}
+
+.videoPosition {
+  background-color: yellow;
+  position: absolute;
+  left: 0px;
+  height: 100%;
+}

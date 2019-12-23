@@ -38,19 +38,11 @@
       transform-origin: top left;
       overflow: hidden;
     }
-
-    #video {
-      background-size: cover;
-      width: 100%;
-      height: 100%;
-    }
   </style>
 </head>
 
 <body>
   <div id="container">
-    <video id="video" crossorigin="anonymous" src="<%=require('./public/sample.mp4').default%>" controls
-      loop></video>
   </div>
   <input id="sprite" type="button" value="Sprite" />
   <input id="text" type="button" value="Text" />
