@@ -38,7 +38,7 @@ export class VideoPlayer {
 
     this.playPauseButton = document.createElement("div");
     this.controlsContainer.appendChild(this.playPauseButton);
-    this.playPauseButton.className = "videoPlayPauseButton fas fa-play";
+    this.playPauseButton.className = "videoPlayPauseButton button fas fa-play";
 
     this.playPauseButton.addEventListener("click", () => {
       if (this.video.paused) {
