@@ -21,7 +21,8 @@ export class VideoPlayer {
     this.video.className = "videoPlayer";
     this.video.loop = true;
     this.video.muted = true;
-    this.video.addEventListener("contextmenu", () => false);
+    (this.video as any).disableRemotePlayback = true;
+    this.video.oncontextmenu = () => false;
     this.video.src = require("../public/sample.mp4").default;
 
     this.controlsContainer = document.createElement("div");
