@@ -93,7 +93,7 @@ export class Gizmo extends EventTarget {
 
   public static cssToTransform (css: string): Transform {
     // eslint-disable-next-line max-len
-    const regex = /translate\((-?[0-9.]+)px, (-?[0-9.]+)px\) rotate\((-?[0-9.]+)deg\) scale\((-?[0-9.]+), (-?[0-9.]+)\)/u;
+    const regex = /translate\(([-+0-9.e]+)px, ([-+0-9.e]+)px\) rotate\(([-+0-9.e]+)deg\) scale\(([-+0-9.e]+), ([-+0-9.e]+)\)/u;
     const result = regex.exec(css);
     return {
       rotate: parseFloat(result[3]),
