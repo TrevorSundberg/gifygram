@@ -57,7 +57,7 @@ export class VideoPlayer {
     const updateTimelineFromPointer = (event: PointerEvent) => {
       const rect = this.timeline.getBoundingClientRect();
       const left = event.clientX - rect.left;
-      const interpolant = left / rect.width;
+      const interpolant = Math.min(left / rect.width, 0.9999);
       this.video.currentTime = this.video.duration * interpolant;
       updatePosition();
     };
