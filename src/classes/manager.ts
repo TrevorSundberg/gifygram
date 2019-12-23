@@ -186,6 +186,7 @@ export class Manager {
     element.addEventListener("touchstart", grabElement, true);
     element.addEventListener("focus", () => {
       this.selectWidget(widget);
+      this.container.scrollTo(0, 0);
     });
     element.addEventListener("blur", () => {
       if (this.isSelected(widget)) {
