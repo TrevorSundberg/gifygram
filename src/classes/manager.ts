@@ -101,7 +101,7 @@ export class Manager {
     }
     this.timeline.tracks = data.tracks;
     this.timeline.updateTracks();
-    // Force a chance so everything updates
+    // Force a change so everything updates
     this.timeline.setTime(1);
     this.timeline.setTime(0);
     this.video.currentTime = 0;
