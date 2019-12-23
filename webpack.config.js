@@ -33,6 +33,11 @@ module.exports = {
       }
     ]
   },
+  optimization: {
+    splitChunks: {
+      chunks: "all"
+    }
+  },
   output: {
     filename: "bundle.min.js",
     path: path.join(
