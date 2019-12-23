@@ -47,8 +47,6 @@ export class Manager {
 
   private selection: Gizmo = null;
 
-  private idCounter = 0;
-
   private widgets: Widget[] = [];
 
   public constructor (container: HTMLDivElement, video: HTMLVideoElement) {
