@@ -2,7 +2,6 @@ import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {Manager} from "./classes/manager";
 import {VideoPlayer} from "./classes/videoPlayer";
-import {createWorker} from "@ffmpeg/ffmpeg";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const html2canvas: typeof import("html2canvas").default = require("html2canvas");
 const container = document.getElementById("container") as HTMLDivElement;
@@ -57,6 +56,7 @@ const videoCanvas = document.createElement("canvas");
 const context = videoCanvas.getContext("2d");
 
 const workerPromise = (async () => {
+  const {createWorker} = await import("@ffmpeg/ffmpeg");
   const worker = createWorker({
     logger: (message) => console.log(message)
   });
