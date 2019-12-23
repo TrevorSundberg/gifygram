@@ -1,5 +1,10 @@
 import "./videoPlayer.css";
 
+interface Point {
+  clientX: number;
+  clientY: number;
+}
+
 export class VideoPlayer {
   private container: HTMLDivElement;
 
@@ -57,7 +62,7 @@ export class VideoPlayer {
     };
     setInterval(updatePosition, 0);
 
-    const updateTimelineFromPointer = (event: PointerEvent) => {
+    const updateTimelineFromPoint = (event: Point) => {
       const rect = this.timeline.getBoundingClientRect();
       const left = event.clientX - rect.left;
       const interpolant = Math.min(left / rect.width, 0.9999);
@@ -65,19 +70,25 @@ export class VideoPlayer {
       updatePosition();
     };
 
-    const onPointerMove = (event: PointerEvent) => {
-      updateTimelineFromPointer(event);
+    const onTouchMove = (event: TouchEvent) => {
+      updateTimelineFromPoint(event.touches[0]);
     };
+    this.timeline.addEventListener("touchstart", onTouchMove);
+    this.timeline.addEventListener("touchmove", onTouchMove);
+    this.timeline.addEventListener("touchend", onTouchMove);
 
+    const onPointerMove = (event: PointerEvent) => {
+      updateTimelineFromPoint(event);
+    };
     this.timeline.addEventListener("pointerdown", (event) => {
       this.timeline.setPointerCapture(event.pointerId);
       this.timeline.addEventListener("pointermove", onPointerMove);
-      updateTimelineFromPointer(event);
+      updateTimelineFromPoint(event);
     });
     this.timeline.addEventListener("pointerup", (event) => {
       this.timeline.releasePointerCapture(event.pointerId);
       this.timeline.removeEventListener("pointermove", onPointerMove);
-      updateTimelineFromPointer(event);
+      updateTimelineFromPoint(event);
     });
   }
 
