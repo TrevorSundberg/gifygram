@@ -4,6 +4,9 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
 
 module.exports = {
+  devServer: {
+    host: "0.0.0.0"
+  },
   devtool: "source-map",
   entry: "./src/index.tsx",
   module: {
