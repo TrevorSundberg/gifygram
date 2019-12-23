@@ -38,7 +38,19 @@ export class VideoPlayer {
 
     this.playPauseButton = document.createElement("div");
     this.controlsContainer.appendChild(this.playPauseButton);
-    this.playPauseButton.className = "videoPlayPauseButton";
+    this.playPauseButton.className = "videoPlayPauseButton fas fa-play";
+
+    this.playPauseButton.addEventListener("click", () => {
+      if (this.video.paused) {
+        this.video.play();
+        this.playPauseButton.classList.remove("fa-play");
+        this.playPauseButton.classList.add("fa-pause");
+      } else {
+        this.video.pause();
+        this.playPauseButton.classList.remove("fa-pause");
+        this.playPauseButton.classList.add("fa-play");
+      }
+    });
 
     this.timeline = document.createElement("div");
     this.controlsContainer.appendChild(this.timeline);
@@ -48,13 +60,6 @@ export class VideoPlayer {
     this.timeline.appendChild(this.position);
     this.position.className = "videoPosition";
 
-    this.playPauseButton.addEventListener("click", () => {
-      if (this.video.paused) {
-        this.video.play();
-      } else {
-        this.video.pause();
-      }
-    });
 
     const updatePosition = () => {
       const interpolant = this.video.currentTime / this.video.duration;
