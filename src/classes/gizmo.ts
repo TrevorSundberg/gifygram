@@ -88,7 +88,9 @@ export class Gizmo extends EventTarget {
   public static transformToCss (state: Transform): string {
     return `translate(${state.translate[0]}px, ${state.translate[1]}px) ` +
       `rotate(${state.rotate}deg) ` +
-      `scale(${state.scale[0]}, ${state.scale[1]})`;
+      `scale(${state.scale[0]}, ${state.scale[1]}) ` +
+      // Fix a bug in Chrome where widgets were dissapearing
+      "translateZ(0px)";
   }
 
   public static cssToTransform (css: string): Transform {
