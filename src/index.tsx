@@ -1,6 +1,7 @@
 import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {Manager} from "./classes/manager";
+import {Modal} from "./classes/modal";
 import {VideoPlayer} from "./classes/videoPlayer";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const html2canvas: typeof import("html2canvas").default = require("html2canvas");
@@ -68,6 +69,7 @@ const frameRate = 1 / 30;
 let recording = false;
 let frame = 0;
 document.getElementById("record").addEventListener("click", async () => {
+  new Modal();
   player.video.pause();
   player.video.currentTime = 0;
   recording = true;

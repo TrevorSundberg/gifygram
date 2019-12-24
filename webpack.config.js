@@ -12,7 +12,11 @@ module.exports = {
   module: {
     rules: [
       {
-        loader: "awesome-typescript-loader",
+        loader: "raw-loader",
+        test: /\.html$/u
+      },
+      {
+        loader: "ts-loader",
         test: /\.tsx?$/u
       },
       {

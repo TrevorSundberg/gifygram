@@ -16,13 +16,16 @@ DONE - Choose a framerate and play through each image, saving each into a png
 DONE - Encode canvas into video (mp4/webm)
 DONE - Touch does not capture on timeline (mobile)
 DONE - Make the ui more functional (icons, right top aligned, responsive to size changes, etc.)
+DONE - Get it built on travis-ci
+DONE - Get it deployed to github pages
 
+ - Move video controls and buttons to another div that doesn't get captured with html2canvas
+ - Add modal for saving and loading
+ - Add modal for rendering animation
+ - Add cancel button for modals that take time
  - Timeline view that lets us delete frames / seek to frames, even if it's minimal
  - Can't scale and rotate on mobile easily (both fingers need to be on sprite)
  - Button to hide/show sprites on specific frames (show as transparent while editing)
- - Move video controls and buttons to another div that doesn't get captured with html2canvas
- - Get it built on travis-ci
- - Get it deployed to github pages
 
  - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)
 We could attempt to use media scene, but then the problem will probably be that we are
