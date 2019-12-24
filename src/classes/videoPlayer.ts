@@ -78,9 +78,13 @@ export class VideoPlayer {
     const onTouchMove = (event: TouchEvent) => {
       updateTimelineFromPoint(event.touches[0]);
     };
-    this.timeline.addEventListener("touchstart", onTouchMove);
-    this.timeline.addEventListener("touchmove", onTouchMove);
-    this.timeline.addEventListener("touchend", onTouchMove);
+    this.timeline.addEventListener("touchstart", (event) => {
+      this.timeline.addEventListener("touchmove", onTouchMove);
+      onTouchMove(event);
+    });
+    this.timeline.addEventListener("touchend", () => {
+      this.timeline.removeEventListener("touchmove", onTouchMove);
+    });
 
     const onPointerMove = (event: PointerEvent) => {
       updateTimelineFromPoint(event);
@@ -88,12 +92,11 @@ export class VideoPlayer {
     this.timeline.addEventListener("pointerdown", (event) => {
       this.timeline.setPointerCapture(event.pointerId);
       this.timeline.addEventListener("pointermove", onPointerMove);
-      updateTimelineFromPoint(event);
+      onPointerMove(event);
     });
     this.timeline.addEventListener("pointerup", (event) => {
       this.timeline.releasePointerCapture(event.pointerId);
       this.timeline.removeEventListener("pointermove", onPointerMove);
-      updateTimelineFromPoint(event);
     });
   }
 
