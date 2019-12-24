@@ -43,6 +43,6 @@
   background-color: red;
   position: absolute;
   width: 1px;
-  border: 5px solid red;
+  outline: 5px solid red;
   height: 100%;
 }

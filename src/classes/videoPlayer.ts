@@ -107,7 +107,8 @@ export class VideoPlayer {
       const marker = document.createElement("div");
       this.timeline.appendChild(marker);
       marker.className = "videoMarker";
-      marker.style.left = `${markerTime * 100}%`;
+      const interpolant = markerTime / this.video.duration;
+      marker.style.left = `${interpolant * 100}%`;
       this.markers.push(marker);
     }
   }

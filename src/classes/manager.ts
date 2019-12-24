@@ -1,5 +1,6 @@
 import {Timeline, TimelineEvent, Track, Tracks} from "./timeline";
 import {Gizmo} from "./gizmo";
+import {VideoPlayer} from "./videoPlayer";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const uuidv4: typeof import("uuid/v4") = require("uuid/v4");
 
@@ -41,7 +42,7 @@ export class Widget {
 export class Manager {
   private container: HTMLDivElement;
 
-  private video: HTMLVideoElement;
+  private videoPlayer: VideoPlayer;
 
   private timeline = new Timeline()
 
@@ -49,9 +50,9 @@ export class Manager {
 
   private widgets: Widget[] = [];
 
-  public constructor (container: HTMLDivElement, video: HTMLVideoElement) {
+  public constructor (container: HTMLDivElement, videoPlayer: VideoPlayer) {
     this.container = container;
-    this.video = video;
+    this.videoPlayer = videoPlayer;
     this.update();
 
     const updateContainerSize = (videoWidth: number, videoHeight: number, scale: number) => {
@@ -67,8 +68,8 @@ export class Manager {
     };
 
     const onResize = () => {
-      const videoWidth = video.videoWidth || 1280;
-      const videoHeight = video.videoHeight || 720;
+      const videoWidth = videoPlayer.video.videoWidth || 1280;
+      const videoHeight = videoPlayer.video.videoHeight || 720;
       const videoAspect = videoWidth / videoHeight;
       const windowAspect = window.innerWidth / window.innerHeight;
 
@@ -78,7 +79,7 @@ export class Manager {
         updateContainerSize(videoWidth, videoHeight, window.innerHeight / videoHeight);
       }
     };
-    video.addEventListener("canplay", onResize);
+    videoPlayer.video.addEventListener("canplay", onResize);
     window.addEventListener("resize", onResize);
     onResize();
 
@@ -94,27 +95,37 @@ export class Manager {
   public save (): SerializedData {
     return {
       tracks: JSON.parse(JSON.stringify(this.timeline.tracks)),
-      videoSrc: this.video.src,
+      videoSrc: this.videoPlayer.video.src,
       widgets: this.widgets.map((widget) => JSON.parse(JSON.stringify(widget.init)))
     };
   }
 
+  public updateTracks () {
+    this.timeline.updateTracks();
+    if (this.selection) {
+      const track = this.timeline.tracks[`#${this.selection.element.id}`];
+      this.videoPlayer.setMarkers(Object.keys(track).map((str) => parseFloat(str)));
+    } else {
+      this.videoPlayer.setMarkers([]);
+    }
+  }
+
   public async load (data: SerializedData) {
-    this.video.src = data.videoSrc;
+    this.videoPlayer.video.src = data.videoSrc;
     this.clearWidgets();
     for (const init of data.widgets) {
       await this.addWidget(init);
     }
     this.timeline.tracks = data.tracks;
-    this.timeline.updateTracks();
+    this.updateTracks();
     // Force a change so everything updates
     this.timeline.setTime(1);
     this.timeline.setTime(0);
-    this.video.currentTime = 0;
+    this.videoPlayer.video.currentTime = 0;
   }
 
   private update () {
-    const {currentTime} = this.video;
+    const {currentTime} = this.videoPlayer.video;
     if (this.timeline.getTime() !== currentTime) {
       this.timeline.setTime(currentTime);
     }
@@ -171,7 +182,7 @@ export class Manager {
 
     const track: Track = {};
     this.timeline.tracks[`#${id}`] = track;
-    this.timeline.updateTracks();
+    this.updateTracks();
     const widget = new Widget(element, init);
     this.widgets.push(widget);
 
@@ -230,7 +241,7 @@ export class Manager {
     }
     widget.element.remove();
     delete this.timeline.tracks[`#${widget.init.id}`];
-    this.timeline.updateTracks();
+    this.updateTracks();
     this.widgets.splice(this.widgets.indexOf(widget), 1);
   }
 
@@ -242,11 +253,11 @@ export class Manager {
 
   private keyframe (element: HTMLElement) {
     const track = this.timeline.tracks[`#${element.id}`];
-    track[this.video.currentTime] = {
+    track[this.videoPlayer.video.currentTime] = {
       text: element.textContent,
       transform: Gizmo.transformToCss(Gizmo.getTransform(element)),
       visibility: "visible"
     };
-    this.timeline.updateTracks();
+    this.updateTracks();
   }
 }

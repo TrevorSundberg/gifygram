@@ -6,7 +6,7 @@ import {VideoPlayer} from "./classes/videoPlayer";
 const html2canvas: typeof import("html2canvas").default = require("html2canvas");
 const container = document.getElementById("container") as HTMLDivElement;
 const player = new VideoPlayer(container);
-const timeline = new Manager(container, player.video);
+const timeline = new Manager(container, player);
 
 document.getElementById("sprite").addEventListener("click", async () => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
