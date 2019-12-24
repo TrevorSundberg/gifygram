@@ -69,7 +69,7 @@ const frameRate = 1 / 30;
 let recording = false;
 let frame = 0;
 document.getElementById("record").addEventListener("click", async () => {
-  new Modal();
+  new Modal([{isClose: true, name: "Cancel"}], "Waiting for rendering");
   player.video.pause();
   player.video.currentTime = 0;
   recording = true;
