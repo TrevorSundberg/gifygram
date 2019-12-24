@@ -51,7 +51,8 @@ module.exports = {
     }),
     new FaviconsWebpackPlugin({
       logo: "./src/public/sample.png",
-      publicPath: "./"
+      prefix: "assets",
+      publicPath: "/caketown"
     })
   ],
   resolve: {
