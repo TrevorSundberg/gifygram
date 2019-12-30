@@ -6,8 +6,9 @@ import {VideoPlayer} from "./classes/videoPlayer";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const html2canvas: typeof import("html2canvas").default = require("html2canvas");
 const container = document.getElementById("container") as HTMLDivElement;
+const widgetContainer = document.getElementById("widgets") as HTMLDivElement;
 const player = new VideoPlayer(container);
-const timeline = new Manager(container, player);
+const timeline = new Manager(container, widgetContainer, player);
 
 document.getElementById("sprite").addEventListener("click", async () => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -84,7 +85,7 @@ player.video.addEventListener("seeked", async () => {
   const height = player.video.videoHeight;
   videoCanvas.width = width;
   videoCanvas.height = height;
-  const canvasWithoutVideo = await html2canvas(container, {
+  const canvasWithoutVideo = await html2canvas(widgetContainer, {
     backgroundColor: "rgba(0,0,0,0)"
   });
   context.drawImage(player.video, 0, 0, width, height);

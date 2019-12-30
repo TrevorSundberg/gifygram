@@ -42,6 +42,8 @@ export class Widget {
 export class Manager {
   private container: HTMLDivElement;
 
+  private widgetContainer: HTMLDivElement;
+
   private videoPlayer: VideoPlayer;
 
   private timeline = new Timeline()
@@ -50,8 +52,9 @@ export class Manager {
 
   private widgets: Widget[] = [];
 
-  public constructor (container: HTMLDivElement, videoPlayer: VideoPlayer) {
+  public constructor (container: HTMLDivElement, widgetContainer: HTMLDivElement, videoPlayer: VideoPlayer) {
     this.container = container;
+    this.widgetContainer = widgetContainer;
     this.videoPlayer = videoPlayer;
     this.update();
 
@@ -178,7 +181,7 @@ export class Manager {
     element.tabIndex = 0;
     element.draggable = false;
     element.style.transform = Gizmo.transformToCss(Gizmo.identityTransform());
-    this.container.appendChild(element);
+    this.widgetContainer.appendChild(element);
 
     const track: Track = {};
     this.timeline.tracks[`#${id}`] = track;
