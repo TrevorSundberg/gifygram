@@ -5,16 +5,34 @@ interface FfmpegWorker {
   run(command: string, {output: string});
 }
 
-export class VideoEncoder {
+interface FfmpegProgress {
+  ratio: number;
+}
+
+export class VideoProgressEvent extends Event {
+  public progress: number;
+
+  public constructor () {
+    super("progress");
+  }
+}
+
+export class VideoEncoder extends EventTarget {
   private workerPromise: Promise<FfmpegWorker>;
 
   private frame = 0;
 
   public constructor () {
+    super();
     this.workerPromise = (async () => {
       const {createWorker} = await import("@ffmpeg/ffmpeg");
       const worker: FfmpegWorker = createWorker({
-        logger: (message) => console.log(message)
+        logger: (message) => console.log(message),
+        progress: (progress: FfmpegProgress) => {
+          const toSend = new VideoProgressEvent();
+          toSend.progress = progress.ratio;
+          this.dispatchEvent(toSend);
+        }
       });
       await worker.load();
       return worker;

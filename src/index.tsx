@@ -1,10 +1,10 @@
 import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {RenderFrameEvent, Renderer} from "./classes/renderer";
+import {VideoEncoder, VideoProgressEvent} from "./classes/videoEncoder";
 import {Manager} from "./classes/manager";
 import {Modal} from "./classes/modal";
 import {ModalProgress} from "./classes/modalProgress";
-import {VideoEncoder} from "./classes/videoEncoder";
 import {VideoPlayer} from "./classes/videoPlayer";
 import $ = require("jquery");
 const container = document.getElementById("container") as HTMLDivElement;
@@ -66,21 +66,26 @@ const renderer = new Renderer(widgetContainer, player, 1 / 30);
 
 document.getElementById("record").addEventListener("click", async () => {
   const modal = new ModalProgress();
-  modal.open("Rendering", $(), [
+  modal.open("Rendering & Encoding", $(), [
     {
       callback: () => renderer.cancel(),
       name: "Cancel"
     }
   ]);
-  const onFrame = async (event: RenderFrameEvent) => {
+  const onRenderFrame = async (event: RenderFrameEvent) => {
     const frame = await videoEncoder.addFrame(event.pngData);
-    modal.setProgress(event.progress, `Frame: ${frame}`);
+    modal.setProgress(event.progress, `Rendering Frame: ${frame}`);
   };
-  renderer.addEventListener("frame", onFrame);
+  const onVideoEncoderProgress = (event: VideoProgressEvent) => {
+    modal.setProgress(event.progress, "Encoding");
+  };
+  videoEncoder.addEventListener("progress", onVideoEncoderProgress);
+  renderer.addEventListener("frame", onRenderFrame);
   if (await renderer.render()) {
     const blob = await videoEncoder.encode();
     download(URL.createObjectURL(blob), "output.mp4");
   }
   modal.hide();
-  renderer.removeEventListener("frame", onFrame);
+  videoEncoder.removeEventListener("progress", onVideoEncoderProgress);
+  renderer.removeEventListener("frame", onRenderFrame);
 });
