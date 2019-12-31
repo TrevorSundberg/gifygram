@@ -22,9 +22,9 @@ DONE - Move video controls and buttons to another div that doesn't get captured 
 DONE - Add modal for saving and loading
 DONE - Add modal for rendering animation
 DONE - Install font-awesome locally instead of using a CDN
-DONE  - Rendering of widgets seems to be slightly off in encoded video...
+DONE - Rendering of widgets seems to be slightly off in encoded video...
+DONE - Widget already exists bug
 
- - Widget already exists bug
  - CORS error because videoSrc has full path (https)
  - Add cancel button for modals that take time
  - Encode ffmpeg at the same time that we screenshot the frames

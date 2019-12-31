@@ -250,7 +250,7 @@ export class Manager {
 
   public clearWidgets () {
     while (this.widgets.length !== 0) {
-      this.destroyWidget(this.widgets.pop());
+      this.destroyWidget(this.widgets[0]);
     }
   }
 
