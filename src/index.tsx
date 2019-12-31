@@ -1,11 +1,10 @@
 import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import {RenderFrameEvent, Renderer} from "./classes/renderer";
 import {Manager} from "./classes/manager";
 import {Modal} from "./classes/modal";
 import {VideoEncoder} from "./classes/videoEncoder";
 import {VideoPlayer} from "./classes/videoPlayer";
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const html2canvas: typeof import("html2canvas").default = require("html2canvas");
 const container = document.getElementById("container") as HTMLDivElement;
 const widgetContainer = document.getElementById("widgets") as HTMLDivElement;
 const player = new VideoPlayer(container);
@@ -33,21 +32,6 @@ document.getElementById("load").addEventListener("click", async () => {
   timeline.load(JSON.parse(data.value));
 });
 
-const canvasToArrayBuffer = async (canvas: HTMLCanvasElement, mimeType: string) => {
-  let resolver: (buffer: ArrayBuffer) => void = null;
-  const promise = new Promise<ArrayBuffer>((resolve) => {
-    resolver = resolve;
-  });
-  canvas.toBlob((blob) => {
-    const reader = new FileReader();
-    reader.addEventListener("loadend", () => {
-      resolver(reader.result as ArrayBuffer);
-    });
-    reader.readAsArrayBuffer(blob);
-  }, mimeType);
-  return promise;
-};
-
 const download = (url: string, filename: string) => {
   const anchor = document.createElement("a");
   anchor.href = url;
@@ -55,40 +39,16 @@ const download = (url: string, filename: string) => {
   anchor.click();
 };
 
-const videoCanvas = document.createElement("canvas");
-const context = videoCanvas.getContext("2d");
-
-const frameRate = 1 / 30;
-let recording = false;
 const videoEncoder = new VideoEncoder();
+const renderer = new Renderer(widgetContainer, player, 1 / 30);
+renderer.addEventListener("frame", (event: RenderFrameEvent) => {
+  videoEncoder.addFrame(event.pngData);
+});
+
 document.getElementById("record").addEventListener("click", async () => {
   new Modal([{isClose: true, name: "Cancel"}], "Waiting for rendering");
   videoEncoder.reset();
-  player.video.pause();
-  player.video.currentTime = 0;
-  recording = true;
-});
-
-player.video.addEventListener("seeked", async () => {
-  if (!recording) {
-    return;
-  }
-  const width = player.video.videoWidth;
-  const height = player.video.videoHeight;
-  videoCanvas.width = width;
-  videoCanvas.height = height;
-  const canvasWithoutVideo = await html2canvas(widgetContainer, {
-    backgroundColor: "rgba(0,0,0,0)"
-  });
-  context.drawImage(player.video, 0, 0, width, height);
-  context.drawImage(canvasWithoutVideo, 0, 0, width, height);
-  const buffer = await canvasToArrayBuffer(videoCanvas, "image/png");
-  videoEncoder.addFrame(buffer);
-  if (player.video.currentTime + frameRate > player.video.duration) {
-    recording = false;
-    const blob = await videoEncoder.encode();
-    download(URL.createObjectURL(blob), "output.mp4");
-  } else {
-    player.video.currentTime += frameRate;
-  }
+  await renderer.render();
+  const blob = await videoEncoder.encode();
+  download(URL.createObjectURL(blob), "output.mp4");
 });
