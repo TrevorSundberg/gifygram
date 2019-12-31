@@ -22,6 +22,8 @@ export class VideoEncoder extends EventTarget {
 
   private frame = 0;
 
+  private chain = Promise.resolve<any>(null);
+
   public constructor () {
     super();
     this.workerPromise = (async () => {
@@ -40,20 +42,28 @@ export class VideoEncoder extends EventTarget {
   }
 
   public async addFrame (pngData: ArrayBuffer): Promise<number> {
-    const worker = await this.workerPromise;
-    await worker.write(`frame${this.frame}.png`, new Uint8Array(pngData));
-    return this.frame++;
+    const result = this.chain.then(async () => {
+      const worker = await this.workerPromise;
+      await worker.write(`frame${this.frame}.png`, new Uint8Array(pngData));
+      return this.frame++;
+    });
+    this.chain = result;
+    return result;
   }
 
   public async encode () {
-    this.frame = 0;
-    const worker = await this.workerPromise;
-    await worker.run("-i /data/frame%d.png output.mp4", {
-      output: "output.mp4"
+    const result = this.chain.then(async () => {
+      this.frame = 0;
+      const worker = await this.workerPromise;
+      await worker.run("-i /data/frame%d.png output.mp4", {
+        output: "output.mp4"
+      });
+      const output = (await worker.read("output.mp4")).data;
+      return new Blob([output], {
+        type: "video/mp4"
+      });
     });
-    const output = (await worker.read("output.mp4")).data;
-    return new Blob([output], {
-      type: "video/mp4"
-    });
+    this.chain = result;
+    return result;
   }
 }
