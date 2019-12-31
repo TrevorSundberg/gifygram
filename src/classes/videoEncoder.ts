@@ -21,10 +21,10 @@ export class VideoEncoder {
     })();
   }
 
-  public async addFrame (pngData: ArrayBuffer) {
+  public async addFrame (pngData: ArrayBuffer): Promise<number> {
     const worker = await this.workerPromise;
     await worker.write(`frame${this.frame}.png`, new Uint8Array(pngData));
-    ++this.frame;
+    return this.frame++;
   }
 
   public async encode () {

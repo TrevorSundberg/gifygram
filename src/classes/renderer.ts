@@ -7,9 +7,10 @@ const html2canvas: typeof import("html2canvas").default = require("html2canvas")
 export class RenderFrameEvent extends Event {
   public pngData: ArrayBuffer;
 
-  public constructor (type: string, pngData: ArrayBuffer) {
-    super(type);
-    this.pngData = pngData;
+  public progress: number;
+
+  public constructor () {
+    super("frame");
   }
 }
 
@@ -68,7 +69,10 @@ export class Renderer extends EventTarget {
       this.context.drawImage(this.player.video, 0, 0, width, height);
       this.context.drawImage(canvasWithoutVideo, 0, 0, width, height);
       const pngData = await Renderer.canvasToArrayBuffer(this.canvas, "image/png");
-      this.dispatchEvent(new RenderFrameEvent("frame", pngData));
+      const toSend = new RenderFrameEvent();
+      toSend.pngData = pngData;
+      toSend.progress = this.player.video.currentTime / this.player.video.duration;
+      this.dispatchEvent(toSend);
       if (this.player.video.currentTime + this.frameRate > this.player.video.duration) {
         defer.resolve(true);
       } else {

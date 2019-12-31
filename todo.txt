@@ -19,9 +19,9 @@ DONE - Make the ui more functional (icons, right top aligned, responsive to size
 DONE - Get it built on travis-ci
 DONE - Get it deployed to github pages
 DONE - Move video controls and buttons to another div that doesn't get captured with html2canvas
+DONE - Add modal for saving and loading
+DONE - Add modal for rendering animation
 
- - Add modal for saving and loading
- - Add modal for rendering animation
  - Add cancel button for modals that take time
  - Encode ffmpeg at the same time that we screenshot the frames
  - Timeline view that lets us delete frames / seek to frames, even if it's minimal
