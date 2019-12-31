@@ -63,9 +63,20 @@ export class Renderer extends EventTarget {
       const height = this.player.video.videoHeight;
       this.canvas.width = width;
       this.canvas.height = height;
-      const canvasWithoutVideo = await html2canvas(this.widgetContainer, {
-        backgroundColor: "rgba(0,0,0,0)"
+      // Only using widgetContainer is incorrect due to parent transform (can't use display: none here either).
+      const clone = this.widgetContainer.cloneNode(true) as HTMLDivElement;
+      clone.style.position = "relative";
+      clone.style.top = `${window.innerHeight}px`;
+      clone.style.left = "0px";
+      document.body.append(clone);
+      const canvasWithoutVideo = await html2canvas(clone, {
+        backgroundColor: "rgba(0,0,0,0)",
+        height,
+        width,
+        windowHeight: height,
+        windowWidth: width
       });
+      clone.remove();
       this.context.drawImage(this.player.video, 0, 0, width, height);
       this.context.drawImage(canvasWithoutVideo, 0, 0, width, height);
       const pngData = await Renderer.canvasToArrayBuffer(this.canvas, "image/png");
