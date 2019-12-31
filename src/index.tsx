@@ -50,7 +50,7 @@ document.getElementById("load").addEventListener("click", async () => {
     {name: "Load"}
   ]);
   if (!result.isClose) {
-    timeline.load(JSON.parse(textArea.val() as string || "{}"));
+    timeline.load(JSON.parse(textArea.val() as string));
   }
 });
 
