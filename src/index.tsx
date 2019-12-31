@@ -28,7 +28,7 @@ document.getElementById("text").addEventListener("click", async () => {
 
 document.getElementById("save").addEventListener("click", async () => {
   const value = JSON.stringify(timeline.save());
-  const textArea = $("<textarea></textarea>");
+  const textArea = $("<textarea autofocus></textarea>");
   textArea.addClass("md-textarea");
   textArea.addClass("form-control");
   textArea.val(value);
@@ -40,7 +40,7 @@ document.getElementById("save").addEventListener("click", async () => {
 
 document.getElementById("load").addEventListener("click", async () => {
   const value = JSON.stringify(timeline.save());
-  const textArea = $("<textarea></textarea>");
+  const textArea = $("<textarea autofocus></textarea>");
   textArea.addClass("md-textarea");
   textArea.addClass("form-control");
   textArea.val(value);
