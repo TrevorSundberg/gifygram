@@ -3,10 +3,14 @@ import $ = require("jquery");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const modalHtml = require("./modal.html").default;
 
+export type ModalCallback = (button: ModalButton) => void;
+
 export interface ModalButton {
   name: string;
 
   isClose?: boolean;
+
+  callback?: ModalCallback;
 }
 
 export class Modal {
@@ -29,6 +33,9 @@ export class Modal {
       if (button.isClose) {
         buttonQuery.attr("data-dismiss", "modal");
       }
+      ((currentButton: ModalButton) => {
+        buttonQuery.one("click", () => button.callback(currentButton));
+      })(button);
       footer.append(buttonQuery);
     }
     const body = this.modalJquery.find(".modal-body");
