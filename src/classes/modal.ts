@@ -17,9 +17,10 @@ export interface ModalButton {
 export class Modal {
   private root: JQuery;
 
-  public async open (content: string | JQuery, buttons: ModalButton[]): Promise<ModalButton> {
-    const closeButton = buttons.find((button) => button.isClose);
+  public async open (title: string, content: string | JQuery, buttons: ModalButton[]): Promise<ModalButton> {
     this.root = $(modalHtml);
+    this.root.find("#modalTitle").text(title);
+    const closeButton = buttons.find((button) => button.isClose);
     if (!closeButton) {
       this.root.find(".close").remove();
     }

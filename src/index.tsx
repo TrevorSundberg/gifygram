@@ -32,7 +32,7 @@ document.getElementById("save").addEventListener("click", async () => {
   const div = $("<div>Copy the save data from below:</div>");
   div.append(textArea);
   const modal = new Modal();
-  modal.open(div, [{isClose: true, name: "OK"}]);
+  modal.open("Save", div, [{isClose: true, name: "OK"}]);
 });
 
 document.getElementById("load").addEventListener("click", async () => {
@@ -44,7 +44,7 @@ document.getElementById("load").addEventListener("click", async () => {
   const div = $("<div>Paste saved data into the text area and click Load:</div>");
   div.append(textArea);
   const modal = new Modal();
-  const result = await modal.open(div, [
+  const result = await modal.open("Load", div, [
     {isClose: true, name: "Cancel"},
     {name: "Load"}
   ]);
@@ -68,7 +68,7 @@ renderer.addEventListener("frame", (event: RenderFrameEvent) => {
 
 document.getElementById("record").addEventListener("click", async () => {
   const modal = new Modal();
-  modal.open("Waiting for rendering", [
+  modal.open("Rendering", "Waiting for rendering", [
     {
       callback: () => renderer.cancel(),
       name: "Cancel"
