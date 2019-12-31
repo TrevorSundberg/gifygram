@@ -58,6 +58,8 @@ export class Modal {
   }
 
   public hide () {
-    this.root.modal("hide");
+    if (this.root) {
+      this.root.modal("hide");
+    }
   }
 }
