@@ -39,11 +39,9 @@ document.getElementById("save").addEventListener("click", async () => {
 });
 
 document.getElementById("load").addEventListener("click", async () => {
-  const value = JSON.stringify(timeline.save());
   const textArea = $("<textarea autofocus></textarea>");
   textArea.addClass("md-textarea");
   textArea.addClass("form-control");
-  textArea.val(value);
   const div = $("<div>Paste saved data into the text area and click Load:</div>");
   div.append(textArea);
   const modal = new Modal();
