@@ -24,6 +24,8 @@ export class Renderer extends EventTarget {
 
   private context: CanvasRenderingContext2D;
 
+  private isCancelled = false;
+
   public constructor (widgetContainer: HTMLDivElement, player: VideoPlayer, frameRate: number) {
     super();
     this.widgetContainer = widgetContainer;
@@ -46,11 +48,16 @@ export class Renderer extends EventTarget {
     return defer;
   }
 
-  public async render () {
+  public async render (): Promise<boolean> {
+    this.isCancelled = false;
     this.player.video.pause();
-    const defer = new Deferred<void>();
+    const defer = new Deferred<boolean>();
 
     const onSeek = async () => {
+      if (this.isCancelled) {
+        defer.resolve(false);
+        return;
+      }
       const width = this.player.video.videoWidth;
       const height = this.player.video.videoHeight;
       this.canvas.width = width;
@@ -63,14 +70,20 @@ export class Renderer extends EventTarget {
       const pngData = await Renderer.canvasToArrayBuffer(this.canvas, "image/png");
       this.dispatchEvent(new RenderFrameEvent("frame", pngData));
       if (this.player.video.currentTime + this.frameRate > this.player.video.duration) {
-        defer.resolve();
+        defer.resolve(true);
       } else {
         this.player.video.currentTime += this.frameRate;
       }
     };
     this.player.video.addEventListener("seeked", onSeek);
     this.player.video.currentTime = 0;
-    await defer;
+    const result = await defer;
     this.player.video.removeEventListener("seeked", onSeek);
+    this.isCancelled = false;
+    return result;
+  }
+
+  public cancel () {
+    this.isCancelled = true;
   }
 }

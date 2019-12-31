@@ -17,7 +17,7 @@ export interface ModalButton {
 export class Modal {
   private modalJquery: JQuery;
 
-  public async open (buttons: ModalButton[], bodyText: string): Promise<ModalButton> {
+  public async open (bodyText: string, buttons: ModalButton[]): Promise<ModalButton> {
     const closeButton = buttons.find((button) => button.isClose);
     this.modalJquery = $(modalHtml);
     if (!closeButton) {

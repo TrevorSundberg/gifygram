@@ -47,10 +47,15 @@ renderer.addEventListener("frame", (event: RenderFrameEvent) => {
 
 document.getElementById("record").addEventListener("click", async () => {
   const modal = new Modal();
-  modal.open([{name: "Cancel"}], "Waiting for rendering");
-  videoEncoder.reset();
-  await renderer.render();
-  const blob = await videoEncoder.encode();
-  download(URL.createObjectURL(blob), "output.mp4");
+  modal.open("Waiting for rendering", [
+    {
+      callback: () => renderer.cancel(),
+      name: "Cancel"
+    }
+  ]);
+  if (await renderer.render()) {
+    const blob = await videoEncoder.encode();
+    download(URL.createObjectURL(blob), "output.mp4");
+  }
   modal.hide();
 });

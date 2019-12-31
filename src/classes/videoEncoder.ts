@@ -21,10 +21,6 @@ export class VideoEncoder {
     })();
   }
 
-  public reset () {
-    this.frame = 0;
-  }
-
   public async addFrame (pngData: ArrayBuffer) {
     const worker = await this.workerPromise;
     await worker.write(`frame${this.frame}.png`, new Uint8Array(pngData));
@@ -32,6 +28,7 @@ export class VideoEncoder {
   }
 
   public async encode () {
+    this.frame = 0;
     const worker = await this.workerPromise;
     await worker.run("-i /data/frame%d.png output.mp4", {
       output: "output.mp4"
