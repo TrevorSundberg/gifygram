@@ -1,3 +1,4 @@
+import {Deferred} from "./utility";
 import {VideoPlayer} from "./videoPlayer";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -34,26 +35,20 @@ export class Renderer extends EventTarget {
   }
 
   private static async canvasToArrayBuffer (canvas: HTMLCanvasElement, mimeType: string) {
-    let resolver: (buffer: ArrayBuffer) => void = null;
-    const promise = new Promise<ArrayBuffer>((resolve) => {
-      resolver = resolve;
-    });
+    const defer = new Deferred<ArrayBuffer>();
     canvas.toBlob((blob) => {
       const reader = new FileReader();
       reader.addEventListener("loadend", () => {
-        resolver(reader.result as ArrayBuffer);
+        defer.resolve(reader.result as ArrayBuffer);
       });
       reader.readAsArrayBuffer(blob);
     }, mimeType);
-    return promise;
+    return defer;
   }
 
   public async render () {
     this.player.video.pause();
-    let resolver: (value?: unknown) => void = null;
-    const promise = new Promise((resolve) => {
-      resolver = resolve;
-    });
+    const defer = new Deferred<void>();
 
     const onSeek = async () => {
       const width = this.player.video.videoWidth;
@@ -68,14 +63,14 @@ export class Renderer extends EventTarget {
       const pngData = await Renderer.canvasToArrayBuffer(this.canvas, "image/png");
       this.dispatchEvent(new RenderFrameEvent("frame", pngData));
       if (this.player.video.currentTime + this.frameRate > this.player.video.duration) {
-        resolver();
+        defer.resolve();
       } else {
         this.player.video.currentTime += this.frameRate;
       }
     };
     this.player.video.addEventListener("seeked", onSeek);
     this.player.video.currentTime = 0;
-    await promise;
+    await defer;
     this.player.video.removeEventListener("seeked", onSeek);
   }
 }
