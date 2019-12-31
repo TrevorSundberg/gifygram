@@ -15,16 +15,16 @@ export interface ModalButton {
 }
 
 export class Modal {
-  private modalJquery: JQuery;
+  private root: JQuery;
 
-  public async open (bodyText: string, buttons: ModalButton[]): Promise<ModalButton> {
+  public async open (content: string | JQuery, buttons: ModalButton[]): Promise<ModalButton> {
     const closeButton = buttons.find((button) => button.isClose);
-    this.modalJquery = $(modalHtml);
+    this.root = $(modalHtml);
     if (!closeButton) {
-      this.modalJquery.find(".close").remove();
+      this.root.find(".close").remove();
     }
     const defer = new Deferred<ModalButton>();
-    const footer = this.modalJquery.find(".modal-footer");
+    const footer = this.root.find(".modal-footer");
     for (const button of buttons) {
       const buttonQuery = $("<button type=\"button\" class=\"btn btn-secondary\" data-dismiss=\"modal\"></button>");
       buttonQuery.text(button.name);
@@ -38,21 +38,25 @@ export class Modal {
       })(button);
       footer.append(buttonQuery);
     }
-    this.modalJquery.modal({
+    this.root.modal({
       backdrop: closeButton ? true : "static",
       show: true
     });
-    const body = this.modalJquery.find(".modal-body");
-    body.text(bodyText);
-    this.modalJquery.one("hidden.bs.modal", () => {
+    const body = this.root.find(".modal-body");
+    if (typeof content === "string") {
+      body.text(content);
+    } else {
+      body.append(content);
+    }
+    this.root.one("hidden.bs.modal", () => {
       defer.resolve(closeButton);
-      this.modalJquery.remove();
-      this.modalJquery = null;
+      this.root.remove();
+      this.root = null;
     });
     return defer;
   }
 
   public hide () {
-    this.modalJquery.modal("hide");
+    this.root.modal("hide");
   }
 }

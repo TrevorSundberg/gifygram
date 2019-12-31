@@ -5,6 +5,7 @@ import {Manager} from "./classes/manager";
 import {Modal} from "./classes/modal";
 import {VideoEncoder} from "./classes/videoEncoder";
 import {VideoPlayer} from "./classes/videoPlayer";
+import $ = require("jquery");
 const container = document.getElementById("container") as HTMLDivElement;
 const widgetContainer = document.getElementById("widgets") as HTMLDivElement;
 const player = new VideoPlayer(container);
@@ -22,14 +23,34 @@ document.getElementById("text").addEventListener("click", async () => {
   widget.element.focus();
 });
 
-const data = document.getElementById("data") as HTMLTextAreaElement;
-
 document.getElementById("save").addEventListener("click", async () => {
-  data.value = JSON.stringify(timeline.save());
+  const value = JSON.stringify(timeline.save());
+  const textArea = $("<textarea></textarea>");
+  textArea.addClass("md-textarea");
+  textArea.addClass("form-control");
+  textArea.val(value);
+  const div = $("<div>Copy the save data from below:</div>");
+  div.append(textArea);
+  const modal = new Modal();
+  modal.open(div, [{isClose: true, name: "OK"}]);
 });
 
 document.getElementById("load").addEventListener("click", async () => {
-  timeline.load(JSON.parse(data.value));
+  const value = JSON.stringify(timeline.save());
+  const textArea = $("<textarea></textarea>");
+  textArea.addClass("md-textarea");
+  textArea.addClass("form-control");
+  textArea.val(value);
+  const div = $("<div>Paste saved data into the text area and click Load:</div>");
+  div.append(textArea);
+  const modal = new Modal();
+  const result = await modal.open(div, [
+    {isClose: true, name: "Cancel"},
+    {name: "Load"}
+  ]);
+  if (!result.isClose) {
+    timeline.load(JSON.parse(textArea.val() as string || "{}"));
+  }
 });
 
 const download = (url: string, filename: string) => {
