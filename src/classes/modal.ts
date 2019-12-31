@@ -1,5 +1,6 @@
 import "./modal.css";
 import $ = require("jquery");
+import {Deferred} from "./utility";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const modalHtml = require("./modal.html").default;
 
@@ -16,32 +17,42 @@ export interface ModalButton {
 export class Modal {
   private modalJquery: JQuery;
 
-  public constructor (buttons: ModalButton[], bodyText: string) {
-    const hasClose = Boolean(buttons.find((button) => button.isClose));
+  public async open (buttons: ModalButton[], bodyText: string): Promise<ModalButton> {
+    const closeButton = buttons.find((button) => button.isClose);
     this.modalJquery = $(modalHtml);
-    if (!hasClose) {
+    if (!closeButton) {
       this.modalJquery.find(".close").remove();
     }
-    this.modalJquery.modal({
-      backdrop: hasClose ? true : "static",
-      show: true
-    });
+    const defer = new Deferred<ModalButton>();
     const footer = this.modalJquery.find(".modal-footer");
     for (const button of buttons) {
-      const buttonQuery = $("<button type=\"button\" class=\"btn btn-secondary\"></button>");
+      const buttonQuery = $("<button type=\"button\" class=\"btn btn-secondary\" data-dismiss=\"modal\"></button>");
       buttonQuery.text(button.name);
-      if (button.isClose) {
-        buttonQuery.attr("data-dismiss", "modal");
-      }
       ((currentButton: ModalButton) => {
-        buttonQuery.one("click", () => button.callback(currentButton));
+        buttonQuery.one("click", () => {
+          defer.resolve(button);
+          if (button.callback) {
+            button.callback(currentButton);
+          }
+        });
       })(button);
       footer.append(buttonQuery);
     }
+    this.modalJquery.modal({
+      backdrop: closeButton ? true : "static",
+      show: true
+    });
     const body = this.modalJquery.find(".modal-body");
     body.text(bodyText);
-    this.modalJquery.on("shown.bs.modal", () => {
-      console.log("modal shown");
+    this.modalJquery.one("hidden.bs.modal", () => {
+      defer.resolve(closeButton);
+      this.modalJquery.remove();
+      this.modalJquery = null;
     });
+    return defer;
+  }
+
+  public hide () {
+    this.modalJquery.modal("hide");
   }
 }
