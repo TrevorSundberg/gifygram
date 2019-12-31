@@ -24,8 +24,8 @@ DONE - Add modal for rendering animation
 DONE - Install font-awesome locally instead of using a CDN
 DONE - Rendering of widgets seems to be slightly off in encoded video...
 DONE - Widget already exists bug
+DONE - CORS error because videoSrc has full path (https)
 
- - CORS error because videoSrc has full path (https)
  - Add cancel button for modals that take time
  - Encode ffmpeg at the same time that we screenshot the frames
  - Timeline view that lets us delete frames / seek to frames, even if it's minimal

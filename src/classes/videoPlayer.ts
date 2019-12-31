@@ -30,7 +30,7 @@ export class VideoPlayer {
     this.video.muted = true;
     (this.video as any).disableRemotePlayback = true;
     this.video.oncontextmenu = () => false;
-    this.video.src = require("../public/sample.mp4").default;
+    this.setSrc(require("../public/sample.mp4").default);
 
     this.controlsContainer = document.createElement("div");
     this.controlsContainer.className = "videoControlsContainer";
@@ -98,6 +98,15 @@ export class VideoPlayer {
       this.timeline.releasePointerCapture(event.pointerId);
       this.timeline.removeEventListener("pointermove", onPointerMove);
     });
+  }
+
+  public setSrc (src: string) {
+    this.video.src = src;
+    this.video.dataset.src = src;
+  }
+
+  public getSrc (): string {
+    return this.video.dataset.src;
   }
 
   public setMarkers (markerTimes: number[]) {

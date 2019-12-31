@@ -98,7 +98,7 @@ export class Manager {
   public save (): SerializedData {
     return {
       tracks: JSON.parse(JSON.stringify(this.timeline.tracks)),
-      videoSrc: this.videoPlayer.video.src,
+      videoSrc: this.videoPlayer.getSrc(),
       widgets: this.widgets.map((widget) => JSON.parse(JSON.stringify(widget.init)))
     };
   }
@@ -114,7 +114,7 @@ export class Manager {
   }
 
   public async load (data: SerializedData) {
-    this.videoPlayer.video.src = data.videoSrc;
+    this.videoPlayer.setSrc(data.videoSrc);
     this.clearWidgets();
     for (const init of data.widgets) {
       await this.addWidget(init);
