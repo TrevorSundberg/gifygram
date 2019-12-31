@@ -24,7 +24,7 @@ module.exports = {
         test: /\.css$/u
       },
       {
-        test: /\.png$|\.mp4$/u,
+        test: /\.(png|mp4)$/u,
         use: [
           {
             loader: "url-loader",
@@ -34,7 +34,19 @@ module.exports = {
             }
           }
         ]
+      },
+      {
+        test: /\.(woff|woff2|ttf|eot|svg)$/u,
+        use: [
+          {
+            loader: "file-loader",
+            options: {
+              name: "public/[hash]-[name].[ext]"
+            }
+          }
+        ]
       }
+
     ]
   },
   optimization: {

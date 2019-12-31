@@ -1,5 +1,7 @@
 import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "@fortawesome/fontawesome-free/css/fontawesome.css";
+import "@fortawesome/fontawesome-free/css/solid.css";
 import {RenderFrameEvent, Renderer} from "./classes/renderer";
 import {VideoEncoder, VideoProgressEvent} from "./classes/videoEncoder";
 import {Manager} from "./classes/manager";
