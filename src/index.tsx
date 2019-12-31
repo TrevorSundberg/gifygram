@@ -2,6 +2,7 @@ import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {Manager} from "./classes/manager";
 import {Modal} from "./classes/modal";
+import {VideoEncoder} from "./classes/videoEncoder";
 import {VideoPlayer} from "./classes/videoPlayer";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const html2canvas: typeof import("html2canvas").default = require("html2canvas");
@@ -57,20 +58,12 @@ const download = (url: string, filename: string) => {
 const videoCanvas = document.createElement("canvas");
 const context = videoCanvas.getContext("2d");
 
-const workerPromise = (async () => {
-  const {createWorker} = await import("@ffmpeg/ffmpeg");
-  const worker = createWorker({
-    logger: (message) => console.log(message)
-  });
-  await worker.load();
-  return worker;
-})();
-
 const frameRate = 1 / 30;
 let recording = false;
-let frame = 0;
+const videoEncoder = new VideoEncoder();
 document.getElementById("record").addEventListener("click", async () => {
   new Modal([{isClose: true, name: "Cancel"}], "Waiting for rendering");
+  videoEncoder.reset();
   player.video.pause();
   player.video.currentTime = 0;
   recording = true;
@@ -80,7 +73,6 @@ player.video.addEventListener("seeked", async () => {
   if (!recording) {
     return;
   }
-  const worker = await workerPromise;
   const width = player.video.videoWidth;
   const height = player.video.videoHeight;
   videoCanvas.width = width;
@@ -91,18 +83,10 @@ player.video.addEventListener("seeked", async () => {
   context.drawImage(player.video, 0, 0, width, height);
   context.drawImage(canvasWithoutVideo, 0, 0, width, height);
   const buffer = await canvasToArrayBuffer(videoCanvas, "image/png");
-  await worker.write(`frame${frame}.png`, new Uint8Array(buffer));
-  ++frame;
-
+  videoEncoder.addFrame(buffer);
   if (player.video.currentTime + frameRate > player.video.duration) {
     recording = false;
-    await worker.run("-i /data/frame%d.png output.mp4", {
-      output: "output.mp4"
-    });
-    const output = (await worker.read("output.mp4")).data;
-    const blob = new Blob([output], {
-      type: "video/mp4"
-    });
+    const blob = await videoEncoder.encode();
     download(URL.createObjectURL(blob), "output.mp4");
   } else {
     player.video.currentTime += frameRate;
