@@ -25,6 +25,8 @@ export class Renderer extends EventTarget {
 
   private context: CanvasRenderingContext2D;
 
+  private runningPromise: Deferred<void> = null;
+
   private isCancelled = false;
 
   public constructor (widgetContainer: HTMLDivElement, player: VideoPlayer, frameRate: number) {
@@ -50,7 +52,7 @@ export class Renderer extends EventTarget {
   }
 
   public async render (): Promise<boolean> {
-    this.isCancelled = false;
+    this.runningPromise = new Deferred<void>();
     this.player.video.pause();
     const defer = new Deferred<boolean>();
 
@@ -94,11 +96,15 @@ export class Renderer extends EventTarget {
     this.player.video.currentTime = 0;
     const result = await defer;
     this.player.video.removeEventListener("seeked", onSeek);
+    this.runningPromise = null;
     this.isCancelled = false;
     return result;
   }
 
-  public cancel () {
-    this.isCancelled = true;
+  public async cancel () {
+    if (this.runningPromise) {
+      this.isCancelled = true;
+      await this.runningPromise;
+    }
   }
 }

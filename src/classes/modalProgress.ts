@@ -8,12 +8,17 @@ export class ModalProgress extends Modal {
 
   private status: JQuery;
 
-  public async open (title: string, content: JQuery, buttons: ModalButton[]): Promise<ModalButton> {
+  public async open (
+    title: string,
+    content: JQuery,
+    dismissable: boolean,
+    buttons: ModalButton[]
+  ): Promise<ModalButton> {
     const div = $(contentHtml);
     this.progress = div.find("#progress");
     this.status = div.find("#status");
     div.prepend(content);
-    return super.open(title, div, buttons);
+    return super.open(title, div, dismissable, buttons);
   }
 
   public setProgress (value: number, status: string) {

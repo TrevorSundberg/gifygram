@@ -25,8 +25,9 @@ DONE - Install font-awesome locally instead of using a CDN
 DONE - Rendering of widgets seems to be slightly off in encoded video...
 DONE - Widget already exists bug
 DONE - CORS error because videoSrc has full path (https)
+DONE - Add cancel button for modals that take time
 
- - Add cancel button for modals that take time
+ - Upload videos or sprites
  - Encode ffmpeg at the same time that we screenshot the frames
  - Timeline view that lets us delete frames / seek to frames, even if it's minimal
  - Can't scale and rotate on mobile easily (both fingers need to be on sprite)
