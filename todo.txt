@@ -27,6 +27,7 @@ DONE - Widget already exists bug
 DONE - CORS error because videoSrc has full path (https)
 DONE - Add cancel button for modals that take time
 
+ - Selection that doesn't rely on focus so we can click buttons (can get rid of focus hack too)
  - Upload videos or sprites
  - Encode ffmpeg at the same time that we screenshot the frames
  - Timeline view that lets us delete frames / seek to frames, even if it's minimal
