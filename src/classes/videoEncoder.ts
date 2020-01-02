@@ -28,7 +28,7 @@ export class VideoEncoder extends EventTarget {
     super();
     this.workerPromise = (async () => {
       // eslint-disable-next-line capitalized-comments, no-inline-comments
-      const {createWorker} = await import(/* webpackChunkName="ffmpeg" */ "@ffmpeg/ffmpeg");
+      const {createWorker} = await import(/* webpackChunkName: "ffmpeg" */ "@ffmpeg/ffmpeg");
       const worker: FfmpegWorker = createWorker({
         logger: (message) => console.log(message),
         progress: (progress: FfmpegProgress) => {
