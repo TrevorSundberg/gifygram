@@ -93,6 +93,11 @@ export class Manager {
     onUpdate();
 
     window.addEventListener("update", () => this.update());
+
+    const deselectElement = () => this.selectWidget(null);
+
+    widgetContainer.addEventListener("mousedown", deselectElement, true);
+    widgetContainer.addEventListener("touchstart", deselectElement, true);
   }
 
   public save (): SerializedData {
@@ -178,7 +183,6 @@ export class Manager {
 
     element.id = id;
     element.className = "widget";
-    element.tabIndex = 0;
     element.draggable = false;
     element.style.transform = Gizmo.transformToCss(Gizmo.identityTransform());
     this.widgetContainer.appendChild(element);
@@ -196,21 +200,13 @@ export class Manager {
     });
 
     const grabElement = (event) => {
-      element.focus();
+      this.selectWidget(widget);
       this.selection.moveable.dragStart(event);
     };
     element.addEventListener("mousedown", grabElement, true);
     element.addEventListener("touchstart", grabElement, true);
-    element.addEventListener("focus", () => {
-      this.selectWidget(widget);
-      this.container.scrollTo(0, 0);
-    });
-    element.addEventListener("blur", () => {
-      if (this.isSelected(widget)) {
-        this.selectWidget(null);
-      }
-    });
 
+    this.selectWidget(widget);
     return widget;
   }
 
