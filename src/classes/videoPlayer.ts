@@ -1,4 +1,5 @@
 import "./videoPlayer.css";
+import {Deferred} from "./utility";
 
 interface Point {
   clientX: number;
@@ -19,6 +20,8 @@ export class VideoPlayer {
   private timeline: HTMLDivElement;
 
   private readonly markers: HTMLDivElement[] = [];
+
+  public loadPromise = new Deferred<void>();
 
   public constructor (container: HTMLDivElement) {
     this.container = container;
@@ -98,11 +101,22 @@ export class VideoPlayer {
       this.timeline.releasePointerCapture(event.pointerId);
       this.timeline.removeEventListener("pointermove", onPointerMove);
     });
+
+    this.video.addEventListener("canplaythrough", () => {
+      this.loadPromise.resolve();
+      // Other libraries such as OpenCV.js rely on video.width/height being set.
+      this.video.width = this.video.videoWidth;
+      this.video.height = this.video.videoHeight;
+    });
   }
 
-  public setSrc (src: string) {
+  public async setSrc (src: string) {
+    if (this.video.src) {
+      this.loadPromise = new Deferred<void>();
+    }
     this.video.src = src;
     this.video.dataset.src = src;
+    await this.loadPromise;
   }
 
   public getSrc (): string {
