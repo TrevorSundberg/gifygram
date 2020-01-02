@@ -54,6 +54,12 @@ document.getElementById("load").addEventListener("click", async () => {
   }
 });
 
+document.getElementById("motion").addEventListener("click", async () => {
+  const {MotionTracker} = await import("./classes/motionTracker");
+  const motion = new MotionTracker();
+  await motion.process(player);
+});
+
 const download = (url: string, filename: string) => {
   const anchor = document.createElement("a");
   anchor.href = url;

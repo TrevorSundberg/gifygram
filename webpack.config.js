@@ -49,6 +49,9 @@ module.exports = {
 
     ]
   },
+  node: {
+    fs: "empty"
+  },
   optimization: {
   },
   output: {
