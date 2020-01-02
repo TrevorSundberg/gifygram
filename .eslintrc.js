@@ -61,7 +61,10 @@ module.exports = {
     "no-undef": "off",
     "max-classes-per-file": "off",
     "prefer-named-capture-group": "off",
-    "require-atomic-updates": "off"
+    "require-atomic-updates": "off",
+    "no-bitwise": "off",
+    "no-mixed-operators": "off",
+    "id-length": "off"
   },
   settings: {
     react: {

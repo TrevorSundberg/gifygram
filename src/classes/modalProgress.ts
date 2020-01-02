@@ -1,5 +1,5 @@
 import {Modal, ModalButton} from "./modal";
-import $ = require("jquery");
+import $ from "jquery";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const contentHtml = require("./modalProgress.html").default;
 

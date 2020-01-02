@@ -1,5 +1,5 @@
 import "./modal.css";
-import $ = require("jquery");
+import $ from "jquery";
 import {Deferred} from "./utility";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const modalHtml = require("./modal.html").default;

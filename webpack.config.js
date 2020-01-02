@@ -50,12 +50,10 @@ module.exports = {
     ]
   },
   optimization: {
-    splitChunks: {
-      chunks: "all"
-    }
   },
   output: {
-    filename: "bundle.min.js",
+    chunkFilename: "[name]-[id].js",
+    filename: "[name]-[id].js",
     path: path.join(
       __dirname,
       "/dist"
