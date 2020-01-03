@@ -114,6 +114,7 @@ export class MotionTracker extends VideoSeeker {
           this.currentXY[j << 1] = this.currentXY[i << 1];
           this.currentXY[(j << 1) + 1] = this.currentXY[(i << 1) + 1];
         }
+        console.log(this.currentXY[j << 1], this.currentXY[(j << 1) + 1]);
         ++j;
       }
     }
