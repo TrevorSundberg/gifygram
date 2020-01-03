@@ -12,22 +12,22 @@ import {VideoPlayer} from "./classes/videoPlayer";
 const container = document.getElementById("container") as HTMLDivElement;
 const widgetContainer = document.getElementById("widgets") as HTMLDivElement;
 const player = new VideoPlayer(container);
-const timeline = new Manager(container, widgetContainer, player);
+const manager = new Manager(container, widgetContainer, player);
 
 document.getElementById("sprite").addEventListener("click", async () => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const src = require("./public/sample.png").default;
-  const widget = await timeline.addWidget({src, type: "image"});
+  const widget = await manager.addWidget({src, type: "image"});
   widget.element.focus();
 });
 
 document.getElementById("text").addEventListener("click", async () => {
-  const widget = await timeline.addWidget({type: "text"});
+  const widget = await manager.addWidget({type: "text"});
   widget.element.focus();
 });
 
 document.getElementById("save").addEventListener("click", async () => {
-  const value = JSON.stringify(timeline.save());
+  const value = JSON.stringify(manager.save());
   const textArea = $("<textarea autofocus></textarea>");
   textArea.addClass("md-textarea");
   textArea.addClass("form-control");
@@ -50,7 +50,7 @@ document.getElementById("load").addEventListener("click", async () => {
     {dismiss: true, name: "Load"}
   ]);
   if (result && result.name === "Load") {
-    timeline.load(JSON.parse(textArea.val() as string));
+    manager.load(JSON.parse(textArea.val() as string));
   }
 });
 
