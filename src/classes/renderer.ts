@@ -1,5 +1,5 @@
+import {VideoSeeker, VideoSeekerEvent} from "./videoSeeker";
 import {Deferred} from "./utility";
-import {VideoPlayer} from "./videoPlayer";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const html2canvas: typeof import("html2canvas").default = require("html2canvas");
@@ -8,34 +8,22 @@ export class RenderFrameEvent extends Event {
   public pngData: ArrayBuffer;
 
   public progress: number;
-
-  public constructor () {
-    super("frame");
-  }
 }
 
 export class Renderer extends EventTarget {
-  private widgetContainer: HTMLDivElement;
+  private readonly widgetContainer: HTMLDivElement;
 
-  private player: VideoPlayer;
+  private readonly seeker: VideoSeeker;
 
-  private frameRate: number;
+  private readonly canvas = document.createElement("canvas")
 
-  private canvas: HTMLCanvasElement;
+  private readonly context: CanvasRenderingContext2D;
 
-  private context: CanvasRenderingContext2D;
-
-  private runningPromise: Deferred<void> = null;
-
-  private isCancelled = false;
-
-  public constructor (widgetContainer: HTMLDivElement, player: VideoPlayer, frameRate: number) {
+  public constructor (widgetContainer: HTMLDivElement, seeker: VideoSeeker) {
     super();
     this.widgetContainer = widgetContainer;
-    this.player = player;
-    this.frameRate = frameRate;
+    this.seeker = seeker;
 
-    this.canvas = document.createElement("canvas");
     this.context = this.canvas.getContext("2d");
   }
 
@@ -52,17 +40,10 @@ export class Renderer extends EventTarget {
   }
 
   public async render (): Promise<boolean> {
-    this.runningPromise = new Deferred<void>();
-    this.player.video.pause();
-    const defer = new Deferred<boolean>();
-
-    const onSeek = async () => {
-      if (this.isCancelled) {
-        defer.resolve(false);
-        return;
-      }
-      const width = this.player.video.videoWidth;
-      const height = this.player.video.videoHeight;
+    const onFrame = async (event: VideoSeekerEvent) => {
+      const {video} = this.seeker.player;
+      const width = video.videoWidth;
+      const height = video.videoHeight;
       this.canvas.width = width;
       this.canvas.height = height;
       // Only using widgetContainer is incorrect due to parent transform (can't use display: none here either).
@@ -79,32 +60,21 @@ export class Renderer extends EventTarget {
         windowWidth: width
       });
       clone.remove();
-      this.context.drawImage(this.player.video, 0, 0, width, height);
+      this.context.drawImage(video, 0, 0, width, height);
       this.context.drawImage(canvasWithoutVideo, 0, 0, width, height);
       const pngData = await Renderer.canvasToArrayBuffer(this.canvas, "image/png");
-      const toSend = new RenderFrameEvent();
+      const toSend = new RenderFrameEvent("frame");
       toSend.pngData = pngData;
-      toSend.progress = this.player.video.currentTime / this.player.video.duration;
+      toSend.progress = event.progress;
       this.dispatchEvent(toSend);
-      if (this.player.video.currentTime + this.frameRate > this.player.video.duration) {
-        defer.resolve(true);
-      } else {
-        this.player.video.currentTime += this.frameRate;
-      }
     };
-    this.player.video.addEventListener("seeked", onSeek);
-    this.player.video.currentTime = 0;
-    const result = await defer;
-    this.player.video.removeEventListener("seeked", onSeek);
-    this.runningPromise = null;
-    this.isCancelled = false;
+    this.seeker.addEventListener("frame", onFrame);
+    const result = await this.seeker.run(0);
+    this.seeker.removeEventListener("frame", onFrame);
     return result;
   }
 
   public async cancel () {
-    if (this.runningPromise) {
-      this.isCancelled = true;
-      await this.runningPromise;
-    }
+    await this.seeker.stop();
   }
 }

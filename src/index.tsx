@@ -9,6 +9,7 @@ import {Manager} from "./classes/manager";
 import {Modal} from "./classes/modal";
 import {ModalProgress} from "./classes/modalProgress";
 import {VideoPlayer} from "./classes/videoPlayer";
+import {VideoSeeker} from "./classes/videoSeeker";
 const container = document.getElementById("container") as HTMLDivElement;
 const widgetContainer = document.getElementById("widgets") as HTMLDivElement;
 const player = new VideoPlayer(container);
@@ -73,7 +74,8 @@ const download = (url: string, filename: string) => {
 
 document.getElementById("record").addEventListener("click", async () => {
   const videoEncoder = new VideoEncoder();
-  const renderer = new Renderer(widgetContainer, player, 1 / 30);
+  const videoSeeker = new VideoSeeker(player, 1 / 30);
+  const renderer = new Renderer(widgetContainer, videoSeeker);
   const modal = new ModalProgress();
   modal.open("Rendering & Encoding", $(), false, [
     {
