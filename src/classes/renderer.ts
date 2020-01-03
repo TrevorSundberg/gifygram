@@ -55,6 +55,7 @@ export class Renderer extends EventTarget {
       const canvasWithoutVideo = await html2canvas(clone, {
         backgroundColor: "rgba(0,0,0,0)",
         height,
+        logging: false,
         width,
         windowHeight: height,
         windowWidth: width
