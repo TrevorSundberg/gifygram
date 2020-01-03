@@ -1,10 +1,13 @@
 /* eslint-disable new-cap */
 import {VideoPlayer} from "./videoPlayer";
+import {VideoSeeker} from "./videoSeeker";
 import jsfeat from "jsfeat";
 
-export class MotionTracker {
-  private readonly player: VideoPlayer;
+export class MotionTrackerEvent extends Event {
+  public progress: number;
+}
 
+export class MotionTracker extends VideoSeeker {
   private readonly canvas = document.createElement("canvas");
 
   private readonly context: CanvasRenderingContext2D;
@@ -30,11 +33,11 @@ export class MotionTracker {
   private readonly minEigen = 0.001;
 
   public constructor (player: VideoPlayer) {
-    this.player = player;
+    super(player);
     this.context = this.canvas.getContext("2d");
   }
 
-  public async initialize () {
+  public async track () {
     await this.player.loadPromise;
     const width = this.player.video.videoWidth;
     const height = this.player.video.videoHeight;
@@ -46,6 +49,8 @@ export class MotionTracker {
     this.canvas.height = height;
 
     this.buildPyramidFromVideoImage(this.currentPyramid);
+
+    await this.run(this.player.video.currentTime);
   }
 
   public addPoint (x: number, y: number) {
@@ -55,10 +60,11 @@ export class MotionTracker {
   }
 
   private buildPyramidFromVideoImage (pyramid: any) {
-    const width = this.player.video.videoWidth;
-    const height = this.player.video.videoHeight;
+    const {video} = this.player;
+    const width = video.videoWidth;
+    const height = video.videoHeight;
 
-    this.context.drawImage(this.player.video, 0, 0, width, height);
+    this.context.drawImage(video, 0, 0, width, height);
     const imageData = this.context.getImageData(0, 0, width, height);
 
     const [currentData] = pyramid.data;
@@ -67,7 +73,7 @@ export class MotionTracker {
     pyramid.build(currentData, true);
   }
 
-  public processFrame () {
+  protected async onFrame (progress: number) {
     const tempXY = this.previousXY;
     this.previousXY = this.currentXY;
     this.currentXY = tempXY;
@@ -92,6 +98,10 @@ export class MotionTracker {
     );
 
     this.prunePoints();
+
+    const toSend = new MotionTrackerEvent("frame");
+    toSend.progress = progress;
+    this.dispatchEvent(toSend);
   }
 
   private prunePoints () {

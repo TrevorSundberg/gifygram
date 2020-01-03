@@ -1,51 +1,49 @@
 import {Deferred} from "./utility";
 import {VideoPlayer} from "./videoPlayer";
 
-export class VideoSeekerEvent extends Event {
-  public progress: number;
-}
-
 export class VideoSeeker extends EventTarget {
   public readonly player: VideoPlayer;
 
   private readonly frameRate: number;
 
-  private runningPromise: Deferred<void> = null;
+  private runningPromise: Deferred<boolean> = null;
 
   private isStopped = false;
 
-  public constructor (player: VideoPlayer, frameRate: number) {
+  public constructor (player: VideoPlayer, frameRate: number = 1 / 30) {
     super();
     this.player = player;
     this.frameRate = frameRate;
   }
 
-  public async run (startTime: number): Promise<boolean> {
-    this.runningPromise = new Deferred<void>();
+  protected async run (startTime: number): Promise<boolean> {
+    this.runningPromise = new Deferred<boolean>();
+    await this.player.loadPromise;
     this.player.video.pause();
-    const defer = new Deferred<boolean>();
 
     const onSeek = async () => {
       if (this.isStopped) {
-        defer.resolve(false);
+        this.runningPromise.resolve(false);
         return;
       }
-      const toSend = new VideoSeekerEvent("frame");
-      toSend.progress = this.player.video.currentTime / this.player.video.duration;
-      this.dispatchEvent(toSend);
+      await this.onFrame(this.player.video.currentTime / this.player.video.duration);
       if (this.player.video.currentTime + this.frameRate > this.player.video.duration) {
-        defer.resolve(true);
+        this.runningPromise.resolve(true);
       } else {
         this.player.video.currentTime += this.frameRate;
       }
     };
     this.player.video.addEventListener("seeked", onSeek);
     this.player.video.currentTime = startTime;
-    const result = await defer;
+    const result = await this.runningPromise;
     this.player.video.removeEventListener("seeked", onSeek);
     this.runningPromise = null;
     this.isStopped = false;
     return result;
+  }
+
+  protected async onFrame (progress: number) {
+    throw new Error(`Not implemented (${progress})`);
   }
 
   public async stop () {

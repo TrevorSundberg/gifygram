@@ -9,7 +9,6 @@ import {Manager} from "./classes/manager";
 import {Modal} from "./classes/modal";
 import {ModalProgress} from "./classes/modalProgress";
 import {VideoPlayer} from "./classes/videoPlayer";
-import {VideoSeeker} from "./classes/videoSeeker";
 const container = document.getElementById("container") as HTMLDivElement;
 const widgetContainer = document.getElementById("widgets") as HTMLDivElement;
 const player = new VideoPlayer(container);
@@ -57,12 +56,24 @@ document.getElementById("load").addEventListener("click", async () => {
 
 document.getElementById("motion").addEventListener("click", async () => {
   const {MotionTracker} = await import("./classes/motionTracker");
-  const motion = new MotionTracker(player);
-  motion.addPoint(300, 300);
-  await motion.initialize();
-  player.video.addEventListener("seeked", () => {
-    motion.processFrame();
-  });
+  const motionTracker = new MotionTracker(player);
+  motionTracker.addPoint(300, 300);
+  const modal = new ModalProgress();
+  modal.open("Tracking", $(), false, [
+    {
+      callback: async () => {
+        await motionTracker.stop();
+        modal.hide();
+      },
+      name: "Stop"
+    }
+  ]);
+  const onFrame = async (event: RenderFrameEvent) => {
+    modal.setProgress(event.progress, "");
+  };
+  motionTracker.addEventListener("frame", onFrame);
+  await motionTracker.track();
+  motionTracker.removeEventListener("frame", onFrame);
 });
 
 const download = (url: string, filename: string) => {
@@ -74,13 +85,12 @@ const download = (url: string, filename: string) => {
 
 document.getElementById("record").addEventListener("click", async () => {
   const videoEncoder = new VideoEncoder();
-  const videoSeeker = new VideoSeeker(player, 1 / 30);
-  const renderer = new Renderer(widgetContainer, videoSeeker);
+  const renderer = new Renderer(widgetContainer, player);
   const modal = new ModalProgress();
   modal.open("Rendering & Encoding", $(), false, [
     {
       callback: async () => {
-        await renderer.cancel();
+        await renderer.stop();
         modal.hide();
       },
       name: "Cancel"
