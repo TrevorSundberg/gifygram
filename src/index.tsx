@@ -27,6 +27,7 @@ document.getElementById("text").addEventListener("click", async () => {
 });
 
 document.getElementById("save").addEventListener("click", async () => {
+  manager.selectWidget(null);
   const value = JSON.stringify(manager.save());
   const textArea = $("<textarea autofocus></textarea>");
   textArea.addClass("md-textarea");
@@ -39,6 +40,7 @@ document.getElementById("save").addEventListener("click", async () => {
 });
 
 document.getElementById("load").addEventListener("click", async () => {
+  manager.selectWidget(null);
   const textArea = $("<textarea autofocus></textarea>");
   textArea.addClass("md-textarea");
   textArea.addClass("form-control");
