@@ -1,3 +1,4 @@
 .modal {
-  overflow-y: hidden !important
+  overflow-y: hidden !important;
+  opacity: 0.85;
 }
