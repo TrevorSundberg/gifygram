@@ -43,15 +43,19 @@ export class VideoPlayer {
     this.controlsContainer.appendChild(this.playPauseButton);
     this.playPauseButton.className = "videoPlayPauseButton button fas fa-play";
 
+    this.video.addEventListener("play", () => {
+      this.playPauseButton.classList.remove("fa-play");
+      this.playPauseButton.classList.add("fa-pause");
+    });
+    this.video.addEventListener("pause", () => {
+      this.playPauseButton.classList.remove("fa-pause");
+      this.playPauseButton.classList.add("fa-play");
+    });
     this.playPauseButton.addEventListener("click", () => {
       if (this.video.paused) {
         this.video.play();
-        this.playPauseButton.classList.remove("fa-play");
-        this.playPauseButton.classList.add("fa-pause");
       } else {
         this.video.pause();
-        this.playPauseButton.classList.remove("fa-pause");
-        this.playPauseButton.classList.add("fa-play");
       }
     });
 
