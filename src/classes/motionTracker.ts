@@ -5,6 +5,12 @@ import jsfeat from "jsfeat";
 
 export class MotionTrackerEvent extends Event {
   public progress: number;
+
+  public found: boolean;
+
+  public x: number;
+
+  public y: number;
 }
 
 export class MotionTracker extends VideoSeeker {
@@ -100,6 +106,13 @@ export class MotionTracker extends VideoSeeker {
     this.prunePoints();
 
     const toSend = new MotionTrackerEvent("frame");
+    if (this.pointCount !== 0) {
+      toSend.found = true;
+      [
+        toSend.x,
+        toSend.y
+      ] = this.currentXY;
+    }
     toSend.progress = progress;
     this.dispatchEvent(toSend);
   }
@@ -114,7 +127,6 @@ export class MotionTracker extends VideoSeeker {
           this.currentXY[j << 1] = this.currentXY[i << 1];
           this.currentXY[(j << 1) + 1] = this.currentXY[(i << 1) + 1];
         }
-        console.log(this.currentXY[j << 1], this.currentXY[(j << 1) + 1]);
         ++j;
       }
     }
