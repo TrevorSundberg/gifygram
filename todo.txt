@@ -37,8 +37,8 @@ DONE - Play/pause button
 DONE - Scrub timeline (capture mouse)
 DONE - Play pause button does not update if video changed state externally (e.g. play() pause())
 DONE - Gizmos create keyframes every time we select
+DONE - Changing selected widget does not update timeline keyframes
 
- - Deselecting widget does not update timeline keyframes
  - Tabbing away from video as it's encoding messes it up (can just say don't tab away for now)
  - Android ffmpeg encoding doesn't seem to run
  - Upload videos or sprites

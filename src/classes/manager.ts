@@ -108,14 +108,18 @@ export class Manager {
     };
   }
 
-  public updateTracks () {
-    this.timeline.updateTracks();
+  public updateMarkers () {
     if (this.selection) {
       const track = this.timeline.tracks[`#${this.selection.element.id}`];
       this.videoPlayer.setMarkers(Object.keys(track).map((str) => parseFloat(str)));
     } else {
       this.videoPlayer.setMarkers([]);
     }
+  }
+
+  public updateTracks () {
+    this.timeline.updateTracks();
+    this.updateMarkers();
   }
 
   public async load (data: SerializedData) {
@@ -235,6 +239,7 @@ export class Manager {
       this.selection = new Gizmo(widget.element);
       this.selection.addEventListener("keyframe", () => this.keyframe(this.selection.element));
     }
+    this.updateMarkers();
   }
 
   public destroyWidget (widget: Widget) {
