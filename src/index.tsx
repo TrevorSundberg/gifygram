@@ -5,6 +5,7 @@ import "@fortawesome/fontawesome-free/css/solid.css";
 import {RenderFrameEvent, Renderer} from "./classes/renderer";
 import {VideoEncoder, VideoProgressEvent} from "./classes/videoEncoder";
 import $ from "jquery";
+import {Gizmo} from "./classes/gizmo";
 import {Manager} from "./classes/manager";
 import {Modal} from "./classes/modal";
 import {ModalProgress} from "./classes/modalProgress";
@@ -57,9 +58,15 @@ document.getElementById("load").addEventListener("click", async () => {
 });
 
 document.getElementById("motion").addEventListener("click", async () => {
+  const {selection} = manager;
+  if (!selection) {
+    await Modal.messageBox("Motion Tracking", "You must have something selected to perform motion tracking");
+    return;
+  }
   const {MotionTracker} = await import("./classes/motionTracker");
   const motionTracker = new MotionTracker(player);
-  motionTracker.addPoint(300, 300);
+  const transform = Gizmo.getTransform(selection.element);
+  motionTracker.addPoint(transform.translate[0], transform.translate[1]);
   const modal = new ModalProgress();
   modal.open("Tracking", $(), false, [
     {
@@ -70,12 +77,19 @@ document.getElementById("motion").addEventListener("click", async () => {
       name: "Stop"
     }
   ]);
-  const onFrame = async (event: RenderFrameEvent) => {
+  const onFrame = async (event: import("./classes/motionTracker").MotionTrackerEvent) => {
     modal.setProgress(event.progress, "");
+    if (event.found) {
+      transform.translate[0] = event.x;
+      transform.translate[1] = event.y;
+      selection.setTransform(transform);
+      selection.emitKeyframe();
+    }
   };
   motionTracker.addEventListener("frame", onFrame);
   await motionTracker.track();
   motionTracker.removeEventListener("frame", onFrame);
+  modal.hide();
 });
 
 const download = (url: string, filename: string) => {
