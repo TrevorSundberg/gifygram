@@ -63,7 +63,6 @@ export class VideoPlayer {
     this.timeline.appendChild(this.position);
     this.position.className = "videoPosition";
 
-
     const updatePosition = () => {
       const interpolant = this.video.currentTime / this.video.duration;
       this.position.style.width = `${interpolant * 100}%`;
