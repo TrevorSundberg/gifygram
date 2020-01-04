@@ -44,7 +44,7 @@ export class Gizmo extends EventTarget {
     });
     moveable.on("renderEnd", () => {
       this.element.focus();
-      this.dispatchEvent(new Event("keyframe"));
+      this.emitKeyframe();
     });
     moveable.on("scaleStart", ({set, dragStart}) => {
       set(this.getTransform().scale);
@@ -59,6 +59,10 @@ export class Gizmo extends EventTarget {
         translate: drag.beforeTranslate as [number, number]
       });
     });
+  }
+
+  public emitKeyframe () {
+    this.dispatchEvent(new Event("keyframe"));
   }
 
   public destroy () {
