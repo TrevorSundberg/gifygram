@@ -65,4 +65,14 @@ export class Modal {
       this.root.modal("hide");
     }
   }
+
+  public static async messageBox (title: string, text: string): Promise<ModalButton> {
+    const modal = new Modal();
+    return modal.open(title, $("<p/>").text(text), true, [
+      {
+        dismiss: true,
+        name: "Close"
+      }
+    ]);
+  }
 }
