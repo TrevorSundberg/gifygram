@@ -24,13 +24,13 @@ export class MotionTracker extends VideoSeeker {
 
   private pointCount = 0;
 
-  private readonly windowSize = 15;
+  private readonly windowSize = 40;
 
-  private readonly maxIterations = 10;
+  private readonly maxIterations = 50;
 
   private readonly epsilon = 0.001;
 
-  private readonly minEigen = 0.001;
+  private readonly minEigen = 0.0001;
 
   public constructor (player: VideoPlayer) {
     super(player);
