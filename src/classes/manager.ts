@@ -48,7 +48,7 @@ export class Manager {
 
   private timeline = new Timeline()
 
-  private selection: Gizmo = null;
+  public selection: Gizmo = null;
 
   private widgets: Widget[] = [];
 
@@ -220,7 +220,7 @@ export class Manager {
     return false;
   }
 
-  private selectWidget (widget?: Widget) {
+  public selectWidget (widget?: Widget) {
     if (this.isSelected(widget)) {
       return;
     }
