@@ -186,7 +186,8 @@ export class Manager {
     element.id = id;
     element.className = "widget";
     element.draggable = false;
-    element.style.transform = Gizmo.transformToCss(Gizmo.identityTransform());
+    const {video} = this.videoPlayer;
+    element.style.transform = Gizmo.transformToCss(Gizmo.centerTransform(video.videoWidth, video.videoHeight));
     this.widgetContainer.appendChild(element);
 
     const track: Track = {};

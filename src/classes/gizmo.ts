@@ -75,7 +75,7 @@ export class Gizmo extends EventTarget {
     this.moveable.updateRect();
   }
 
-  public static identityTransform (): Transform {
+  public static centerTransform (width: number, height: number): Transform {
     return {
       rotate: 0,
       scale: [
@@ -83,8 +83,8 @@ export class Gizmo extends EventTarget {
         1
       ],
       translate: [
-        0,
-        0
+        width / 2,
+        height / 2
       ]
     };
   }
