@@ -152,6 +152,8 @@ export class Manager {
           await new Promise((resolve) => {
             img.onload = resolve;
           });
+          img.style.left = `${-img.width / 2}px`;
+          img.style.top = `${-img.height / 2}px`;
           return img;
         }
         case "text":
