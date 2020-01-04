@@ -42,9 +42,12 @@ export class Gizmo extends EventTarget {
         translate: beforeTranslate as [number, number]
       });
     });
-    moveable.on("renderEnd", () => {
-      this.element.focus();
-      this.emitKeyframe();
+    moveable.on("renderEnd", (event) => {
+      if (event.isDrag || event.isPinch) {
+        this.emitKeyframe();
+      } else {
+        this.element.focus();
+      }
     });
     moveable.on("scaleStart", ({set, dragStart}) => {
       set(this.getTransform().scale);
