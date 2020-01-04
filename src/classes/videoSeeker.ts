@@ -16,27 +16,32 @@ export class VideoSeeker extends EventTarget {
     this.frameRate = frameRate;
   }
 
+  public snapToFrameRate (time: number) {
+    return Math.round(time / this.frameRate) * this.frameRate;
+  }
+
   protected async run (startTime: number): Promise<boolean> {
     this.runningPromise = new Deferred<boolean>();
     await this.player.loadPromise;
-    this.player.video.pause();
+    const {video} = this.player;
+    video.pause();
 
     const onSeek = async () => {
       if (this.isStopped) {
         this.runningPromise.resolve(false);
         return;
       }
-      await this.onFrame(this.player.video.currentTime / this.player.video.duration);
-      if (this.player.video.currentTime + this.frameRate > this.player.video.duration) {
+      await this.onFrame(video.currentTime / video.duration);
+      if (video.currentTime + this.frameRate > video.duration) {
         this.runningPromise.resolve(true);
       } else {
-        this.player.video.currentTime += this.frameRate;
+        video.currentTime = this.snapToFrameRate(video.currentTime + this.frameRate);
       }
     };
-    this.player.video.addEventListener("seeked", onSeek);
-    this.player.video.currentTime = startTime;
+    video.addEventListener("seeked", onSeek);
+    video.currentTime = this.snapToFrameRate(startTime);
     const result = await this.runningPromise;
-    this.player.video.removeEventListener("seeked", onSeek);
+    video.removeEventListener("seeked", onSeek);
     this.runningPromise = null;
     this.isStopped = false;
     return result;
