@@ -11,10 +11,6 @@ interface FfmpegProgress {
 
 export class VideoProgressEvent extends Event {
   public progress: number;
-
-  public constructor () {
-    super("progress");
-  }
 }
 
 export class VideoEncoder extends EventTarget {
@@ -32,7 +28,7 @@ export class VideoEncoder extends EventTarget {
       const worker: FfmpegWorker = createWorker({
         logger: (message) => console.log(message),
         progress: (progress: FfmpegProgress) => {
-          const toSend = new VideoProgressEvent();
+          const toSend = new VideoProgressEvent("progress");
           toSend.progress = progress.ratio;
           this.dispatchEvent(toSend);
         }
