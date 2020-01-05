@@ -99,6 +99,11 @@ export class Manager {
 
     widgetContainer.addEventListener("mousedown", deselectElement, true);
     widgetContainer.addEventListener("touchstart", deselectElement, true);
+    widgetContainer.addEventListener("keydown", (event) => {
+      if (event.key === "Delete" && this.selection) {
+        this.destroyWidget(this.selection.widget);
+      }
+    });
   }
 
   public save (): SerializedData {
@@ -201,12 +206,6 @@ export class Manager {
     const widget = new Widget(element, init);
     this.widgets.push(widget);
 
-    element.addEventListener("keydown", (event) => {
-      if (event.key === "Delete") {
-        this.destroyWidget(widget);
-      }
-    });
-
     const grabElement = (event) => {
       this.selectWidget(widget);
       this.selection.moveable.dragStart(event);
@@ -237,6 +236,7 @@ export class Manager {
       this.selection = null;
     }
     if (widget) {
+      this.widgetContainer.focus();
       this.selection = new Gizmo(widget);
       this.selection.addEventListener("keyframe", () => this.keyframe(this.selection.widget.element));
     }
