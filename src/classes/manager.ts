@@ -1,5 +1,6 @@
 import {Timeline, TimelineEvent, Track, Tracks} from "./timeline";
 import {Gizmo} from "./gizmo";
+import {Utility} from "./utility";
 import {VideoPlayer} from "./videoPlayer";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const uuidv4: typeof import("uuid/v4") = require("uuid/v4");
@@ -191,7 +192,7 @@ export class Manager {
     element.className = "widget";
     element.draggable = false;
     const {video} = this.videoPlayer;
-    element.style.transform = Gizmo.transformToCss(Gizmo.centerTransform(video.videoWidth, video.videoHeight));
+    element.style.transform = Utility.transformToCss(Utility.centerTransform(video.videoWidth, video.videoHeight));
     this.widgetContainer.appendChild(element);
 
     const track: Track = {};
@@ -262,7 +263,7 @@ export class Manager {
     const track = this.timeline.tracks[`#${element.id}`];
     track[this.videoPlayer.video.currentTime] = {
       text: element.textContent,
-      transform: Gizmo.transformToCss(Gizmo.getTransform(element)),
+      transform: Utility.transformToCss(Utility.getTransform(element)),
       visibility: "visible"
     };
     this.updateTracks();

@@ -5,10 +5,10 @@ import "@fortawesome/fontawesome-free/css/solid.css";
 import {RenderFrameEvent, Renderer} from "./classes/renderer";
 import {VideoEncoder, VideoProgressEvent} from "./classes/videoEncoder";
 import $ from "jquery";
-import {Gizmo} from "./classes/gizmo";
 import {Manager} from "./classes/manager";
 import {Modal} from "./classes/modal";
 import {ModalProgress} from "./classes/modalProgress";
+import {Utility} from "./classes/utility";
 import {VideoPlayer} from "./classes/videoPlayer";
 const container = document.getElementById("container") as HTMLDivElement;
 const widgetContainer = document.getElementById("widgets") as HTMLDivElement;
@@ -65,7 +65,7 @@ document.getElementById("motion").addEventListener("click", async () => {
   }
   const {MotionTracker} = await import("./classes/motionTracker");
   const motionTracker = new MotionTracker(player);
-  const transform = Gizmo.getTransform(selection.element);
+  const transform = Utility.getTransform(selection.element);
   motionTracker.addPoint(transform.translate[0], transform.translate[1]);
   const modal = new ModalProgress();
   modal.open("Tracking", $(), false, [
