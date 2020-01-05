@@ -1,21 +1,22 @@
 import {Transform, Utility} from "./utility";
 import Moveable from "moveable";
+import {Widget} from "./manager";
 
 export class Gizmo extends EventTarget {
-  public readonly element: HTMLElement;
+  public readonly widget: Widget;
 
   public readonly moveable: Moveable;
 
-  public constructor (element: HTMLElement) {
+  public constructor (widget: Widget) {
     super();
-    this.element = element;
+    this.widget = widget;
     const moveable = new Moveable(document.body, {
       draggable: true,
       keepRatio: true,
       pinchable: true,
       rotatable: true,
       scalable: true,
-      target: element
+      target: widget.element
     });
     this.moveable = moveable;
 
@@ -41,7 +42,7 @@ export class Gizmo extends EventTarget {
       if (event.isDrag || event.isPinch) {
         this.emitKeyframe();
       } else {
-        this.element.focus();
+        this.widget.element.focus();
       }
     });
     moveable.on("scaleStart", ({set, dragStart}) => {
@@ -74,10 +75,10 @@ export class Gizmo extends EventTarget {
   }
 
   public setTransform (state: Transform) {
-    Utility.setTransform(this.element, state);
+    Utility.setTransform(this.widget.element, state);
   }
 
   public getTransform (): Transform {
-    return Utility.getTransform(this.element);
+    return Utility.getTransform(this.widget.element);
   }
 }

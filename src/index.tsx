@@ -65,7 +65,7 @@ document.getElementById("motion").addEventListener("click", async () => {
   }
   const {MotionTracker} = await import("./classes/motionTracker");
   const motionTracker = new MotionTracker(player);
-  const transform = Utility.getTransform(selection.element);
+  const transform = Utility.getTransform(selection.widget.element);
   motionTracker.addPoint(transform.translate[0], transform.translate[1]);
   const modal = new ModalProgress();
   modal.open("Tracking", $(), false, [

@@ -111,7 +111,7 @@ export class Manager {
 
   public updateMarkers () {
     if (this.selection) {
-      const track = this.timeline.tracks[`#${this.selection.element.id}`];
+      const track = this.timeline.tracks[`#${this.selection.widget.element.id}`];
       this.videoPlayer.setMarkers(Object.keys(track).map((str) => parseFloat(str)));
     } else {
       this.videoPlayer.setMarkers([]);
@@ -222,7 +222,7 @@ export class Manager {
     if (this.selection === null && widget === null) {
       return true;
     }
-    if (this.selection && widget && this.selection.element === widget.element) {
+    if (this.selection && widget && this.selection.widget.element === widget.element) {
       return true;
     }
     return false;
@@ -237,8 +237,8 @@ export class Manager {
       this.selection = null;
     }
     if (widget) {
-      this.selection = new Gizmo(widget.element);
-      this.selection.addEventListener("keyframe", () => this.keyframe(this.selection.element));
+      this.selection = new Gizmo(widget);
+      this.selection.addEventListener("keyframe", () => this.keyframe(this.selection.widget.element));
     }
     this.updateMarkers();
   }
