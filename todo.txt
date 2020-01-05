@@ -39,6 +39,7 @@ DONE - Play pause button does not update if video changed state externally (e.g.
 DONE - Gizmos create keyframes every time we select
 DONE - Changing selected widget does not update timeline keyframes
 
+ - Fix text rendering
  - Tabbing away from video as it's encoding messes it up (can just say don't tab away for now)
    - We could fix this, and dramatically speed up rendering by not using html2canvas
    - Draw all widgets using canvas

@@ -1,9 +1,6 @@
-import {Deferred} from "./utility";
+import {Deferred, Utility} from "./utility";
 import {VideoPlayer} from "./videoPlayer";
 import {VideoSeeker} from "./videoSeeker";
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const html2canvas: typeof import("html2canvas").default = require("html2canvas");
 
 export class RenderFrameEvent extends Event {
   public pngData: ArrayBuffer;
@@ -43,23 +40,24 @@ export class Renderer extends VideoSeeker {
     const height = video.videoHeight;
     this.canvas.width = width;
     this.canvas.height = height;
-    // Only using widgetContainer is incorrect due to parent transform (can't use display: none here either).
-    const clone = this.widgetContainer.cloneNode(true) as HTMLDivElement;
-    clone.style.position = "relative";
-    clone.style.top = `${window.innerHeight}px`;
-    clone.style.left = "0px";
-    document.body.append(clone);
-    const canvasWithoutVideo = await html2canvas(clone, {
-      backgroundColor: "rgba(0,0,0,0)",
-      height,
-      logging: false,
-      width,
-      windowHeight: height,
-      windowWidth: width
-    });
-    clone.remove();
     this.context.drawImage(video, 0, 0, width, height);
-    this.context.drawImage(canvasWithoutVideo, 0, 0, width, height);
+
+    for (const child of this.widgetContainer.childNodes) {
+      if (child instanceof HTMLElement) {
+        const transform = Utility.getTransform(child);
+        this.context.translate(transform.translate[0], transform.translate[1]);
+        this.context.rotate(transform.rotate);
+        this.context.scale(transform.scale[0], transform.scale[1]);
+        if (child instanceof HTMLImageElement) {
+          this.context.drawImage(child, -child.width / 2, -child.height / 2, child.width, child.height);
+        } else if (child instanceof HTMLDivElement) {
+          this.context.font = window.getComputedStyle(child).font;
+          this.context.fillText(child.innerText, 0, 0);
+        }
+        this.context.resetTransform();
+      }
+    }
+
     const pngData = await Renderer.canvasToArrayBuffer(this.canvas, "image/png");
     const toSend = new RenderFrameEvent("frame");
     toSend.pngData = pngData;
