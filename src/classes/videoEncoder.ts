@@ -26,12 +26,14 @@ export class VideoEncoder extends EventTarget {
       // eslint-disable-next-line capitalized-comments, no-inline-comments
       const {createWorker} = await import(/* webpackChunkName: "ffmpeg" */ "@ffmpeg/ffmpeg");
       const worker: FfmpegWorker = createWorker({
+        corePath: require("@ffmpeg/core/ffmpeg-core.js").default,
         logger: (message) => console.log(message),
         progress: (progress: FfmpegProgress) => {
           const toSend = new VideoProgressEvent("progress");
           toSend.progress = progress.ratio;
           this.dispatchEvent(toSend);
-        }
+        },
+        workerPath: require("@ffmpeg/ffmpeg/dist/worker.min.js").default
       });
       await worker.load();
       return worker;
