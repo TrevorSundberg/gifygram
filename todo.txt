@@ -39,11 +39,11 @@ DONE - Play pause button does not update if video changed state externally (e.g.
 DONE - Gizmos create keyframes every time we select
 DONE - Changing selected widget does not update timeline keyframes
 DONE - Can't delete widgets anymore
+DONE - Draw all widgets using canvas
 
  - Fix text rendering
  - Tabbing away from video as it's encoding messes it up (can just say don't tab away for now)
    - We could fix this, and dramatically speed up rendering by not using html2canvas
-   - Draw all widgets using canvas
    - Query scenejs for transform data without actually running it on the elements
    - Make transparent images and overlay them using ffmpeg (without capturing video snapshots)
  - Android ffmpeg encoding doesn't seem to run
@@ -55,6 +55,7 @@ DONE - Can't delete widgets anymore
  - Make the manager create the container and widget container (pass in body)
  - Make text via a modal text input (doesn't change)
  - Double click or tap to change text or image
+ - Properly pack/serve ffmpeg worker, don't use https://unpkg.com/@ffmpeg/ffmpeg@v0.5.2/dist/worker.min.js
 
  - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)
  - Scenejs Keyframe bug where it doesn't seek correctly: min repro and report it
