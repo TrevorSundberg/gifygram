@@ -40,15 +40,17 @@ DONE - Gizmos create keyframes every time we select
 DONE - Changing selected widget does not update timeline keyframes
 DONE - Can't delete widgets anymore
 DONE - Draw all widgets using canvas
+DONE - Make transparent images and overlay them using ffmpeg (without capturing video snapshots)
+DONE - Dramatically speed up rendering by not using html2canvas
 
+ - Create ffmpeg worker pool (at least warm up last one)
+ - Tweak ffmpeg settings to encode faster
  - Fix text rendering
  - Tabbing away from video as it's encoding messes it up (can just say don't tab away for now)
-   - We could fix this, and dramatically speed up rendering by not using html2canvas
-   - Query scenejs for transform data without actually running it on the elements
-   - Make transparent images and overlay them using ffmpeg (without capturing video snapshots)
+ - Hide video during canvas rendering
+ - Query scenejs for transform data without actually running it on the elements
  - Android ffmpeg encoding doesn't seem to run
  - Upload videos or sprites
- - Encode ffmpeg at the same time that we screenshot the frames
  - Timeline view that lets us delete frames / seek to frames, even if it's minimal
  - Can't scale and rotate on mobile easily (both fingers need to be on sprite)
  - Button to hide/show sprites on specific frames (show as transparent while editing)
