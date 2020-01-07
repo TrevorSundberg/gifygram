@@ -20,28 +20,43 @@ export class VideoSeeker extends EventTarget {
     return Math.round(time / this.frameRate) * this.frameRate;
   }
 
-  protected async run (startTime: number): Promise<boolean> {
+  protected async run (startTime: number, waitForSeekEvent: boolean): Promise<boolean> {
     this.runningPromise = new Deferred<boolean>();
     await this.player.loadPromise;
     const {video} = this.player;
     video.pause();
 
+    let currentTime = this.snapToFrameRate(startTime);
+
     const onSeek = async () => {
       if (this.isStopped) {
         this.runningPromise.resolve(false);
-        return;
+        return false;
       }
-      await this.onFrame(video.currentTime / video.duration);
-      if (video.currentTime + this.frameRate > video.duration) {
+      await this.onFrame(currentTime / video.duration);
+      if (currentTime + this.frameRate > video.duration) {
         this.runningPromise.resolve(true);
-      } else {
-        video.currentTime = this.snapToFrameRate(video.currentTime + this.frameRate);
+        return false;
       }
+      currentTime = this.snapToFrameRate(currentTime + this.frameRate);
+      video.currentTime = currentTime;
+      return true;
     };
-    video.addEventListener("seeked", onSeek);
-    video.currentTime = this.snapToFrameRate(startTime);
+
+    if (waitForSeekEvent) {
+      video.addEventListener("seeked", onSeek);
+      video.currentTime = currentTime;
+    } else {
+      // eslint-disable-next-line curly
+      while (await onSeek());
+    }
+
     const result = await this.runningPromise;
-    video.removeEventListener("seeked", onSeek);
+
+    if (waitForSeekEvent) {
+      video.removeEventListener("seeked", onSeek);
+    }
+
     this.runningPromise = null;
     this.isStopped = false;
     return result;

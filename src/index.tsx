@@ -102,6 +102,7 @@ const download = (url: string, filename: string) => {
 document.getElementById("record").addEventListener("click", async () => {
   manager.selectWidget(null);
   const videoEncoder = new VideoEncoder();
+  await videoEncoder.addVideo(player);
   const renderer = new Renderer(widgetContainer, player);
   const modal = new ModalProgress();
   modal.open("Rendering & Encoding", $(), false, [

@@ -40,7 +40,7 @@ export class Renderer extends VideoSeeker {
     const height = video.videoHeight;
     this.canvas.width = width;
     this.canvas.height = height;
-    this.context.drawImage(video, 0, 0, width, height);
+    this.context.clearRect(0, 0, width, height);
 
     for (const child of this.widgetContainer.childNodes) {
       if (child instanceof HTMLElement) {
@@ -66,6 +66,6 @@ export class Renderer extends VideoSeeker {
   }
 
   public async render (): Promise<boolean> {
-    return this.run(0);
+    return this.run(0, false);
   }
 }

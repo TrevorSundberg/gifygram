@@ -56,7 +56,7 @@ export class MotionTracker extends VideoSeeker {
 
     this.buildPyramidFromVideoImage(this.currentPyramid);
 
-    await this.run(this.player.video.currentTime);
+    await this.run(this.player.video.currentTime, true);
   }
 
   public addPoint (x: number, y: number) {

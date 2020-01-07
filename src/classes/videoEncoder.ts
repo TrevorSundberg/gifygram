@@ -1,3 +1,5 @@
+import {VideoPlayer} from "./videoPlayer";
+
 interface FfmpegWorker {
   load();
   write(filename: string, buffer: Uint8Array);
@@ -40,7 +42,17 @@ export class VideoEncoder extends EventTarget {
     })();
   }
 
-  public async addFrame (pngData: ArrayBuffer): Promise<number> {
+  public async addVideo (video: VideoPlayer) {
+    const response = await fetch(video.getSrc());
+    const videoData = await response.arrayBuffer();
+    const result = this.chain.then(async () => {
+      const worker = await this.workerPromise;
+      await worker.write("background.mp4", new Uint8Array(videoData));
+    });
+    this.chain = result;
+  }
+
+  public async addFrame (pngData: ArrayBuffer) {
     const result = this.chain.then(async () => {
       const worker = await this.workerPromise;
       await worker.write(`frame${this.frame}.png`, new Uint8Array(pngData));
@@ -54,7 +66,8 @@ export class VideoEncoder extends EventTarget {
     const result = this.chain.then(async () => {
       this.frame = 0;
       const worker = await this.workerPromise;
-      await worker.run("-i /data/frame%d.png output.mp4", {
+      await worker.run("-i /data/background.mp4 -framerate 30 -i /data/frame%d.png output.mp4 " +
+        "-filter_complex [0:v][1:v]overlay=0:0", {
         output: "output.mp4"
       });
       const output = (await worker.read("output.mp4")).data;
