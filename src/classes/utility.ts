@@ -1,3 +1,6 @@
+export const FRAME_RATE = 30;
+export const FRAME_TIME = 1 / FRAME_RATE;
+
 export class Deferred<T> implements Promise<T> {
   private resolveSelf;
 

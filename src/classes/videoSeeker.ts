@@ -1,23 +1,20 @@
-import {Deferred} from "./utility";
+import {Deferred, FRAME_TIME} from "./utility";
 import {VideoPlayer} from "./videoPlayer";
 
 export class VideoSeeker extends EventTarget {
   public readonly player: VideoPlayer;
 
-  private readonly frameRate: number;
-
   private runningPromise: Deferred<boolean> = null;
 
   private isStopped = false;
 
-  public constructor (player: VideoPlayer, frameRate: number = 1 / 30) {
+  public constructor (player: VideoPlayer) {
     super();
     this.player = player;
-    this.frameRate = frameRate;
   }
 
   public snapToFrameRate (time: number) {
-    return Math.round(time / this.frameRate) * this.frameRate;
+    return Math.round(time / FRAME_TIME) * FRAME_TIME;
   }
 
   protected async run (startTime: number, waitForSeekEvent: boolean): Promise<boolean> {
@@ -34,11 +31,11 @@ export class VideoSeeker extends EventTarget {
         return false;
       }
       await this.onFrame(currentTime / video.duration);
-      if (currentTime + this.frameRate > video.duration) {
+      if (currentTime + FRAME_TIME > video.duration) {
         this.runningPromise.resolve(true);
         return false;
       }
-      currentTime = this.snapToFrameRate(currentTime + this.frameRate);
+      currentTime = this.snapToFrameRate(currentTime + FRAME_TIME);
       video.currentTime = currentTime;
       return true;
     };

@@ -1,3 +1,4 @@
+import {FRAME_RATE} from "./utility";
 import {VideoPlayer} from "./videoPlayer";
 
 interface FfmpegWorker {
@@ -66,7 +67,7 @@ export class VideoEncoder extends EventTarget {
     const result = this.chain.then(async () => {
       this.frame = 0;
       const worker = await this.workerPromise;
-      await worker.run("-i /data/background.mp4 -framerate 30 -i /data/frame%d.png output.mp4 " +
+      await worker.run(`-i /data/background.mp4 -framerate ${FRAME_RATE} -i /data/frame%d.png output.mp4 ` +
         "-filter_complex [0:v][1:v]overlay=0:0", {
         output: "output.mp4"
       });
