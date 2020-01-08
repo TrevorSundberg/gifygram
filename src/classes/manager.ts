@@ -41,8 +41,6 @@ export class Widget {
 }
 
 export class Manager {
-  private container: HTMLDivElement;
-
   private widgetContainer: HTMLDivElement;
 
   private videoPlayer: VideoPlayer;
@@ -54,7 +52,6 @@ export class Manager {
   private widgets: Widget[] = [];
 
   public constructor (container: HTMLDivElement, widgetContainer: HTMLDivElement, videoPlayer: VideoPlayer) {
-    this.container = container;
     this.widgetContainer = widgetContainer;
     this.videoPlayer = videoPlayer;
     this.update();
