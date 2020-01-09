@@ -43,7 +43,6 @@ DONE - Draw all widgets using canvas
 DONE - Make transparent images and overlay them using ffmpeg (without capturing video snapshots)
 DONE - Dramatically speed up rendering by not using html2canvas
 
- - Create ffmpeg worker pool (at least warm up last one)
  - Tweak ffmpeg settings to encode faster
  - Fix text rendering
  - Tabbing away from video as it's encoding messes it up (can just say don't tab away for now)
