@@ -8,12 +8,14 @@ import $ from "jquery";
 import {Manager} from "./classes/manager";
 import {Modal} from "./classes/modal";
 import {ModalProgress} from "./classes/modalProgress";
+import {Timeline} from "./classes/timeline";
 import {Utility} from "./classes/utility";
 import {VideoPlayer} from "./classes/videoPlayer";
 const container = document.getElementById("container") as HTMLDivElement;
 const widgetContainer = document.getElementById("widgets") as HTMLDivElement;
 const player = new VideoPlayer(container);
-const manager = new Manager(container, widgetContainer, player);
+const timeline = new Timeline();
+const manager = new Manager(container, widgetContainer, player, timeline);
 
 document.getElementById("sprite").addEventListener("click", async () => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -100,10 +102,11 @@ const download = (url: string, filename: string) => {
 };
 
 document.getElementById("record").addEventListener("click", async () => {
+  manager.updateExternally = true;
   manager.selectWidget(null);
   const videoEncoder = new VideoEncoder();
   await videoEncoder.addVideo(player);
-  const renderer = new Renderer(widgetContainer, player);
+  const renderer = new Renderer(widgetContainer, player, timeline);
   const modal = new ModalProgress();
   modal.open("Rendering & Encoding", $(), false, [
     {
@@ -130,4 +133,5 @@ document.getElementById("record").addEventListener("click", async () => {
   modal.hide();
   videoEncoder.removeEventListener("progress", onVideoEncoderProgress);
   renderer.removeEventListener("frame", onRenderFrame);
+  manager.updateExternally = false;
 });

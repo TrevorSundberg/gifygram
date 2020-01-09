@@ -1,6 +1,7 @@
 import {Deferred, Utility} from "./utility";
+import {VideoSeeker, VideoSeekerFrame} from "./videoSeeker";
+import {Timeline} from "./timeline";
 import {VideoPlayer} from "./videoPlayer";
-import {VideoSeeker} from "./videoSeeker";
 
 export class RenderFrameEvent extends Event {
   public pngData: ArrayBuffer;
@@ -11,15 +12,18 @@ export class RenderFrameEvent extends Event {
 export class Renderer extends VideoSeeker {
   private readonly widgetContainer: HTMLDivElement;
 
+  private readonly timeline: Timeline;
+
   private readonly canvas = document.createElement("canvas")
 
   private readonly context: CanvasRenderingContext2D;
 
-  public constructor (widgetContainer: HTMLDivElement, player: VideoPlayer) {
+  public constructor (widgetContainer: HTMLDivElement, player: VideoPlayer, timeline: Timeline) {
     super(player);
     this.widgetContainer = widgetContainer;
 
     this.context = this.canvas.getContext("2d");
+    this.timeline = timeline;
   }
 
   private static async canvasToArrayBuffer (canvas: HTMLCanvasElement, mimeType: string) {
@@ -34,7 +38,7 @@ export class Renderer extends VideoSeeker {
     return defer;
   }
 
-  protected async onFrame (progress: number) {
+  protected async onFrame (frame: VideoSeekerFrame) {
     const {video} = this.player;
     const width = video.videoWidth;
     const height = video.videoHeight;
@@ -42,6 +46,7 @@ export class Renderer extends VideoSeeker {
     this.canvas.height = height;
     this.context.clearRect(0, 0, width, height);
 
+    this.timeline.setTime(frame.currentTime);
     for (const child of this.widgetContainer.childNodes) {
       if (child instanceof HTMLElement) {
         const transform = Utility.getTransform(child);
@@ -61,7 +66,7 @@ export class Renderer extends VideoSeeker {
     const pngData = await Renderer.canvasToArrayBuffer(this.canvas, "image/png");
     const toSend = new RenderFrameEvent("frame");
     toSend.pngData = pngData;
-    toSend.progress = progress;
+    toSend.progress = frame.progress;
     this.dispatchEvent(toSend);
   }
 

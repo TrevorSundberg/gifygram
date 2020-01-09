@@ -1,6 +1,6 @@
 /* eslint-disable new-cap */
+import {VideoSeeker, VideoSeekerFrame} from "./videoSeeker";
 import {VideoPlayer} from "./videoPlayer";
-import {VideoSeeker} from "./videoSeeker";
 import jsfeat from "jsfeat";
 
 export class MotionTrackerEvent extends Event {
@@ -79,7 +79,7 @@ export class MotionTracker extends VideoSeeker {
     pyramid.build(currentData, true);
   }
 
-  protected async onFrame (progress: number) {
+  protected async onFrame (frame: VideoSeekerFrame) {
     const tempXY = this.previousXY;
     this.previousXY = this.currentXY;
     this.currentXY = tempXY;
@@ -113,7 +113,7 @@ export class MotionTracker extends VideoSeeker {
         toSend.y
       ] = this.currentXY;
     }
-    toSend.progress = progress;
+    toSend.progress = frame.progress;
     this.dispatchEvent(toSend);
   }
 

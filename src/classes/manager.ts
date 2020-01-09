@@ -45,15 +45,23 @@ export class Manager {
 
   private videoPlayer: VideoPlayer;
 
-  private timeline = new Timeline()
+  private timeline: Timeline;
 
   public selection: Gizmo = null;
 
   private widgets: Widget[] = [];
 
-  public constructor (container: HTMLDivElement, widgetContainer: HTMLDivElement, videoPlayer: VideoPlayer) {
+  public updateExternally = false;
+
+  public constructor (
+    container: HTMLDivElement,
+    widgetContainer: HTMLDivElement,
+    videoPlayer: VideoPlayer,
+    timeline: Timeline
+  ) {
     this.widgetContainer = widgetContainer;
     this.videoPlayer = videoPlayer;
+    this.timeline = timeline;
     this.update();
 
     const updateContainerSize = (videoWidth: number, videoHeight: number, scale: number) => {
@@ -140,6 +148,9 @@ export class Manager {
   }
 
   private update () {
+    if (this.updateExternally) {
+      return;
+    }
     const {currentTime} = this.videoPlayer.video;
     if (this.timeline.getTime() !== currentTime) {
       this.timeline.setTime(currentTime);

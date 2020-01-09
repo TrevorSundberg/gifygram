@@ -1,6 +1,12 @@
 import {Deferred, FRAME_TIME} from "./utility";
 import {VideoPlayer} from "./videoPlayer";
 
+export class VideoSeekerFrame {
+  public currentTime: number;
+
+  public progress: number;
+}
+
 export class VideoSeeker extends EventTarget {
   public readonly player: VideoPlayer;
 
@@ -17,32 +23,37 @@ export class VideoSeeker extends EventTarget {
     return Math.round(time / FRAME_TIME) * FRAME_TIME;
   }
 
-  protected async run (startTime: number, waitForSeekEvent: boolean): Promise<boolean> {
+  protected async run (startTime: number, seekVideo: boolean): Promise<boolean> {
     this.runningPromise = new Deferred<boolean>();
     await this.player.loadPromise;
     const {video} = this.player;
     video.pause();
 
-    let currentTime = this.snapToFrameRate(startTime);
+    const frame = new VideoSeekerFrame();
+    frame.currentTime = this.snapToFrameRate(startTime);
 
     const onSeek = async () => {
       if (this.isStopped) {
         this.runningPromise.resolve(false);
         return false;
       }
-      await this.onFrame(currentTime / video.duration);
-      if (currentTime + FRAME_TIME > video.duration) {
+      frame.progress = frame.currentTime / video.duration;
+      await this.onFrame(frame);
+      if (frame.currentTime + FRAME_TIME > video.duration) {
         this.runningPromise.resolve(true);
         return false;
       }
-      currentTime = this.snapToFrameRate(currentTime + FRAME_TIME);
-      video.currentTime = currentTime;
+      frame.currentTime = this.snapToFrameRate(frame.currentTime + FRAME_TIME);
+
+      if (seekVideo) {
+        video.currentTime = frame.currentTime;
+      }
       return true;
     };
 
-    if (waitForSeekEvent) {
+    if (seekVideo) {
       video.addEventListener("seeked", onSeek);
-      video.currentTime = currentTime;
+      video.currentTime = frame.currentTime;
     } else {
       // eslint-disable-next-line curly
       while (await onSeek());
@@ -50,7 +61,7 @@ export class VideoSeeker extends EventTarget {
 
     const result = await this.runningPromise;
 
-    if (waitForSeekEvent) {
+    if (seekVideo) {
       video.removeEventListener("seeked", onSeek);
     }
 
@@ -59,8 +70,8 @@ export class VideoSeeker extends EventTarget {
     return result;
   }
 
-  protected async onFrame (progress: number) {
-    throw new Error(`Not implemented (${progress})`);
+  protected async onFrame (frame: VideoSeekerFrame) {
+    throw new Error(`Not implemented (${frame})`);
   }
 
   public async stop () {
