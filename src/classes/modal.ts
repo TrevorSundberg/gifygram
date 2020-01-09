@@ -52,6 +52,9 @@ export class Modal {
     });
     const body = this.root.find(".modal-body");
     body.append(content);
+    this.root.one("shown.bs.modal", () => {
+      this.root.find("[autofocus]").focus();
+    });
     this.root.one("hidden.bs.modal", () => {
       defer.resolve(null);
       this.root.remove();
