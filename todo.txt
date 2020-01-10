@@ -42,12 +42,12 @@ DONE - Can't delete widgets anymore
 DONE - Draw all widgets using canvas
 DONE - Make transparent images and overlay them using ffmpeg (without capturing video snapshots)
 DONE - Dramatically speed up rendering by not using html2canvas
+DONE - Directly run scenejs/timline from the renderer
 
  - Tweak ffmpeg settings to encode faster
  - Fix text rendering
  - Tabbing away from video as it's encoding messes it up (can just say don't tab away for now)
  - Hide video during canvas rendering
- - Query scenejs for transform data without actually running it on the elements
  - Android ffmpeg encoding doesn't seem to run
  - Upload videos or sprites
  - Timeline view that lets us delete frames / seek to frames, even if it's minimal
