@@ -43,11 +43,11 @@ DONE - Draw all widgets using canvas
 DONE - Make transparent images and overlay them using ffmpeg (without capturing video snapshots)
 DONE - Dramatically speed up rendering by not using html2canvas
 DONE - Directly run scenejs/timline from the renderer
+DONE - Hide video during canvas rendering
 
  - Tweak ffmpeg settings to encode faster
  - Fix text rendering
  - Tabbing away from video as it's encoding messes it up (can just say don't tab away for now)
- - Hide video during canvas rendering
  - Android ffmpeg encoding doesn't seem to run
  - Upload videos or sprites
  - Timeline view that lets us delete frames / seek to frames, even if it's minimal

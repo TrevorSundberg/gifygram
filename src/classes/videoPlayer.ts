@@ -113,6 +113,14 @@ export class VideoPlayer {
     });
   }
 
+  public hideVideo () {
+    this.video.style.visibility = "hidden";
+  }
+
+  public showVideo () {
+    this.video.style.visibility = "";
+  }
+
   public async setSrc (src: string) {
     if (this.video.src) {
       this.loadPromise = new Deferred<void>();

@@ -102,6 +102,7 @@ const download = (url: string, filename: string) => {
 };
 
 document.getElementById("record").addEventListener("click", async () => {
+  player.hideVideo();
   manager.updateExternally = true;
   manager.selectWidget(null);
   const videoEncoder = new VideoEncoder();
@@ -134,4 +135,5 @@ document.getElementById("record").addEventListener("click", async () => {
   videoEncoder.removeEventListener("progress", onVideoEncoderProgress);
   renderer.removeEventListener("frame", onRenderFrame);
   manager.updateExternally = false;
+  player.showVideo();
 });
