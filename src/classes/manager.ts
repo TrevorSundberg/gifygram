@@ -109,6 +109,7 @@ export class Manager {
         this.destroyWidget(this.selection.widget);
       }
     });
+    widgetContainer.addEventListener("blur", deselectElement, true);
   }
 
   public save (): SerializedData {
