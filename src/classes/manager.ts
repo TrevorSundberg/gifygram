@@ -177,6 +177,10 @@ export class Manager {
     element.id = id;
     element.className = "widget";
     element.draggable = false;
+    element.ondragstart = (event) => {
+      event.preventDefault();
+      return false;
+    };
     const {video} = this.videoPlayer;
     element.style.transform = Utility.transformToCss(Utility.centerTransform(video.videoWidth, video.videoHeight));
     this.widgetContainer.appendChild(element);
