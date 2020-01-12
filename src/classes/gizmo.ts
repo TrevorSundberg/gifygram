@@ -10,7 +10,7 @@ export class Gizmo extends EventTarget {
   public constructor (widget: Widget) {
     super();
     this.widget = widget;
-    const moveable = new Moveable(widget.element.parentElement, {
+    const moveable = new Moveable(document.body, {
       draggable: true,
       keepRatio: true,
       pinchable: true,
