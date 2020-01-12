@@ -18,19 +18,38 @@ export interface ModalOpenParameters {
   title: string;
   content?: JQuery;
   dismissable?: boolean;
+  fullscreen?: boolean;
   buttons?: ModalButton[];
 }
 
 export class Modal {
-  private root: JQuery;
+  public root: JQuery;
 
   public async open (params: ModalOpenParameters): Promise<ModalButton> {
     this.root = $(modalHtml);
+    const defer = new Deferred<ModalButton>();
+    if (params.fullscreen) {
+      const modalDialog = this.root.find(".modal-dialog");
+      modalDialog.css("max-width", "none");
+      modalDialog.css("width", "100%");
+      modalDialog.css("height", "100%");
+      modalDialog.css("margin", "0");
+      modalDialog.css("padding", "0");
+      const modalContent = this.root.find(".modal-content");
+      modalContent.css("width", "100%");
+      modalContent.css("height", "100%");
+      const interval = setInterval(() => {
+        this.root.css("padding-left", "0px");
+      });
+      defer.then(() => {
+        clearInterval(interval);
+      });
+    }
+
     this.root.find("#modalTitle").text(params.title);
     if (!params.dismissable) {
       this.root.find(".close").remove();
     }
-    const defer = new Deferred<ModalButton>();
     const footer = this.root.find(".modal-footer");
     for (const button of params.buttons || []) {
       const buttonQuery = $("<button type=\"button\" class=\"btn btn-secondary\"></button>");
