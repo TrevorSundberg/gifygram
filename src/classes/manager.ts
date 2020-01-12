@@ -159,6 +159,7 @@ export class Manager {
     const element = await (async () => {
       const img = document.createElement("img");
       img.dataset.type = init.type;
+      img.crossOrigin = "anonymous";
       img.src = init.src;
       await new Promise((resolve, reject) => {
         img.onload = resolve;
