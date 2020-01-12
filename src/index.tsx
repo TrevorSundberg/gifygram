@@ -8,6 +8,7 @@ import $ from "jquery";
 import {Manager} from "./classes/manager";
 import {Modal} from "./classes/modal";
 import {ModalProgress} from "./classes/modalProgress";
+import TextToSVG from "text-to-svg";
 import {Timeline} from "./classes/timeline";
 import {Utility} from "./classes/utility";
 import {VideoPlayer} from "./classes/videoPlayer";
@@ -20,24 +21,37 @@ const manager = new Manager(container, widgetContainer, player, timeline);
 
 document.getElementById("sprite").addEventListener("click", async () => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const src = require("./public/sample.png").default;
+  const src = require("./public/sample.png").default as string;
   await manager.addWidget({src, type: "image"});
 });
 
+const fontPromise = new Promise<any>((resolve, reject) => {
+  const src = require("./public/NotoSans-Regular.ttf").default as string;
+  TextToSVG.load(src, (err, textToSVG) => {
+    if (err) {
+      reject(err);
+      return;
+    }
+    resolve(textToSVG);
+  });
+});
+
 document.getElementById("text").addEventListener("click", async () => {
-  const svg = $("<svg xmlns='http://www.w3.org/2000/svg' width='150' height='1em' " +
-    "viewbox='0 0 150 1em' style='font-size: 48px'></svg>");
-  const text = $("<text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' " +
-    "style='fill: #fff; stroke: #000;'>Hello</text>");
-  svg.append(text);
+  const textArea = $("<textarea class='md-textarea form-control' autofocus></textarea>");
+  const div = $("<div>Copy the save data from below:</div>");
+  div.append(textArea);
   const modal = new Modal();
-  const button = await modal.open(
-    "Save",
-    $("<div contentEditable='true'/>").append(svg),
-    true,
-    [{dismiss: true, name: "OK"}]
-  );
+  const button = await modal.open("Text", div, true, [{dismiss: true, name: "OK"}]);
   if (button) {
+    const textToSVG = await fontPromise;
+    const svgText = textToSVG.getSVG(textArea.val(), {
+      anchor: "left top",
+      attributes: {
+        fill: "white",
+        stroke: "black"
+      }
+    });
+    const svg = $(svgText);
     const src = svgToMiniDataURI(svg.get(0).outerHTML) as string;
     await manager.addWidget({src, type: "text"});
   }
@@ -46,9 +60,7 @@ document.getElementById("text").addEventListener("click", async () => {
 document.getElementById("save").addEventListener("click", async () => {
   manager.selectWidget(null);
   const value = JSON.stringify(manager.save());
-  const textArea = $("<textarea autofocus></textarea>");
-  textArea.addClass("md-textarea");
-  textArea.addClass("form-control");
+  const textArea = $("<textarea class='md-textarea form-control' autofocus></textarea>");
   textArea.val(value);
   const div = $("<div>Copy the save data from below:</div>");
   div.append(textArea);
@@ -58,9 +70,7 @@ document.getElementById("save").addEventListener("click", async () => {
 
 document.getElementById("load").addEventListener("click", async () => {
   manager.selectWidget(null);
-  const textArea = $("<textarea autofocus></textarea>");
-  textArea.addClass("md-textarea");
-  textArea.addClass("form-control");
+  const textArea = $("<textarea class='md-textarea form-control' autofocus></textarea>");
   const div = $("<div>Paste saved data into the text area and click Load:</div>");
   div.append(textArea);
   const modal = new Modal();
