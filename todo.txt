@@ -45,18 +45,19 @@ DONE - Dramatically speed up rendering by not using html2canvas
 DONE - Directly run scenejs/timline from the renderer
 DONE - Hide video during canvas rendering
 DONE - Properly pack/serve ffmpeg worker, don't use https://unpkg.com/@ffmpeg/ffmpeg@v0.5.2/dist/worker.min.js
+DONE - Make text via a modal text input (doesn't change, use svg)
+DONE - Fix text rendering
+DONE - Tabbing away from video as it's encoding messes it up (can just say don't tab away for now)
 
- - Make text via a modal text input (doesn't change, use svg)
- - Fix text rendering
  - Double click or double tap or tap + hold actions to change text or image
  - Tweak ffmpeg settings to encode faster
- - Tabbing away from video as it's encoding messes it up (can just say don't tab away for now)
  - Android ffmpeg encoding doesn't seem to run
  - Upload videos or sprites
  - Timeline view that lets us delete frames / seek to frames, even if it's minimal
  - Can't scale and rotate on mobile easily (both fingers need to be on sprite)
  - Button to hide/show sprites on specific frames (show as transparent while editing)
  - Make the manager create the container and widget container (pass in body)
+ - Add delete button (trash) and visual feedback, for mobile
 
  - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)
  - Scenejs Keyframe bug where it doesn't seek correctly: min repro and report it
