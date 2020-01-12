@@ -1,4 +1,4 @@
-import {Modal, ModalButton} from "./modal";
+import {Modal, ModalButton, ModalOpenParameters} from "./modal";
 import $ from "jquery";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const contentHtml = require("./modalProgress.html").default;
@@ -8,17 +8,13 @@ export class ModalProgress extends Modal {
 
   private status: JQuery;
 
-  public async open (
-    title: string,
-    content: JQuery,
-    dismissable: boolean,
-    buttons: ModalButton[]
-  ): Promise<ModalButton> {
+  public async open (params: ModalOpenParameters): Promise<ModalButton> {
     const div = $(contentHtml);
     this.progress = div.find("#progress");
     this.status = div.find("#status");
-    div.prepend(content);
-    return super.open(title, div, dismissable, buttons);
+    div.prepend(params.content);
+    params.content = div;
+    return super.open(params);
   }
 
   public setProgress (value: number, status: string) {

@@ -14,23 +14,25 @@ export interface ModalButton {
   callback?: ModalCallback;
 }
 
+export interface ModalOpenParameters {
+  title: string;
+  content?: JQuery;
+  dismissable?: boolean;
+  buttons?: ModalButton[];
+}
+
 export class Modal {
   private root: JQuery;
 
-  public async open (
-    title: string,
-    content: JQuery,
-    dismissable: boolean,
-    buttons: ModalButton[]
-  ): Promise<ModalButton> {
+  public async open (params: ModalOpenParameters): Promise<ModalButton> {
     this.root = $(modalHtml);
-    this.root.find("#modalTitle").text(title);
-    if (!dismissable) {
+    this.root.find("#modalTitle").text(params.title);
+    if (!params.dismissable) {
       this.root.find(".close").remove();
     }
     const defer = new Deferred<ModalButton>();
     const footer = this.root.find(".modal-footer");
-    for (const button of buttons) {
+    for (const button of params.buttons || []) {
       const buttonQuery = $("<button type=\"button\" class=\"btn btn-secondary\"></button>");
       if (button.dismiss) {
         buttonQuery.attr("data-dismiss", "modal");
@@ -47,11 +49,13 @@ export class Modal {
       footer.append(buttonQuery);
     }
     this.root.modal({
-      backdrop: dismissable ? true : "static",
+      backdrop: params.dismissable ? true : "static",
       show: true
     });
     const body = this.root.find(".modal-body");
-    body.append(content);
+    if (params.content) {
+      body.append(params.content);
+    }
     this.root.one("shown.bs.modal", () => {
       this.root.find("[autofocus]").focus();
     });
@@ -71,11 +75,16 @@ export class Modal {
 
   public static async messageBox (title: string, text: string): Promise<ModalButton> {
     const modal = new Modal();
-    return modal.open(title, $("<p/>").text(text), true, [
-      {
-        dismiss: true,
-        name: "Close"
-      }
-    ]);
+    return modal.open({
+      buttons: [
+        {
+          dismiss: true,
+          name: "Close"
+        }
+      ],
+      content: $("<p/>").text(text),
+      dismissable: true,
+      title
+    });
   }
 }

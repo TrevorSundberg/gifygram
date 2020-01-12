@@ -41,7 +41,12 @@ document.getElementById("text").addEventListener("click", async () => {
   const div = $("<div>Copy the save data from below:</div>");
   div.append(textArea);
   const modal = new Modal();
-  const button = await modal.open("Text", div, true, [{dismiss: true, name: "OK"}]);
+  const button = await modal.open({
+    buttons: [{dismiss: true, name: "OK"}],
+    content: div,
+    dismissable: true,
+    title: "Text"
+  });
   if (button) {
     const textToSVG = await fontPromise;
     const svgText = textToSVG.getSVG(textArea.val(), {
@@ -65,7 +70,12 @@ document.getElementById("save").addEventListener("click", async () => {
   const div = $("<div>Copy the save data from below:</div>");
   div.append(textArea);
   const modal = new Modal();
-  modal.open("Save", div, true, [{dismiss: true, name: "OK"}]);
+  modal.open({
+    buttons: [{dismiss: true, name: "OK"}],
+    content: div,
+    dismissable: true,
+    title: "Save"
+});
 });
 
 document.getElementById("load").addEventListener("click", async () => {
@@ -74,10 +84,15 @@ document.getElementById("load").addEventListener("click", async () => {
   const div = $("<div>Paste saved data into the text area and click Load:</div>");
   div.append(textArea);
   const modal = new Modal();
-  const result = await modal.open("Load", div, true, [
+  const result = await modal.open({
+    buttons: [
     {dismiss: true, name: "Cancel"},
     {dismiss: true, name: "Load"}
-  ]);
+    ],
+    content: div,
+    dismissable: true,
+    title: "Load"
+  });
   if (result && result.name === "Load") {
     manager.load(JSON.parse(textArea.val() as string));
   }
@@ -94,7 +109,8 @@ document.getElementById("motion").addEventListener("click", async () => {
   const transform = Utility.getTransform(selection.widget.element);
   motionTracker.addPoint(transform.translate[0], transform.translate[1]);
   const modal = new ModalProgress();
-  modal.open("Tracking", $(), false, [
+  modal.open({
+    buttons: [
     {
       callback: async () => {
         await motionTracker.stop();
@@ -102,7 +118,9 @@ document.getElementById("motion").addEventListener("click", async () => {
       },
       name: "Stop"
     }
-  ]);
+    ],
+    title: "Tracking"
+  });
   const onFrame = async (event: import("./classes/motionTracker").MotionTrackerEvent) => {
     modal.setProgress(event.progress, "");
     if (event.found) {
@@ -133,7 +151,8 @@ document.getElementById("record").addEventListener("click", async () => {
   await videoEncoder.addVideo(player);
   const renderer = new Renderer(widgetContainer, player, timeline);
   const modal = new ModalProgress();
-  modal.open("Rendering & Encoding", $(), false, [
+  modal.open({
+    buttons: [
     {
       callback: async () => {
         await renderer.stop();
@@ -141,7 +160,9 @@ document.getElementById("record").addEventListener("click", async () => {
       },
       name: "Cancel"
     }
-  ]);
+    ],
+    title: "Rendering & Encoding"
+  });
   const onRenderFrame = async (event: RenderFrameEvent) => {
     const frame = await videoEncoder.addFrame(event.pngData);
     modal.setProgress(event.progress, `Rendering Frame: ${frame}`);
