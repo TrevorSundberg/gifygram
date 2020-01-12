@@ -91,16 +91,19 @@ export class Manager {
 
     window.addEventListener("update", () => this.update());
 
-    const deselectElement = () => this.selectWidget(null);
+    const deselectElement = (event: Event) => {
+      if (event.target === widgetContainer) {
+        this.selectWidget(null);
+      }
+    };
 
-    widgetContainer.addEventListener("mousedown", deselectElement, true);
-    widgetContainer.addEventListener("touchstart", deselectElement, true);
+    widgetContainer.addEventListener("mousedown", deselectElement);
+    widgetContainer.addEventListener("touchstart", deselectElement);
     widgetContainer.addEventListener("keydown", (event) => {
       if (event.key === "Delete" && this.selection) {
         this.destroyWidget(this.selection.widget);
       }
     });
-    widgetContainer.addEventListener("blur", deselectElement, true);
   }
 
   public save (): SerializedData {
