@@ -44,6 +44,7 @@
     "raw-loader": "^4.0.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-giphy-searchbox-stickers": "^1.0.5",
     "resize-observer-polyfill": "^1.5.1",
     "scenejs": "^1.1.5",
     "style-loader": "^1.0.1",

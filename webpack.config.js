@@ -20,8 +20,26 @@ module.exports = {
         test: /\.tsx?$/u
       },
       {
-        loader: "style-loader!css-loader",
-        test: /\.css$/u
+        include: /\.module\.css$/u,
+        test: /\.css$/u,
+        use: [
+          "style-loader",
+          {
+            loader: "css-loader",
+            options: {
+              importLoaders: 1,
+              modules: true
+            }
+          }
+        ]
+      },
+      {
+        exclude: /\.module\.css$/u,
+        test: /\.css$/u,
+        use: [
+          "style-loader",
+          "css-loader"
+        ]
       },
       {
         test: /\.(png|mp4)$/u,

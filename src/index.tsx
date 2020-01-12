@@ -8,6 +8,7 @@ import $ from "jquery";
 import {Manager} from "./classes/manager";
 import {Modal} from "./classes/modal";
 import {ModalProgress} from "./classes/modalProgress";
+import {StickerSearch} from "./classes/stickerSearch";
 import TextToSVG from "text-to-svg";
 import {Timeline} from "./classes/timeline";
 import {Utility} from "./classes/utility";
@@ -20,9 +21,10 @@ const timeline = new Timeline();
 const manager = new Manager(container, widgetContainer, player, timeline);
 
 document.getElementById("sprite").addEventListener("click", async () => {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const src = require("./public/sample.png").default as string;
-  await manager.addWidget({src, type: "image"});
+  const src = await StickerSearch.searchForStickerUrl();
+  if (src) {
+    await manager.addWidget({src, type: "image"});
+  }
 });
 
 const fontPromise = new Promise<any>((resolve, reject) => {
@@ -75,7 +77,7 @@ document.getElementById("save").addEventListener("click", async () => {
     content: div,
     dismissable: true,
     title: "Save"
-});
+  });
 });
 
 document.getElementById("load").addEventListener("click", async () => {
@@ -86,8 +88,8 @@ document.getElementById("load").addEventListener("click", async () => {
   const modal = new Modal();
   const result = await modal.open({
     buttons: [
-    {dismiss: true, name: "Cancel"},
-    {dismiss: true, name: "Load"}
+      {dismiss: true, name: "Cancel"},
+      {dismiss: true, name: "Load"}
     ],
     content: div,
     dismissable: true,
@@ -111,13 +113,13 @@ document.getElementById("motion").addEventListener("click", async () => {
   const modal = new ModalProgress();
   modal.open({
     buttons: [
-    {
-      callback: async () => {
-        await motionTracker.stop();
-        modal.hide();
-      },
-      name: "Stop"
-    }
+      {
+        callback: async () => {
+          await motionTracker.stop();
+          modal.hide();
+        },
+        name: "Stop"
+      }
     ],
     title: "Tracking"
   });
@@ -153,13 +155,13 @@ document.getElementById("record").addEventListener("click", async () => {
   const modal = new ModalProgress();
   modal.open({
     buttons: [
-    {
-      callback: async () => {
-        await renderer.stop();
-        modal.hide();
-      },
-      name: "Cancel"
-    }
+      {
+        callback: async () => {
+          await renderer.stop();
+          modal.hide();
+        },
+        name: "Cancel"
+      }
     ],
     title: "Rendering & Encoding"
   });

@@ -49,6 +49,7 @@ DONE - Make text via a modal text input (doesn't change, use svg)
 DONE - Fix text rendering
 DONE - Tabbing away from video as it's encoding messes it up (can just say don't tab away for now)
 
+ - Make a PR to allow searching stickers (checkbox for stickers)
  - Double click or double tap or tap + hold actions to change text or image
  - Tweak ffmpeg settings to encode faster
  - Android ffmpeg encoding doesn't seem to run
@@ -58,6 +59,7 @@ DONE - Tabbing away from video as it's encoding messes it up (can just say don't
  - Button to hide/show sprites on specific frames (show as transparent while editing)
  - Make the manager create the container and widget container (pass in body)
  - Add delete button (trash) and visual feedback, for mobile
+ - Add full screen loading animation for blocking operations
 
  - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)
  - Scenejs Keyframe bug where it doesn't seek correctly: min repro and report it
