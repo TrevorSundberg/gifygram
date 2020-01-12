@@ -1,4 +1,4 @@
-import {Timeline, TimelineEvent, Track, Tracks} from "./timeline";
+import {Timeline, Track, Tracks} from "./timeline";
 import {Gizmo} from "./gizmo";
 import {Utility} from "./utility";
 import {VideoPlayer} from "./videoPlayer";
@@ -7,20 +7,11 @@ const uuidv4: typeof import("uuid/v4") = require("uuid/v4");
 
 export type ElementFactory = (id: string) => Promise<HTMLElement>;
 
-export interface WidgetConstructor {
+export interface WidgetInit {
   id?: string;
-}
-
-export interface WidgetImage extends WidgetConstructor {
-  type: "image";
+  type: "image" | "text";
   src: string;
 }
-
-export interface WidgetText extends WidgetConstructor {
-  type: "text";
-}
-
-export type WidgetInit = WidgetImage | WidgetText;
 
 export interface SerializedData {
   tracks: Tracks;
@@ -163,35 +154,16 @@ export class Manager {
 
   public async addWidget (init: WidgetInit): Promise<Widget> {
     const element = await (async () => {
-      switch (init.type) {
-        case "image":
-        {
-          const img = document.createElement("img");
-          img.src = init.src;
-          await new Promise((resolve) => {
-            img.onload = resolve;
-          });
-          img.style.left = `${-img.width / 2}px`;
-          img.style.top = `${-img.height / 2}px`;
-          return img;
-        }
-        case "text":
-        {
-          const div = document.createElement("div");
-          div.contentEditable = "true";
-          div.textContent = "Text";
-          div.addEventListener("frame", (event: TimelineEvent) => {
-            const text = event.frame.get("text") || "";
-            div.textContent = text;
-          });
-          div.addEventListener("input", () => {
-            this.keyframe(div);
-          });
-          return div;
-        }
-        default:
-          throw new Error("Invalid widget init type");
-      }
+      const img = document.createElement("img");
+      img.dataset.type = init.type;
+      img.src = init.src;
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+      img.style.left = `${-img.width / 2}px`;
+      img.style.top = `${-img.height / 2}px`;
+      return img;
     })();
 
     if (!init.id) {
@@ -271,7 +243,6 @@ export class Manager {
   private keyframe (element: HTMLElement) {
     const track = this.timeline.tracks[`#${element.id}`];
     track[this.videoPlayer.video.currentTime] = {
-      text: element.textContent,
       transform: Utility.transformToCss(Utility.getTransform(element)),
       visibility: "visible"
     };

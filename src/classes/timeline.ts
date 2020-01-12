@@ -2,7 +2,6 @@ import Scene, {Frame} from "scenejs";
 
 export interface Keyframe {
   transform: string;
-  text: string;
   visibility: "hidden" | "visible";
 }
 

@@ -11,6 +11,7 @@ import {ModalProgress} from "./classes/modalProgress";
 import {Timeline} from "./classes/timeline";
 import {Utility} from "./classes/utility";
 import {VideoPlayer} from "./classes/videoPlayer";
+import svgToMiniDataURI from "mini-svg-data-uri";
 const container = document.getElementById("container") as HTMLDivElement;
 const widgetContainer = document.getElementById("widgets") as HTMLDivElement;
 const player = new VideoPlayer(container);
@@ -20,13 +21,26 @@ const manager = new Manager(container, widgetContainer, player, timeline);
 document.getElementById("sprite").addEventListener("click", async () => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const src = require("./public/sample.png").default;
-  const widget = await manager.addWidget({src, type: "image"});
-  widget.element.focus();
+  await manager.addWidget({src, type: "image"});
 });
 
 document.getElementById("text").addEventListener("click", async () => {
-  const widget = await manager.addWidget({type: "text"});
-  widget.element.focus();
+  const svg = $("<svg xmlns='http://www.w3.org/2000/svg' width='150' height='1em' " +
+    "viewbox='0 0 150 1em' style='font-size: 48px'></svg>");
+  const text = $("<text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' " +
+    "style='fill: #fff; stroke: #000;'>Hello</text>");
+  svg.append(text);
+  const modal = new Modal();
+  const button = await modal.open(
+    "Save",
+    $("<div contentEditable='true'/>").append(svg),
+    true,
+    [{dismiss: true, name: "OK"}]
+  );
+  if (button) {
+    const src = svgToMiniDataURI(svg.get(0).outerHTML) as string;
+    await manager.addWidget({src, type: "text"});
+  }
 });
 
 document.getElementById("save").addEventListener("click", async () => {

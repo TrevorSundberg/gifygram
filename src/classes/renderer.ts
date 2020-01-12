@@ -48,17 +48,12 @@ export class Renderer extends VideoSeeker {
 
     this.timeline.setTime(frame.currentTime);
     for (const child of this.widgetContainer.childNodes) {
-      if (child instanceof HTMLElement) {
+      if (child instanceof HTMLImageElement) {
         const transform = Utility.getTransform(child);
         this.context.translate(transform.translate[0], transform.translate[1]);
         this.context.rotate(transform.rotate * Math.PI / 180);
         this.context.scale(transform.scale[0], transform.scale[1]);
-        if (child instanceof HTMLImageElement) {
-          this.context.drawImage(child, -child.width / 2, -child.height / 2, child.width, child.height);
-        } else if (child instanceof HTMLDivElement) {
-          this.context.font = window.getComputedStyle(child).font;
-          this.context.fillText(child.innerText, 0, 0);
-        }
+        this.context.drawImage(child, -child.width / 2, -child.height / 2, child.width, child.height);
         this.context.resetTransform();
       }
     }
