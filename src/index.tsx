@@ -66,7 +66,7 @@ document.getElementById("text").addEventListener("click", async () => {
 
 document.getElementById("save").addEventListener("click", async () => {
   manager.selectWidget(null);
-  const value = JSON.stringify(manager.save());
+  const value = await manager.saveToBase64();
   const textArea = $("<textarea class='md-textarea form-control' autofocus></textarea>");
   textArea.val(value);
   const div = $("<div>Copy the save data from below:</div>");
@@ -96,7 +96,7 @@ document.getElementById("load").addEventListener("click", async () => {
     title: "Load"
   });
   if (result && result.name === "Load") {
-    manager.load(JSON.parse(textArea.val() as string));
+    await manager.loadFromBase64(textArea.val() as string);
   }
 });
 

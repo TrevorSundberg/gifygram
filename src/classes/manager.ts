@@ -1,4 +1,5 @@
 import {Timeline, Track, Tracks} from "./timeline";
+import {Compress} from "./compression";
 import {Gizmo} from "./gizmo";
 import {Utility} from "./utility";
 import {VideoPlayer} from "./videoPlayer";
@@ -120,7 +121,17 @@ export class Manager {
     this.updateMarkers();
   }
 
-  public save (): SerializedData {
+  public async saveToBase64 () {
+    const json = JSON.stringify(this.save());
+    return Compress.compress(json);
+  }
+
+  public async loadFromBase64 (base64: string) {
+    const json = await Compress.decompress(base64);
+    this.load(JSON.parse(json));
+  }
+
+  private save (): SerializedData {
     return {
       tracks: JSON.parse(JSON.stringify(this.timeline.tracks)),
       videoSrc: this.videoPlayer.getSrc(),
@@ -128,7 +139,7 @@ export class Manager {
     };
   }
 
-  public async load (data: SerializedData) {
+  private async load (data: SerializedData) {
     this.videoPlayer.setSrc(data.videoSrc);
     this.clearWidgets();
     for (const init of data.widgets) {
