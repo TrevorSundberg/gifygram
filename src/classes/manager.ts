@@ -106,14 +106,6 @@ export class Manager {
     });
   }
 
-  public save (): SerializedData {
-    return {
-      tracks: JSON.parse(JSON.stringify(this.timeline.tracks)),
-      videoSrc: this.videoPlayer.getSrc(),
-      widgets: this.widgets.map((widget) => JSON.parse(JSON.stringify(widget.init)))
-    };
-  }
-
   public updateMarkers () {
     if (this.selection) {
       const track = this.timeline.tracks[`#${this.selection.widget.element.id}`];
@@ -126,6 +118,14 @@ export class Manager {
   public updateTracks () {
     this.timeline.updateTracks();
     this.updateMarkers();
+  }
+
+  public save (): SerializedData {
+    return {
+      tracks: JSON.parse(JSON.stringify(this.timeline.tracks)),
+      videoSrc: this.videoPlayer.getSrc(),
+      widgets: this.widgets.map((widget) => JSON.parse(JSON.stringify(widget.init)))
+    };
   }
 
   public async load (data: SerializedData) {
