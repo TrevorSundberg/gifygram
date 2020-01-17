@@ -29,6 +29,7 @@ export class VideoPlayer {
     this.video = document.createElement("video");
     this.container.appendChild(this.video);
     this.video.className = "videoPlayer";
+    this.video.crossOrigin = "anonymous";
     this.video.loop = true;
     this.video.muted = true;
     (this.video as any).disableRemotePlayback = true;
