@@ -27,8 +27,8 @@ if (urlData) {
   manager.loadFromBase64(urlData);
 }
 
-document.getElementById("sprite").addEventListener("click", async () => {
-  const src = await StickerSearch.searchForStickerUrl();
+document.getElementById("sticker").addEventListener("click", async () => {
+  const src = await StickerSearch.searchForStickerUrl("stickers");
   if (src) {
     await manager.addWidget({src, type: "image"});
   }

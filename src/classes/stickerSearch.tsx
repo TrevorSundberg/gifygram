@@ -6,8 +6,10 @@ import React from "react";
 import ReactGiphySearchbox from "react-giphy-searchbox-stickers";
 import {render} from "react-dom";
 
+export type StickerType = "stickers" | "gifs";
+
 export class StickerSearch {
-  public static async searchForStickerUrl () {
+  public static async searchForStickerUrl (type: StickerType) {
     const modal = new Modal();
     const div = $("<div/>");
     const modalPromise = modal.open({
@@ -41,7 +43,7 @@ export class StickerSearch {
 
     render(<ReactGiphySearchbox
       apiKey="dc6zaTOxFJmzC"
-      urlKind="stickers"
+      urlKind={type}
       onSelect={(item) => defer.resolve(item)}
       gifListHeight={"calc(100vh - 160px)"}
       masonryConfig={masonryConfig}
