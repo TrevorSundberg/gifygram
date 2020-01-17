@@ -121,7 +121,7 @@ export class Manager {
     this.updateMarkers();
   }
 
-  public async saveToBase64 () {
+  public saveToBase64 () {
     const json = JSON.stringify(this.save());
     return Compress.compress(json);
   }

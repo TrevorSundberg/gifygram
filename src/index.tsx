@@ -2,6 +2,7 @@ import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/fontawesome.css";
 import "@fortawesome/fontawesome-free/css/solid.css";
+import {NeverAsync, Utility} from "./classes/utility";
 import {RenderFrameEvent, Renderer} from "./classes/renderer";
 import {VideoEncoder, VideoProgressEvent} from "./classes/videoEncoder";
 import $ from "jquery";
@@ -11,7 +12,6 @@ import {ModalProgress} from "./classes/modalProgress";
 import {StickerSearch} from "./classes/stickerSearch";
 import TextToSVG from "text-to-svg";
 import {Timeline} from "./classes/timeline";
-import {Utility} from "./classes/utility";
 import {VideoPlayer} from "./classes/videoPlayer";
 import svgToMiniDataURI from "mini-svg-data-uri";
 const container = document.getElementById("container") as HTMLDivElement;
@@ -19,6 +19,13 @@ const widgetContainer = document.getElementById("widgets") as HTMLDivElement;
 const player = new VideoPlayer(container);
 const timeline = new Timeline();
 const manager = new Manager(container, widgetContainer, player, timeline);
+
+const urlDataParameter = "data";
+const urlParams = new URLSearchParams(window.location.search);
+const urlData = urlParams.get(urlDataParameter);
+if (urlData) {
+  manager.loadFromBase64(urlData);
+}
 
 document.getElementById("sprite").addEventListener("click", async () => {
   const src = await StickerSearch.searchForStickerUrl();
@@ -64,40 +71,27 @@ document.getElementById("text").addEventListener("click", async () => {
   }
 });
 
-document.getElementById("save").addEventListener("click", async () => {
+document.getElementById("share").addEventListener("click", (): NeverAsync => {
   manager.selectWidget(null);
-  const value = await manager.saveToBase64();
+  const base64 = manager.saveToBase64();
+  const url = new URL(window.location.href);
+  url.searchParams.set(urlDataParameter, base64);
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url.href);
+  }
+
   const textArea = $("<textarea class='md-textarea form-control' autofocus></textarea>");
-  textArea.val(value);
-  const div = $("<div>Copy the save data from below:</div>");
+  textArea.val(url.href);
+  const div = $("<div>Link was copied to the clipboard. You may also copy it below:</div>");
   div.append(textArea);
   const modal = new Modal();
   modal.open({
     buttons: [{dismiss: true, name: "OK"}],
     content: div,
     dismissable: true,
-    title: "Save"
+    title: "Share"
   });
-});
-
-document.getElementById("load").addEventListener("click", async () => {
-  manager.selectWidget(null);
-  const textArea = $("<textarea class='md-textarea form-control' autofocus></textarea>");
-  const div = $("<div>Paste saved data into the text area and click Load:</div>");
-  div.append(textArea);
-  const modal = new Modal();
-  const result = await modal.open({
-    buttons: [
-      {dismiss: true, name: "Cancel"},
-      {dismiss: true, name: "Load"}
-    ],
-    content: div,
-    dismissable: true,
-    title: "Load"
-  });
-  if (result && result.name === "Load") {
-    await manager.loadFromBase64(textArea.val() as string);
-  }
 });
 
 document.getElementById("motion").addEventListener("click", async () => {

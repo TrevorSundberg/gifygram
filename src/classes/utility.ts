@@ -106,3 +106,5 @@ export class Utility {
     };
   }
 }
+
+export type NeverAsync = void;
