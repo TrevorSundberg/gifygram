@@ -50,8 +50,8 @@ DONE - Fix text rendering
 DONE - Tabbing away from video as it's encoding messes it up (can just say don't tab away for now)
 DONE - Make a PR to allow searching stickers (checkbox for stickers)
 DONE - Turn the save load code into 'share' - we load the content from a url, better for users with same functionality
+DONE - Make background video choosable
 
- - Make background video choosable
  - Double click or double tap or tap + hold actions to change text or image
  - Tweak ffmpeg settings to encode faster
  - Android ffmpeg encoding doesn't seem to run

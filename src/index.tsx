@@ -25,10 +25,12 @@ const urlParams = new URLSearchParams(window.location.search);
 const urlData = urlParams.get(urlDataParameter);
 if (urlData) {
   manager.loadFromBase64(urlData);
+} else {
+  player.setSrc(require("./public/sample.mp4").default);
 }
 
 document.getElementById("sticker").addEventListener("click", async () => {
-  const src = await StickerSearch.searchForStickerUrl("stickers");
+  const src = await StickerSearch.searchForStickerUrl("sticker");
   if (src) {
     await manager.addWidget({src, type: "image"});
   }
@@ -68,6 +70,13 @@ document.getElementById("text").addEventListener("click", async () => {
     const svg = $(svgText);
     const src = svgToMiniDataURI(svg.get(0).outerHTML) as string;
     await manager.addWidget({src, type: "text"});
+  }
+});
+
+document.getElementById("video").addEventListener("click", async () => {
+  const src = await StickerSearch.searchForStickerUrl("video");
+  if (src) {
+    await player.setSrc(src);
   }
 });
 

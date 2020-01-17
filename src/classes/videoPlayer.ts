@@ -34,7 +34,6 @@ export class VideoPlayer {
     this.video.muted = true;
     (this.video as any).disableRemotePlayback = true;
     this.video.oncontextmenu = () => false;
-    this.setSrc(require("../public/sample.mp4").default);
 
     this.controlsContainer = document.createElement("div");
     this.controlsContainer.className = "videoControlsContainer";

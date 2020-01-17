@@ -6,7 +6,7 @@ import React from "react";
 import ReactGiphySearchbox from "react-giphy-searchbox-stickers";
 import {render} from "react-dom";
 
-export type StickerType = "stickers" | "gifs";
+export type StickerType = "sticker" | "video";
 
 export class StickerSearch {
   public static async searchForStickerUrl (type: StickerType) {
@@ -43,7 +43,7 @@ export class StickerSearch {
 
     render(<ReactGiphySearchbox
       apiKey="dc6zaTOxFJmzC"
-      urlKind={type}
+      urlKind={type === "sticker" ? "stickers" : "gifs"}
       onSelect={(item) => defer.resolve(item)}
       gifListHeight={"calc(100vh - 160px)"}
       masonryConfig={masonryConfig}
@@ -59,6 +59,7 @@ export class StickerSearch {
     if (!result) {
       return null;
     }
-    return result.images.original.webp as string;
+
+    return result.images.original[type === "sticker" ? "webp" : "mp4"] as string;
   }
 }
