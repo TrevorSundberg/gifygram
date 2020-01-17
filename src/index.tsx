@@ -139,7 +139,7 @@ const download = (url: string, filename: string) => {
   anchor.click();
 };
 
-document.getElementById("record").addEventListener("click", async () => {
+document.getElementById("render").addEventListener("click", async () => {
   player.hideVideo();
   manager.updateExternally = true;
   manager.selectWidget(null);
