@@ -1,0 +1,6 @@
+.background {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  filter: blur(5vmin);
+}

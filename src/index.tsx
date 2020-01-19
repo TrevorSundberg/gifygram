@@ -6,6 +6,7 @@ import {NeverAsync, Utility} from "./classes/utility";
 import {RenderFrameEvent, Renderer} from "./classes/renderer";
 import {VideoEncoder, VideoProgressEvent} from "./classes/videoEncoder";
 import $ from "jquery";
+import {Background} from "./classes/background";
 import {Manager} from "./classes/manager";
 import {Modal} from "./classes/modal";
 import {ModalProgress} from "./classes/modalProgress";
@@ -19,6 +20,7 @@ const widgetContainer = document.getElementById("widgets") as HTMLDivElement;
 const player = new VideoPlayer(container);
 const timeline = new Timeline();
 const manager = new Manager(container, widgetContainer, player, timeline);
+new Background(document.body, player.video);
 
 const urlDataParameter = "data";
 const urlParams = new URLSearchParams(window.location.search);
