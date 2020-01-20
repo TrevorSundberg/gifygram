@@ -15,11 +15,11 @@ import TextToSVG from "text-to-svg";
 import {Timeline} from "./classes/timeline";
 import {VideoPlayer} from "./classes/videoPlayer";
 import svgToMiniDataURI from "mini-svg-data-uri";
-const container = document.getElementById("container") as HTMLDivElement;
+const videoParent = document.getElementById("container") as HTMLDivElement;
 const widgetContainer = document.getElementById("widgets") as HTMLDivElement;
-const player = new VideoPlayer(container);
+const player = new VideoPlayer(videoParent, document.body);
 const timeline = new Timeline();
-const manager = new Manager(container, widgetContainer, player, timeline);
+const manager = new Manager(videoParent, widgetContainer, player, timeline);
 new Background(document.body, player.video);
 
 const urlDataParameter = "data";

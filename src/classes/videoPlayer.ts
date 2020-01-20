@@ -7,8 +7,6 @@ interface Point {
 }
 
 export class VideoPlayer {
-  private container: HTMLDivElement;
-
   public readonly video: HTMLVideoElement;
 
   private controlsContainer: HTMLDivElement;
@@ -23,11 +21,9 @@ export class VideoPlayer {
 
   public loadPromise = new Deferred<void>();
 
-  public constructor (container: HTMLDivElement) {
-    this.container = container;
-
+  public constructor (videoParent: HTMLDivElement, controlsParent: HTMLElement) {
     this.video = document.createElement("video");
-    this.container.appendChild(this.video);
+    videoParent.appendChild(this.video);
     this.video.className = "videoPlayer";
     this.video.crossOrigin = "anonymous";
     this.video.loop = true;
@@ -37,7 +33,7 @@ export class VideoPlayer {
 
     this.controlsContainer = document.createElement("div");
     this.controlsContainer.className = "videoControlsContainer";
-    this.container.appendChild(this.controlsContainer);
+    controlsParent.appendChild(this.controlsContainer);
 
     this.playPauseButton = document.createElement("div");
     this.controlsContainer.appendChild(this.playPauseButton);
