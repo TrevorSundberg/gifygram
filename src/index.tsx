@@ -95,7 +95,9 @@ document.getElementById("share").addEventListener("click", (): NeverAsync => {
 
   const textArea = $("<textarea class='md-textarea form-control' autofocus></textarea>");
   textArea.val(url.href);
-  const div = $("<div>Link was copied to the clipboard. You may also copy it below:</div>");
+  const copySuccess = "Link was copied to the clipboard.";
+  const copyFail = "Copy the link below:";
+  const div = $(`<div>${navigator.clipboard ? copySuccess : copyFail}</div>`);
   div.append(textArea);
   const modal = new Modal();
   modal.open({
