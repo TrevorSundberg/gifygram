@@ -60,9 +60,10 @@ document.getElementById("text").addEventListener("click", async () => {
     dismissable: true,
     title: "Text"
   });
-  if (button) {
+  const text = textArea.val();
+  if (button && text) {
     const textToSVG = await fontPromise;
-    const svgText = textToSVG.getSVG(textArea.val(), {
+    const svgText = textToSVG.getSVG(text, {
       anchor: "left top",
       attributes: {
         fill: "white",
