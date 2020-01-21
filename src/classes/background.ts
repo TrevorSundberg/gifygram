@@ -8,6 +8,7 @@ export class Background {
 
     const context = canvas.getContext("2d");
     const drawVideo = () => {
+      context.filter = "blur(5vmin)";
       context.drawImage(video, 0, 0, window.innerWidth, window.innerHeight);
     };
     const updateDimensions = () => {
