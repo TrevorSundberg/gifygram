@@ -44,7 +44,7 @@ export class VideoEncoder extends EventTarget {
   }
 
   public async addVideo (video: VideoPlayer) {
-    const response = await fetch(video.getSrc());
+    const response = await fetch(video.getAttributedSrc().src);
     const videoData = await response.arrayBuffer();
     const result = this.chain.then(async () => {
       const worker = await this.workerPromise;

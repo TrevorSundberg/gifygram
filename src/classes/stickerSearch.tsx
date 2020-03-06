@@ -1,6 +1,6 @@
 import "./stickerSearch.css";
+import {AttributedSource, Deferred} from "./utility";
 import $ from "jquery";
-import {Deferred} from "./utility";
 import {Modal} from "./modal";
 import React from "react";
 import ReactGiphySearchbox from "react-giphy-searchbox-stickers";
@@ -9,7 +9,7 @@ import {render} from "react-dom";
 export type StickerType = "sticker" | "video";
 
 export class StickerSearch {
-  public static async searchForStickerUrl (type: StickerType) {
+  public static async searchForStickerUrl (type: StickerType): Promise<AttributedSource> {
     const modal = new Modal();
     const div = $("<div/>");
     const modalPromise = modal.open({
@@ -60,6 +60,9 @@ export class StickerSearch {
       return null;
     }
 
-    return result.images.original[type === "sticker" ? "webp" : "mp4"] as string;
+    return {
+      attribution: result.url,
+      src: result.images.original[type === "sticker" ? "webp" : "mp4"] as string
+    };
   }
 }

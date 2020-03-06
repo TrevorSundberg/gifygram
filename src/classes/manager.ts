@@ -1,7 +1,7 @@
+import {AttributedSource, Utility} from "./utility";
 import {Timeline, Track, Tracks} from "./timeline";
 import {Compress} from "./compression";
 import {Gizmo} from "./gizmo";
-import {Utility} from "./utility";
 import {VideoPlayer} from "./videoPlayer";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const uuidv4: typeof import("uuid/v4") = require("uuid/v4");
@@ -11,12 +11,12 @@ export type ElementFactory = (id: string) => Promise<HTMLElement>;
 export interface WidgetInit {
   id?: string;
   type: "image" | "text";
-  src: string;
+  attributedSource: AttributedSource;
 }
 
 export interface SerializedData {
   tracks: Tracks;
-  videoSrc: string;
+  videoAttributedSource: AttributedSource;
   widgets: WidgetInit[];
 }
 
@@ -134,13 +134,13 @@ export class Manager {
   private save (): SerializedData {
     return {
       tracks: JSON.parse(JSON.stringify(this.timeline.tracks)),
-      videoSrc: this.videoPlayer.getSrc(),
+      videoAttributedSource: this.videoPlayer.getAttributedSrc(),
       widgets: this.widgets.map((widget) => JSON.parse(JSON.stringify(widget.init)))
     };
   }
 
   private async load (data: SerializedData) {
-    this.videoPlayer.setSrc(data.videoSrc);
+    this.videoPlayer.setAttributedSrc(data.videoAttributedSource);
     this.clearWidgets();
     for (const init of data.widgets) {
       await this.addWidget(init);
@@ -171,7 +171,7 @@ export class Manager {
       const img = document.createElement("img");
       img.dataset.type = init.type;
       img.crossOrigin = "anonymous";
-      img.src = init.src;
+      img.src = init.attributedSource.src;
       await new Promise((resolve, reject) => {
         img.onload = resolve;
         img.onerror = reject;

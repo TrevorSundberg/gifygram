@@ -108,3 +108,8 @@ export class Utility {
 }
 
 export type NeverAsync = void;
+
+export interface AttributedSource {
+  attribution: string;
+  src: string;
+}

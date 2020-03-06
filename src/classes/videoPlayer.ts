@@ -1,5 +1,5 @@
 import "./videoPlayer.css";
-import {Deferred} from "./utility";
+import {AttributedSource, Deferred} from "./utility";
 
 interface Point {
   clientX: number;
@@ -117,17 +117,21 @@ export class VideoPlayer {
     this.video.style.visibility = "";
   }
 
-  public async setSrc (src: string) {
+  public async setAttributedSrc (attributedSource: AttributedSource) {
     if (this.video.src) {
       this.loadPromise = new Deferred<void>();
     }
-    this.video.src = src;
-    this.video.dataset.src = src;
+    this.video.src = attributedSource.src;
+    this.video.dataset.as = attributedSource.src;
+    this.video.dataset.attribution = attributedSource.attribution;
     await this.loadPromise;
   }
 
-  public getSrc (): string {
-    return this.video.dataset.src;
+  public getAttributedSrc (): AttributedSource {
+    return {
+      attribution: this.video.dataset.attribution,
+      src: this.video.dataset.src
+    };
   }
 
   public setMarkers (markerTimes: number[]) {
