@@ -198,3 +198,7 @@ document.getElementById("render").addEventListener("click", async () => {
   manager.updateExternally = false;
   player.showVideo();
 });
+
+$(() => {
+  $("[data-toggle=\"tooltip\"]").tooltip();
+});
