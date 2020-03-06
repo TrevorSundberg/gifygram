@@ -2,6 +2,7 @@ import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/fontawesome.css";
 import "@fortawesome/fontawesome-free/css/solid.css";
+import "@fortawesome/fontawesome-free/css/brands.css";
 import {NeverAsync, Utility} from "./classes/utility";
 import {RenderFrameEvent, Renderer} from "./classes/renderer";
 import {VideoEncoder, VideoProgressEvent} from "./classes/videoEncoder";
@@ -30,6 +31,11 @@ if (urlData) {
 } else {
   player.setSrc(require("./public/sample.mp4").default);
 }
+
+document.getElementById("github").addEventListener(
+  "click",
+  () => window.open("https://github.com/TrevorSundberg/caketown")
+);
 
 document.getElementById("sticker").addEventListener("click", async () => {
   const src = await StickerSearch.searchForStickerUrl("sticker");
