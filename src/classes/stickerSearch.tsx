@@ -42,7 +42,7 @@ export class StickerSearch {
     }
 
     render(<ReactGiphySearchbox
-      apiKey="dc6zaTOxFJmzC"
+      apiKey="s9bgj4fh1ZldOfMHEWrQCekTy0BIKuko"
       urlKind={type === "sticker" ? "stickers" : "gifs"}
       onSelect={(item) => defer.resolve(item)}
       gifListHeight={"calc(100vh - 160px)"}
