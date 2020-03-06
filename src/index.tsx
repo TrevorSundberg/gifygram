@@ -113,6 +113,12 @@ document.getElementById("share").addEventListener("click", (): NeverAsync => {
   const copyFail = "Copy the link below:";
   const div = $(`<div>${navigator.clipboard ? copySuccess : copyFail}</div>`);
   div.append(textArea);
+  div.append("<br>Be sure to attribute the following links/users:<br>");
+
+  const textAreaAttribution = $("<textarea class='md-textarea form-control'></textarea>");
+  textAreaAttribution.val(manager.getAttributionList().join("\n"));
+  div.append(textAreaAttribution);
+
   const modal = new Modal();
   modal.open({
     buttons: [{dismiss: true, name: "OK"}],

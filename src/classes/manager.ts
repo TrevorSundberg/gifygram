@@ -139,6 +139,13 @@ export class Manager {
     };
   }
 
+  public getAttributionList (): string[] {
+    return [
+      this.videoPlayer.getAttributedSrc().attribution,
+      ...this.widgets.map((widget) => widget.init.attributedSource.attribution)
+    ].filter((value) => Boolean(value));
+  }
+
   private async load (data: SerializedData) {
     this.videoPlayer.setAttributedSrc(data.videoAttributedSource);
     this.clearWidgets();
