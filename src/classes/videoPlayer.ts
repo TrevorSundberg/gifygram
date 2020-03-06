@@ -122,7 +122,7 @@ export class VideoPlayer {
       this.loadPromise = new Deferred<void>();
     }
     this.video.src = attributedSource.src;
-    this.video.dataset.as = attributedSource.src;
+    this.video.dataset.src = attributedSource.src;
     this.video.dataset.attribution = attributedSource.attribution;
     await this.loadPromise;
   }
