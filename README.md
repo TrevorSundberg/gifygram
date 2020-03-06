@@ -1,4 +1,4 @@
 # caketown
-A really stupid website about putting pictures into videos.
+A really [stupid website](https://trevorsundberg.github.io/caketown/) about putting pictures into videos.
 
-![](preview.gif)
+![A silly animation](preview.gif)
