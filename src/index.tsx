@@ -60,7 +60,7 @@ const fontPromise = new Promise<any>((resolve, reject) => {
 
 document.getElementById("text").addEventListener("click", async () => {
   const textArea = $("<textarea class='md-textarea form-control' autofocus></textarea>");
-  const div = $("<div>Copy the save data from below:</div>");
+  const div = $("<div>Write whatever you want:</div>");
   div.append(textArea);
   const modal = new Modal();
   const button = await modal.open({
