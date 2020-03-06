@@ -1,5 +1,6 @@
 import {Deferred, Utility} from "./utility";
 import {VideoSeeker, VideoSeekerFrame} from "./videoSeeker";
+import {Gif} from "./gif";
 import {Timeline} from "./timeline";
 import {VideoPlayer} from "./videoPlayer";
 
@@ -14,9 +15,11 @@ export class Renderer extends VideoSeeker {
 
   private readonly timeline: Timeline;
 
-  private readonly canvas = document.createElement("canvas")
+  private readonly canvas = document.createElement("canvas");
 
   private readonly context: CanvasRenderingContext2D;
+
+  private gifs: Record<string, Gif> = {};
 
   public constructor (widgetContainer: HTMLDivElement, player: VideoPlayer, timeline: Timeline) {
     super(player);
@@ -53,7 +56,8 @@ export class Renderer extends VideoSeeker {
         this.context.translate(transform.translate[0], transform.translate[1]);
         this.context.rotate(transform.rotate * Math.PI / 180);
         this.context.scale(transform.scale[0], transform.scale[1]);
-        this.context.drawImage(child, -child.width / 2, -child.height / 2, child.width, child.height);
+        const image = await this.gifs[child.src].getFrameAtTime(frame.currentTime);
+        this.context.drawImage(image, -image.width / 2, -image.height / 2, image.width, image.height);
         this.context.resetTransform();
       }
     }
@@ -66,6 +70,13 @@ export class Renderer extends VideoSeeker {
   }
 
   public async render (): Promise<boolean> {
-    return this.run(0, false);
+    for (const child of this.widgetContainer.childNodes) {
+      if (child instanceof HTMLImageElement) {
+        this.gifs[child.src] = new Gif(child.src);
+      }
+    }
+    const result = await this.run(0, false);
+    this.gifs = {};
+    return result;
   }
 }

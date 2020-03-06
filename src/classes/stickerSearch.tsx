@@ -62,7 +62,7 @@ export class StickerSearch {
 
     return {
       attribution: result.url,
-      src: result.images.original[type === "sticker" ? "webp" : "mp4"] as string
+      src: result.images.original[type === "sticker" ? "url" : "mp4"] as string
     };
   }
 }
