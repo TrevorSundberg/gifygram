@@ -6,7 +6,6 @@ export class Gif {
   private totalTime: number;
 
   public constructor (url: string) {
-    console.log(url);
     this.frameDataPromise = gifFrames({
       frames: "all",
       outputType: "canvas",
