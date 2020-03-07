@@ -7,7 +7,7 @@ export class VideoSeekerFrame {
   public progress: number;
 }
 
-export class VideoSeeker extends EventTarget {
+export abstract class VideoSeeker extends EventTarget {
   public readonly player: VideoPlayer;
 
   private runningPromise: Deferred<boolean> = null;
@@ -70,9 +70,7 @@ export class VideoSeeker extends EventTarget {
     return result;
   }
 
-  protected async onFrame (frame: VideoSeekerFrame) {
-    throw new Error(`Not implemented (${frame})`);
-  }
+  protected abstract async onFrame (frame: VideoSeekerFrame);
 
   public async stop () {
     if (this.runningPromise) {
