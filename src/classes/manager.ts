@@ -107,8 +107,8 @@ export class Manager {
     };
 
     const onKeyDown = (event) => {
-      if (event.key === "Delete" && this.selection) {
-        this.destroyWidget(this.selection.widget);
+      if (event.key === "Delete") {
+        this.attemptDeleteSelection();
       }
     };
 
@@ -119,6 +119,12 @@ export class Manager {
     };
     registerInputEvents(widgetContainer);
     registerInputEvents(background.canvas);
+  }
+
+  public attemptDeleteSelection () {
+    if (this.selection) {
+      this.destroyWidget(this.selection.widget);
+    }
   }
 
   public updateMarkers () {
