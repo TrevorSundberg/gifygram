@@ -1,6 +1,7 @@
 import {AttributedSource, Utility} from "./utility";
 import {Gif, Image, StaticImage} from "./image";
 import {Timeline, Track, Tracks} from "./timeline";
+import {Background} from "./background";
 import {Compress} from "./compression";
 import {Gizmo} from "./gizmo";
 import {Renderer} from "./renderer";
@@ -50,6 +51,7 @@ export class Manager {
   public updateExternally = false;
 
   public constructor (
+    background: Background,
     container: HTMLDivElement,
     widgetContainer: HTMLDivElement,
     videoPlayer: VideoPlayer,
@@ -99,18 +101,24 @@ export class Manager {
     window.addEventListener("update", () => this.update());
 
     const deselectElement = (event: Event) => {
-      if (event.target === widgetContainer) {
+      if (event.target === widgetContainer || event.target === background.canvas) {
         this.selectWidget(null);
       }
     };
 
-    widgetContainer.addEventListener("mousedown", deselectElement);
-    widgetContainer.addEventListener("touchstart", deselectElement);
-    widgetContainer.addEventListener("keydown", (event) => {
+    const onKeyDown = (event) => {
       if (event.key === "Delete" && this.selection) {
         this.destroyWidget(this.selection.widget);
       }
-    });
+    };
+
+    const registerInputEvents = (element: HTMLElement) => {
+      element.addEventListener("mousedown", deselectElement);
+      element.addEventListener("touchstart", deselectElement);
+      element.addEventListener("keydown", onKeyDown);
+    };
+    registerInputEvents(widgetContainer);
+    registerInputEvents(background.canvas);
   }
 
   public updateMarkers () {

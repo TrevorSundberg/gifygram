@@ -22,8 +22,8 @@ const player = new VideoPlayer(videoParent, document.body);
 const timeline = new Timeline();
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 const renderer = new Renderer(canvas, widgetContainer, player, timeline);
-const manager = new Manager(videoParent, widgetContainer, player, timeline, renderer);
-new Background(document.body, player.video);
+const background = new Background(document.body, player.video);
+const manager = new Manager(background, videoParent, widgetContainer, player, timeline, renderer);
 
 const urlDataParameter = "data";
 const urlParams = new URLSearchParams(window.location.search);

@@ -2,11 +2,15 @@ import "./background.css";
 import {FRAME_TIME} from "./utility";
 
 export class Background {
+  public readonly canvas: HTMLCanvasElement;
+
   public constructor (parent: HTMLElement, video: HTMLVideoElement) {
     const canvas = document.createElement("canvas");
     canvas.width = 256;
     canvas.height = 256;
     canvas.className = "background";
+    canvas.tabIndex = 1;
+    this.canvas = canvas;
 
     const context = canvas.getContext("2d");
     const drawVideo = () => {
