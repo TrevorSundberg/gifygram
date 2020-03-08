@@ -1,7 +1,9 @@
 import {AttributedSource, Utility} from "./utility";
+import {Gif, Image, StaticImage} from "./image";
 import {Timeline, Track, Tracks} from "./timeline";
 import {Compress} from "./compression";
 import {Gizmo} from "./gizmo";
+import {Renderer} from "./renderer";
 import {VideoPlayer} from "./videoPlayer";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const uuidv4: typeof import("uuid/v4") = require("uuid/v4");
@@ -10,7 +12,7 @@ export type ElementFactory = (id: string) => Promise<HTMLElement>;
 
 export interface WidgetInit {
   id?: string;
-  type: "image" | "text";
+  type: "gif" | "svg";
   attributedSource: AttributedSource;
 }
 
@@ -43,17 +45,21 @@ export class Manager {
 
   private widgets: Widget[] = [];
 
+  private readonly renderer: Renderer;
+
   public updateExternally = false;
 
   public constructor (
     container: HTMLDivElement,
     widgetContainer: HTMLDivElement,
     videoPlayer: VideoPlayer,
-    timeline: Timeline
+    timeline: Timeline,
+    renderer: Renderer
   ) {
     this.widgetContainer = widgetContainer;
     this.videoPlayer = videoPlayer;
     this.timeline = timeline;
+    this.renderer = renderer;
     this.update();
 
     const updateContainerSize = (videoWidth: number, videoHeight: number, scale: number) => {
@@ -171,20 +177,22 @@ export class Manager {
     if (this.selection) {
       this.selection.update();
     }
+    this.renderer.drawFrame(currentTime);
   }
 
   public async addWidget (init: WidgetInit): Promise<Widget> {
     const element = await (async () => {
       const img = document.createElement("img");
-      img.dataset.type = init.type;
-      img.crossOrigin = "anonymous";
-      img.src = init.attributedSource.src;
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-      });
-      img.style.left = `${-img.width / 2}px`;
-      img.style.top = `${-img.height / 2}px`;
+      const {src} = init.attributedSource;
+      const image = init.type === "gif" ? new Gif(src) : new StaticImage(src);
+      Image.setImage(img, image);
+      await image.loadPromise;
+      const frame = image.getFrameAtTime(0);
+      img.width = frame.width;
+      img.height = frame.height;
+      img.style.left = `${-frame.width / 2}px`;
+      img.style.top = `${-frame.height / 2}px`;
+      img.style.opacity = "0";
       return img;
     })();
 

@@ -20,7 +20,9 @@ const videoParent = document.getElementById("container") as HTMLDivElement;
 const widgetContainer = document.getElementById("widgets") as HTMLDivElement;
 const player = new VideoPlayer(videoParent, document.body);
 const timeline = new Timeline();
-const manager = new Manager(videoParent, widgetContainer, player, timeline);
+const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+const renderer = new Renderer(canvas, widgetContainer, player, timeline);
+const manager = new Manager(videoParent, widgetContainer, player, timeline, renderer);
 new Background(document.body, player.video);
 
 const urlDataParameter = "data";
@@ -43,7 +45,7 @@ document.getElementById("github").addEventListener(
 document.getElementById("sticker").addEventListener("click", async () => {
   const attributedSource = await StickerSearch.searchForStickerUrl("sticker");
   if (attributedSource) {
-    await manager.addWidget({attributedSource, type: "image"});
+    await manager.addWidget({attributedSource, type: "gif"});
   }
 });
 
@@ -85,7 +87,7 @@ document.getElementById("text").addEventListener("click", async () => {
       attributedSource: {
         attribution: "",
         src
-      }, type: "text"
+      }, type: "svg"
     });
   }
 });
@@ -179,7 +181,6 @@ document.getElementById("render").addEventListener("click", async () => {
   manager.selectWidget(null);
   const videoEncoder = new VideoEncoder();
   await videoEncoder.addVideo(player);
-  const renderer = new Renderer(widgetContainer, player, timeline);
   const modal = new ModalProgress();
   modal.open({
     buttons: [

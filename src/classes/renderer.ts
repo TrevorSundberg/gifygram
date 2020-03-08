@@ -1,6 +1,6 @@
 import {Deferred, Utility} from "./utility";
 import {VideoSeeker, VideoSeekerFrame} from "./videoSeeker";
-import {Gif} from "./gif";
+import {Image} from "./image";
 import {Timeline} from "./timeline";
 import {VideoPlayer} from "./videoPlayer";
 
@@ -11,22 +11,42 @@ export class RenderFrameEvent extends Event {
 }
 
 export class Renderer extends VideoSeeker {
+  private readonly canvas: HTMLCanvasElement;
+
   private readonly widgetContainer: HTMLDivElement;
 
   private readonly timeline: Timeline;
 
-  private readonly canvas = document.createElement("canvas");
-
   private readonly context: CanvasRenderingContext2D;
 
-  private gifs: Record<string, Gif> = {};
-
-  public constructor (widgetContainer: HTMLDivElement, player: VideoPlayer, timeline: Timeline) {
+  public constructor (canvas: HTMLCanvasElement, widgetContainer: HTMLDivElement, player: VideoPlayer, timeline: Timeline) {
     super(player);
+    this.canvas = canvas;
     this.widgetContainer = widgetContainer;
 
     this.context = this.canvas.getContext("2d");
     this.timeline = timeline;
+  }
+
+  public drawFrame (currentTime: number) {
+    const {video} = this.player;
+    const width = video.videoWidth;
+    const height = video.videoHeight;
+    this.canvas.width = width;
+    this.canvas.height = height;
+    this.context.clearRect(0, 0, width, height);
+
+    for (const child of this.widgetContainer.childNodes) {
+      if (child instanceof HTMLImageElement) {
+        const transform = Utility.getTransform(child);
+        this.context.translate(transform.translate[0], transform.translate[1]);
+        this.context.rotate(transform.rotate * Math.PI / 180);
+        this.context.scale(transform.scale[0], transform.scale[1]);
+        const bitmap = Image.getImage(child).getFrameAtTime(currentTime);
+        this.context.drawImage(bitmap, -child.width / 2, -child.height / 2, child.width, child.height);
+        this.context.resetTransform();
+      }
+    }
   }
 
   private static async canvasToArrayBuffer (canvas: HTMLCanvasElement, mimeType: string) {
@@ -42,26 +62,8 @@ export class Renderer extends VideoSeeker {
   }
 
   protected async onFrame (frame: VideoSeekerFrame) {
-    const {video} = this.player;
-    const width = video.videoWidth;
-    const height = video.videoHeight;
-    this.canvas.width = width;
-    this.canvas.height = height;
-    this.context.clearRect(0, 0, width, height);
-
     this.timeline.setTime(frame.currentTime);
-    for (const child of this.widgetContainer.childNodes) {
-      if (child instanceof HTMLImageElement) {
-        const transform = Utility.getTransform(child);
-        this.context.translate(transform.translate[0], transform.translate[1]);
-        this.context.rotate(transform.rotate * Math.PI / 180);
-        this.context.scale(transform.scale[0], transform.scale[1]);
-        const image = await this.gifs[child.src].getFrameAtTime(frame.currentTime);
-        this.context.drawImage(image, -image.width / 2, -image.height / 2, image.width, image.height);
-        this.context.resetTransform();
-      }
-    }
-
+    this.drawFrame(frame.currentTime);
     const pngData = await Renderer.canvasToArrayBuffer(this.canvas, "image/png");
     const toSend = new RenderFrameEvent("frame");
     toSend.pngData = pngData;
@@ -70,13 +72,6 @@ export class Renderer extends VideoSeeker {
   }
 
   public async render (): Promise<boolean> {
-    for (const child of this.widgetContainer.childNodes) {
-      if (child instanceof HTMLImageElement) {
-        this.gifs[child.src] = new Gif(child.src);
-      }
-    }
-    const result = await this.run(0, false);
-    this.gifs = {};
-    return result;
+    return this.run(0, false);
   }
 }
