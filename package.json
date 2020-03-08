@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node --max_old_space_size=8192 node_modules/.bin/webpack-dev-server --mode development --open --hot",
-    "build": "rm -rf ./dist && webpack --mode production"
+    "build": "eslint --ext .ts . && rm -rf ./dist && webpack --mode production"
   },
   "repository": {
     "type": "git",

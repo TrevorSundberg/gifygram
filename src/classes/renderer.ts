@@ -19,7 +19,12 @@ export class Renderer extends VideoSeeker {
 
   private readonly context: CanvasRenderingContext2D;
 
-  public constructor (canvas: HTMLCanvasElement, widgetContainer: HTMLDivElement, player: VideoPlayer, timeline: Timeline) {
+  public constructor (
+    canvas: HTMLCanvasElement,
+    widgetContainer: HTMLDivElement,
+    player: VideoPlayer,
+    timeline: Timeline
+  ) {
     super(player);
     this.canvas = canvas;
     this.widgetContainer = widgetContainer;
