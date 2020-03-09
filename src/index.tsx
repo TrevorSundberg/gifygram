@@ -61,17 +61,15 @@ const fontPromise = new Promise<any>((resolve, reject) => {
 });
 
 document.getElementById("text").addEventListener("click", async () => {
-  const textArea = $("<textarea class='md-textarea form-control' autofocus></textarea>");
-  const div = $("<div>Write whatever you want:</div>");
-  div.append(textArea);
+  const input = $("<input type='text' class='md-textarea form-control' autofocus></textarea>");
   const modal = new Modal();
   const button = await modal.open({
     buttons: [{dismiss: true, name: "OK"}],
-    content: div,
+    content: input,
     dismissable: true,
     title: "Text"
   });
-  const text = textArea.val();
+  const text = input.val();
   if (button && text) {
     const textToSVG = await fontPromise;
     const svgText = textToSVG.getSVG(text, {
