@@ -52,14 +52,16 @@ DONE - Make a PR to allow searching stickers (checkbox for stickers)
 DONE - Turn the save load code into 'share' - we load the content from a url, better for users with same functionality
 DONE - Make background video choosable
 DONE - Add delete button (trash) and visual feedback, for mobile
+DONE - Button to hide/show sprites on specific frames (show as transparent while editing)
 
+ - Add 'editor' mode to renderer so we can draw transparent images
+ - Newlines in text are broken (either disable them or)
  - Double click or double tap or tap + hold actions to change text or image
  - Tweak ffmpeg settings to encode faster
  - Android ffmpeg encoding doesn't seem to run
  - Upload videos or sprites
  - Timeline view that lets us delete frames / seek to frames, even if it's minimal
  - Can't scale and rotate on mobile easily (both fingers need to be on sprite)
- - Button to hide/show sprites on specific frames (show as transparent while editing)
  - Make the manager create the container and widget container (pass in body)
  - Add full screen loading animation for blocking operations
 
