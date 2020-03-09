@@ -12,6 +12,8 @@ export interface ModalButton {
   dismiss?: boolean;
 
   callback?: ModalCallback;
+
+  submitOnEnter?: boolean;
 }
 
 export interface ModalOpenParameters {
@@ -50,11 +52,15 @@ export class Modal {
     if (!params.dismissable) {
       this.root.find(".close").remove();
     }
+    let submitButton: JQuery<HTMLElement> = null;
     const footer = this.root.find(".modal-footer");
     for (const button of params.buttons || []) {
       const buttonQuery = $("<button type=\"button\" class=\"btn btn-secondary\"></button>");
       if (button.dismiss) {
         buttonQuery.attr("data-dismiss", "modal");
+      }
+      if (button.submitOnEnter) {
+        submitButton = buttonQuery;
       }
       buttonQuery.text(button.name);
       ((currentButton: ModalButton) => {
@@ -71,6 +77,15 @@ export class Modal {
       backdrop: params.dismissable ? true : "static",
       show: true
     });
+
+    if (submitButton) {
+      this.root.get(0).addEventListener("keypress", (event) => {
+        if (event.keyCode === 13) {
+          submitButton.click();
+        }
+      }, true);
+    }
+
     const body = this.root.find(".modal-body");
     if (params.content) {
       body.append(params.content);

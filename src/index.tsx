@@ -64,7 +64,7 @@ document.getElementById("text").addEventListener("click", async () => {
   const input = $("<input type='text' class='md-textarea form-control' autofocus></textarea>");
   const modal = new Modal();
   const button = await modal.open({
-    buttons: [{dismiss: true, name: "OK"}],
+    buttons: [{dismiss: true, name: "OK", submitOnEnter: true}],
     content: input,
     dismissable: true,
     title: "Text"
