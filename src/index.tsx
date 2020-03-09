@@ -214,6 +214,10 @@ document.getElementById("render").addEventListener("click", async () => {
   player.showVideo();
 });
 
+document.getElementById("visibility").addEventListener("click", async () => {
+  manager.attemptToggleVisibility();
+});
+
 document.getElementById("delete").addEventListener("click", async () => {
   manager.attemptDeleteSelection();
 });

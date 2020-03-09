@@ -1,8 +1,8 @@
 import Scene, {Frame} from "scenejs";
 
 export interface Keyframe {
+  clip: string;
   transform: string;
-  visibility: "hidden" | "visible";
 }
 
 export interface Track {

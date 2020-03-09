@@ -32,6 +32,7 @@ module.exports = {
     "max-statements": ["error", 100],
     "max-lines-per-function": ["error", 200],
     "max-len": ["error", 120],
+    "max-lines": "off",
     "padded-blocks": ["error", "never"],
     "object-property-newline": "off",
     "object-curly-newline": ["error", { "multiline": true, "consistent": true }],
@@ -64,7 +65,8 @@ module.exports = {
     "require-atomic-updates": "off",
     "no-bitwise": "off",
     "no-mixed-operators": "off",
-    "id-length": "off"
+    "id-length": "off",
+    "no-continue": "off"
   },
   settings: {
     react: {

@@ -43,6 +43,9 @@ export class Renderer extends VideoSeeker {
 
     for (const child of this.widgetContainer.childNodes) {
       if (child instanceof HTMLImageElement) {
+        if (child.style.clip !== "auto") {
+          continue;
+        }
         const transform = Utility.getTransform(child);
         this.context.translate(transform.translate[0], transform.translate[1]);
         this.context.rotate(transform.rotate * Math.PI / 180);

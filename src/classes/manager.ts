@@ -197,6 +197,7 @@ export class Manager {
   public async addWidget (init: WidgetInit): Promise<Widget> {
     const element = await (async () => {
       const img = document.createElement("img");
+      img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
       const {src} = init.attributedSource;
       const image = init.type === "gif" ? new Gif(src) : new StaticImage(src);
       Image.setImage(img, image);
@@ -206,7 +207,6 @@ export class Manager {
       img.height = frame.height;
       img.style.left = `${-frame.width / 2}px`;
       img.style.top = `${-frame.height / 2}px`;
-      img.style.opacity = "0";
       return img;
     })();
 
@@ -227,6 +227,7 @@ export class Manager {
     };
     const {video} = this.videoPlayer;
     element.style.transform = Utility.transformToCss(Utility.centerTransform(video.videoWidth, video.videoHeight));
+    element.style.clip = "auto";
     this.widgetContainer.appendChild(element);
 
     const track: Track = {};
@@ -288,11 +289,20 @@ export class Manager {
     }
   }
 
+  public attemptToggleVisibility () {
+    if (this.selection) {
+      const {element} = this.selection.widget;
+      const {style} = element;
+      style.clip = style.clip === "auto" ? "unset" : "auto";
+      this.keyframe(element);
+    }
+  }
+
   private keyframe (element: HTMLElement) {
     const track = this.timeline.tracks[`#${element.id}`];
     track[this.videoPlayer.video.currentTime] = {
-      transform: Utility.transformToCss(Utility.getTransform(element)),
-      visibility: "visible"
+      clip: element.style.clip,
+      transform: Utility.transformToCss(Utility.getTransform(element))
     };
     this.updateTracks();
   }
