@@ -119,6 +119,7 @@ export class Manager {
     };
     registerInputEvents(widgetContainer);
     registerInputEvents(background.canvas);
+    registerInputEvents(document.body);
   }
 
   public attemptDeleteSelection () {
