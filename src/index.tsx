@@ -39,7 +39,7 @@ if (urlData) {
 
 document.getElementById("github").addEventListener(
   "click",
-  () => window.open("https://github.com/TrevorSundberg/caketown")
+  () => window.open("https://github.com/TrevorSundberg/madeitforfun")
 );
 
 document.getElementById("sticker").addEventListener("click", async () => {

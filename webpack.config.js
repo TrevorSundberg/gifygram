@@ -83,7 +83,7 @@ module.exports = {
     new FaviconsWebpackPlugin({
       logo: "./src/public/sample.png",
       prefix: "assets",
-      publicPath: "/caketown"
+      publicPath: "/"
     })
   ],
   resolve: {
