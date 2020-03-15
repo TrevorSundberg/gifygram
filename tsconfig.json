@@ -11,10 +11,9 @@
     "allowJs": true,
     "esModuleInterop": true,
     "baseUrl": "./",
-    "paths": {
-      "components/*": [
-        "src/components/*"
-      ],
-    }
-  }
+  },
+  "exclude": [
+      "node_modules",
+      "dist"
+  ]
 }
