@@ -277,7 +277,10 @@ export class Manager {
     if (widget) {
       this.widgetContainer.focus();
       this.selection = new Gizmo(widget);
-      this.selection.addEventListener("transformKeyframe", () => this.keyframe(this.selection.widget.element, "transform"));
+      this.selection.addEventListener(
+        "transformKeyframe",
+        () => this.keyframe(this.selection.widget.element, "transform")
+      );
     }
     this.updateMarkers();
   }
