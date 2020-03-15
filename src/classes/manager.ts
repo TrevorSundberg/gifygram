@@ -277,7 +277,7 @@ export class Manager {
     if (widget) {
       this.widgetContainer.focus();
       this.selection = new Gizmo(widget);
-      this.selection.addEventListener("keyframe", () => this.keyframe(this.selection.widget.element));
+      this.selection.addEventListener("transformKeyframe", () => this.keyframe(this.selection.widget.element, "transform"));
     }
     this.updateMarkers();
   }
@@ -303,16 +303,22 @@ export class Manager {
       const {element} = this.selection.widget;
       const {style} = element;
       style.clip = style.clip === "auto" ? "unset" : "auto";
-      this.keyframe(element);
+      this.keyframe(element, "clip");
     }
   }
 
-  private keyframe (element: HTMLElement) {
+  private keyframe (element: HTMLElement, type: "clip" | "transform") {
     const track = this.timeline.tracks[`#${element.id}`];
-    track[this.videoPlayer.video.currentTime] = {
-      clip: element.style.clip,
-      transform: Utility.transformToCss(Utility.getTransform(element))
-    };
+    track[this.videoPlayer.video.currentTime] = (() => {
+      if (type === "clip") {
+        return {
+          clip: element.style.clip
+        };
+      }
+      return {
+        transform: Utility.transformToCss(Utility.getTransform(element))
+      };
+    })();
     this.updateTracks();
   }
 }

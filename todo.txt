@@ -56,8 +56,8 @@ DONE - Button to hide/show sprites on specific frames (show as transparent while
 DONE - Add 'editor' mode to renderer so we can draw transparent images
 DONE - Newlines in text are broken (either disable them or)
 DONE - Add full screen loading animation for blocking operations
+DONE - Only add keyframes for values that changed
 
- - Only add keyframes for values that changed
  - Delete keyframes in range (click it, then select the range)
  - Fix gifs with transparentcy frames (gifuct-js)
  - Double click or double tap or tap + hold actions to change text or image

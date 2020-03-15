@@ -1,8 +1,8 @@
 import Scene, {Frame} from "scenejs";
 
 export interface Keyframe {
-  clip: string;
-  transform: string;
+  clip?: string;
+  transform?: string;
 }
 
 export interface Track {

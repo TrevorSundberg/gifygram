@@ -61,7 +61,7 @@ export class Gizmo extends EventTarget {
   }
 
   public emitKeyframe () {
-    this.dispatchEvent(new Event("keyframe"));
+    this.dispatchEvent(new Event("transformKeyframe"));
   }
 
   public destroy () {
