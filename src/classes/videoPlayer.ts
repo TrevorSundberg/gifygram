@@ -49,7 +49,7 @@ export class VideoPlayer {
     });
     this.playPauseButton.addEventListener("click", () => {
       if (this.video.paused) {
-        this.video.play();
+        this.video.play().catch(() => 0);
       } else {
         this.video.pause();
       }
