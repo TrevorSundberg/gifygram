@@ -30,7 +30,7 @@ export class VideoEncoder extends EventTarget {
       const {createWorker} = await import(/* webpackChunkName: "ffmpeg" */ "@ffmpeg/ffmpeg");
       const worker: FfmpegWorker = createWorker({
         corePath: require("@ffmpeg/core/ffmpeg-core.js").default,
-        logger: (message) => console.log(message),
+        logger: (info) => console.log(info.message),
         progress: (progress: FfmpegProgress) => {
           const toSend = new VideoProgressEvent("progress");
           toSend.progress = progress.ratio;
