@@ -191,7 +191,7 @@ export class Manager {
     if (this.selection) {
       this.selection.update();
     }
-    this.renderer.drawFrame(currentTime);
+    this.renderer.drawFrame(currentTime, false);
   }
 
   public async addWidget (init: WidgetInit): Promise<Widget> {

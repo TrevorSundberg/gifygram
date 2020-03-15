@@ -33,7 +33,7 @@ export class Renderer extends VideoSeeker {
     this.timeline = timeline;
   }
 
-  public drawFrame (currentTime: number) {
+  public drawFrame (currentTime: number, finalRender: boolean) {
     const {video} = this.player;
     const width = video.videoWidth;
     const height = video.videoHeight;
@@ -43,7 +43,8 @@ export class Renderer extends VideoSeeker {
 
     for (const child of this.widgetContainer.childNodes) {
       if (child instanceof HTMLImageElement) {
-        if (child.style.clip !== "auto") {
+        const hidden = child.style.clip !== "auto";
+        if (hidden && finalRender) {
           continue;
         }
         const transform = Utility.getTransform(child);
@@ -51,6 +52,7 @@ export class Renderer extends VideoSeeker {
         this.context.rotate(transform.rotate * Math.PI / 180);
         this.context.scale(transform.scale[0], transform.scale[1]);
         const bitmap = Image.getImage(child).getFrameAtTime(currentTime);
+        this.context.globalAlpha = hidden ? 0.3 : 1;
         this.context.drawImage(bitmap, -child.width / 2, -child.height / 2, child.width, child.height);
         this.context.resetTransform();
       }
@@ -71,7 +73,7 @@ export class Renderer extends VideoSeeker {
 
   protected async onFrame (frame: VideoSeekerFrame) {
     this.timeline.setTime(frame.currentTime);
-    this.drawFrame(frame.currentTime);
+    this.drawFrame(frame.currentTime, true);
     const pngData = await Renderer.canvasToArrayBuffer(this.canvas, "image/png");
     const toSend = new RenderFrameEvent("frame");
     toSend.pngData = pngData;
