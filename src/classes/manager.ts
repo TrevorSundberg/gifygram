@@ -5,6 +5,7 @@ import {Background} from "./background";
 import {Compress} from "./compression";
 import {Gizmo} from "./gizmo";
 import {Renderer} from "./renderer";
+import {Spinner} from "./spinner";
 import {VideoPlayer} from "./videoPlayer";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const uuidv4: typeof import("uuid/v4") = require("uuid/v4");
@@ -49,6 +50,8 @@ export class Manager {
   private readonly renderer: Renderer;
 
   public updateExternally = false;
+
+  private spinner = new Spinner();
 
   public constructor (
     background: Background,
@@ -148,8 +151,10 @@ export class Manager {
   }
 
   public async loadFromBase64 (base64: string) {
+    this.spinner.show();
     const json = await Compress.decompress(base64);
-    this.load(JSON.parse(json));
+    await this.load(JSON.parse(json));
+    this.spinner.hide();
   }
 
   private save (): SerializedData {
@@ -196,6 +201,7 @@ export class Manager {
   }
 
   public async addWidget (init: WidgetInit): Promise<Widget> {
+    this.spinner.show();
     const element = await (async () => {
       const img = document.createElement("img");
       img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
@@ -216,6 +222,7 @@ export class Manager {
     }
     const {id} = init;
     if (this.timeline.tracks[`#${id}`]) {
+      this.spinner.hide();
       throw new Error(`Widget id already exists: ${id}`);
     }
 
@@ -245,6 +252,7 @@ export class Manager {
     element.addEventListener("touchstart", grabElement, true);
 
     this.selectWidget(widget);
+    this.spinner.hide();
     return widget;
   }
 

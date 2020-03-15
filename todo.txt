@@ -55,15 +55,19 @@ DONE - Add delete button (trash) and visual feedback, for mobile
 DONE - Button to hide/show sprites on specific frames (show as transparent while editing)
 DONE - Add 'editor' mode to renderer so we can draw transparent images
 DONE - Newlines in text are broken (either disable them or)
+DONE - Add full screen loading animation for blocking operations
 
- - Fix gifs with transparentcy frames
+ - Delete keyframes in range (click it, then select the range)
+ - Fix gifs with transparentcy frames (gifuct-js)
  - Double click or double tap or tap + hold actions to change text or image
- - Tweak ffmpeg settings to encode faster (-preset...)
  - Android ffmpeg encoding doesn't seem to run (out of memory, break into chunks)
  - Upload videos or sprites
  - Timeline view that lets us delete frames / seek to frames, even if it's minimal
  - Make the manager create the container and widget container (pass in body)
- - Add full screen loading animation for blocking operations
+ - Video sizing problem (fixed up to max)
+ - Max size for images (not too much bigger than fixed max)
+ - Export dialog (gif, mp4, webm), fps, max size / keep aspect, etc...
+ - Tweak ffmpeg settings to encode faster (-preset...)
 
  - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)
  - Scenejs Keyframe bug where it doesn't seek correctly: min repro and report it
