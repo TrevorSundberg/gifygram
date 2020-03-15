@@ -3,7 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/fontawesome.css";
 import "@fortawesome/fontawesome-free/css/solid.css";
 import "@fortawesome/fontawesome-free/css/brands.css";
-import {NeverAsync, Utility} from "./classes/utility";
+import {Deferred, NeverAsync, Utility} from "./classes/utility";
 import {RenderFrameEvent, Renderer} from "./classes/renderer";
 import {VideoEncoder, VideoProgressEvent} from "./classes/videoEncoder";
 import $ from "jquery";
@@ -134,16 +134,13 @@ document.getElementById("motion").addEventListener("click", async () => {
     await Modal.messageBox("Motion Tracking", "You must have something selected to perform motion tracking");
     return;
   }
-  const {MotionTracker} = await import("./classes/motionTracker");
-  const motionTracker = new MotionTracker(player);
-  const transform = Utility.getTransform(selection.widget.element);
-  motionTracker.addPoint(transform.translate[0], transform.translate[1]);
+  const motionTrackerPromise = new Deferred<import("./classes/motionTracker").MotionTracker>();
   const modal = new ModalProgress();
   modal.open({
     buttons: [
       {
         callback: async () => {
-          await motionTracker.stop();
+          await (await motionTrackerPromise).stop();
           modal.hide();
         },
         name: "Stop"
@@ -151,6 +148,14 @@ document.getElementById("motion").addEventListener("click", async () => {
     ],
     title: "Tracking"
   });
+
+  const {MotionTracker} = await import("./classes/motionTracker");
+  const motionTracker = new MotionTracker(player);
+  motionTrackerPromise.resolve(motionTracker);
+
+  const transform = Utility.getTransform(selection.widget.element);
+  motionTracker.addPoint(transform.translate[0], transform.translate[1]);
+
   const onFrame = async (event: import("./classes/motionTracker").MotionTrackerEvent) => {
     modal.setProgress(event.progress, "");
     if (event.found) {
@@ -174,11 +179,6 @@ const download = (url: string, filename: string) => {
 };
 
 document.getElementById("render").addEventListener("click", async () => {
-  player.hideVideo();
-  manager.updateExternally = true;
-  manager.selectWidget(null);
-  const videoEncoder = new VideoEncoder();
-  await videoEncoder.addVideo(player);
   const modal = new ModalProgress();
   modal.open({
     buttons: [
@@ -192,6 +192,11 @@ document.getElementById("render").addEventListener("click", async () => {
     ],
     title: "Rendering & Encoding"
   });
+  player.hideVideo();
+  manager.updateExternally = true;
+  manager.selectWidget(null);
+  const videoEncoder = new VideoEncoder();
+  await videoEncoder.addVideo(player);
   const onRenderFrame = async (event: RenderFrameEvent) => {
     const frame = await videoEncoder.addFrame(event.pngData);
     modal.setProgress(event.progress, `Rendering Frame: ${frame}`);
