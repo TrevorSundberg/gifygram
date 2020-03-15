@@ -1,7 +1,7 @@
 {
   "name": "madeitforfun",
   "version": "1.0.0",
-  "description": "A really stupid website about putting pictures into videos",
+  "description": "A stupid website for animating images on top of videos.",
   "main": "index.js",
   "scripts": {
     "start": "node --max_old_space_size=8192 node_modules/.bin/webpack-dev-server --mode development --open --hot",
