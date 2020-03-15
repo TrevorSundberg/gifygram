@@ -1,4 +1,4 @@
-import {FRAME_RATE} from "./utility";
+import {Deferred, FRAME_RATE} from "./utility";
 import {VideoPlayer} from "./videoPlayer";
 
 interface FfmpegWorker {
@@ -6,6 +6,7 @@ interface FfmpegWorker {
   write(filename: string, buffer: Uint8Array);
   read(filename: string);
   run(command: string, {output: string});
+  terminate();
 }
 
 interface FfmpegProgress {
@@ -22,6 +23,8 @@ export class VideoEncoder extends EventTarget {
   private frame = 0;
 
   private chain = Promise.resolve<any>(null);
+
+  private cancel = new Deferred<"cancel">();
 
   public constructor () {
     super();
@@ -63,14 +66,29 @@ export class VideoEncoder extends EventTarget {
     return result;
   }
 
+  public async stop () {
+    const worker = await this.workerPromise;
+    this.workerPromise = null;
+    this.cancel.resolve("cancel");
+    await worker.terminate();
+  }
+
   public async encode () {
     const result = this.chain.then(async () => {
       this.frame = 0;
       const worker = await this.workerPromise;
-      await worker.run(`-i /data/background.mp4 -framerate ${FRAME_RATE} -i /data/frame%d.png output.mp4 ` +
+      const promise: Promise<undefined> =
+        worker.run(`-i /data/background.mp4 -framerate ${FRAME_RATE} -i /data/frame%d.png output.mp4 ` +
         "-filter_complex [0:v][1:v]overlay=0:0", {
-        output: "output.mp4"
-      });
+          output: "output.mp4"
+        });
+      const cancelled = await Promise.race([
+        this.cancel,
+        promise
+      ]);
+      if (cancelled === "cancel") {
+        return null;
+      }
       const output = (await worker.read("output.mp4")).data;
       return new Blob([output], {
         type: "video/mp4"

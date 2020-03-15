@@ -179,13 +179,14 @@ const download = (url: string, filename: string) => {
 };
 
 document.getElementById("render").addEventListener("click", async () => {
+  const videoEncoder = new VideoEncoder();
   const modal = new ModalProgress();
   modal.open({
     buttons: [
       {
         callback: async () => {
           await renderer.stop();
-          modal.hide();
+          await videoEncoder.stop();
         },
         name: "Cancel"
       }
@@ -195,7 +196,6 @@ document.getElementById("render").addEventListener("click", async () => {
   player.hideVideo();
   manager.updateExternally = true;
   manager.selectWidget(null);
-  const videoEncoder = new VideoEncoder();
   await videoEncoder.addVideo(player);
   const onRenderFrame = async (event: RenderFrameEvent) => {
     const frame = await videoEncoder.addFrame(event.pngData);
@@ -208,7 +208,9 @@ document.getElementById("render").addEventListener("click", async () => {
   renderer.addEventListener("frame", onRenderFrame);
   if (await renderer.render()) {
     const blob = await videoEncoder.encode();
-    download(URL.createObjectURL(blob), "output.mp4");
+    if (blob) {
+      download(URL.createObjectURL(blob), "output.mp4");
+    }
   }
   modal.hide();
   videoEncoder.removeEventListener("progress", onVideoEncoderProgress);
