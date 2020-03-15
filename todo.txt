@@ -98,9 +98,3 @@ Sound (postponed):
  - Import sound from disk
  - Sound from "text to speech"
  - Import sound from some other sound service
-
-cake.town
-turd.wtf
-fisfor.fun
-f-is-for.fun
-anim.wtf
