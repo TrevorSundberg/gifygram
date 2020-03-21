@@ -51,16 +51,21 @@ export class VideoEncoder extends EventTarget {
     const videoData = await response.arrayBuffer();
     const result = this.chain.then(async () => {
       const worker = await this.workerPromise;
-      await worker.write("background.mp4", new Uint8Array(videoData));
+      if (worker) {
+        await worker.write("background.mp4", new Uint8Array(videoData));
+      }
     });
     this.chain = result;
   }
 
   public async addFrame (pngData: ArrayBuffer) {
     const result = this.chain.then(async () => {
+      const frame = this.frame++;
       const worker = await this.workerPromise;
-      await worker.write(`frame${this.frame}.png`, new Uint8Array(pngData));
-      return this.frame++;
+      if (worker) {
+        await worker.write(`frame${frame}.png`, new Uint8Array(pngData));
+      }
+      return frame;
     });
     this.chain = result;
     return result;
@@ -77,22 +82,27 @@ export class VideoEncoder extends EventTarget {
     const result = this.chain.then(async () => {
       this.frame = 0;
       const worker = await this.workerPromise;
-      const promise: Promise<undefined> =
-        worker.run(`-i /data/background.mp4 -framerate ${FRAME_RATE} -i /data/frame%d.png output.mp4 ` +
-        "-filter_complex [0:v][1:v]overlay=0:0", {
-          output: "output.mp4"
+      if (worker) {
+        const command =
+        "-i /data/background.mp4 " +
+        `-framerate ${FRAME_RATE} ` +
+        "-i /data/frame%d.png output.mp4 " +
+        "-filter_complex [0:v][1:v]overlay=0:0";
+        console.log(command);
+        const promise: Promise<undefined> = worker.run(command, {output: "output.mp4"});
+        const cancelled = await Promise.race([
+          this.cancel,
+          promise
+        ]);
+        if (cancelled === "cancel") {
+          return null;
+        }
+        const output = (await worker.read("output.mp4")).data;
+        return new Blob([output], {
+          type: "video/mp4"
         });
-      const cancelled = await Promise.race([
-        this.cancel,
-        promise
-      ]);
-      if (cancelled === "cancel") {
-        return null;
       }
-      const output = (await worker.read("output.mp4")).data;
-      return new Blob([output], {
-        type: "video/mp4"
-      });
+      return null;
     });
     this.chain = result;
     return result;
