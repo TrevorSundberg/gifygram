@@ -69,6 +69,7 @@ DONE - Range selection on timeline (last click and drag)
 DONE - Delete keyframes in selected timeline range
 DONE - Ask if you want to leave saved changes
 
+ - Stand up a website where you can post these
  - Custom dialog for listing stickers / videos
  - Import main video from youtube (clip the video)
  - Double click or double tap or tap + hold actions to change text or image
@@ -88,9 +89,6 @@ DONE - Ask if you want to leave saved changes
 
  - Facial recognition
  - Green screening
-
-
- - Encode canvas into gif
 
  - Share on giphy, imgur, etc.
 
