@@ -1,5 +1,6 @@
 export const FRAME_RATE = 30;
 export const FRAME_TIME = 1 / FRAME_RATE;
+export const DURATION_PER_ENCODE = 1;
 export const TARGET_CANVAS_SIZE: Size = [
   1280,
   1280
