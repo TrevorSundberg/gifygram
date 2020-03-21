@@ -209,7 +209,9 @@ document.getElementById("render").addEventListener("click", async () => {
   if (await renderer.render()) {
     const blob = await videoEncoder.encode();
     if (blob) {
-      download(URL.createObjectURL(blob), "output.mp4");
+      const filename = `MadeItForFun-${new Date().toISOString().
+        replace(/[^a-zA-Z0-9-]/ug, "-")}`;
+      download(URL.createObjectURL(blob), filename);
     }
   }
   modal.hide();
