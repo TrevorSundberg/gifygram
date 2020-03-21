@@ -1,8 +1,12 @@
 export const FRAME_RATE = 30;
 export const FRAME_TIME = 1 / FRAME_RATE;
-export const TARGET_SIZE: Size = [
+export const TARGET_CANVAS_SIZE: Size = [
   1280,
   1280
+];
+export const TARGET_WIDGET_SIZE: Size = [
+  400,
+  400
 ];
 
 export class Deferred<T> implements Promise<T> {

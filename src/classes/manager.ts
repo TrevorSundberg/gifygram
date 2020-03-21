@@ -1,4 +1,4 @@
-import {AttributedSource, Size, Utility, getAspect} from "./utility";
+import {AttributedSource, Size, TARGET_WIDGET_SIZE, Utility, getAspect, resizeKeepAspect} from "./utility";
 import {Gif, Image, StaticImage} from "./image";
 import {Timeline, Track, Tracks} from "./timeline";
 import {Background} from "./background";
@@ -209,10 +209,16 @@ export class Manager {
       Image.setImage(img, image);
       await image.loadPromise;
       const frame = image.getFrameAtTime(0);
-      img.width = frame.width;
-      img.height = frame.height;
-      img.style.left = `${-frame.width / 2}px`;
-      img.style.top = `${-frame.height / 2}px`;
+      const size = resizeKeepAspect([
+        frame.width,
+        frame.height
+      ], TARGET_WIDGET_SIZE);
+      [
+        img.width,
+        img.height
+      ] = size;
+      img.style.left = `${-size[0] / 2}px`;
+      img.style.top = `${-size[1] / 2}px`;
       return img;
     })();
 

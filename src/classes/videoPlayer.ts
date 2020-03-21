@@ -1,5 +1,5 @@
 import "./videoPlayer.css";
-import {AttributedSource, Deferred, Size, TARGET_SIZE, resizeKeepAspect} from "./utility";
+import {AttributedSource, Deferred, Size, TARGET_CANVAS_SIZE, resizeKeepAspect} from "./utility";
 
 interface Point {
   clientX: number;
@@ -157,7 +157,7 @@ export class VideoPlayer {
   }
 
   public getAspectSize () {
-    return resizeKeepAspect(this.getRawSize(), TARGET_SIZE);
+    return resizeKeepAspect(this.getRawSize(), TARGET_CANVAS_SIZE);
   }
 
   public getNormalizedCurrentTime () {
