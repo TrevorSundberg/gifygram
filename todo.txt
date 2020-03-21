@@ -65,15 +65,15 @@ DONE - Target size for images
 
  - Fix gifs with transparentcy frames (gifuct-js)
  - Android ffmpeg encoding doesn't seem to run (out of memory, break into chunks)
- - Delete keyframes in range (click it, then select the range)
+ - Range selection on timeline (last click and drag)
+ - Delete keyframes in selected timeline range
  - Double click or double tap or tap + hold actions to change text or image
  - Upload videos or sprites
- - Timeline view that lets us delete frames / seek to frames, even if it's minimal
- - Make the manager create the container and widget container (pass in body)
+ - Ask if you want to leave saved changes
  - Export dialog (gif, mp4, webm), fps, max size / keep aspect, etc...
  - Tweak ffmpeg settings to encode faster (-preset...)
  - Customize text styles (font, color, outline, etc)
- - Ask if you want to leave saved changes
+ - Make the manager create the container and widget container (pass in body)
 
  - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)
  - Scenejs Keyframe bug where it doesn't seek correctly: min repro and report it
