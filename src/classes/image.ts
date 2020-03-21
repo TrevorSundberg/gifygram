@@ -45,12 +45,58 @@ export class Gif extends Image {
 
   public constructor (url: string) {
     super();
+
+    const renderCumulativeFrames = (frameData: any[]) => {
+      if (frameData.length === 0) {
+        return frameData;
+      }
+      const previous = document.createElement("canvas");
+      const previousContext = previous.getContext("2d");
+      const current = document.createElement("canvas");
+      const currentContext = current.getContext("2d");
+
+      // Setting the canvas width will clear the canvas, so we only want to do it once.
+      const firstFrameCanvas = frameData[0].getImage() as HTMLCanvasElement;
+
+      // It also apperas that 'gif-frames' always returns a consistent sized canvas for all frames.
+      previous.width = firstFrameCanvas.width;
+      previous.height = firstFrameCanvas.height;
+      current.width = firstFrameCanvas.width;
+      current.height = firstFrameCanvas.height;
+
+      for (const frame of frameData) {
+        // Copy the current to the previous.
+        previousContext.clearRect(0, 0, previous.width, previous.height);
+        previousContext.drawImage(current, 0, 0);
+
+        // Draw the current frame to the cumulative buffer.
+        const canvas = frame.getImage() as HTMLCanvasElement;
+        const context = canvas.getContext("2d");
+        currentContext.drawImage(canvas, 0, 0);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(current, 0, 0);
+
+        const {frameInfo} = frame;
+        const {disposal} = frameInfo;
+        // If the disposal method is clear to the background color, then clear the canvas.
+        if (disposal === 2) {
+          currentContext.clearRect(frameInfo.x, frameInfo.y, frameInfo.width, frameInfo.height);
+        // If the disposal method is reset to the previous, then copy the previous over the current.
+        } else if (disposal === 3) {
+          currentContext.clearRect(0, 0, current.width, current.height);
+          currentContext.drawImage(previous, 0, 0);
+        }
+        frame.getImage = () => canvas;
+      }
+      return frameData;
+    };
+
     const frameDataPromise = gifFrames({
       cumulative: false,
       frames: "all",
       outputType: "canvas",
       url
-    }) as Promise<any[]>;
+    }).then((frameData) => renderCumulativeFrames(frameData)) as Promise<any[]>;
 
     this.loadPromise = frameDataPromise.then((frameData: any[]) => {
       this.frames = frameData.map((frame) => ({

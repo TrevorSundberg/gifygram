@@ -62,8 +62,8 @@ DONE - Import sprite from giphy
 DONE - Video sizing problem (fixed up to max)
 DONE - Remove sound from exported video
 DONE - Target size for images
+DONE - Fix gifs with transparent frames
 
- - Fix gifs with transparentcy frames (gifuct-js)
  - Android ffmpeg encoding doesn't seem to run (out of memory, break into chunks)
  - Range selection on timeline (last click and drag)
  - Delete keyframes in selected timeline range
