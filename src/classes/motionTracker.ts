@@ -45,14 +45,15 @@ export class MotionTracker extends VideoSeeker {
 
   public async track () {
     await this.player.loadPromise;
-    const width = this.player.video.videoWidth;
-    const height = this.player.video.videoHeight;
+    const size = this.player.getAspectSize();
 
-    this.currentPyramid.allocate(width, height, jsfeat.U8_t | jsfeat.C1_t);
-    this.previousPyramid.allocate(width, height, jsfeat.U8_t | jsfeat.C1_t);
+    this.currentPyramid.allocate(size[0], size[1], jsfeat.U8_t | jsfeat.C1_t);
+    this.previousPyramid.allocate(size[0], size[1], jsfeat.U8_t | jsfeat.C1_t);
 
-    this.canvas.width = width;
-    this.canvas.height = height;
+    [
+      this.canvas.width,
+      this.canvas.height
+    ] = size;
 
     this.buildPyramidFromVideoImage(this.currentPyramid);
 
@@ -66,15 +67,13 @@ export class MotionTracker extends VideoSeeker {
   }
 
   private buildPyramidFromVideoImage (pyramid: any) {
-    const {video} = this.player;
-    const width = video.videoWidth;
-    const height = video.videoHeight;
+    const size = this.player.getAspectSize();
 
-    this.context.drawImage(video, 0, 0, width, height);
-    const imageData = this.context.getImageData(0, 0, width, height);
+    this.context.drawImage(this.player.video, 0, 0, size[0], size[1]);
+    const imageData = this.context.getImageData(0, 0, size[0], size[1]);
 
     const [currentData] = pyramid.data;
-    jsfeat.imgproc.grayscale(imageData.data, width, height, currentData);
+    jsfeat.imgproc.grayscale(imageData.data, size[0], size[1], currentData);
 
     pyramid.build(currentData, true);
   }

@@ -1,5 +1,9 @@
 export const FRAME_RATE = 30;
 export const FRAME_TIME = 1 / FRAME_RATE;
+export const TARGET_SIZE: Size = [
+  1280,
+  1280
+];
 
 export class Deferred<T> implements Promise<T> {
   private resolveSelf;
@@ -113,3 +117,20 @@ export interface AttributedSource {
   attribution: string;
   src: string;
 }
+
+export type Size = [number, number];
+
+export const getAspect = (size: Size) => size[0] / size[1];
+
+export const resizeKeepAspect = (current: Size, target: Size): Size => {
+  if (getAspect(current) > getAspect(target)) {
+    return [
+      target[0],
+      target[0] / current[0] * current[1]
+    ];
+  }
+  return [
+    target[1] / current[1] * current[0],
+    target[1]
+  ];
+};

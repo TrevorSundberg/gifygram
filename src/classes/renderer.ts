@@ -13,11 +13,16 @@ export class RenderFrameEvent extends Event {
 export class Renderer extends VideoSeeker {
   private readonly canvas: HTMLCanvasElement;
 
+  private readonly context: CanvasRenderingContext2D;
+
+  private readonly resizeCanvas: HTMLCanvasElement;
+
+  private readonly resizeContext: CanvasRenderingContext2D;
+
   private readonly widgetContainer: HTMLDivElement;
 
   private readonly timeline: Timeline;
 
-  private readonly context: CanvasRenderingContext2D;
 
   public constructor (
     canvas: HTMLCanvasElement,
@@ -27,19 +32,22 @@ export class Renderer extends VideoSeeker {
   ) {
     super(player);
     this.canvas = canvas;
+    this.context = this.canvas.getContext("2d");
     this.widgetContainer = widgetContainer;
 
-    this.context = this.canvas.getContext("2d");
+    this.resizeCanvas = document.createElement("canvas");
+    this.resizeContext = this.resizeCanvas.getContext("2d");
+
     this.timeline = timeline;
   }
 
   public drawFrame (currentTime: number, finalRender: boolean) {
-    const {video} = this.player;
-    const width = video.videoWidth;
-    const height = video.videoHeight;
-    this.canvas.width = width;
-    this.canvas.height = height;
-    this.context.clearRect(0, 0, width, height);
+    const size = this.player.getAspectSize();
+    [
+      this.canvas.width,
+      this.canvas.height
+    ] = size;
+    this.context.clearRect(0, 0, size[0], size[1]);
 
     for (const child of this.widgetContainer.childNodes) {
       if (child instanceof HTMLImageElement) {
@@ -74,7 +82,13 @@ export class Renderer extends VideoSeeker {
   protected async onFrame (frame: VideoSeekerFrame) {
     this.timeline.setTime(frame.currentTime);
     this.drawFrame(frame.currentTime, true);
-    const pngData = await Renderer.canvasToArrayBuffer(this.canvas, "image/png");
+    const size = this.player.getRawSize();
+    [
+      this.resizeCanvas.width,
+      this.resizeCanvas.height
+    ] = size;
+    this.resizeContext.drawImage(this.canvas, 0, 0, size[0], size[1]);
+    const pngData = await Renderer.canvasToArrayBuffer(this.resizeCanvas, "image/png");
     const toSend = new RenderFrameEvent("frame");
     toSend.pngData = pngData;
     toSend.progress = frame.progress;

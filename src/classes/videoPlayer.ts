@@ -1,5 +1,5 @@
 import "./videoPlayer.css";
-import {AttributedSource, Deferred} from "./utility";
+import {AttributedSource, Deferred, Size, TARGET_SIZE, resizeKeepAspect} from "./utility";
 
 interface Point {
   clientX: number;
@@ -148,5 +148,16 @@ export class VideoPlayer {
       marker.style.left = `${interpolant * 100}%`;
       this.markers.push(marker);
     }
+  }
+
+  public getRawSize (): Size {
+    return [
+      this.video.videoWidth || 1280,
+      this.video.videoHeight || 720
+    ];
+  }
+
+  public getAspectSize () {
+    return resizeKeepAspect(this.getRawSize(), TARGET_SIZE);
   }
 }

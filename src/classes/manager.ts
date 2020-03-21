@@ -1,4 +1,4 @@
-import {AttributedSource, Utility} from "./utility";
+import {AttributedSource, Size, Utility, getAspect} from "./utility";
 import {Gif, Image, StaticImage} from "./image";
 import {Timeline, Track, Tracks} from "./timeline";
 import {Background} from "./background";
@@ -67,28 +67,28 @@ export class Manager {
     this.renderer = renderer;
     this.update();
 
-    const updateContainerSize = (videoWidth: number, videoHeight: number, scale: number) => {
-      container.style.width = `${videoWidth}px`;
-      container.style.height = `${videoHeight}px`;
+    const updateContainerSize = (aspectSize: Size, scale: number) => {
+      container.style.width = `${aspectSize[0]}px`;
+      container.style.height = `${aspectSize[1]}px`;
       container.style.transform = `translate(${0}px, ${0}px) scale(${scale})`;
 
-      const width = videoWidth * scale;
-      const height = videoHeight * scale;
+      const width = aspectSize[0] * scale;
+      const height = aspectSize[1] * scale;
 
       container.style.left = `${(window.innerWidth - width) / 2}px`;
       container.style.top = `${(window.innerHeight - height) / 2}px`;
     };
 
     const onResize = () => {
-      const videoWidth = videoPlayer.video.videoWidth || 1280;
-      const videoHeight = videoPlayer.video.videoHeight || 720;
-      const videoAspect = videoWidth / videoHeight;
-      const windowAspect = window.innerWidth / window.innerHeight;
-
-      if (videoAspect > windowAspect) {
-        updateContainerSize(videoWidth, videoHeight, window.innerWidth / videoWidth);
+      const aspectSize = videoPlayer.getAspectSize();
+      const windowSize: Size = [
+        window.innerWidth,
+        window.innerHeight
+      ];
+      if (getAspect(aspectSize) > getAspect(windowSize)) {
+        updateContainerSize(aspectSize, window.innerWidth / aspectSize[0]);
       } else {
-        updateContainerSize(videoWidth, videoHeight, window.innerHeight / videoHeight);
+        updateContainerSize(aspectSize, window.innerHeight / aspectSize[1]);
       }
     };
     videoPlayer.video.addEventListener("canplay", onResize);
