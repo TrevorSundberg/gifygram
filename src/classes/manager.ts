@@ -158,6 +158,7 @@ export class Manager {
   }
 
   private save (): SerializedData {
+    console.log(this.timeline.tracks);
     return {
       tracks: JSON.parse(JSON.stringify(this.timeline.tracks)),
       videoAttributedSource: this.videoPlayer.getAttributedSrc(),
@@ -181,8 +182,8 @@ export class Manager {
     this.timeline.tracks = data.tracks;
     this.updateTracks();
     // Force a change so everything updates
-    this.timeline.setTime(1);
-    this.timeline.setTime(0);
+    this.timeline.setNormalizedTime(1);
+    this.timeline.setNormalizedTime(0);
     this.videoPlayer.video.currentTime = 0;
   }
 
@@ -190,14 +191,12 @@ export class Manager {
     if (this.updateExternally) {
       return;
     }
-    const {currentTime} = this.videoPlayer.video;
-    if (this.timeline.getTime() !== currentTime) {
-      this.timeline.setTime(currentTime);
-    }
+    const normalizedCurrentTime = this.videoPlayer.getNormalizedCurrentTime();
+    this.timeline.setNormalizedTime(normalizedCurrentTime);
     if (this.selection) {
       this.selection.update();
     }
-    this.renderer.drawFrame(currentTime, false);
+    this.renderer.drawFrame(this.videoPlayer.video.currentTime, false);
   }
 
   public async addWidget (init: WidgetInit): Promise<Widget> {
@@ -312,7 +311,7 @@ export class Manager {
 
   private keyframe (element: HTMLElement, type: "clip" | "transform") {
     const track = this.timeline.tracks[`#${element.id}`];
-    track[this.videoPlayer.video.currentTime] = (() => {
+    track[this.videoPlayer.getNormalizedCurrentTime()] = (() => {
       if (type === "clip") {
         return {
           clip: element.style.clip

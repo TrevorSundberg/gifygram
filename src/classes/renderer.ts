@@ -80,7 +80,7 @@ export class Renderer extends VideoSeeker {
   }
 
   protected async onFrame (frame: VideoSeekerFrame) {
-    this.timeline.setTime(frame.currentTime);
+    this.timeline.setNormalizedTime(frame.normalizedCurrentTime);
     this.drawFrame(frame.currentTime, true);
     const size = this.player.getRawSize();
     [

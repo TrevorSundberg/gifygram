@@ -134,18 +134,17 @@ export class VideoPlayer {
     };
   }
 
-  public setMarkers (markerTimes: number[]) {
+  public setMarkers (normalizedMarkerTimes: number[]) {
     for (const marker of this.markers) {
       marker.remove();
     }
     this.markers.length = 0;
 
-    for (const markerTime of markerTimes) {
+    for (const normalizedMarkerTime of normalizedMarkerTimes) {
       const marker = document.createElement("div");
       this.timeline.appendChild(marker);
       marker.className = "videoMarker";
-      const interpolant = markerTime / this.video.duration;
-      marker.style.left = `${interpolant * 100}%`;
+      marker.style.left = `${normalizedMarkerTime * 100}%`;
       this.markers.push(marker);
     }
   }
@@ -159,5 +158,9 @@ export class VideoPlayer {
 
   public getAspectSize () {
     return resizeKeepAspect(this.getRawSize(), TARGET_SIZE);
+  }
+
+  public getNormalizedCurrentTime () {
+    return this.video.currentTime / (this.video.duration || 1);
   }
 }

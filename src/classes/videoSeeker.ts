@@ -2,6 +2,8 @@ import {Deferred, FRAME_TIME} from "./utility";
 import {VideoPlayer} from "./videoPlayer";
 
 export class VideoSeekerFrame {
+  public normalizedCurrentTime: number;
+
   public currentTime: number;
 
   public progress: number;
@@ -31,6 +33,7 @@ export abstract class VideoSeeker extends EventTarget {
 
     const frame = new VideoSeekerFrame();
     frame.currentTime = this.snapToFrameRate(startTime);
+    frame.normalizedCurrentTime = frame.currentTime / video.duration;
 
     const onSeek = async () => {
       if (this.isStopped) {
@@ -44,6 +47,7 @@ export abstract class VideoSeeker extends EventTarget {
         return false;
       }
       frame.currentTime = this.snapToFrameRate(frame.currentTime + FRAME_TIME);
+      frame.normalizedCurrentTime = frame.currentTime / video.duration;
 
       if (seekVideo) {
         video.currentTime = frame.currentTime;

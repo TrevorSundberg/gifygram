@@ -27,7 +27,7 @@ export class Timeline {
 
   public tracks: Tracks = {};
 
-  private time = 0;
+  private normalizedTime = 0;
 
   public constructor () {
     this.scene = new Scene(this.tracks, {
@@ -46,14 +46,14 @@ export class Timeline {
     });
   }
 
-  public getTime () {
-    return this.time;
+  public getNormalizedTime () {
+    return this.normalizedTime;
   }
 
-  public setTime (time: number) {
-    if (this.time !== time) {
-      this.scene.setTime(time);
-      this.time = time;
+  public setNormalizedTime (normalizedTime: number) {
+    if (this.normalizedTime !== normalizedTime) {
+      this.scene.setTime(normalizedTime);
+      this.normalizedTime = normalizedTime;
     }
   }
 
