@@ -65,8 +65,8 @@ DONE - Target size for images
 DONE - Fix gifs with transparent frames
 DONE - Android ffmpeg encoding doesn't seem to run (out of memory, break into chunks)
 DONE - Tweak ffmpeg settings to encode faster (-preset...)
+DONE - Range selection on timeline (last click and drag)
 
- - Range selection on timeline (last click and drag)
  - Delete keyframes in selected timeline range
  - Double click or double tap or tap + hold actions to change text or image
  - Upload videos or sprites

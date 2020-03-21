@@ -33,6 +33,15 @@
   width: calc(100% - 15vmin);
 }
 
+.videoSelection {
+  background-color: #0068da;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  height: 8%;
+  z-index: 1;
+}
+
 .videoPosition {
   background-color: gray;
   position: absolute;

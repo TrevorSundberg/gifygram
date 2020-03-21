@@ -1,5 +1,5 @@
 import "./videoPlayer.css";
-import {AttributedSource, Deferred, Size, TARGET_CANVAS_SIZE, resizeKeepAspect} from "./utility";
+import {AttributedSource, Deferred, Size, TARGET_CANVAS_SIZE, TimeRange, resizeKeepAspect} from "./utility";
 
 interface Point {
   clientX: number;
@@ -17,9 +17,15 @@ export class VideoPlayer {
 
   private timeline: HTMLDivElement;
 
+  private selection: HTMLDivElement;
+
   private readonly markers: HTMLDivElement[] = [];
 
   public loadPromise = new Deferred<void>();
+
+  public selectionStartNormalized = 0;
+
+  public selectionEndNormalized = 1;
 
   public constructor (videoParent: HTMLDivElement, controlsParent: HTMLElement) {
     this.video = document.createElement("video");
@@ -59,6 +65,10 @@ export class VideoPlayer {
     this.controlsContainer.appendChild(this.timeline);
     this.timeline.className = "videoTimeline";
 
+    this.selection = document.createElement("div");
+    this.timeline.appendChild(this.selection);
+    this.selection.className = "videoSelection";
+
     this.position = document.createElement("div");
     this.timeline.appendChild(this.position);
     this.position.className = "videoPosition";
@@ -69,16 +79,24 @@ export class VideoPlayer {
     };
     window.addEventListener("update", updatePosition);
 
-    const updateTimelineFromPoint = (event: Point) => {
+    const updateTimelineFromPoint = (event: Point, start: boolean) => {
       const rect = this.timeline.getBoundingClientRect();
       const left = event.clientX - rect.left;
-      const interpolant = Math.min(left / rect.width, 0.9999);
+      const interpolant = Math.max(Math.min(left / rect.width, 0.9999), 0);
       this.video.currentTime = this.video.duration * interpolant;
       updatePosition();
+      if (start) {
+        this.selectionStartNormalized = interpolant;
+      }
+      this.selectionEndNormalized = interpolant;
+
+      const selectionRange = this.getSelectionRangeInOrder();
+      this.selection.style.left = `${selectionRange[0] * 100}%`;
+      this.selection.style.right = `${(1 - selectionRange[1]) * 100}%`;
     };
 
     const onTouchMove = (event: TouchEvent) => {
-      updateTimelineFromPoint(event.touches[0]);
+      updateTimelineFromPoint(event.touches[0], event.type === "touchstart");
     };
     this.timeline.addEventListener("touchstart", (event) => {
       this.timeline.addEventListener("touchmove", onTouchMove);
@@ -89,7 +107,7 @@ export class VideoPlayer {
     });
 
     const onPointerMove = (event: PointerEvent) => {
-      updateTimelineFromPoint(event);
+      updateTimelineFromPoint(event, event.type === "pointerdown");
     };
     this.timeline.addEventListener("pointerdown", (event) => {
       this.timeline.setPointerCapture(event.pointerId);
@@ -107,6 +125,19 @@ export class VideoPlayer {
       this.video.width = this.video.videoWidth;
       this.video.height = this.video.videoHeight;
     });
+  }
+
+  public getSelectionRangeInOrder (): TimeRange {
+    if (this.selectionStartNormalized > this.selectionEndNormalized) {
+      return [
+        this.selectionEndNormalized,
+        this.selectionStartNormalized
+      ];
+    }
+    return [
+      this.selectionStartNormalized,
+      this.selectionEndNormalized
+    ];
   }
 
   public hideVideo () {

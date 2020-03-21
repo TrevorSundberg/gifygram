@@ -139,3 +139,5 @@ export const resizeKeepAspect = (current: Size, target: Size): Size => {
     target[1]
   ];
 };
+
+export type TimeRange = [number, number];
