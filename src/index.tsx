@@ -229,6 +229,11 @@ document.getElementById("delete").addEventListener("click", async () => {
   manager.attemptDeleteSelection();
 });
 
+document.getElementById("clear").addEventListener("click", async () => {
+  timeline.deleteKeyframesInRange(player.getSelectionRangeInOrder());
+  manager.updateTracks();
+});
+
 $(() => {
   $("[data-toggle=\"tooltip\"]").tooltip();
 });
