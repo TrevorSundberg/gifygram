@@ -60,6 +60,7 @@ DONE - Only add keyframes for values that changed
 DONE - Import main video from giphy
 DONE - Import sprite from giphy
 DONE - Video sizing problem (fixed up to max)
+DONE - Remove sound from exported video
 
  - Max size for images (not too much bigger than fixed max)
  - Fix gifs with transparentcy frames (gifuct-js)
@@ -75,7 +76,6 @@ DONE - Video sizing problem (fixed up to max)
 
  - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)
  - Scenejs Keyframe bug where it doesn't seek correctly: min repro and report it
- - Remove sound from exported video
  - Add credits to exported video (text file in ffmpeg)?
 
  - Import main video from disk
@@ -101,3 +101,4 @@ Sound (postponed):
  - Import sound from disk
  - Sound from "text to speech"
  - Import sound from some other sound service
+ - Enable exported video sound (remove -an in videoEncoder.ts)

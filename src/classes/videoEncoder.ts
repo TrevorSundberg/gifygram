@@ -86,7 +86,9 @@ export class VideoEncoder extends EventTarget {
         const command =
         "-i /data/background.mp4 " +
         `-framerate ${FRAME_RATE} ` +
-        "-i /data/frame%d.png output.mp4 " +
+        "-i /data/frame%d.png " +
+        "-an " +
+        "output.mp4 " +
         "-filter_complex [0:v][1:v]overlay=0:0";
         console.log(command);
         const promise: Promise<undefined> = worker.run(command, {output: "output.mp4"});
