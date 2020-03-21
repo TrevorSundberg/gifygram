@@ -53,6 +53,8 @@ export class Manager {
 
   private spinner = new Spinner();
 
+  public hasUnsavedChanges = false;
+
   public constructor (
     background: Background,
     container: HTMLDivElement,
@@ -140,9 +142,11 @@ export class Manager {
     }
   }
 
-  public updateTracks () {
+  public updateChanges () {
     this.timeline.updateTracks();
     this.updateMarkers();
+    this.hasUnsavedChanges = true;
+    console.log("UPDATED");
   }
 
   public saveToBase64 () {
@@ -158,7 +162,7 @@ export class Manager {
   }
 
   private save (): SerializedData {
-    console.log(this.timeline.tracks);
+    this.hasUnsavedChanges = false;
     return {
       tracks: JSON.parse(JSON.stringify(this.timeline.tracks)),
       videoAttributedSource: this.videoPlayer.getAttributedSrc(),
@@ -180,11 +184,12 @@ export class Manager {
       await this.addWidget(init);
     }
     this.timeline.tracks = data.tracks;
-    this.updateTracks();
+    this.updateChanges();
     // Force a change so everything updates
     this.timeline.setNormalizedTime(1);
     this.timeline.setNormalizedTime(0);
     this.videoPlayer.video.currentTime = 0;
+    this.hasUnsavedChanges = false;
   }
 
   private update () {
@@ -245,7 +250,7 @@ export class Manager {
 
     const track: Track = {};
     this.timeline.tracks[`#${id}`] = track;
-    this.updateTracks();
+    this.updateChanges();
     const widget = new Widget(element, init);
     this.widgets.push(widget);
 
@@ -296,7 +301,7 @@ export class Manager {
     }
     widget.element.remove();
     delete this.timeline.tracks[`#${widget.init.id}`];
-    this.updateTracks();
+    this.updateChanges();
     this.widgets.splice(this.widgets.indexOf(widget), 1);
   }
 
@@ -327,6 +332,6 @@ export class Manager {
         transform: Utility.transformToCss(Utility.getTransform(element))
       };
     })();
-    this.updateTracks();
+    this.updateChanges();
   }
 }

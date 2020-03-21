@@ -66,11 +66,13 @@ DONE - Fix gifs with transparent frames
 DONE - Android ffmpeg encoding doesn't seem to run (out of memory, break into chunks)
 DONE - Tweak ffmpeg settings to encode faster (-preset...)
 DONE - Range selection on timeline (last click and drag)
+DONE - Delete keyframes in selected timeline range
+DONE - Ask if you want to leave saved changes
 
- - Delete keyframes in selected timeline range
+ - Custom dialog for listing stickers / videos
+ - Import main video from youtube (clip the video)
  - Double click or double tap or tap + hold actions to change text or image
  - Upload videos or sprites
- - Ask if you want to leave saved changes
  - Export dialog (gif, mp4, webm), fps, max size / keep aspect, etc...
  - Customize text styles (font, color, outline, etc)
  - Make the manager create the container and widget container (pass in body)
@@ -87,7 +89,6 @@ DONE - Range selection on timeline (last click and drag)
  - Facial recognition
  - Green screening
 
- - Import main video from youtube?
 
  - Encode canvas into gif
 

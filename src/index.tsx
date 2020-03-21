@@ -25,6 +25,14 @@ const renderer = new Renderer(canvas, widgetContainer, player, timeline);
 const background = new Background(document.body, player.video);
 const manager = new Manager(background, videoParent, widgetContainer, player, timeline, renderer);
 
+window.onbeforeunload = () => {
+  if (manager.hasUnsavedChanges && location.protocol === "https:") {
+    return "Do you want to leave this page and discard your changes?";
+  }
+  // eslint-disable-next-line no-undefined
+  return undefined;
+};
+
 const urlDataParameter = "data";
 const urlParams = new URLSearchParams(window.location.search);
 const urlData = urlParams.get(urlDataParameter);
@@ -231,7 +239,7 @@ document.getElementById("delete").addEventListener("click", async () => {
 
 document.getElementById("clear").addEventListener("click", async () => {
   timeline.deleteKeyframesInRange(player.getSelectionRangeInOrder());
-  manager.updateTracks();
+  manager.updateChanges();
 });
 
 $(() => {
