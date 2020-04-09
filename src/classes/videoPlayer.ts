@@ -34,6 +34,12 @@ export class VideoPlayer {
     this.video.crossOrigin = "anonymous";
     this.video.loop = true;
     this.video.muted = true;
+
+    this.video.setAttribute("webkit-playsinline", "true");
+    this.video.setAttribute("playsinline", "true");
+    (this.video as any).playsInline = true;
+    (this.video as any).playsinline = true;
+
     (this.video as any).disableRemotePlayback = true;
     this.video.oncontextmenu = () => false;
 
