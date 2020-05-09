@@ -5,7 +5,9 @@
     "dev": "NODE_ENV=development npm run build",
     "format": "prettier --write '**/*.{css,json,md}'",
     "transpile": "tsc --project ./test",
-    "clear": "wrangler kv:key list --binding=db > list.json && sed -i s/\"name\"/\"value\":\"\",\"key\"/ list.json && wrangler kv:bulk delete --binding=db list.json && rm list.json"
+    "clear": "wrangler kv:key list --binding=db > list.json && sed -i s/\"name\"/\"value\":\"\",\"key\"/ list.json && wrangler kv:bulk delete --binding=db list.json && rm list.json",
+    "preview": "wrangler preview",
+    "publish": "wrangler publish"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^1.0.1",
