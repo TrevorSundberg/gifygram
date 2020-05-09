@@ -274,7 +274,9 @@ document.getElementById("render").addEventListener("click", async () => {
   const filename = `MadeItForFun-${new Date().toISOString().
     replace(/[^a-zA-Z0-9-]/ug, "-")}`;
   const result = await render();
+  if (result.videoBlob) {
   download(URL.createObjectURL(result.videoBlob), filename);
+  }
 });
 
 document.getElementById("visibility").addEventListener("click", async () => {
