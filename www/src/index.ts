@@ -1,6 +1,6 @@
 import {uuid} from "uuidv4";
 
-const handlers: Record<string, (request: Request) => Promise<Response>> = {};
+const handlers: Record<string, (request: Request, url: URL) => Promise<Response>> = {};
 
 const sortableDate = () => Date.now().toString().
   padStart(20, "0");
@@ -22,10 +22,9 @@ const parseBinaryChunks = (buffer: ArrayBuffer) => {
 const createAccessHeaders = () => new Headers({
   "Access-Control-Allow-Origin": "*"
 });
+const responseOptions = () => ({headers: createAccessHeaders()});
 
 handlers["/post"] = async (request) => {
-  const headers = createAccessHeaders();
-
   const chunks = parseBinaryChunks(await request.arrayBuffer());
   const [
     jsonBinary,
@@ -36,15 +35,31 @@ handlers["/post"] = async (request) => {
   const id = uuid();
   await db.put(`post:${sortableDate()}`, id);
   await db.put(`post.json:${id}`, json);
-  await db.put(`post.video:${id}`, video);
   await db.put(`post.thumbnail:${id}`, thumbnail);
-  return new Response(JSON.stringify({id}), {headers});
+  await db.put(`post.video:${id}`, video);
+  return new Response(JSON.stringify({id}), responseOptions());
+};
+
+handlers["/listPosts"] = async () => {
+  const list = await db.list({prefix: "post:"});
+  const ids = await Promise.all(list.keys.map((key) => db.get(key.name)));
+  return new Response(JSON.stringify(ids), responseOptions());
+};
+
+handlers["/thumbnail"] = async (request, url) => {
+  const buffer = await db.get(`post.thumbnail:${url.searchParams.get("id")}`, "arrayBuffer");
+  return new Response(buffer, responseOptions());
+};
+
+handlers["/video"] = async (request, url) => {
+  const buffer = await db.get(`post.video:${url.searchParams.get("id")}`, "arrayBuffer");
+  return new Response(buffer, responseOptions());
 };
 
 const handleRequest = async (request: Request): Promise<Response> => {
   try {
     const url = new URL(request.url);
-    return await handlers[url.pathname](request);
+    return await handlers[url.pathname](request, url);
   } catch (err) {
     return new Response(JSON.stringify({err: `${err}`}), {headers: createAccessHeaders(), status: 500});
   }

@@ -72,11 +72,13 @@ DONE - Ability to make a post and store it in KV as anonymous user (just json)
 DONE - Make the post from inside the app - make a new post button for now
 DONE - Pre-render video and upload it
 DONE - Generate a thumbnail and store it in another key
+DONE - API - List posts in order of creation date (limited to N)
+DONE - API - Fetch thumbnail
+DONE - API - Fetch video
 
  - Limit video to 10MB or slightly less just in case (9MB?)
  - Re-encode thumbnail png to smaller dimension jpg
  - Title and message/description, tags/keywords
- - List posts in order of creation date (limited to N)
  - Infinite scrolling with Masonry
  - Hover over thumbnail and play video
  - Ability to open a post in its own page (where we will show comments)
