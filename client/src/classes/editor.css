@@ -1,0 +1,69 @@
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+  overflow: hidden;
+  background-color: black !important;
+  top: 0px;
+  left: 0px;
+  touch-action: none;
+}
+
+* {
+  outline: none;
+}
+
+.widget {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  user-select: none;
+  color: black;
+  font: 4em Arial;
+  outline: 1px solid transparent;
+}
+
+#container {
+  position: absolute;
+  background-color: transparent;
+  top: 0px;
+  left: 0px;
+  transform-origin: top left;
+  overflow: hidden;
+  background-color: #333;
+}
+
+.fill {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+#buttons {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  /* Fix a bug in Chrome with the video drawing over sometimes */
+  transform: translateZ(0);
+  z-index: 2;
+}
+
+.button {
+  display: block;
+  font-size: 7vmin;
+  height: 8.8vmin;
+  color: white;
+  text-align: center;
+  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.25);
+}
+
+.button:hover {
+  color: black;
+}
+
+.button:active {
+  color: gray;
+}

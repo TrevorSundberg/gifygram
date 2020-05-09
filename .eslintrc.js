@@ -68,7 +68,8 @@ module.exports = {
     "id-length": "off",
     "no-continue": "off",
     "no-warning-comments": "off",
-    "complexity": "off"
+    "complexity": "off",
+    "max-lines-per-function": "off"
   },
   settings: {
     react: {
