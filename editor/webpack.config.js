@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
 
 module.exports = {
   devServer: {
@@ -81,12 +80,8 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
+      favicon: "./src/public/favicon.png",
       template: "./src/index.html"
-    }),
-    new FaviconsWebpackPlugin({
-      logo: "./src/public/sample.png",
-      prefix: "assets",
-      publicPath: "/"
     })
   ],
   resolve: {
