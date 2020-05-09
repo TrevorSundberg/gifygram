@@ -33,6 +33,8 @@ export class Editor {
 
   private manager: Manager;
 
+  private tooltips: JQuery<HTMLElement>;
+
   public constructor (parent: HTMLElement) {
     this.root = $(editorHtml).appendTo(parent);
 
@@ -313,8 +315,8 @@ export class Editor {
       manager.updateChanges();
     });
 
-    $(() => {
-      $("[data-toggle=\"tooltip\"]").tooltip();
+    this.tooltips = this.root.find("[data-toggle=\"tooltip\"]").tooltip({
+      trigger: "hover"
     });
   }
 
@@ -322,6 +324,7 @@ export class Editor {
     if (window.onbeforeunload === this.unloadCallback) {
       window.onbeforeunload = null;
     }
+    this.tooltips.tooltip("hide");
     this.background.destroy();
     this.manager.destroy();
     this.root.remove();
