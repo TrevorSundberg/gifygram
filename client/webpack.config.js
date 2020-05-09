@@ -75,7 +75,7 @@ module.exports = {
     filename: "[name]-[id].js",
     path: path.join(
       __dirname,
-      "../www/static/client"
+      "../www/static"
     )
   },
   plugins: [
