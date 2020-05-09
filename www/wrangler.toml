@@ -8,3 +8,6 @@ webpack_config = "webpack.config.js"
 kv-namespaces = [
   { binding = "db", id = "3cad38b1a6fe4f9ea58296bc3b0ac1a2" }
 ]
+[site]
+bucket = "./static"
+entry-point = "./static-site"

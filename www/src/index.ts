@@ -1,7 +1,8 @@
 import FileType from "file-type";
+import {getAssetFromKV} from "@cloudflare/kv-asset-handler";
 import {uuid} from "uuidv4";
 
-const handlers: Record<string, (request: Request, url: URL) => Promise<Response>> = {};
+const handlers: Record<string, (request: Request, url: URL, event: FetchEvent) => Promise<Response>> = {};
 
 // `${Number.MAX_SAFE_INTEGER}`.length;
 const MAX_NUMBER_LENGTH_BASE_10 = 16;
@@ -35,7 +36,7 @@ const expectMimeType = async (buffer: ArrayBuffer, mimeType: string) => {
   }
 };
 
-handlers["/post/create"] = async (request) => {
+handlers["/api/post/create"] = async (request) => {
   const chunks = parseBinaryChunks(await request.arrayBuffer());
   const [
     jsonBinary,
@@ -62,36 +63,40 @@ handlers["/post/create"] = async (request) => {
   return new Response(JSON.stringify({id}), responseOptions());
 };
 
-handlers["/post/list"] = async () => {
+handlers["/api/post/list"] = async () => {
   const list = await db.list({prefix: "post:"});
   const ids = await Promise.all(list.keys.map((key) => db.get(key.name)));
   return new Response(JSON.stringify(ids), responseOptions());
 };
 
-handlers["/post/json"] = async (request, url) => {
+handlers["/api/post/json"] = async (request, url) => {
   const result = await db.get(`post.json:${url.searchParams.get("id")}`, "text");
   return new Response(result, responseOptions());
 };
 
-handlers["/post/thumbnail"] = async (request, url) => {
+handlers["/api/post/thumbnail"] = async (request, url) => {
   const result = await db.get(`post.thumbnail:${url.searchParams.get("id")}`, "arrayBuffer");
   return new Response(result, responseOptions());
 };
 
-handlers["/post/video"] = async (request, url) => {
+handlers["/api/post/video"] = async (request, url) => {
   const result = await db.get(`post.video:${url.searchParams.get("id")}`, "arrayBuffer");
   return new Response(result, responseOptions());
 };
 
-const handleRequest = async (request: Request): Promise<Response> => {
+const handleRequest = async (event: FetchEvent): Promise<Response> => {
+  const url = new URL(decodeURI(event.request.url));
   try {
-    const url = new URL(decodeURI(request.url));
-    return await handlers[url.pathname](request, url);
+    const handler = handlers[url.pathname];
+    if (handler) {
+      return await handler(event.request, url, event);
+    }
+    return await getAssetFromKV(event);
   } catch (err) {
     return new Response(JSON.stringify({err: `${err}`}), {headers: createAccessHeaders(), status: 500});
   }
 };
 
 addEventListener("fetch", (event) => {
-  event.respondWith(handleRequest(event.request));
+  event.respondWith(handleRequest(event));
 });

@@ -174,7 +174,7 @@ const makePost = async () => {
       makeLengthBuffer(thumbnailBuffer.byteLength),
       thumbnailBuffer
     ]);
-    const response = await fetch(`${workerUrl}/post/create`, {
+    const response = await fetch(`${workerUrl}/api/post/create`, {
       body: blob,
       method: "POST"
     });
