@@ -68,8 +68,8 @@ DONE - Tweak ffmpeg settings to encode faster (-preset...)
 DONE - Range selection on timeline (last click and drag)
 DONE - Delete keyframes in selected timeline range
 DONE - Ask if you want to leave saved changes
+DONE - Ability to make a post and store it in KV as anonymous user (just json)
 
- - Ability to make a post and store it in KV as anonymous user (just json)
  - Title and message/description, tags/keywords
  - Make the post from inside the app - make a new post button for now
  - Pre-render video and upload it, limit to 10MB or slightly less just in case (9MB?)
