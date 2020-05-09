@@ -1,8 +1,8 @@
-import {Posts} from "./www/posts";
+import {EditorComponent} from "./editor/editorComponent";
 import React from "react";
 import ReactDOM from "react-dom";
 
 ReactDOM.render(
-  <Posts/>,
+  <EditorComponent/>,
   document.getElementById("root")
 );
