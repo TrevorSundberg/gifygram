@@ -25,6 +25,13 @@ const createAccessHeaders = () => new Headers({
 });
 const responseOptions = () => ({headers: createAccessHeaders()});
 
+const expectMimeType = async (buffer: ArrayBuffer, mimeType: string) => {
+  const type = (await FileType.fromBuffer(buffer)) as FileType.FileTypeResult;
+  if (type.mime !== mimeType) {
+    throw new Error("Expected thumbnail: image/png");
+  }
+};
+
 handlers["/post/create"] = async (request) => {
   const chunks = parseBinaryChunks(await request.arrayBuffer());
   const [
@@ -37,20 +44,18 @@ handlers["/post/create"] = async (request) => {
   // TODO(trevor): Use ajv to validate, for now it just checks that it's json.
   JSON.parse(json);
 
-  const videoType = (await FileType.fromBuffer(video)) as FileType.FileTypeResult;
-  if (videoType.mime !== "video/mp4") {
-    throw new Error("Expected video: video/mp4");
-  }
-  const thumbnailType = (await FileType.fromBuffer(thumbnail)) as FileType.FileTypeResult;
-  if (thumbnailType.mime !== "image/png") {
-    throw new Error("Expected thumbnail: image/png");
-  }
+  await Promise.all([
+    expectMimeType(video, "video/mp4"),
+    expectMimeType(thumbnail, "image/png")
+  ]);
 
   const id = uuid();
-  await db.put(`post:${sortableDate()}`, id);
-  await db.put(`post/json:${id}`, json);
-  await db.put(`post/thumbnail:${id}`, thumbnail);
-  await db.put(`post/video:${id}`, video);
+  await Promise.all([
+    db.put(`post:${sortableDate()}`, id),
+    db.put(`post/json:${id}`, json),
+    db.put(`post/thumbnail:${id}`, thumbnail),
+    db.put(`post/video:${id}`, video)
+  ]);
   return new Response(JSON.stringify({id}), responseOptions());
 };
 
