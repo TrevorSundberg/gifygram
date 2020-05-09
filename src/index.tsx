@@ -25,6 +25,8 @@ const renderer = new Renderer(canvas, widgetContainer, player, timeline);
 const background = new Background(document.body, player.video);
 const manager = new Manager(background, videoParent, widgetContainer, player, timeline, renderer);
 
+const workerUrl = "https://www.welderengine.workers.dev/";
+
 window.onbeforeunload = () => {
   if (manager.hasUnsavedChanges && location.protocol === "https:") {
     return "Do you want to leave this page and discard your changes?";
@@ -129,7 +131,22 @@ document.getElementById("share").addEventListener("click", (): NeverAsync => {
 
   const modal = new Modal();
   modal.open({
-    buttons: [{dismiss: true, name: "OK"}],
+    buttons: [
+      {
+        callback: async () => {
+          const form = new FormData();
+          form.set("json", manager.saveToJson());
+          const response = await fetch(`${workerUrl}post`, {
+            body: form,
+            method: "POST"
+          });
+          console.log(await response.text());
+        },
+        dismiss: true,
+        name: "Post"
+      },
+      {dismiss: true, name: "OK"}
+    ],
     content: div,
     dismissable: true,
     title: "Share"

@@ -146,12 +146,14 @@ export class Manager {
     this.timeline.updateTracks();
     this.updateMarkers();
     this.hasUnsavedChanges = true;
-    console.log("UPDATED");
   }
 
   public saveToBase64 () {
-    const json = JSON.stringify(this.save());
-    return Compress.compress(json);
+    return Compress.compress(this.saveToJson());
+  }
+
+  public saveToJson () {
+    return JSON.stringify(this.save());
   }
 
   public async loadFromBase64 (base64: string) {
