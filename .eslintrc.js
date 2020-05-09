@@ -66,7 +66,8 @@ module.exports = {
     "no-bitwise": "off",
     "no-mixed-operators": "off",
     "id-length": "off",
-    "no-continue": "off"
+    "no-continue": "off",
+    "no-warning-comments": "off"
   },
   settings: {
     react: {
