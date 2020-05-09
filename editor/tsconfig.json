@@ -11,6 +11,9 @@
     "allowJs": true,
     "esModuleInterop": true,
     "baseUrl": "./",
+    "types": [
+      "node"
+    ]
   },
   "exclude": [
       "node_modules",
