@@ -69,7 +69,8 @@ module.exports = {
     "no-continue": "off",
     "no-warning-comments": "off",
     "complexity": "off",
-    "max-lines-per-function": "off"
+    "max-lines-per-function": "off",
+    "implicit-arrow-linebreak": "off"
   },
   settings: {
     react: {
