@@ -127,7 +127,7 @@ export type Size = [number, number];
 
 export const getAspect = (size: Size) => size[0] / size[1];
 
-export const resizeKeepAspect = (current: Size, target: Size): Size => {
+export const resizeMinimumKeepAspect = (current: Size, target: Size): Size => {
   if (getAspect(current) > getAspect(target)) {
     return [
       target[0],
