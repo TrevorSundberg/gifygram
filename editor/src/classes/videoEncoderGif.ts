@@ -7,36 +7,36 @@ export class VideoEncoderGif implements VideoEncoder {
 
   private canvas: HTMLCanvasElement;
 
-  private gif: GifEncoder;
+  private encoder: GifEncoder;
 
   private chunks: Uint8Array[] = [];
 
   public async initialize (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
     this.canvas = canvas;
     this.context = context;
-    this.gif = new GifEncoder(canvas.width, canvas.height);
-    this.gif.setFrameRate(FRAME_RATE);
-    this.gif.on("data", (data) => {
+    this.encoder = new GifEncoder(canvas.width, canvas.height);
+    this.encoder.setFrameRate(FRAME_RATE);
+    this.encoder.on("data", (data) => {
       this.chunks.push(data);
     });
-    this.gif.writeHeader();
+    this.encoder.writeHeader();
   }
 
   public async stop () {
-    this.gif = null;
+    this.encoder = null;
   }
 
   public async processFrame () {
     const {data} = this.context.getImageData(0, 0, this.canvas.width, this.canvas.height);
-    this.gif.addFrame(data);
+    this.encoder.addFrame(data);
   }
 
   public async getOutputVideo (): Promise<Blob> {
     const deferred = new Deferred<void>();
-    this.gif.once("end", () => {
+    this.encoder.once("end", () => {
       deferred.resolve();
     });
-    this.gif.finish();
+    this.encoder.finish();
     await deferred;
     return new Blob(this.chunks, {type: "image/gif"});
   }
