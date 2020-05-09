@@ -4,9 +4,9 @@
   "description": "A stupid website for animating images on top of videos.",
   "main": "index.js",
   "scripts": {
-    "buildEditor": "cd editor && npm install && npm run build",
-    "buildWww": "cd editor && npm install && npm run build",
-    "build": "npm install && npm run lint && npm run buildEditor && npm run buildWww",
+    "buildClient": "cd client && npm install && npm run build",
+    "buildWww": "cd client && npm install && npm run build",
+    "build": "npm install && npm run lint && npm run buildClient && npm run buildWww",
     "lint": "eslint --ext .ts,.tsx ."
   },
   "repository": {
