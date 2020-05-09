@@ -1,3 +1,8 @@
-import {Editor} from "./classes/editor";
+import {EditorComponent} from "./classes/editorComponent";
+import React from "react";
+import ReactDOM from "react-dom";
 
-new Editor(document.body);
+ReactDOM.render(
+  <EditorComponent/>,
+  document.getElementById("root")
+);
