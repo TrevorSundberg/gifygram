@@ -36,11 +36,11 @@ export class Editor {
 
     const videoParent = getElement("container") as HTMLDivElement;
     const widgetContainer = getElement("widgets") as HTMLDivElement;
-    const player = new VideoPlayer(videoParent, document.body);
+    const player = new VideoPlayer(videoParent, parent);
     const timeline = new Timeline();
     const canvas = getElement("canvas") as HTMLCanvasElement;
     const renderer = new Renderer(canvas, widgetContainer, player, timeline);
-    const background = new Background(document.body, player.video);
+    const background = new Background(parent, player.video);
     const manager = new Manager(background, videoParent, widgetContainer, player, timeline, renderer);
 
     this.unloadCallback = () => {
