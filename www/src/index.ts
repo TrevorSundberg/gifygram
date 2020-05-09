@@ -18,11 +18,13 @@ const parseBinaryChunks = (buffer: ArrayBuffer) => {
   return result;
 };
 
+// TODO(trevor): Remove this once it's all hosted in the same place.
+const createAccessHeaders = () => new Headers({
+  "Access-Control-Allow-Origin": "*"
+});
+
 handlers["/post"] = async (request) => {
-  // TODO(trevor): Remove this once it's all hosted in the same place.
-  const headers = new Headers({
-    "Access-Control-Allow-Origin": "*"
-  });
+  const headers = createAccessHeaders();
 
   const chunks = parseBinaryChunks(await request.arrayBuffer());
   const [
@@ -36,12 +38,7 @@ handlers["/post"] = async (request) => {
   await db.put(`post.json:${id}`, json);
   await db.put(`post.video:${id}`, video);
   await db.put(`post.thumbnail:${id}`, thumbnail);
-  return new Response(
-    `${id}: ${json}\nvideo: ${video.byteLength}\nthumbnail: ${thumbnail.byteLength}`,
-    {
-      headers
-    }
-  );
+  return new Response(JSON.stringify({id}), {headers});
 };
 
 const handleRequest = async (request: Request): Promise<Response> => {
@@ -49,10 +46,7 @@ const handleRequest = async (request: Request): Promise<Response> => {
     const url = new URL(request.url);
     return await handlers[url.pathname](request);
   } catch (err) {
-    const headers = new Headers({
-      "Access-Control-Allow-Origin": "*"
-    });
-    return new Response(`${err}`, {headers, status: 500});
+    return new Response(JSON.stringify({err: `${err}`}), {headers: createAccessHeaders(), status: 500});
   }
 };
 
