@@ -34,6 +34,7 @@ export class VideoPlayer {
     this.video.crossOrigin = "anonymous";
     this.video.loop = true;
     this.video.muted = true;
+    this.video.preload = "auto";
 
     this.video.setAttribute("webkit-playsinline", "true");
     this.video.setAttribute("playsinline", "true");
@@ -158,7 +159,10 @@ export class VideoPlayer {
     if (this.video.src) {
       this.loadPromise = new Deferred<void>();
     }
-    this.video.src = attributedSource.src;
+    // Workers static doesn't support Accept-Ranges, so we just preload the entire video.
+    const response = await fetch(attributedSource.src);
+    const blob = await response.blob();
+    this.video.src = URL.createObjectURL(blob);
     this.video.dataset.src = attributedSource.src;
     this.video.dataset.attribution = attributedSource.attribution;
     await this.loadPromise;
