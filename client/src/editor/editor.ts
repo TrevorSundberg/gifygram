@@ -17,9 +17,8 @@ import {Timeline} from "./timeline";
 import {VideoEncoder} from "./videoEncoder";
 import {VideoEncoderH264MP4} from "./videoEncoderH264MP4";
 import {VideoPlayer} from "./videoPlayer";
+import {makeUrl} from "../shared/shared";
 import svgToMiniDataURI from "mini-svg-data-uri";
-
-const workerUrl = "https://www.welderengine.workers.dev";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const editorHtml = require("./editor.html").default;
@@ -198,7 +197,7 @@ export class Editor {
           makeLengthBuffer(thumbnailBuffer.byteLength),
           thumbnailBuffer
         ]);
-        const response = await fetch(`${workerUrl}/api/post/create`, {
+        const response = await fetch(makeUrl("/api/post/create"), {
           body: blob,
           method: "POST"
         });
