@@ -6,7 +6,7 @@ interface Point {
   clientY: number;
 }
 
-export class VideoPlayer {
+export class VideoPlayer extends EventTarget {
   public readonly video: HTMLVideoElement;
 
   private controlsContainer: HTMLDivElement;
@@ -28,6 +28,7 @@ export class VideoPlayer {
   public selectionEndNormalized = 1;
 
   public constructor (videoParent: HTMLDivElement, controlsParent: HTMLElement) {
+    super();
     this.video = document.createElement("video");
     videoParent.appendChild(this.video);
     this.video.className = "videoPlayer";
@@ -156,9 +157,7 @@ export class VideoPlayer {
   }
 
   public async setAttributedSrc (attributedSource: AttributedSource) {
-    if (this.video.src) {
-      this.loadPromise = new Deferred<void>();
-    }
+    this.loadPromise = new Deferred<void>();
     // Workers static doesn't support Accept-Ranges, so we just preload the entire video.
     const response = await fetch(attributedSource.src);
     const blob = await response.blob();
@@ -166,6 +165,7 @@ export class VideoPlayer {
     this.video.dataset.src = attributedSource.src;
     this.video.dataset.attribution = attributedSource.attribution;
     await this.loadPromise;
+    this.dispatchEvent(new Event("srcChanged"));
   }
 
   public getAttributedSrc (): AttributedSource {

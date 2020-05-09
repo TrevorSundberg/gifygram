@@ -37,6 +37,7 @@ export class Renderer extends VideoSeeker {
     this.resizeCanvas = document.createElement("canvas");
     this.resizeContext = this.resizeCanvas.getContext("2d");
 
+    player.addEventListener("srcChanged", () => this.updateResizeCanvsaSize());
     this.updateResizeCanvsaSize();
     this.timeline = timeline;
   }
@@ -77,8 +78,8 @@ export class Renderer extends VideoSeeker {
 
   protected async onFrame (frame: VideoSeekerFrame) {
     this.timeline.setNormalizedTime(frame.normalizedCurrentTime);
-    this.drawFrame(frame.currentTime, true);
     this.updateResizeCanvsaSize();
+    this.drawFrame(frame.currentTime, true);
     this.resizeContext.drawImage(this.player.video, 0, 0, this.resizeCanvas.width, this.resizeCanvas.height);
     this.resizeContext.drawImage(this.canvas, 0, 0, this.resizeCanvas.width, this.resizeCanvas.height);
     const toSend = new RenderFrameEvent();
