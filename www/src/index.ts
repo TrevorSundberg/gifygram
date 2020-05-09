@@ -70,17 +70,17 @@ handlers["/api/post/list"] = async () => {
 };
 
 handlers["/api/post/json"] = async (request, url) => {
-  const result = await db.get(`post.json:${url.searchParams.get("id")}`, "text");
+  const result = await db.get(`post/json:${url.searchParams.get("id")}`, "text");
   return new Response(result, responseOptions());
 };
 
 handlers["/api/post/thumbnail"] = async (request, url) => {
-  const result = await db.get(`post.thumbnail:${url.searchParams.get("id")}`, "arrayBuffer");
+  const result = await db.get(`post/thumbnail:${url.searchParams.get("id")}`, "arrayBuffer");
   return new Response(result, responseOptions());
 };
 
 handlers["/api/post/video"] = async (request, url) => {
-  const result = await db.get(`post.video:${url.searchParams.get("id")}`, "arrayBuffer");
+  const result = await db.get(`post/video:${url.searchParams.get("id")}`, "arrayBuffer");
   return new Response(result, responseOptions());
 };
 
