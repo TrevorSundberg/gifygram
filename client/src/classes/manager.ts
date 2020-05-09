@@ -55,6 +55,8 @@ export class Manager {
 
   public hasUnsavedChanges = false;
 
+  private requestedAnimationFrame: number;
+
   public constructor (
     background: Background,
     container: HTMLDivElement,
@@ -98,7 +100,7 @@ export class Manager {
     onResize();
 
     const onUpdate = () => {
-      requestAnimationFrame(onUpdate);
+      this.requestedAnimationFrame = requestAnimationFrame(onUpdate);
       window.dispatchEvent(new Event("update"));
     };
     onUpdate();
@@ -335,5 +337,9 @@ export class Manager {
       };
     })();
     this.updateChanges();
+  }
+
+  public destroy () {
+    cancelAnimationFrame(this.requestedAnimationFrame);
   }
 }

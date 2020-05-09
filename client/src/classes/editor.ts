@@ -29,6 +29,10 @@ export class Editor {
 
   public unloadCallback: () => void;
 
+  private background: Background;
+
+  private manager: Manager;
+
   public constructor (parent: HTMLElement) {
     this.root = $(editorHtml).appendTo(parent);
 
@@ -41,7 +45,9 @@ export class Editor {
     const canvas = getElement("canvas") as HTMLCanvasElement;
     const renderer = new Renderer(canvas, widgetContainer, player, timeline);
     const background = new Background(parent, player.video);
+    this.background = background;
     const manager = new Manager(background, videoParent, widgetContainer, player, timeline, renderer);
+    this.manager = manager;
 
     this.unloadCallback = () => {
       if (manager.hasUnsavedChanges && location.protocol === "https:") {
@@ -316,6 +322,8 @@ export class Editor {
     if (window.onbeforeunload === this.unloadCallback) {
       window.onbeforeunload = null;
     }
+    this.background.destroy();
+    this.manager.destroy();
     this.root.remove();
   }
 }

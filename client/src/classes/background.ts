@@ -4,6 +4,8 @@ import {FRAME_TIME} from "./utility";
 export class Background {
   public readonly canvas: HTMLCanvasElement;
 
+  private interval: any;
+
   public constructor (parent: HTMLElement, video: HTMLVideoElement) {
     const canvas = document.createElement("canvas");
     canvas.width = 256;
@@ -22,6 +24,10 @@ export class Background {
 
     window.addEventListener("resize", drawVideo);
     video.addEventListener("seeked", drawVideo);
-    setInterval(drawVideo, FRAME_TIME * 1000 * 2);
+    this.interval = setInterval(drawVideo, FRAME_TIME * 1000 * 2);
+  }
+
+  public destroy () {
+    clearInterval(this.interval);
   }
 }
