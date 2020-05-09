@@ -1,7 +1,7 @@
+import {MAX_OUTPUT_SIZE, Utility, resizeMinimumKeepAspect} from "./utility";
 import {VideoSeeker, VideoSeekerFrame} from "./videoSeeker";
 import {Image} from "./image";
 import {Timeline} from "./timeline";
-import {Utility} from "./utility";
 import {VideoPlayer} from "./videoPlayer";
 
 export class RenderFrameEvent {
@@ -68,9 +68,11 @@ export class Renderer extends VideoSeeker {
   }
 
   private updateResizeCanvsaSize () {
-    const size = this.player.getRawSize();
-    this.resizeCanvas.width = size[0] / 1;
-    this.resizeCanvas.height = size[1] / 1;
+    const size = resizeMinimumKeepAspect(this.player.getRawSize(), MAX_OUTPUT_SIZE);
+    [
+      this.resizeCanvas.width,
+      this.resizeCanvas.height
+    ] = size;
   }
 
   protected async onFrame (frame: VideoSeekerFrame) {

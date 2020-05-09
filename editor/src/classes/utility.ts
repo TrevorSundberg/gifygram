@@ -9,6 +9,10 @@ export const TARGET_WIDGET_SIZE: Size = [
   400,
   400
 ];
+export const MAX_OUTPUT_SIZE: Size = [
+  854,
+  480
+];
 
 export class Deferred<T> implements Promise<T> {
   private resolveSelf;
