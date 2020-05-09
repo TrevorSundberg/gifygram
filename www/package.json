@@ -1,16 +1,11 @@
 {
-  "name": "pname",
-  "version": "1.0.0",
-  "description": "Cloudflare worker TypeScript template",
-  "main": "index.js",
+  "private": true,
   "scripts": {
     "build": "webpack",
     "dev": "NODE_ENV=development npm run build",
     "format": "prettier --write '**/*.{css,json,md}'",
     "transpile": "tsc --project ./test"
   },
-  "author": "author",
-  "license": "MIT OR Apache-2.0",
   "devDependencies": {
     "@cloudflare/workers-types": "^1.0.1",
     "@types/chai": "^4.2.11",
