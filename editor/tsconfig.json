@@ -12,7 +12,8 @@
     "esModuleInterop": true,
     "baseUrl": "./",
     "types": [
-      "node"
+      "node",
+      "dom-mediacapture-record"
     ]
   },
   "exclude": [
