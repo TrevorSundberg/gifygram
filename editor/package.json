@@ -6,8 +6,6 @@
   },
   "keywords": [],
   "dependencies": {
-    "@ffmpeg/core": "^0.5.0",
-    "@ffmpeg/ffmpeg": "^0.5.2",
     "@fortawesome/fontawesome-free": "^5.12.1",
     "@types/base64-js": "^1.2.5",
     "@types/bootstrap": "^4.3.1",

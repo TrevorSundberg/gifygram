@@ -54,7 +54,7 @@ module.exports = {
         ]
       },
       {
-        test: /(\.(woff|woff2|ttf|eot|svg)$)|(worker.min.js|ffmpeg-core.js)/u,
+        test: /\.(woff|woff2|ttf|eot|svg)$/u,
         use: [
           {
             loader: "file-loader",

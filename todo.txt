@@ -76,6 +76,7 @@ DONE - API - List posts in order of creation date (limited to N)
 DONE - API - Fetch thumbnail
 DONE - API - Fetch video
 DONE - Get static content hosted
+DONE - Remove dependence on ffmpeg (too big)
 
  - Get static react page that can query /post/list and show cards
  - Limit video to 10MB or slightly less just in case (9MB?)
