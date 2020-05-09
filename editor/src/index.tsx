@@ -25,7 +25,7 @@ const renderer = new Renderer(canvas, widgetContainer, player, timeline);
 const background = new Background(document.body, player.video);
 const manager = new Manager(background, videoParent, widgetContainer, player, timeline, renderer);
 
-const workerUrl = "https://www.welderengine.workers.dev/";
+const workerUrl = "https://www.welderengine.workers.dev";
 
 window.onbeforeunload = () => {
   if (manager.hasUnsavedChanges && location.protocol === "https:") {
@@ -174,7 +174,7 @@ const makePost = async () => {
       makeLengthBuffer(thumbnailBuffer.byteLength),
       thumbnailBuffer
     ]);
-    const response = await fetch(`${workerUrl}post`, {
+    const response = await fetch(`${workerUrl}/post/create`, {
       body: blob,
       method: "POST"
     });

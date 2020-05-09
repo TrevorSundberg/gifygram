@@ -24,7 +24,7 @@ const createAccessHeaders = () => new Headers({
 });
 const responseOptions = () => ({headers: createAccessHeaders()});
 
-handlers["/post"] = async (request) => {
+handlers["/post/create"] = async (request) => {
   const chunks = parseBinaryChunks(await request.arrayBuffer());
   const [
     jsonBinary,
@@ -34,31 +34,36 @@ handlers["/post"] = async (request) => {
   const json: string = new TextDecoder().decode(jsonBinary);
   const id = uuid();
   await db.put(`post:${sortableDate()}`, id);
-  await db.put(`post.json:${id}`, json);
-  await db.put(`post.thumbnail:${id}`, thumbnail);
-  await db.put(`post.video:${id}`, video);
+  await db.put(`post/json:${id}`, json);
+  await db.put(`post/thumbnail:${id}`, thumbnail);
+  await db.put(`post/video:${id}`, video);
   return new Response(JSON.stringify({id}), responseOptions());
 };
 
-handlers["/listPosts"] = async () => {
+handlers["/post/list"] = async () => {
   const list = await db.list({prefix: "post:"});
   const ids = await Promise.all(list.keys.map((key) => db.get(key.name)));
   return new Response(JSON.stringify(ids), responseOptions());
 };
 
-handlers["/thumbnail"] = async (request, url) => {
-  const buffer = await db.get(`post.thumbnail:${url.searchParams.get("id")}`, "arrayBuffer");
-  return new Response(buffer, responseOptions());
+handlers["/post/json"] = async (request, url) => {
+  const result = await db.get(`post.json:${url.searchParams.get("id")}`, "text");
+  return new Response(result, responseOptions());
 };
 
-handlers["/video"] = async (request, url) => {
-  const buffer = await db.get(`post.video:${url.searchParams.get("id")}`, "arrayBuffer");
-  return new Response(buffer, responseOptions());
+handlers["/post/thumbnail"] = async (request, url) => {
+  const result = await db.get(`post.thumbnail:${url.searchParams.get("id")}`, "arrayBuffer");
+  return new Response(result, responseOptions());
+};
+
+handlers["/post/video"] = async (request, url) => {
+  const result = await db.get(`post.video:${url.searchParams.get("id")}`, "arrayBuffer");
+  return new Response(result, responseOptions());
 };
 
 const handleRequest = async (request: Request): Promise<Response> => {
   try {
-    const url = new URL(request.url);
+    const url = new URL(decodeURI(request.url));
     return await handlers[url.pathname](request, url);
   } catch (err) {
     return new Response(JSON.stringify({err: `${err}`}), {headers: createAccessHeaders(), status: 500});
