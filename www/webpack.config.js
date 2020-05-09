@@ -22,6 +22,9 @@ module.exports = {
       }
     ]
   },
+  node: {
+    fs: "empty"
+  },
   output: {
     filename: `worker.${mode}.js`,
     path: path.join(__dirname, "dist")

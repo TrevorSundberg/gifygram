@@ -1,3 +1,4 @@
+import FileType from "file-type";
 import {uuid} from "uuidv4";
 
 const handlers: Record<string, (request: Request, url: URL) => Promise<Response>> = {};
@@ -32,6 +33,19 @@ handlers["/post/create"] = async (request) => {
     thumbnail
   ] = chunks;
   const json: string = new TextDecoder().decode(jsonBinary);
+
+  // TODO(trevor): Use ajv to validate, for now it just checks that it's json.
+  JSON.parse(json);
+
+  const videoType = (await FileType.fromBuffer(video)) as FileType.FileTypeResult;
+  if (videoType.mime !== "video/mp4") {
+    throw new Error("Expected video: video/mp4");
+  }
+  const thumbnailType = (await FileType.fromBuffer(thumbnail)) as FileType.FileTypeResult;
+  if (thumbnailType.mime !== "image/png") {
+    throw new Error("Expected thumbnail: image/png");
+  }
+
   const id = uuid();
   await db.put(`post:${sortableDate()}`, id);
   await db.put(`post/json:${id}`, json);
