@@ -107,6 +107,81 @@ document.getElementById("video").addEventListener("click", async () => {
   }
 });
 
+const render = async () => {
+  const videoEncoder = new VideoEncoder();
+  const modal = new ModalProgress();
+  modal.open({
+    buttons: [
+      {
+        callback: async () => {
+          await renderer.stop();
+          await videoEncoder.stop();
+        },
+        name: "Cancel"
+      }
+    ],
+    title: "Rendering & Encoding"
+  });
+  player.hideVideo();
+  manager.updateExternally = true;
+  manager.selectWidget(null);
+  await videoEncoder.addVideo(player);
+  let firstFramePng: ArrayBuffer = null;
+  const onRenderFrame = async (event: RenderFrameEvent) => {
+    if (firstFramePng === null) {
+      firstFramePng = event.pngData;
+    }
+    const frame = await videoEncoder.addFrame(event.pngData);
+    modal.setProgress(event.progress, `Rendering Frame: ${frame}`);
+  };
+  const onVideoEncoderProgress = (event: VideoProgressEvent) => {
+    modal.setProgress(event.progress, "Encoding");
+  };
+  videoEncoder.addEventListener("progress", onVideoEncoderProgress);
+  renderer.addEventListener("frame", onRenderFrame);
+  const videoBlob = await (async () => {
+    if (await renderer.render()) {
+      return videoEncoder.encode();
+    }
+    return null;
+  })();
+  modal.hide();
+  videoEncoder.removeEventListener("progress", onVideoEncoderProgress);
+  renderer.removeEventListener("frame", onRenderFrame);
+  manager.updateExternally = false;
+  player.showVideo();
+  return {firstFramePng, videoBlob};
+};
+
+const makeLengthBuffer = (size: number) => {
+  const view = new DataView(new ArrayBuffer(4));
+  view.setUint32(0, size, true);
+  return view.buffer;
+};
+
+const makePost = async () => {
+  const result = await render();
+  if (result) {
+    const jsonBuffer = new TextEncoder().encode(manager.saveToJson());
+    const videoBuffer = await result.videoBlob.arrayBuffer();
+    const thumbnailBuffer = result.firstFramePng;
+
+    const blob = new Blob([
+      makeLengthBuffer(jsonBuffer.byteLength),
+      jsonBuffer,
+      makeLengthBuffer(videoBuffer.byteLength),
+      videoBuffer,
+      makeLengthBuffer(thumbnailBuffer.byteLength),
+      thumbnailBuffer
+    ]);
+    const response = await fetch(`${workerUrl}post`, {
+      body: blob,
+      method: "POST"
+    });
+    console.log(await response.text());
+  }
+};
+
 document.getElementById("share").addEventListener("click", (): NeverAsync => {
   manager.selectWidget(null);
   const base64 = manager.saveToBase64();
@@ -133,15 +208,7 @@ document.getElementById("share").addEventListener("click", (): NeverAsync => {
   modal.open({
     buttons: [
       {
-        callback: async () => {
-          const form = new FormData();
-          form.set("json", manager.saveToJson());
-          const response = await fetch(`${workerUrl}post`, {
-            body: form,
-            method: "POST"
-          });
-          console.log(await response.text());
-        },
+        callback: makePost,
         dismiss: true,
         name: "Post"
       },
@@ -204,46 +271,10 @@ const download = (url: string, filename: string) => {
 };
 
 document.getElementById("render").addEventListener("click", async () => {
-  const videoEncoder = new VideoEncoder();
-  const modal = new ModalProgress();
-  modal.open({
-    buttons: [
-      {
-        callback: async () => {
-          await renderer.stop();
-          await videoEncoder.stop();
-        },
-        name: "Cancel"
-      }
-    ],
-    title: "Rendering & Encoding"
-  });
-  player.hideVideo();
-  manager.updateExternally = true;
-  manager.selectWidget(null);
-  await videoEncoder.addVideo(player);
-  const onRenderFrame = async (event: RenderFrameEvent) => {
-    const frame = await videoEncoder.addFrame(event.pngData);
-    modal.setProgress(event.progress, `Rendering Frame: ${frame}`);
-  };
-  const onVideoEncoderProgress = (event: VideoProgressEvent) => {
-    modal.setProgress(event.progress, "Encoding");
-  };
-  videoEncoder.addEventListener("progress", onVideoEncoderProgress);
-  renderer.addEventListener("frame", onRenderFrame);
-  if (await renderer.render()) {
-    const blob = await videoEncoder.encode();
-    if (blob) {
-      const filename = `MadeItForFun-${new Date().toISOString().
-        replace(/[^a-zA-Z0-9-]/ug, "-")}`;
-      download(URL.createObjectURL(blob), filename);
-    }
-  }
-  modal.hide();
-  videoEncoder.removeEventListener("progress", onVideoEncoderProgress);
-  renderer.removeEventListener("frame", onRenderFrame);
-  manager.updateExternally = false;
-  player.showVideo();
+  const filename = `MadeItForFun-${new Date().toISOString().
+    replace(/[^a-zA-Z0-9-]/ug, "-")}`;
+  const result = await render();
+  download(URL.createObjectURL(result.videoBlob), filename);
 });
 
 document.getElementById("visibility").addEventListener("click", async () => {

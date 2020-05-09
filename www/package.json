@@ -26,5 +26,8 @@
     "typescript": "^3.5.3",
     "webpack": "^4.35.3",
     "webpack-cli": "^3.3.6"
+  },
+  "dependencies": {
+    "uuidv4": "^6.0.8"
   }
 }

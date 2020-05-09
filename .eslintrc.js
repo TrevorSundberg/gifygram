@@ -67,7 +67,8 @@ module.exports = {
     "no-mixed-operators": "off",
     "id-length": "off",
     "no-continue": "off",
-    "no-warning-comments": "off"
+    "no-warning-comments": "off",
+    "complexity": "off"
   },
   settings: {
     react: {
