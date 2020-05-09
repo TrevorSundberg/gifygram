@@ -1,3 +1,4 @@
+import {PreviewVideo} from "./previewVideo";
 import React from "react";
 import {makeUrl} from "../shared/shared";
 
@@ -10,7 +11,7 @@ interface PostsState {
 }
 
 export class Posts extends React.Component<{}, PostsState> {
-  public state = {
+  public state: PostsState = {
     posts: []
   }
 
@@ -21,15 +22,8 @@ export class Posts extends React.Component<{}, PostsState> {
   }
 
   public render () {
-    return <div>{this.state.posts.map((post) => <div key={post.id}>
-      <video
-        muted
-        autoPlay
-        loop
-        src={makeUrl("/api/post/video", {id: post.id})}
-        poster={makeUrl("/api/post/thumbnail", {id: post.id})}>
-      </video>
-      {post.id}
-    </div>)}</div>;
+    return <div>{
+      this.state.posts.map((post) => <PreviewVideo key={post.id} id={post.id}/>)
+    }</div>;
   }
 }
