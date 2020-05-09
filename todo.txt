@@ -69,7 +69,35 @@ DONE - Range selection on timeline (last click and drag)
 DONE - Delete keyframes in selected timeline range
 DONE - Ask if you want to leave saved changes
 
- - Stand up a website where you can post these
+ - Ability to make a post and store it in KV as anonymous user (just json)
+ - Title and message/description, tags/keywords
+ - Make the post from inside the app - make a new post button for now
+ - Pre-render video and upload it, limit to 10MB or slightly less just in case (9MB?)
+ - Generate a thumbnail and store it in another key
+ - List posts in order of creation date (limited to N)
+ - Infinite scrolling with Masonry
+ - Hover over thumbnail and play video
+ - Ability to open a post in its own page (where we will show comments)
+ - Comment on a post (every post itself is a comment too, just may or may not be the first / have a video)
+ - Like post or comment - (approximate, non-atomic and underestimate + actual vote by user)
+ - Track views / popularity (approximate, non-atomic and underestimate + actual view by user)
+ - Flag post or comment (approximate, non-atomic and underestimate + actual flag by user)
+ - Remix (edit and repost on the same thread)
+ - Multiple boards and posting by board?
+ - NSFW agreement (18 or older, like reddit, use cookies for now)
+ - Ability to login (admin logins too)
+ - Ability to delete if you made a post
+ - Admin can delete posts
+ - Get shareable link
+ - Sort by highest votes (utilize lexographic sort)
+ - Sort by highest views (utilize lexographic sort)
+ - Admin view only flagged posts
+ - Search by single tag (up to 1000) + multiple tags is a reduce operation
+ - View a user profile
+ - Points for user profile
+ - Show posts on a user profile
+ - Admin can ban/unban user on profile
+
  - Custom dialog for listing stickers / videos
  - Import main video from youtube (clip the video)
  - Double click or double tap or tap + hold actions to change text or image
