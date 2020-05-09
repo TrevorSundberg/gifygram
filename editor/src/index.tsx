@@ -14,7 +14,7 @@ import {StickerSearch} from "./classes/stickerSearch";
 import TextToSVG from "text-to-svg";
 import {Timeline} from "./classes/timeline";
 import {VideoEncoder} from "./classes/videoEncoder";
-import {VideoEncoderFfmpeg} from "./classes/videoEncoderFfmpeg";
+import {VideoEncoderWebm} from "./classes/videoEncoderWebm";
 import {VideoPlayer} from "./classes/videoPlayer";
 import svgToMiniDataURI from "mini-svg-data-uri";
 const videoParent = document.getElementById("container") as HTMLDivElement;
@@ -110,7 +110,7 @@ document.getElementById("video").addEventListener("click", async () => {
 
 const render = async () => {
   const modal = new ModalProgress();
-  const videoEncoder: VideoEncoder = new VideoEncoderFfmpeg();
+  const videoEncoder: VideoEncoder = new VideoEncoderWebm();
   modal.open({
     buttons: [
       {
