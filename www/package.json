@@ -4,10 +4,12 @@
     "build": "webpack",
     "dev": "NODE_ENV=development npm run build",
     "format": "prettier --write '**/*.{css,json,md}'",
-    "transpile": "tsc --project ./test"
+    "transpile": "tsc --project ./test",
+    "clear": "wrangler kv:key list --binding=db > list.json && sed -i s/\"name\"/\"value\":\"\",\"key\"/ list.json && wrangler kv:bulk delete --binding=db list.json && rm list.json"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^1.0.1",
+    "@cloudflare/wrangler": "^1.9.0",
     "@types/chai": "^4.2.11",
     "@types/mocha": "^5.2.7",
     "chai": "^4.2.0",
