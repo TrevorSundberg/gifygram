@@ -3,7 +3,7 @@ import {VideoSeeker, VideoSeekerFrame} from "./videoSeeker";
 import {VideoPlayer} from "./videoPlayer";
 import jsfeat from "jsfeat";
 
-export class MotionTrackerEvent extends Event {
+export class MotionTrackerEvent {
   public progress: number;
 
   public found: boolean;
@@ -38,6 +38,8 @@ export class MotionTracker extends VideoSeeker {
 
   private readonly minEigen = 0.0001;
 
+  public onMotionFrame: (event: MotionTrackerEvent) => Promise<void>;
+
   public constructor (player: VideoPlayer) {
     super(player);
     this.context = this.canvas.getContext("2d");
@@ -57,7 +59,7 @@ export class MotionTracker extends VideoSeeker {
 
     this.buildPyramidFromVideoImage(this.currentPyramid);
 
-    await this.run(this.player.video.currentTime, true);
+    await this.run(this.player.video.currentTime);
   }
 
   public addPoint (x: number, y: number) {
@@ -104,7 +106,7 @@ export class MotionTracker extends VideoSeeker {
 
     this.prunePoints();
 
-    const toSend = new MotionTrackerEvent("frame");
+    const toSend = new MotionTrackerEvent();
     if (this.pointCount !== 0) {
       toSend.found = true;
       [
@@ -113,7 +115,7 @@ export class MotionTracker extends VideoSeeker {
       ] = this.currentXY;
     }
     toSend.progress = frame.progress;
-    this.dispatchEvent(toSend);
+    await this.onMotionFrame(toSend);
   }
 
   private prunePoints () {

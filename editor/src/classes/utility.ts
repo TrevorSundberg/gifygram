@@ -141,3 +141,15 @@ export const resizeKeepAspect = (current: Size, target: Size): Size => {
 };
 
 export type TimeRange = [number, number];
+
+export const canvasToArrayBuffer = async (canvas: HTMLCanvasElement, mimeType: string) => {
+  const defer = new Deferred<ArrayBuffer>();
+  canvas.toBlob((blob) => {
+    const reader = new FileReader();
+    reader.addEventListener("loadend", () => {
+      defer.resolve(reader.result as ArrayBuffer);
+    });
+    reader.readAsArrayBuffer(blob);
+  }, mimeType);
+  return defer;
+};

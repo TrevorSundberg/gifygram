@@ -3,9 +3,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/fontawesome.css";
 import "@fortawesome/fontawesome-free/css/solid.css";
 import "@fortawesome/fontawesome-free/css/brands.css";
-import {Deferred, NeverAsync, Utility} from "./classes/utility";
+import {Deferred, NeverAsync, Utility, canvasToArrayBuffer} from "./classes/utility";
 import {RenderFrameEvent, Renderer} from "./classes/renderer";
-import {VideoEncoder, VideoProgressEvent} from "./classes/videoEncoder";
 import $ from "jquery";
 import {Background} from "./classes/background";
 import {Manager} from "./classes/manager";
@@ -14,6 +13,8 @@ import {ModalProgress} from "./classes/modalProgress";
 import {StickerSearch} from "./classes/stickerSearch";
 import TextToSVG from "text-to-svg";
 import {Timeline} from "./classes/timeline";
+import {VideoEncoder} from "./classes/videoEncoder";
+import {VideoEncoderFfmpeg} from "./classes/videoEncoderFfmpeg";
 import {VideoPlayer} from "./classes/videoPlayer";
 import svgToMiniDataURI from "mini-svg-data-uri";
 const videoParent = document.getElementById("container") as HTMLDivElement;
@@ -108,8 +109,8 @@ document.getElementById("video").addEventListener("click", async () => {
 });
 
 const render = async () => {
-  const videoEncoder = new VideoEncoder();
   const modal = new ModalProgress();
+  const videoEncoder: VideoEncoder = new VideoEncoderFfmpeg();
   modal.open({
     buttons: [
       {
@@ -122,32 +123,31 @@ const render = async () => {
     ],
     title: "Rendering & Encoding"
   });
+  await videoEncoder.initialize(
+    renderer.resizeCanvas,
+    renderer.resizeContext,
+    player,
+    (progress) => modal.setProgress(progress, "Encoding")
+  );
   player.hideVideo();
   manager.updateExternally = true;
   manager.selectWidget(null);
-  await videoEncoder.addVideo(player);
   let firstFramePng: ArrayBuffer = null;
-  const onRenderFrame = async (event: RenderFrameEvent) => {
+  renderer.onRenderFrame = async (event: RenderFrameEvent) => {
     if (firstFramePng === null) {
-      firstFramePng = event.pngData;
+      firstFramePng = await canvasToArrayBuffer(renderer.resizeCanvas, "image/png");
     }
-    const frame = await videoEncoder.addFrame(event.pngData);
-    modal.setProgress(event.progress, `Rendering Frame: ${frame}`);
+    await videoEncoder.processFrame();
+    modal.setProgress(event.progress, "Rendering");
   };
-  const onVideoEncoderProgress = (event: VideoProgressEvent) => {
-    modal.setProgress(event.progress, "Encoding");
-  };
-  videoEncoder.addEventListener("progress", onVideoEncoderProgress);
-  renderer.addEventListener("frame", onRenderFrame);
   const videoBlob = await (async () => {
     if (await renderer.render()) {
-      return videoEncoder.encode();
+      return videoEncoder.getOutputVideo();
     }
     return null;
   })();
   modal.hide();
-  videoEncoder.removeEventListener("progress", onVideoEncoderProgress);
-  renderer.removeEventListener("frame", onRenderFrame);
+  renderer.onRenderFrame = null;
   manager.updateExternally = false;
   player.showVideo();
   return {firstFramePng, videoBlob};
@@ -248,7 +248,7 @@ document.getElementById("motion").addEventListener("click", async () => {
   const transform = Utility.getTransform(selection.widget.element);
   motionTracker.addPoint(transform.translate[0], transform.translate[1]);
 
-  const onFrame = async (event: import("./classes/motionTracker").MotionTrackerEvent) => {
+  motionTracker.onMotionFrame = async (event: import("./classes/motionTracker").MotionTrackerEvent) => {
     modal.setProgress(event.progress, "");
     if (event.found) {
       transform.translate[0] = event.x;
@@ -257,9 +257,8 @@ document.getElementById("motion").addEventListener("click", async () => {
       selection.emitKeyframe();
     }
   };
-  motionTracker.addEventListener("frame", onFrame);
   await motionTracker.track();
-  motionTracker.removeEventListener("frame", onFrame);
+  motionTracker.onMotionFrame = null;
   modal.hide();
 });
 
@@ -275,7 +274,7 @@ document.getElementById("render").addEventListener("click", async () => {
     replace(/[^a-zA-Z0-9-]/ug, "-")}`;
   const result = await render();
   if (result.videoBlob) {
-  download(URL.createObjectURL(result.videoBlob), filename);
+    download(URL.createObjectURL(result.videoBlob), filename);
   }
 });
 

@@ -1,12 +1,10 @@
-import {Deferred, Utility} from "./utility";
 import {VideoSeeker, VideoSeekerFrame} from "./videoSeeker";
 import {Image} from "./image";
 import {Timeline} from "./timeline";
+import {Utility} from "./utility";
 import {VideoPlayer} from "./videoPlayer";
 
-export class RenderFrameEvent extends Event {
-  public pngData: ArrayBuffer;
-
+export class RenderFrameEvent {
   public progress: number;
 }
 
@@ -15,14 +13,15 @@ export class Renderer extends VideoSeeker {
 
   private readonly context: CanvasRenderingContext2D;
 
-  private readonly resizeCanvas: HTMLCanvasElement;
+  public readonly resizeCanvas: HTMLCanvasElement;
 
-  private readonly resizeContext: CanvasRenderingContext2D;
+  public readonly resizeContext: CanvasRenderingContext2D;
 
   private readonly widgetContainer: HTMLDivElement;
 
   private readonly timeline: Timeline;
 
+  public onRenderFrame: (event: RenderFrameEvent) => Promise<void>;
 
   public constructor (
     canvas: HTMLCanvasElement,
@@ -38,6 +37,7 @@ export class Renderer extends VideoSeeker {
     this.resizeCanvas = document.createElement("canvas");
     this.resizeContext = this.resizeCanvas.getContext("2d");
 
+    this.updateResizeCanvsaSize();
     this.timeline = timeline;
   }
 
@@ -67,35 +67,24 @@ export class Renderer extends VideoSeeker {
     }
   }
 
-  private static async canvasToArrayBuffer (canvas: HTMLCanvasElement, mimeType: string) {
-    const defer = new Deferred<ArrayBuffer>();
-    canvas.toBlob((blob) => {
-      const reader = new FileReader();
-      reader.addEventListener("loadend", () => {
-        defer.resolve(reader.result as ArrayBuffer);
-      });
-      reader.readAsArrayBuffer(blob);
-    }, mimeType);
-    return defer;
+  private updateResizeCanvsaSize () {
+    const size = this.player.getRawSize();
+    this.resizeCanvas.width = size[0] / 1;
+    this.resizeCanvas.height = size[1] / 1;
   }
 
   protected async onFrame (frame: VideoSeekerFrame) {
     this.timeline.setNormalizedTime(frame.normalizedCurrentTime);
     this.drawFrame(frame.currentTime, true);
-    const size = this.player.getRawSize();
-    [
-      this.resizeCanvas.width,
-      this.resizeCanvas.height
-    ] = size;
-    this.resizeContext.drawImage(this.canvas, 0, 0, size[0], size[1]);
-    const pngData = await Renderer.canvasToArrayBuffer(this.resizeCanvas, "image/png");
-    const toSend = new RenderFrameEvent("frame");
-    toSend.pngData = pngData;
+    this.updateResizeCanvsaSize();
+    this.resizeContext.drawImage(this.player.video, 0, 0, this.resizeCanvas.width, this.resizeCanvas.height);
+    this.resizeContext.drawImage(this.canvas, 0, 0, this.resizeCanvas.width, this.resizeCanvas.height);
+    const toSend = new RenderFrameEvent();
     toSend.progress = frame.progress;
-    this.dispatchEvent(toSend);
+    await this.onRenderFrame(toSend);
   }
 
   public async render (): Promise<boolean> {
-    return this.run(0, false);
+    return this.run(0);
   }
 }

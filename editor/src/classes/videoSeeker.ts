@@ -9,7 +9,7 @@ export class VideoSeekerFrame {
   public progress: number;
 }
 
-export abstract class VideoSeeker extends EventTarget {
+export abstract class VideoSeeker {
   public readonly player: VideoPlayer;
 
   private runningPromise: Deferred<boolean> = null;
@@ -17,7 +17,6 @@ export abstract class VideoSeeker extends EventTarget {
   private isStopped = false;
 
   public constructor (player: VideoPlayer) {
-    super();
     this.player = player;
   }
 
@@ -25,7 +24,7 @@ export abstract class VideoSeeker extends EventTarget {
     return Math.round(time / FRAME_TIME) * FRAME_TIME;
   }
 
-  protected async run (startTime: number, seekVideo: boolean): Promise<boolean> {
+  protected async run (startTime: number): Promise<boolean> {
     this.runningPromise = new Deferred<boolean>();
     await this.player.loadPromise;
     const {video} = this.player;
@@ -38,36 +37,24 @@ export abstract class VideoSeeker extends EventTarget {
     const onSeek = async () => {
       if (this.isStopped) {
         this.runningPromise.resolve(false);
-        return false;
       }
       frame.progress = frame.currentTime / video.duration;
       await this.onFrame(frame);
       if (frame.currentTime + FRAME_TIME > video.duration) {
         this.runningPromise.resolve(true);
-        return false;
       }
       frame.currentTime = this.snapToFrameRate(frame.currentTime + FRAME_TIME);
       frame.normalizedCurrentTime = frame.currentTime / video.duration;
 
-      if (seekVideo) {
-        video.currentTime = frame.currentTime;
-      }
-      return true;
+      video.currentTime = frame.currentTime;
     };
 
-    if (seekVideo) {
-      video.addEventListener("seeked", onSeek);
-      video.currentTime = frame.currentTime;
-    } else {
-      // eslint-disable-next-line curly
-      while (await onSeek());
-    }
+    video.addEventListener("seeked", onSeek);
+    video.currentTime = frame.currentTime;
 
     const result = await this.runningPromise;
 
-    if (seekVideo) {
-      video.removeEventListener("seeked", onSeek);
-    }
+    video.removeEventListener("seeked", onSeek);
 
     this.runningPromise = null;
     this.isStopped = false;
