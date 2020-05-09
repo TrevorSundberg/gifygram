@@ -1,4 +1,4 @@
-import {EditorComponent} from "./classes/editorComponent";
+import {EditorComponent} from "./editor/editorComponent";
 import React from "react";
 import ReactDOM from "react-dom";
 
