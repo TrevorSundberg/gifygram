@@ -3,8 +3,11 @@ import {uuid} from "uuidv4";
 
 const handlers: Record<string, (request: Request, url: URL) => Promise<Response>> = {};
 
-const sortableDate = () => Date.now().toString().
-  padStart(20, "0");
+// `${Number.MAX_SAFE_INTEGER}`.length;
+const MAX_NUMBER_LENGTH_BASE_10 = 16;
+
+const sortKeyNewToOld = () => (Number.MAX_SAFE_INTEGER - Date.now()).toString().
+  padStart(MAX_NUMBER_LENGTH_BASE_10, "0");
 
 const parseBinaryChunks = (buffer: ArrayBuffer) => {
   const view = new DataView(buffer);
@@ -51,7 +54,7 @@ handlers["/post/create"] = async (request) => {
 
   const id = uuid();
   await Promise.all([
-    db.put(`post:${sortableDate()}`, id),
+    db.put(`post:${sortKeyNewToOld()}`, id),
     db.put(`post/json:${id}`, json),
     db.put(`post/thumbnail:${id}`, thumbnail),
     db.put(`post/video:${id}`, video)
