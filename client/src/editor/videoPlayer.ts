@@ -148,14 +148,6 @@ export class VideoPlayer extends EventTarget {
     ];
   }
 
-  public hideVideo () {
-    this.video.style.visibility = "hidden";
-  }
-
-  public showVideo () {
-    this.video.style.visibility = "";
-  }
-
   public async setAttributedSrc (attributedSource: AttributedSource) {
     this.loadPromise = new Deferred<void>();
     // Workers static doesn't support Accept-Ranges, so we just preload the entire video.

@@ -154,7 +154,6 @@ export class Editor {
         player,
         (progress) => modal.setProgress(progress, "Encoding")
       );
-      player.hideVideo();
       manager.updateExternally = true;
       manager.selectWidget(null);
       let firstFramePng: ArrayBuffer = null;
@@ -174,7 +173,6 @@ export class Editor {
       modal.hide();
       renderer.onRenderFrame = null;
       manager.updateExternally = false;
-      player.showVideo();
       return {firstFramePng, videoBlob};
     };
 
