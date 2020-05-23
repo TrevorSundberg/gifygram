@@ -4,10 +4,14 @@ import "@fortawesome/fontawesome-free/css/fontawesome.css";
 import "@fortawesome/fontawesome-free/css/solid.css";
 import "@fortawesome/fontawesome-free/css/brands.css";
 import "./editor.css";
+import {
+  API_ANIMATION_CREATE,
+  API_POST_CREATE_MAX_MESSAGE_LENGTH,
+  API_POST_CREATE_MAX_TITLE_LENGTH
+} from "../../../common/common";
 import {Deferred, NeverAsync, Utility, canvasToArrayBuffer} from "./utility";
 import {RenderFrameEvent, Renderer} from "./renderer";
 import $ from "jquery";
-import {API_ANIMATION_CREATE} from "../../../common/common";
 import {Background} from "./background";
 import {Manager} from "./manager";
 import {Modal} from "./modal";
@@ -21,9 +25,6 @@ import {VideoPlayer} from "./videoPlayer";
 import {makeUrl} from "../shared/shared";
 import svgToMiniDataURI from "mini-svg-data-uri";
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const editorHtml = require("./editor.html").default;
-
 export class Editor {
   public root: JQuery;
 
@@ -36,7 +37,7 @@ export class Editor {
   private tooltips: JQuery<HTMLElement>;
 
   public constructor (parent: HTMLElement) {
-    this.root = $(editorHtml).appendTo(parent);
+    this.root = $(require("./editor.html").default).appendTo(parent);
 
     const getElement = (name: string) => this.root.find(`#${name}`).get(0);
 
@@ -183,7 +184,7 @@ export class Editor {
       return view.buffer;
     };
 
-    const makePost = async () => {
+    const makePost = async (title: string, message: string) => {
       const result = await render();
       if (result) {
         const jsonBuffer = new TextEncoder().encode(manager.saveToJson());
@@ -198,13 +199,39 @@ export class Editor {
           makeLengthBuffer(thumbnailBuffer.byteLength),
           thumbnailBuffer
         ]);
-        const response = await fetch(makeUrl(API_ANIMATION_CREATE, {title: "test", message: "test message"}), {
+        const response = await fetch(makeUrl(API_ANIMATION_CREATE, {title, message}), {
           body: blob,
           method: "POST"
         });
         console.log(await response.text());
       }
     };
+
+    getElement("post").addEventListener("click", (): NeverAsync => {
+      manager.selectWidget(null);
+      const content = $(require("./post.html").default);
+      const title = content.find("#title") as JQuery<HTMLTextAreaElement>;
+      title.attr("maxlength", API_POST_CREATE_MAX_TITLE_LENGTH);
+      const message = content.find("#message") as JQuery<HTMLTextAreaElement>;
+      message.attr("maxlength", API_POST_CREATE_MAX_MESSAGE_LENGTH);
+      const modal = new Modal();
+      modal.open({
+        buttons: [
+          {
+            callback: () => makePost(
+              title.val() as string,
+              message.val() as string
+            ),
+            dismiss: true,
+            submitOnEnter: true,
+            name: "Post"
+          }
+        ],
+        content,
+        dismissable: true,
+        title: "Post"
+      });
+    });
 
     getElement("share").addEventListener("click", (): NeverAsync => {
       manager.selectWidget(null);
@@ -230,14 +257,7 @@ export class Editor {
 
       const modal = new Modal();
       modal.open({
-        buttons: [
-          {
-            callback: makePost,
-            dismiss: true,
-            name: "Post"
-          },
-          {dismiss: true, name: "OK"}
-        ],
+        buttons: [{dismiss: true, name: "OK"}],
         content: div,
         dismissable: true,
         title: "Share"
