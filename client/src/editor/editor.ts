@@ -7,6 +7,7 @@ import "./editor.css";
 import {Deferred, NeverAsync, Utility, canvasToArrayBuffer} from "./utility";
 import {RenderFrameEvent, Renderer} from "./renderer";
 import $ from "jquery";
+import {API_ANIMATION_CREATE} from "../../../common/common";
 import {Background} from "./background";
 import {Manager} from "./manager";
 import {Modal} from "./modal";
@@ -197,7 +198,7 @@ export class Editor {
           makeLengthBuffer(thumbnailBuffer.byteLength),
           thumbnailBuffer
         ]);
-        const response = await fetch(makeUrl("/api/post/create"), {
+        const response = await fetch(makeUrl(API_ANIMATION_CREATE, {title: "test", message: "test message"}), {
           body: blob,
           method: "POST"
         });

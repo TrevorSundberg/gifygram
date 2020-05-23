@@ -1,24 +1,25 @@
+import {API_THREAD_LIST} from "../../../common/common";
 import React from "react";
 import {makeUrl} from "../shared/shared";
 
-interface Post {
+interface Thread {
   id: string;
+  title: string;
 }
 
-interface PostsState {
-  posts: Post[];
+interface ThreadsState {
+  threads: Thread[];
 }
 
-export class Posts extends React.Component<{}, PostsState> {
-  public state: PostsState = {
-    posts: []
+export class Threads extends React.Component<{}, ThreadsState> {
+  public state: ThreadsState = {
+    threads: []
   }
 
   public async componentDidMount () {
-    const response = await fetch(makeUrl("/api/post/list"));
-    const json: string[] = await response.json();
-    const posts: Post[] = json.map((id) => ({id}));
-    this.setState({posts});
+    const response = await fetch(makeUrl(API_THREAD_LIST));
+    const threads: Thread[] = await response.json();
+    this.setState({threads});
   }
 
   public render () {
@@ -28,8 +29,8 @@ export class Posts extends React.Component<{}, PostsState> {
         columnWidth: "150px",
         columnGap: "10px"
       }}>
-        {this.state.posts.map((post) => <div
-          key={post.id}
+        {this.state.threads.map((thread) => <div
+          key={thread.id}
           style={{
             borderRadius: "3px",
             overflow: "hidden",
@@ -45,12 +46,12 @@ export class Posts extends React.Component<{}, PostsState> {
             onMouseLeave={(event) => (event.target as HTMLVideoElement).pause()}
             onTouchStart={(event) => (event.target as HTMLVideoElement).play().catch(() => 0)}
             onTouchEnd={(event) => (event.target as HTMLVideoElement).pause()}
-            src={makeUrl("/api/post/video", {id: post.id})}
-            poster={makeUrl("/api/post/thumbnail", {id: post.id})}>
+            src={makeUrl("/api/animation/video", {id: thread.id})}
+            poster={makeUrl("/api/animation/thumbnail", {id: thread.id})}>
           </video>
           <div
             style={{padding: "6px", paddingTop: "0px"}}>
-            test
+            TITLE: {thread.title}
           </div>
         </div>)}
       </div>);

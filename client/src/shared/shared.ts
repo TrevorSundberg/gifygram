@@ -1,5 +1,8 @@
 export const makeUrl = (path: string, params?: Record<string, any>) => {
-  const url = new URL("https://www.welderengine.workers.dev");
+  const current = new URL(window.location.href);
+  const url = new URL(current.hostname === "0.0.0.0"
+    ? "https://www.welderengine.workers.dev"
+    : current.origin);
   url.pathname = path;
   if (params) {
     for (const key of Object.keys(params)) {
