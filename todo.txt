@@ -77,9 +77,27 @@ DONE - API - Fetch thumbnail
 DONE - API - Fetch video
 DONE - Get static content hosted
 DONE - Remove dependence on ffmpeg (too big)
+DONE - Rename posts to animations
+DONE - Make a post api for title/tags/message
+DONE - Get static react page that can query /post/list and show cards
+DONE - Ability to view single post video
+DONE - See comments on video (including first)
+DONE - Separate post button on editor with title and message
+DONE - Re-enable hidden video when encoding (remove that old code)
+DONE - Abillity to post comments on the view thread page
+DONE - Remix button that opens the code in the editor
+DONE - When posting a remix, post it as a child of the parent thread
+DONE - Validate parent threadId in post
+DONE - Bug: remixing a comment doesn't get its own threadID (remixing it fails)
+DONE - When posting a remix, don't accept a threadId, accept a parent remix id (replyId)
 
- - Get static react page that can query /post/list and show cards
- - Limit video to 10MB or slightly less just in case (9MB?)
+ - Bug: Motion track first frame is offset
+ - Bug: Animation after encoding does not always match video frame
+ - Limit video to 10MB or slightly less just in case (9MB?) (use kbps and length)
+ - Server correct mime type for video/thumbnail/json (and all json responses)
+ - Last touched video continues playing (don't require touch down)
+ - Use hashtag # to scroll to specific comment
+ - Add replyId to posts so we can see who the replied to
  - Re-encode thumbnail png to smaller dimension jpg
  - Title and message/description, tags/keywords
  - Infinite scrolling with Masonry
@@ -105,6 +123,7 @@ DONE - Remove dependence on ffmpeg (too big)
  - Show posts on a user profile
  - Admin can ban/unban user on profile
 
+ - Upgrade moveable and test new mobile touch controls
  - Custom dialog for listing stickers / videos
  - Import main video from youtube (clip the video)
  - Double click or double tap or tap + hold actions to change text or image
