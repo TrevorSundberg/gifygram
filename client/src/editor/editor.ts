@@ -212,8 +212,12 @@ export class Editor {
           body: blob,
           method: "POST"
         });
-        const post: {threadId: string} = checkResponseJson(await response.json());
-        window.location.href = `?threadId=${post.threadId}`;
+        const post: {id: string; threadId: string} = checkResponseJson(await response.json());
+        if (post.id === post.threadId) {
+          window.location.href = `?threadId=${post.threadId}`;
+        } else {
+          window.location.href = `?threadId=${post.threadId}#${post.id}`;
+        }
       }
     };
 
