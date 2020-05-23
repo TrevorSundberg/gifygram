@@ -145,7 +145,8 @@ handlers[API_POST_LIST] = async (input) => {
       id,
       title: await db.get(`post/title:${id}`, "text"),
       message: await db.get(`post/message:${id}`, "text"),
-      userdata: await db.get(`post/userdata:${id}`, "json") || oldVersion("animation")
+      userdata: await db.get(`post/userdata:${id}`, "json") || oldVersion("animation"),
+      replyId: await db.get(`post/replyId:${id}`, "text")
     })));
 
   return {response: new Response(JSON.stringify(posts), responseOptions())};

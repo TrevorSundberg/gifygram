@@ -11,6 +11,7 @@ interface Post {
   title: string;
   message: string;
   userdata: "comment" | "animation";
+  replyId: string | null;
 }
 
 interface ThreadState {
@@ -34,7 +35,8 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
         id: props.id,
         message: "",
         title: "",
-        userdata: "animation"
+        userdata: "animation",
+        replyId: null
       }
     ];
   }
@@ -54,6 +56,7 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
       }}>
         {this.state.posts.map((post) => <div
           key={post.id}
+          id={post.id}
           style={{
             borderRadius: "3px",
             overflow: "hidden",
@@ -84,6 +87,7 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
           }
           <div
             style={{padding: "6px", paddingTop: "0px"}}>
+            {post.replyId ? <div><a href={`#${post.replyId}`}>IN REPLY TO</a><br/></div> : null}
             TITLE: {post.title}
             <br/>
             MESSAGE: {post.message}
@@ -124,7 +128,8 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
                     id: newPost.id,
                     title,
                     message,
-                    userdata: "comment"
+                    userdata: "comment",
+                    replyId: this.props.id
                   }
                 ]
               }));
