@@ -6,15 +6,16 @@ import "@fortawesome/fontawesome-free/css/brands.css";
 import "./editor.css";
 import {
   API_ANIMATION_CREATE,
+  API_ANIMATION_JSON,
   API_POST_CREATE_MAX_MESSAGE_LENGTH,
   API_POST_CREATE_MAX_TITLE_LENGTH
 } from "../../../common/common";
 import {Deferred, NeverAsync, Utility, canvasToArrayBuffer} from "./utility";
+import {Manager, SerializedData} from "./manager";
 import {RenderFrameEvent, Renderer} from "./renderer";
 import {checkResponseJson, makeUrl} from "../shared/shared";
 import $ from "jquery";
 import {Background} from "./background";
-import {Manager} from "./manager";
 import {Modal} from "./modal";
 import {ModalProgress} from "./modalProgress";
 import {StickerSearch} from "./stickerSearch";
@@ -36,7 +37,7 @@ export class Editor {
 
   private tooltips: JQuery<HTMLElement>;
 
-  public constructor (parent: HTMLElement) {
+  public constructor (parent: HTMLElement, remixId?: string) {
     this.root = $(require("./editor.html").default).appendTo(parent);
 
     const getElement = (name: string) => this.root.find(`#${name}`).get(0);
@@ -66,6 +67,12 @@ export class Editor {
     const urlData = urlParams.get(urlDataParameter);
     if (urlData) {
       manager.loadFromBase64(urlData);
+    } else if (remixId) {
+      (async () => {
+        const response = await fetch(makeUrl(API_ANIMATION_JSON, {id: remixId}));
+        const animation: SerializedData = checkResponseJson(await response.json());
+        manager.load(animation);
+      })();
     } else {
       player.setAttributedSrc({
         attribution: "",
@@ -197,7 +204,11 @@ export class Editor {
           makeLengthBuffer(thumbnailBuffer.byteLength),
           thumbnailBuffer
         ]);
-        const response = await fetch(makeUrl(API_ANIMATION_CREATE, {title, message}), {
+        const response = await fetch(makeUrl(API_ANIMATION_CREATE, {
+          title,
+          message,
+          ...remixId ? {replyId: remixId} : {}
+        }), {
           body: blob,
           method: "POST"
         });

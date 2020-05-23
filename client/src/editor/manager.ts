@@ -181,7 +181,7 @@ export class Manager {
     ].filter((value) => Boolean(value));
   }
 
-  private async load (data: SerializedData) {
+  public async load (data: SerializedData) {
     this.videoPlayer.setAttributedSrc(data.videoAttributedSource);
     this.clearWidgets();
     for (const init of data.widgets) {

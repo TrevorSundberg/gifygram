@@ -15,7 +15,7 @@ ReactDOM.render(
     if (url.searchParams.has("threadId")) {
       return <Thread id={url.searchParams.get("threadId")}/>;
     }
-    return <EditorComponent/>;
+    return <EditorComponent remixId={url.searchParams.get("remixId")}/>;
   })(),
   document.getElementById("root")
 );

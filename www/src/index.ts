@@ -93,19 +93,24 @@ const postCreate = async (input: RequestInput, createThread: boolean, userdata: 
   const message = expectStringParam(input, "message", API_POST_CREATE_MAX_MESSAGE_LENGTH);
   const id = uuid();
 
+  const replyId = input.url.searchParams.has("replyId") ? expectUuidParam(input, "replyId") : null;
+
   const threadId = await (async () => {
-    if (createThread && !input.url.searchParams.has("threadId")) {
+    if (createThread && !replyId) {
       await db.put(`thread:${sortKeyNewToOld()}|${id}`, id);
       return id;
     }
-    return expectUuidParam(input, "threadId");
+    const replyThreadId = await db.get(`post/threadId:${expectUuid("replyId", replyId)}`, "text");
+    return expectUuid("replyThreadId", replyThreadId);
   })();
 
   await Promise.all([
     db.put(`thread/post:${threadId}:${sortKeyNewToOld()}|${id}`, id),
+    db.put(`post/threadId:${id}`, threadId),
     db.put(`post/title:${id}`, title),
     db.put(`post/message:${id}`, message),
-    db.put(`post/userdata:${id}`, JSON.stringify(userdata))
+    db.put(`post/userdata:${id}`, JSON.stringify(userdata)),
+    replyId ? db.put(`post/replyId:${id}`, replyId) : null
   ]);
   return {
     response: new Response(JSON.stringify({id, threadId}), responseOptions()),

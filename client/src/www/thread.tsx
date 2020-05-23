@@ -63,14 +63,23 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
           }}>
           {
             post.userdata === "animation"
-              ? <video
-                style={{width: "100%"}}
-                muted
-                loop
-                autoPlay
-                src={makeUrl("/api/animation/video", {id: post.id})}
-                poster={makeUrl("/api/animation/thumbnail", {id: post.id})}>
-              </video>
+              ? <div>
+                <video
+                  style={{width: "100%"}}
+                  muted
+                  loop
+                  autoPlay
+                  src={makeUrl("/api/animation/video", {id: post.id})}
+                  poster={makeUrl("/api/animation/thumbnail", {id: post.id})}>
+                </video>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => {
+                    window.location.href = `?remixId=${post.id}`;
+                  }}>
+                    Remix
+                </button>
+              </div>
               : null
           }
           <div
@@ -104,7 +113,7 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
               const response = await fetch(makeUrl(API_POST_CREATE, {
                 title: this.state.postTitle,
                 message: this.state.postMessage,
-                threadId: this.props.id
+                replyId: this.props.id
               }));
               const newPost: {id: string} = checkResponseJson(await response.json());
               // Append our post to the end.
