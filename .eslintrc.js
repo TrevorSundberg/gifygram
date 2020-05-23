@@ -70,7 +70,8 @@ module.exports = {
     "no-warning-comments": "off",
     "complexity": "off",
     "max-lines-per-function": "off",
-    "implicit-arrow-linebreak": "off"
+    "implicit-arrow-linebreak": "off",
+    "sort-keys": "off"
   },
   settings: {
     react: {
