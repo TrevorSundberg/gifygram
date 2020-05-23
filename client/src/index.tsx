@@ -7,6 +7,24 @@ import {Threads} from "./www/threads";
 
 const url = new URL(window.location.href);
 
+if (url.hash) {
+  const id = url.hash.slice(1);
+  if (!document.getElementById(id)) {
+    const observer = new MutationObserver(() => {
+      if (document.getElementById(id)) {
+        console.log("Scrolling to dynamic element", id);
+        location.hash = "";
+        location.hash = id;
+        observer.disconnect();
+      }
+    });
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+}
+
 ReactDOM.render(
   (() => {
     if (url.searchParams.has("threads")) {
