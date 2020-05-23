@@ -201,7 +201,8 @@ export class Editor {
           body: blob,
           method: "POST"
         });
-        checkResponseJson(await response.json());
+        const post: {threadId: string} = checkResponseJson(await response.json());
+        window.location.href = `?threadId=${post.threadId}`;
       }
     };
 

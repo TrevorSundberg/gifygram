@@ -108,7 +108,7 @@ const postCreate = async (input: RequestInput, createThread: boolean, userdata: 
     db.put(`post/userdata:${id}`, JSON.stringify(userdata))
   ]);
   return {
-    response: new Response(JSON.stringify({id}), responseOptions()),
+    response: new Response(JSON.stringify({id, threadId}), responseOptions()),
     threadId,
     id
   };

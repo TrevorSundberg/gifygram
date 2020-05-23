@@ -71,7 +71,8 @@ module.exports = {
     "complexity": "off",
     "max-lines-per-function": "off",
     "implicit-arrow-linebreak": "off",
-    "sort-keys": "off"
+    "sort-keys": "off",
+    "no-undefined": "off"
   },
   settings: {
     react: {
