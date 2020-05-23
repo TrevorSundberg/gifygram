@@ -1,6 +1,6 @@
+import {checkResponseJson, makeUrl} from "../shared/shared";
 import {API_THREAD_LIST} from "../../../common/common";
 import React from "react";
-import {makeUrl} from "../shared/shared";
 
 interface Thread {
   id: string;
@@ -18,7 +18,7 @@ export class Threads extends React.Component<{}, ThreadsState> {
 
   public async componentDidMount () {
     const response = await fetch(makeUrl(API_THREAD_LIST));
-    const threads: Thread[] = await response.json();
+    const threads: Thread[] = checkResponseJson(await response.json());
     this.setState({threads});
   }
 

@@ -11,6 +11,7 @@ import {
 } from "../../../common/common";
 import {Deferred, NeverAsync, Utility, canvasToArrayBuffer} from "./utility";
 import {RenderFrameEvent, Renderer} from "./renderer";
+import {checkResponseJson, makeUrl} from "../shared/shared";
 import $ from "jquery";
 import {Background} from "./background";
 import {Manager} from "./manager";
@@ -22,7 +23,6 @@ import {Timeline} from "./timeline";
 import {VideoEncoder} from "./videoEncoder";
 import {VideoEncoderH264MP4} from "./videoEncoderH264MP4";
 import {VideoPlayer} from "./videoPlayer";
-import {makeUrl} from "../shared/shared";
 import svgToMiniDataURI from "mini-svg-data-uri";
 
 export class Editor {
@@ -201,7 +201,7 @@ export class Editor {
           body: blob,
           method: "POST"
         });
-        console.log(await response.text());
+        checkResponseJson(await response.json());
       }
     };
 

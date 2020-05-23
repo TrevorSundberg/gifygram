@@ -37,7 +37,7 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
 
   public async componentDidMount () {
     const response = await fetch(makeUrl(API_POST_LIST, {threadId: this.props.id}));
-    const posts: Post[] = await response.json();
+    const posts: Post[] = checkResponseJson(await response.json());
     this.setState({posts});
   }
 

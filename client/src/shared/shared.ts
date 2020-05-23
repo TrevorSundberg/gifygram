@@ -11,3 +11,15 @@ export const makeUrl = (path: string, params?: Record<string, any>) => {
   }
   return url.href;
 };
+
+export interface ResponseJson {
+  err?: string;
+}
+
+export const checkResponseJson = <T extends ResponseJson>(json: T) => {
+  if (json.err) {
+    console.warn(json);
+    throw new Error(json.err);
+  }
+  return json;
+};
