@@ -37,6 +37,9 @@ export class Threads extends React.Component<{}, ThreadsState> {
             backgroundColor: "white",
             marginBottom: "10px",
             breakInside: "avoid"
+          }}
+          onClick={() => {
+            window.location.href = `?threadId=${thread.id}`;
           }}>
           <video
             style={{width: "100%"}}

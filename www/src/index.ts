@@ -59,7 +59,7 @@ export const expect = <T>(value: T | null | undefined) => {
 
 const expectUuid = (name: string, id: string | null | undefined) => {
   if (!id || !(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u).test(id)) {
-    throw new Error(`Invalid uuid, got ${id}`);
+    throw new Error(`Invalid uuid ${name}, got ${id}`);
   }
   return id;
 };
@@ -87,7 +87,7 @@ const expectMimeType = async (buffer: ArrayBuffer, mimeType: string) => {
   }
 };
 
-const postCreate = async (input: RequestInput, createThread: boolean) => {
+const postCreate = async (input: RequestInput, createThread: boolean, userdata: any) => {
   const title = expectStringParam(input, "title", API_POST_CREATE_MAX_TITLE_LENGTH);
   const message = expectStringParam(input, "message", API_POST_CREATE_MAX_MESSAGE_LENGTH);
   const id = uuid();
@@ -103,7 +103,8 @@ const postCreate = async (input: RequestInput, createThread: boolean) => {
   await Promise.all([
     db.put(`thread/post:${threadId}:${sortKeyNewToOld()}|${id}`, id),
     db.put(`post/title:${id}`, title),
-    db.put(`post/message:${id}`, message)
+    db.put(`post/message:${id}`, message),
+    db.put(`post/userdata:${id}`, JSON.stringify(userdata))
   ]);
   return {
     response: new Response(JSON.stringify({id}), responseOptions()),
@@ -112,7 +113,7 @@ const postCreate = async (input: RequestInput, createThread: boolean) => {
   };
 };
 
-handlers[API_POST_CREATE] = async (input) => postCreate(input, false);
+handlers[API_POST_CREATE] = async (input) => postCreate(input, false, "comment");
 
 handlers[API_THREAD_LIST] = async () => {
   // TODO(trevor): Parse the id from the key '|' rather than using gets (same for API_POST_LIST).
@@ -132,11 +133,20 @@ handlers[API_POST_LIST] = async (input) => {
   const threadId = expectUuidParam(input, "threadId");
   const list = await db.list({prefix: `thread/post:${threadId}:`});
   const ids = await Promise.all(list.keys.map((key) => db.get(key.name)));
-  return {response: new Response(JSON.stringify(ids), responseOptions())};
+
+  const posts = await Promise.all(ids.map(async (id) =>
+    ({
+      id,
+      title: await db.get(`post/title:${id}`, "text"),
+      message: await db.get(`post/message:${id}`, "text"),
+      userdata: await db.get(`post/userdata:${id}`, "json")
+    })));
+
+  return {response: new Response(JSON.stringify(posts), responseOptions())};
 };
 
 handlers[API_ANIMATION_CREATE] = async (input) => {
-  const output = await postCreate(input, true);
+  const output = await postCreate(input, true, "animation");
 
   const [
     jsonBinary,
