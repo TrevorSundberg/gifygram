@@ -44,7 +44,7 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
             breakInside: "avoid"
           }}>
           {
-            oldVersion(!post.userdata) || post.userdata === "animation"
+            post.userdata === "animation"
               ? <video
                 style={{width: "100%"}}
                 muted

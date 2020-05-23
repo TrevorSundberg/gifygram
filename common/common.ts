@@ -8,3 +8,6 @@ export const API_ANIMATION_CREATE = "/api/animation/create";
 export const API_ANIMATION_JSON = "/api/animation/json";
 export const API_ANIMATION_THUMBNAIL = "/api/animation/thumbnail";
 export const API_ANIMATION_VIDEO = "/api/animation/video";
+
+/** Mark that we're doing something only to be backwards compatable with the database */
+export const oldVersion = <T>(value: T) => value;

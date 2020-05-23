@@ -11,6 +11,3 @@ export const makeUrl = (path: string, params?: Record<string, any>) => {
   }
   return url.href;
 };
-
-/** Mark that we're doing something only to be backwards compatable with the database */
-export const oldVersion = <T>(value: T) => value;
