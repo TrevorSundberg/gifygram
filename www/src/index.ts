@@ -7,8 +7,7 @@ import {
   API_POST_CREATE_MAX_MESSAGE_LENGTH,
   API_POST_CREATE_MAX_TITLE_LENGTH,
   API_POST_LIST,
-  API_THREAD_LIST,
-  oldVersion
+  API_THREAD_LIST
 } from "../../common/common";
 import FileType from "file-type";
 import {getAssetFromKV} from "@cloudflare/kv-asset-handler";
@@ -145,7 +144,7 @@ handlers[API_POST_LIST] = async (input) => {
       id,
       title: await db.get(`post/title:${id}`, "text"),
       message: await db.get(`post/message:${id}`, "text"),
-      userdata: await db.get(`post/userdata:${id}`, "json") || oldVersion("animation"),
+      userdata: await db.get(`post/userdata:${id}`, "json"),
       replyId: await db.get(`post/replyId:${id}`, "text")
     })));
 
