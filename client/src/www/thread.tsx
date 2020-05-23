@@ -1,6 +1,6 @@
-import {API_POST_LIST} from "../../../common/common";
+import {API_POST_CREATE, API_POST_LIST} from "../../../common/common";
+import {checkResponseJson, makeUrl} from "../shared/shared";
 import React from "react";
-import {makeUrl} from "../shared/shared";
 
 interface ThreadProps {
   id: string;
@@ -15,11 +15,15 @@ interface Post {
 
 interface ThreadState {
   posts: Post[];
+  postTitle: string;
+  postMessage: string;
 }
 
 export class Thread extends React.Component<ThreadProps, ThreadState> {
   public state: ThreadState = {
-    posts: []
+    posts: [],
+    postTitle: "",
+    postMessage: ""
   }
 
   public constructor (props: ThreadProps) {
@@ -76,6 +80,49 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
             MESSAGE: {post.message}
           </div>
         </div>)}
+        <div>
+          Title:<br/>
+          <textarea
+            id="title"
+            className="md-textarea form-control"
+            onChange={(value) => this.setState({postTitle: value.target.value})}
+            value={this.state.postTitle}
+            autoFocus/>
+          Message:<br/>
+          <textarea
+            id="message"
+            className="md-textarea form-control"
+            value={this.state.postMessage}
+            onChange={(value) => this.setState({postMessage: value.target.value})}/>
+          <button
+            className="btn btn-primary"
+            onClick={async () => {
+              const title = this.state.postTitle;
+              const message = this.state.postMessage;
+              this.setState({postTitle: "", postMessage: ""});
+
+              const response = await fetch(makeUrl(API_POST_CREATE, {
+                title: this.state.postTitle,
+                message: this.state.postMessage,
+                threadId: this.props.id
+              }));
+              const newPost: {id: string} = checkResponseJson(await response.json());
+              // Append our post to the end.
+              this.setState((previous) => ({
+                posts: [
+                  ...previous.posts,
+                  {
+                    id: newPost.id,
+                    title,
+                    message,
+                    userdata: "comment"
+                  }
+                ]
+              }));
+            }}>
+            Post
+          </button>
+        </div>
       </div>);
   }
 }
