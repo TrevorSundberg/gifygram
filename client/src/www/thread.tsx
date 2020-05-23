@@ -1,6 +1,6 @@
-import {makeUrl, oldVersion} from "../shared/shared";
 import {API_POST_LIST} from "../../../common/common";
 import React from "react";
+import {makeUrl} from "../shared/shared";
 
 interface ThreadProps {
   id: string;
@@ -20,6 +20,19 @@ interface ThreadState {
 export class Thread extends React.Component<ThreadProps, ThreadState> {
   public state: ThreadState = {
     posts: []
+  }
+
+  public constructor (props: ThreadProps) {
+    super(props);
+    // We make a fake first post that includes the video to load it quicker.
+    this.state.posts = [
+      {
+        id: props.id,
+        message: "",
+        title: "",
+        userdata: "animation"
+      }
+    ];
   }
 
   public async componentDidMount () {
