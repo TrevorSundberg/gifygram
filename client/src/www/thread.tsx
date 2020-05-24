@@ -101,8 +101,7 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
             id="title"
             className="md-textarea form-control"
             onChange={(value) => this.setState({postTitle: value.target.value})}
-            value={this.state.postTitle}
-            autoFocus/>
+            value={this.state.postTitle}/>
           Message:<br/>
           <textarea
             id="message"
