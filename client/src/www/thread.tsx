@@ -114,8 +114,8 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
               this.setState({postTitle: "", postMessage: ""});
 
               const response = await fetch(makeUrl(API_POST_CREATE, {
-                title: this.state.postTitle,
-                message: this.state.postMessage,
+                title,
+                message,
                 replyId: this.props.id
               }));
               const newPost: {id: string} = checkResponseJson(await response.json());
