@@ -86,6 +86,7 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
               </div>
               : null
           }
+          {post.username}
           <div
             style={{padding: "6px", paddingTop: "0px"}}>
             {post.replyId ? <div><a href={`#${post.replyId}`}>IN REPLY TO</a><br/></div> : null}
