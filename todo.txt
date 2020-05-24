@@ -101,24 +101,33 @@ DONE - Comment on a post (every post itself is a comment too, just may or may no
 DONE - Remix (edit and repost on the same thread)
 DONE - Server correct mime type for video/thumbnail/json (and all json responses)
 DONE - Add "Login with Google" and an authorization test path for validating the JWT
+DONE - Re-encode thumbnail png to smaller dimension jpg
+DONE - Completely remove thumbnails, the videos are so small and load quickly anyways, less code!
+DONE - Do all validation (such as for the video) before creating the post
+DONE - Ability to login
+DONE - Get shareable link
+DONE - Make the login required for on postCreate paths (client & server)
+DONE - Bug: Google async/defer gapi script can not exist (need to wait for onload
+DONE - Switch to using react-router
 
- - Re-encode thumbnail png to smaller dimension jpg
+ - Bug: Keep posting/rendering modal up while logging in
+ - Bug: componentDidMount makes fetch promises that must be cancelled in componentWillUnmount (React warning)
+ - Store user id (from google) along with posts
+ - Need to prompt for username/handle (make a profile where you can edit this)
  - Bug: Sometimes a newly made post doesn't exist (routed to another edge machine?)
    - Could make it so if we go to a page with a hash url, it does N many retries to get the post...
- - Switch to using react-router
- - Make a fake post and navigate to it with react router when creating the animation (same as comment)
+   - Make a fake post and navigate to it with react router when creating the animation (same as comment)
  - Limit video to 10MB or slightly less just in case (9MB?) (use kbps and length)
  - Last touched video continues playing (don't require touch down)
  - Tags/keywords
- - Infinite scrolling with Masonry
+ - Infinite scrolling with using CSS grid
  - Like post or comment - (approximate, non-atomic and underestimate + actual vote by user)
  - Track views / popularity (approximate, non-atomic and underestimate + actual view by user)
  - Flag post or comment (approximate, non-atomic and underestimate + actual flag by user)
  - Multiple boards and posting by board?
- - Ability to login (admin logins too)
+ - Global admin role (and ability to assign other roles from command line)
  - Ability to delete if you made a post
  - Admin can delete posts
- - Get shareable link
  - Sort by highest votes (utilize lexographic sort)
  - Sort by highest views (utilize lexographic sort)
  - Admin view only flagged posts
@@ -128,6 +137,12 @@ DONE - Add "Login with Google" and an authorization test path for validating the
  - Show posts on a user profile
  - Admin can ban/unban user on profile
 
+ - Get a staging environment
+ - Get individual dev environments for testing (copy of database?)
+ - Get publish to production using CI and npm version ...
+ - Get tests running on CI builds (docker/puppeteer)
+
+ - Bug: Some gif animations are too fast (min frame rate?)
  - Bug: Motion track first frame is offset
  - Bug: Animation after encoding does not always match video frame
  - Visiblity toggle kinda sucks in animator, we should just make it a timeline thing
