@@ -13,3 +13,19 @@ export const AUTH_GOOGLE_CLIENT_ID = "608893334527-510lc0vbk5pd6ag7jdl6aka2hhhp9
 
 /** Mark that we're doing something only to be backwards compatable with the database */
 export const oldVersion = <T>(value: T) => value;
+
+export type PostType = "comment" | "animation";
+
+export interface StoredPost {
+  id: string;
+  threadId: string;
+  title: string;
+  message: string;
+  userdata: PostType;
+  userId: string;
+  replyId: string | null;
+}
+
+export interface ReturnedPost extends StoredPost {
+  username: string;
+}

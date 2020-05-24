@@ -1,6 +1,7 @@
-import {API_POST_CREATE, API_POST_LIST} from "../../../common/common";
+import {API_POST_CREATE, API_POST_LIST, ReturnedPost} from "../../../common/common";
 import {AbortablePromise, abortableJsonFetch, cancel, makeUrl} from "../shared/shared";
 import React from "react";
+import {createPsuedoPost} from "./post";
 import {signInIfNeeded} from "../shared/auth";
 
 interface ThreadProps {
@@ -8,20 +9,12 @@ interface ThreadProps {
   history: import("history").History;
 }
 
-interface Post {
-  id: string;
-  title: string;
-  message: string;
-  userdata: "comment" | "animation";
-  replyId: string | null;
-}
-
 interface PostCreate {
   id: string;
 }
 
 interface ThreadState {
-  posts: Post[];
+  posts: ReturnedPost[];
   postTitle: string;
   postMessage: string;
 }
@@ -33,27 +26,19 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
     postMessage: ""
   }
 
-  private postListFetch: AbortablePromise<Post[]>;
+  private postListFetch: AbortablePromise<ReturnedPost[]>;
 
   private postCreateFetch: AbortablePromise<PostCreate>;
 
   public constructor (props: ThreadProps) {
     super(props);
     // We make a fake first post that includes the video to load it quicker.
-    this.state.posts = [
-      {
-        id: props.id,
-        message: "",
-        title: "",
-        userdata: "animation",
-        replyId: null
-      }
-    ];
+    this.state.posts = [createPsuedoPost(props.id, "animation")];
   }
 
   public async componentDidMount () {
-    this.postListFetch = abortableJsonFetch<Post[]>(API_POST_LIST, {threadId: this.props.id});
-    const posts: Post[] = await this.postListFetch;
+    this.postListFetch = abortableJsonFetch<ReturnedPost[]>(API_POST_LIST, {threadId: this.props.id});
+    const posts: ReturnedPost[] = await this.postListFetch;
     if (posts) {
       posts.reverse();
       this.setState({posts});
@@ -143,13 +128,7 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
                 this.setState((previous) => ({
                   posts: [
                     ...previous.posts,
-                    {
-                      id: newPost.id,
-                      title,
-                      message,
-                      userdata: "comment",
-                      replyId: this.props.id
-                    }
+                    createPsuedoPost(newPost.id, "comment", this.props.id, this.props.id, title, message)
                   ]
                 }));
               }

@@ -1,19 +1,13 @@
+import {API_THREAD_LIST, ReturnedPost} from "../../../common/common";
 import {AbortablePromise, abortableJsonFetch, cancel, makeUrl} from "../shared/shared";
-import {API_THREAD_LIST} from "../../../common/common";
 import React from "react";
-
-interface Thread {
-  id: string;
-  title: string;
-  username: string;
-}
 
 interface ThreadsProps {
   history: import("history").History;
 }
 
 interface ThreadsState {
-  threads: Thread[];
+  threads: ReturnedPost[];
 }
 
 export class Threads extends React.Component<ThreadsProps, ThreadsState> {
@@ -21,10 +15,10 @@ export class Threads extends React.Component<ThreadsProps, ThreadsState> {
     threads: []
   }
 
-  private threadListFetch: AbortablePromise<Thread[]>;
+  private threadListFetch: AbortablePromise<ReturnedPost[]>;
 
   public async componentDidMount () {
-    this.threadListFetch = abortableJsonFetch<Thread[]>(API_THREAD_LIST);
+    this.threadListFetch = abortableJsonFetch<ReturnedPost[]>(API_THREAD_LIST);
     const threads = await this.threadListFetch;
     if (threads) {
       this.setState({threads});

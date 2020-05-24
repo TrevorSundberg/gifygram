@@ -8,7 +8,9 @@ import {
   API_POST_CREATE_MAX_TITLE_LENGTH,
   API_POST_LIST,
   API_THREAD_LIST,
-  AUTH_GOOGLE_CLIENT_ID
+  AUTH_GOOGLE_CLIENT_ID,
+  ReturnedPost,
+  StoredPost
 } from "../../common/common";
 import {getAssetFromKV, serveSinglePageApp} from "@cloudflare/kv-asset-handler";
 
@@ -168,20 +170,6 @@ const validateJwtGoogle = async (input: RequestInput): Promise<User> => {
   await db.put(`user:${user.id}`, JSON.stringify(user));
   return user;
 };
-
-interface StoredPost {
-  id: string;
-  threadId: string;
-  title: string;
-  message: string;
-  userdata: string;
-  userId: string;
-  replyId: string | null;
-}
-
-interface ReturnedPost extends StoredPost {
-  username: string;
-}
 
 const postCreate = async (input: RequestInput, createThread: boolean, userdata: any) => {
   const user = await validateJwtGoogle(input);
