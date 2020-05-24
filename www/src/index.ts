@@ -9,7 +9,6 @@ import {
   API_POST_LIST,
   API_THREAD_LIST
 } from "../../common/common";
-import FileType from "file-type";
 import {getAssetFromKV} from "@cloudflare/kv-asset-handler";
 import {uuid} from "uuidv4";
 
@@ -80,10 +79,49 @@ const expectStringParam = (input: RequestInput, name: string, maxLength: number)
 const expectUuidParam = (input: RequestInput, name: string) =>
   expectUuid(name, input.url.searchParams.get(name));
 
-const expectMimeType = async (buffer: ArrayBuffer, mimeType: string) => {
-  const type = (await FileType.fromBuffer(buffer)) as FileType.FileTypeResult;
-  if (type.mime !== mimeType) {
-    throw new Error("Expected thumbnail: image/png");
+const videoMp4Header = new Uint8Array([
+  0x00,
+  0x00,
+  0x00,
+  0x18,
+  0x66,
+  0x74,
+  0x79,
+  0x70,
+  0x6d,
+  0x70,
+  0x34,
+  0x32,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x6d,
+  0x70,
+  0x34,
+  0x32,
+  0x69,
+  0x73,
+  0x6f,
+  0x6d
+]);
+const imagePngHeader = new Uint8Array([
+  137,
+  80,
+  78,
+  71,
+  13,
+  10,
+  26,
+  10
+]);
+
+const expectFileHeader = async (name: string, buffer: ArrayBuffer, expectedHeader: Uint8Array) => {
+  const bytes = new Uint8Array(buffer);
+  for (let i = 0; i < expectedHeader.length; ++i) {
+    if (bytes[i] !== expectedHeader[i]) {
+      throw new Error(`File ${name} was not the correct type`);
+    }
   }
 };
 
@@ -165,8 +203,8 @@ handlers[API_ANIMATION_CREATE] = async (input) => {
   JSON.parse(json);
 
   await Promise.all([
-    expectMimeType(video, "video/mp4"),
-    expectMimeType(thumbnail, "image/png")
+    expectFileHeader("video:video/mp4", video, videoMp4Header),
+    expectFileHeader("thumbnail:image/png", thumbnail, imagePngHeader)
   ]);
 
   const {id} = output;

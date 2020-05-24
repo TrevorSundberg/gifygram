@@ -29,8 +29,6 @@
   },
   "dependencies": {
     "@cloudflare/kv-asset-handler": "0.0.10",
-    "@types/file-type": "^10.9.1",
-    "file-type": "^14.3.0",
     "uuidv4": "^6.0.8"
   }
 }
