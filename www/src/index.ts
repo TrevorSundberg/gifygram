@@ -224,8 +224,6 @@ handlers[API_POST_LIST] = async (input) => {
 };
 
 handlers[API_ANIMATION_CREATE] = async (input) => {
-  const output = await postCreate(input, true, "animation");
-
   const [
     jsonBinary,
     video
@@ -236,6 +234,8 @@ handlers[API_ANIMATION_CREATE] = async (input) => {
   JSON.parse(json);
 
   await expectFileHeader("video:video/mp4", video, videoMp4Header);
+
+  const output = await postCreate(input, true, "animation");
 
   const {id} = output;
   await Promise.all([
