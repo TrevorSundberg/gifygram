@@ -72,7 +72,8 @@ module.exports = {
     "max-lines-per-function": "off",
     "implicit-arrow-linebreak": "off",
     "sort-keys": "off",
-    "no-undefined": "off"
+    "no-undefined": "off",
+    "@typescript-eslint/no-non-null-assertion": "off"
   },
   settings: {
     react: {

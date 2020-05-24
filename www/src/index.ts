@@ -63,7 +63,7 @@ const createAccessHeaders = (mimeType: string) => new Headers({
 });
 const responseOptions = (mimeType: string) => ({headers: createAccessHeaders(mimeType)});
 
-export const expect = <T>(value: T | null | undefined) => {
+const expect = <T>(value: T | null | undefined) => {
   if (!value) {
     throw new Error(`Expected value but got ${value}`);
   }
@@ -169,6 +169,20 @@ const validateJwtGoogle = async (input: RequestInput): Promise<User> => {
   return user;
 };
 
+interface StoredPost {
+  id: string;
+  threadId: string;
+  title: string;
+  message: string;
+  userdata: string;
+  userId: string;
+  replyId: string | null;
+}
+
+interface ReturnedPost extends StoredPost {
+  username: string;
+}
+
 const postCreate = async (input: RequestInput, createThread: boolean, userdata: any) => {
   const user = await validateJwtGoogle(input);
   const title = expectStringParam(input, "title", API_POST_CREATE_MAX_TITLE_LENGTH);
@@ -183,18 +197,24 @@ const postCreate = async (input: RequestInput, createThread: boolean, userdata: 
       await db.put(`thread:${newToOld}|${id}`, id);
       return id;
     }
-    const replyThreadId = await db.get(`post/threadId:${expectUuid("replyId", replyId)}`, "text");
+    const replyPost = await db.get<StoredPost>(`post:${expectUuid("replyId", replyId)}`, "json");
+    const replyThreadId = replyPost!.id;
     return expectUuid("replyThreadId", replyThreadId);
   })();
 
+  const post: StoredPost = {
+    id,
+    threadId,
+    title,
+    message,
+    userdata,
+    userId: user.id,
+    replyId
+  };
+
   await Promise.all([
     db.put(`thread/post:${threadId}:${newToOld}|${id}`, id),
-    db.put(`post/threadId:${id}`, threadId),
-    db.put(`post/title:${id}`, title),
-    db.put(`post/message:${id}`, message),
-    db.put(`post/userdata:${id}`, JSON.stringify(userdata)),
-    db.put(`post/user:${id}`, user.id),
-    replyId ? db.put(`post/replyId:${id}`, replyId) : null
+    db.put(`post:${id}`, JSON.stringify(post))
   ]);
   return {
     response: new Response(JSON.stringify({id, threadId}), responseOptions(CONTENT_TYPE_APPLICATION_JSON)),
@@ -205,35 +225,27 @@ const postCreate = async (input: RequestInput, createThread: boolean, userdata: 
 
 handlers[API_POST_CREATE] = async (input) => postCreate(input, false, "comment");
 
+const getBarIds = (list: {keys: { name: string }[]}) =>
+  list.keys.map((key) => key.name.split("|")[1]);
+
+const getPostsFromIds = async (ids: string[]): Promise<ReturnedPost[]> => {
+  const posts = await Promise.all(ids.map(async (id) => expect(await db.get<StoredPost>(`post:${id}`, "json"))));
+  return Promise.all(posts.map(async (post) => {
+    const user = await db.get<User>(`user:${post.userId}`, "json");
+    return {...post, username: user!.username};
+  }));
+};
+
 handlers[API_THREAD_LIST] = async () => {
-  // TODO(trevor): Parse the id from the key '|' rather than using gets (same for API_POST_LIST).
   const list = await db.list({prefix: "thread:"});
-  const ids = await Promise.all(list.keys.map((key) => db.get(key.name)));
-
-  const threads = await Promise.all(ids.map(async (id) =>
-    ({
-      id,
-      title: await db.get(`post/title:${id}`, "text"),
-      username: (await db.get(`user:${await db.get(`post/user:${id}`, "text")}`, "json") as User).username
-    })));
-
+  const threads = await getPostsFromIds(getBarIds(list));
   return {response: new Response(JSON.stringify(threads), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 
 handlers[API_POST_LIST] = async (input) => {
   const threadId = expectUuidParam(input, "threadId");
   const list = await db.list({prefix: `thread/post:${threadId}:`});
-  const ids = await Promise.all(list.keys.map((key) => db.get(key.name)));
-
-  const posts = await Promise.all(ids.map(async (id) =>
-    ({
-      id,
-      title: await db.get(`post/title:${id}`, "text"),
-      message: await db.get(`post/message:${id}`, "text"),
-      userdata: await db.get(`post/userdata:${id}`, "json"),
-      replyId: await db.get(`post/replyId:${id}`, "text")
-    })));
-
+  const posts = await getPostsFromIds(getBarIds(list));
   return {response: new Response(JSON.stringify(posts), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 
