@@ -5,6 +5,7 @@ import React from "react";
 interface Thread {
   id: string;
   title: string;
+  username: string;
 }
 
 interface ThreadsProps {
@@ -53,6 +54,7 @@ export class Threads extends React.Component<ThreadsProps, ThreadsState> {
           onClick={() => {
             this.props.history.push(`/thread?threadId=${thread.id}`);
           }}>
+          {thread.username}
           <video
             style={{width: "100%"}}
             muted

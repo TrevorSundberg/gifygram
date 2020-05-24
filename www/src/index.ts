@@ -129,7 +129,12 @@ const expectFileHeader = async (name: string, buffer: ArrayBuffer, expectedHeade
   }
 };
 
-const validateJwtGoogle = async (input: RequestInput) => {
+interface User {
+  id: string;
+  username: string;
+}
+
+const validateJwtGoogle = async (input: RequestInput): Promise<User> => {
   const token = expectString("authorization", input.request.headers.get("authorization"), 4096);
 
   const response = await fetch("https://www.googleapis.com/oauth2/v3/certs");
@@ -156,11 +161,16 @@ const validateJwtGoogle = async (input: RequestInput) => {
   if (content.exp <= Math.ceil(Date.now() / 1000)) {
     throw new Error(`JWT expired ${content.exp}`);
   }
-  return content;
+  const user: User = {
+    id: content.sub,
+    username: content.given_name
+  };
+  await db.put(`user:${user.id}`, JSON.stringify(user));
+  return user;
 };
 
 const postCreate = async (input: RequestInput, createThread: boolean, userdata: any) => {
-  await validateJwtGoogle(input);
+  const user = await validateJwtGoogle(input);
   const title = expectStringParam(input, "title", API_POST_CREATE_MAX_TITLE_LENGTH);
   const message = expectStringParam(input, "message", API_POST_CREATE_MAX_MESSAGE_LENGTH);
   const id = uuid();
@@ -183,6 +193,7 @@ const postCreate = async (input: RequestInput, createThread: boolean, userdata: 
     db.put(`post/title:${id}`, title),
     db.put(`post/message:${id}`, message),
     db.put(`post/userdata:${id}`, JSON.stringify(userdata)),
+    db.put(`post/user:${id}`, user.id),
     replyId ? db.put(`post/replyId:${id}`, replyId) : null
   ]);
   return {
@@ -202,7 +213,8 @@ handlers[API_THREAD_LIST] = async () => {
   const threads = await Promise.all(ids.map(async (id) =>
     ({
       id,
-      title: await db.get(`post/title:${id}`, "text")
+      title: await db.get(`post/title:${id}`, "text"),
+      username: (await db.get(`user:${await db.get(`post/user:${id}`, "text")}`, "json") as User).username
     })));
 
   return {response: new Response(JSON.stringify(threads), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
