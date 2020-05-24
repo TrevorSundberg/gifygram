@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import {AuthTest} from "./www/authtest";
 import {EditorComponent} from "./editor/editorComponent";
+import {Profile} from "./www/profile";
 import React from "react";
 import ReactDOM from "react-dom";
 import {Thread} from "./www/thread";
@@ -48,6 +49,9 @@ ReactDOM.render(
       />
       <Route path="/thread"
         render={(props) => <Thread history={props.history} id={getUrlParam(props, "threadId")}/>}
+      />
+      <Route path="/profile"
+        render={(props) => <Profile history={props.history}/>}
       />
       <Route path="/authtest">
         <AuthTest/>

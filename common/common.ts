@@ -8,6 +8,7 @@ export const API_ANIMATION_CREATE = "/api/animation/create";
 export const API_ANIMATION_JSON = "/api/animation/json";
 export const API_ANIMATION_VIDEO = "/api/animation/video";
 export const API_AUTHTEST = "/api/authtest";
+export const API_PROFILE = "/api/profile";
 
 export const AUTH_GOOGLE_CLIENT_ID = "608893334527-510lc0vbk5pd6ag7jdl6aka2hhhp9f69.apps.googleusercontent.com";
 
@@ -27,5 +28,10 @@ export interface StoredPost {
 }
 
 export interface ReturnedPost extends StoredPost {
+  username: string;
+}
+
+export interface StoredUser {
+  id: string;
   username: string;
 }

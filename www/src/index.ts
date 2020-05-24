@@ -7,10 +7,12 @@ import {
   API_POST_CREATE_MAX_MESSAGE_LENGTH,
   API_POST_CREATE_MAX_TITLE_LENGTH,
   API_POST_LIST,
+  API_PROFILE,
   API_THREAD_LIST,
   AUTH_GOOGLE_CLIENT_ID,
   ReturnedPost,
-  StoredPost
+  StoredPost,
+  StoredUser
 } from "../../common/common";
 import {getAssetFromKV, serveSinglePageApp} from "@cloudflare/kv-asset-handler";
 
@@ -131,12 +133,7 @@ const expectFileHeader = async (name: string, buffer: ArrayBuffer, expectedHeade
   }
 };
 
-interface User {
-  id: string;
-  username: string;
-}
-
-const validateJwtGoogle = async (input: RequestInput): Promise<User> => {
+const validateJwtGoogle = async (input: RequestInput): Promise<StoredUser> => {
   const token = expectString("authorization", input.request.headers.get("authorization"), 4096);
 
   const response = await fetch("https://www.googleapis.com/oauth2/v3/certs");
@@ -163,7 +160,7 @@ const validateJwtGoogle = async (input: RequestInput): Promise<User> => {
   if (content.exp <= Math.ceil(Date.now() / 1000)) {
     throw new Error(`JWT expired ${content.exp}`);
   }
-  const user: User = {
+  const user: StoredUser = {
     id: content.sub,
     username: content.given_name
   };
@@ -219,7 +216,7 @@ const getBarIds = (list: {keys: { name: string }[]}) =>
 const getPostsFromIds = async (ids: string[]): Promise<ReturnedPost[]> => {
   const posts = await Promise.all(ids.map(async (id) => expect(await db.get<StoredPost>(`post:${id}`, "json"))));
   return Promise.all(posts.map(async (post) => {
-    const user = await db.get<User>(`user:${post.userId}`, "json");
+    const user = await db.get<StoredUser>(`user:${post.userId}`, "json");
     return {...post, username: user!.username};
   }));
 };
@@ -267,6 +264,16 @@ handlers[API_ANIMATION_JSON] = async (input) => {
 handlers[API_ANIMATION_VIDEO] = async (input) => {
   const result = await db.get(`animation/video:${expectUuidParam(input, "id")}`, "arrayBuffer");
   return {response: new Response(result, responseOptions(CONTENT_TYPE_VIDEO_MP4))};
+};
+
+handlers[API_PROFILE] = async (input) => {
+  const user = await validateJwtGoogle(input);
+  return {
+    response: new Response(
+      JSON.stringify(user),
+      responseOptions(CONTENT_TYPE_APPLICATION_JSON)
+    )
+  };
 };
 
 handlers[API_AUTHTEST] = async (input) => {
