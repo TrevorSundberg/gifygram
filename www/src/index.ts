@@ -167,9 +167,10 @@ const postCreate = async (input: RequestInput, createThread: boolean, userdata: 
 
   const replyId = input.url.searchParams.has("replyId") ? expectUuidParam(input, "replyId") : null;
 
+  const newToOld = sortKeyNewToOld();
   const threadId = await (async () => {
     if (createThread && !replyId) {
-      await db.put(`thread:${sortKeyNewToOld()}|${id}`, id);
+      await db.put(`thread:${newToOld}|${id}`, id);
       return id;
     }
     const replyThreadId = await db.get(`post/threadId:${expectUuid("replyId", replyId)}`, "text");
@@ -177,7 +178,7 @@ const postCreate = async (input: RequestInput, createThread: boolean, userdata: 
   })();
 
   await Promise.all([
-    db.put(`thread/post:${threadId}:${sortKeyNewToOld()}|${id}`, id),
+    db.put(`thread/post:${threadId}:${newToOld}|${id}`, id),
     db.put(`post/threadId:${id}`, threadId),
     db.put(`post/title:${id}`, title),
     db.put(`post/message:${id}`, message),
