@@ -4,7 +4,7 @@ import {
   Route,
   Switch
 } from "react-router-dom";
-import {Theme, ThemeProvider, createMuiTheme, createStyles, fade, makeStyles} from "@material-ui/core/styles";
+import {theme, useStyles} from "./www/style";
 import AppBar from "@material-ui/core/AppBar";
 import {AuthTest} from "./www/authtest";
 import Button from "@material-ui/core/Button";
@@ -17,6 +17,7 @@ import {Profile} from "./www/profile";
 import React from "react";
 import ReactDOM from "react-dom";
 import SearchIcon from "@material-ui/icons/Search";
+import {ThemeProvider} from "@material-ui/core/styles";
 import {Thread} from "./www/thread";
 import {Threads} from "./www/threads";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -51,76 +52,6 @@ if (url.hash) {
 const getUrlParam = (props: { location: import("history").Location }, name: string) =>
   new URLSearchParams(props.location.search).get(name);
 
-const WIDTH = 1024;
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      flexGrow: 1
-    },
-    toolbar: theme.mixins.toolbar,
-    menuButton: {
-      marginRight: theme.spacing(2)
-    },
-    title: {
-      flexGrow: 1
-    },
-    search: {
-      "position": "relative",
-      "borderRadius": theme.shape.borderRadius,
-      "backgroundColor": fade(theme.palette.common.white, 0.15),
-      "&:hover": {
-        backgroundColor: fade(theme.palette.common.white, 0.25)
-      },
-      "marginLeft": 0,
-      "width": "100%",
-      [theme.breakpoints.up("sm")]: {
-        marginLeft: theme.spacing(1),
-        width: "auto"
-      }
-    },
-    searchIcon: {
-      padding: theme.spacing(0, 2),
-      height: "100%",
-      position: "absolute",
-      pointerEvents: "none",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center"
-    },
-    inputRoot: {
-      color: "inherit"
-    },
-    inputInput: {
-      padding: theme.spacing(1, 1, 1, 0),
-      // Vertical padding + font size from searchIcon
-      paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
-      transition: theme.transitions.create("width"),
-      width: "100%",
-      [theme.breakpoints.up("sm")]: {
-        "width": "12ch",
-        "&:focus": {
-          width: "20ch"
-        }
-      }
-    }
-  }));
-
-const theme = createMuiTheme({
-  palette: {
-    type: "dark",
-    primary: {
-      main: "#221266"
-    },
-    secondary: {
-      main: "#6c1b92"
-    },
-    background: {
-      default: "#111"
-    }
-  }
-});
-
 const App = () => {
   const classes = useStyles();
   return <ThemeProvider theme={theme}>
@@ -130,7 +61,7 @@ const App = () => {
         <Route path="/:page">
           <div className={classes.toolbar} style={{width: "100%", marginBottom: 10}}>
             <AppBar position="fixed">
-              <Toolbar style={{maxWidth: WIDTH, width: "100%", margin: "auto"}}>
+              <Toolbar className={classes.pageWidth}>
                 <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
                   <MenuIcon />
                 </IconButton>
@@ -154,10 +85,7 @@ const App = () => {
               </Toolbar>
             </AppBar>
           </div>
-          <div style={{
-            maxWidth: WIDTH,
-            margin: "auto"
-          }}>
+          <div className={classes.pageWidth}>
             <Switch>
               <Route path="/threads"
                 render={(prop) => <Threads history={prop.history}/>}
