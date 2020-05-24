@@ -17,11 +17,17 @@ if (url.hash) {
   const id = url.hash.slice(1);
   if (!document.getElementById(id)) {
     const observer = new MutationObserver(() => {
-      if (document.getElementById(id)) {
-        console.log("Scrolling to dynamic element", id);
-        location.hash = "";
-        location.hash = id;
+      const element = document.getElementById(id);
+      if (element) {
         observer.disconnect();
+        console.log("Begin scrolling to dynamic element", id);
+        setTimeout(() => {
+          if (location.hash.slice(1) === id) {
+            location.hash = "";
+            location.hash = id;
+          }
+          console.log("End scrolling to dynamic element", id);
+        }, 500);
       }
     });
     observer.observe(document.body, {
