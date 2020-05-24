@@ -3,14 +3,21 @@ import {AUTH_GOOGLE_CLIENT_ID} from "../../../common/common";
 type GoogleAuth = Omit<gapi.auth2.GoogleAuth, "then">;
 
 const auth2Promise = new Promise<GoogleAuth>((resolve, reject) => {
-  window.gapi.load("auth2", () => {
-    gapi.auth2.init({
-      client_id: AUTH_GOOGLE_CLIENT_ID
-    }).then((auth2) => {
-      delete auth2.then;
-      resolve(auth2);
-    }, reject);
-  });
+  const script = document.createElement("script");
+  script.onload = () => {
+    window.gapi.load("auth2", () => {
+      gapi.auth2.init({
+        client_id: AUTH_GOOGLE_CLIENT_ID
+      }).then((auth2) => {
+        delete auth2.then;
+        resolve(auth2);
+      }, reject);
+    });
+  };
+  script.src = "https://apis.google.com/js/api.js";
+  script.async = true;
+  script.defer = true;
+  document.body.appendChild(script);
 });
 
 export const signInIfNeeded = async () => {
