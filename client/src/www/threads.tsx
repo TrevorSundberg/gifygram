@@ -1,7 +1,18 @@
 import {API_THREAD_LIST, ReturnedPost} from "../../../common/common";
-import {Card, CardMedia} from "@material-ui/core";
 import React, {useEffect, useState} from "react";
 import {abortableJsonFetch, cancel, makeUrl} from "../shared/shared";
+import Avatar from "@material-ui/core/Avatar";
+import Card from "@material-ui/core/Card";
+import CardActions from "@material-ui/core/CardActions";
+import CardContent from "@material-ui/core/CardContent";
+import CardHeader from "@material-ui/core/CardHeader";
+import CardMedia from "@material-ui/core/CardMedia";
+import FavoriteIcon from "@material-ui/icons/Favorite";
+import IconButton from "@material-ui/core/IconButton";
+import MoreVertIcon from "@material-ui/icons/MoreVert";
+import ShareIcon from "@material-ui/icons/Share";
+import Typography from "@material-ui/core/Typography";
+import {useStyles} from "./style";
 
 interface ThreadsProps {
   history: import("history").History;
@@ -40,26 +51,46 @@ export const Threads: React.FC<ThreadsProps> = ({history}: ThreadsProps) => {
         onClick={() => {
           history.push(`/thread?threadId=${thread.id}`);
         }}>
-        {thread.username}
-        <CardMedia
-          component="video"
-          src={makeUrl("/api/animation/video", {id: thread.id})}
-          title="Contemplative Reptile"
+        <CardHeader
+          avatar={
+            <Avatar>
+              {thread.username.slice(0, 1).toUpperCase()}
+            </Avatar>
+          }
+          action={
+            <IconButton>
+              <MoreVertIcon />
+            </IconButton>
+          }
+          title={thread.title}
+          subheader={thread.username}
         />
-        <video
-          style={{width: "100%"}}
-          muted
-          loop
-          onMouseEnter={(event) => (event.target as HTMLVideoElement).play().catch(() => 0)}
-          onMouseLeave={(event) => (event.target as HTMLVideoElement).pause()}
-          onTouchStart={(event) => (event.target as HTMLVideoElement).play().catch(() => 0)}
-          onTouchEnd={(event) => (event.target as HTMLVideoElement).pause()}
-          src={makeUrl("/api/animation/video", {id: thread.id})}>
-        </video>
-        <div
-          style={{padding: "6px", paddingTop: "0px"}}>
-          TITLE: {thread.title}
-        </div>
+        <CardMedia>
+          <video
+            style={{width: "100%"}}
+            muted
+            loop
+            onMouseEnter={(event) => (event.target as HTMLVideoElement).play().catch(() => 0)}
+            onMouseLeave={(event) => (event.target as HTMLVideoElement).pause()}
+            onTouchStart={(event) => (event.target as HTMLVideoElement).play().catch(() => 0)}
+            onTouchEnd={(event) => (event.target as HTMLVideoElement).pause()}
+            src={makeUrl("/api/animation/video", {id: thread.id})}>
+          </video>
+        </CardMedia>
+        <CardContent>
+          <Typography variant="body2" color="textSecondary" component="p">
+            {thread.message}
+          </Typography>
+        </CardContent>
+
+        <CardActions disableSpacing>
+          <IconButton>
+            <FavoriteIcon />
+          </IconButton>
+          <IconButton>
+            <ShareIcon />
+          </IconButton>
+        </CardActions>
       </Card>)}
     </div>);
 };
