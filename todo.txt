@@ -90,26 +90,31 @@ DONE - When posting a remix, post it as a child of the parent thread
 DONE - Validate parent threadId in post
 DONE - Bug: remixing a comment doesn't get its own threadID (remixing it fails)
 DONE - When posting a remix, don't accept a threadId, accept a parent remix id (replyId)
+DONE - Add replyId to posts so we can see who the replied to
+DONE - Add replyId link that uses hashtag to move up (also for remixes)
+DONE - Use hashtag # to scroll to your addition after posting
+DONE - Remove oldVersion for userdata
+DONE - Title and message/description
+DONE - Hover over thumbnail and play video
+DONE - Ability to open a post in its own page (where we will show comments)
+DONE - Comment on a post (every post itself is a comment too, just may or may not be the first / have a video)
+DONE - Remix (edit and repost on the same thread)
+DONE - Server correct mime type for video/thumbnail/json (and all json responses)
+DONE - Add "Login with Google" and an authorization test path for validating the JWT
 
- - Bug: Motion track first frame is offset
- - Bug: Animation after encoding does not always match video frame
- - Limit video to 10MB or slightly less just in case (9MB?) (use kbps and length)
- - Server correct mime type for video/thumbnail/json (and all json responses)
- - Last touched video continues playing (don't require touch down)
- - Use hashtag # to scroll to specific comment
- - Add replyId to posts so we can see who the replied to
  - Re-encode thumbnail png to smaller dimension jpg
- - Title and message/description, tags/keywords
+ - Bug: Sometimes a newly made post doesn't exist (routed to another edge machine?)
+   - Could make it so if we go to a page with a hash url, it does N many retries to get the post...
+ - Switch to using react-router
+ - Make a fake post and navigate to it with react router when creating the animation (same as comment)
+ - Limit video to 10MB or slightly less just in case (9MB?) (use kbps and length)
+ - Last touched video continues playing (don't require touch down)
+ - Tags/keywords
  - Infinite scrolling with Masonry
- - Hover over thumbnail and play video
- - Ability to open a post in its own page (where we will show comments)
- - Comment on a post (every post itself is a comment too, just may or may not be the first / have a video)
  - Like post or comment - (approximate, non-atomic and underestimate + actual vote by user)
  - Track views / popularity (approximate, non-atomic and underestimate + actual view by user)
  - Flag post or comment (approximate, non-atomic and underestimate + actual flag by user)
- - Remix (edit and repost on the same thread)
  - Multiple boards and posting by board?
- - NSFW agreement (18 or older, like reddit, use cookies for now)
  - Ability to login (admin logins too)
  - Ability to delete if you made a post
  - Admin can delete posts
@@ -123,6 +128,9 @@ DONE - When posting a remix, don't accept a threadId, accept a parent remix id (
  - Show posts on a user profile
  - Admin can ban/unban user on profile
 
+ - Bug: Motion track first frame is offset
+ - Bug: Animation after encoding does not always match video frame
+ - Visiblity toggle kinda sucks in animator, we should just make it a timeline thing
  - Upgrade moveable and test new mobile touch controls
  - Custom dialog for listing stickers / videos
  - Import main video from youtube (clip the video)
