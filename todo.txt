@@ -109,14 +109,22 @@ DONE - Get shareable link
 DONE - Make the login required for on postCreate paths (client & server)
 DONE - Bug: Google async/defer gapi script can not exist (need to wait for onload
 DONE - Switch to using react-router
+DONE - Bug: componentDidMount makes fetch promises that must be cancelled in componentWillUnmount (React warning)
+DONE - Store user id (from google) along with posts
+DONE - Refactor all post data to be in a single json document
+DONE - Display user ids in thread comments
 
+ - Theme the page so it doesn't look so bad
+ - Make a page where you can edit your profile
+ - Make basic profile page
+ - Link user ids in thread/threads to profile page
+ - Make editable profile page
  - Bug: Keep posting/rendering modal up while logging in
- - Bug: componentDidMount makes fetch promises that must be cancelled in componentWillUnmount (React warning)
- - Store user id (from google) along with posts
  - Need to prompt for username/handle (make a profile where you can edit this)
  - Bug: Sometimes a newly made post doesn't exist (routed to another edge machine?)
    - Could make it so if we go to a page with a hash url, it does N many retries to get the post...
    - Make a fake post and navigate to it with react router when creating the animation (same as comment)
+   - https://community.cloudflare.com/t/listing-items-returns-inconsistent-state/122680/15
  - Limit video to 10MB or slightly less just in case (9MB?) (use kbps and length)
  - Last touched video continues playing (don't require touch down)
  - Tags/keywords
@@ -137,13 +145,15 @@ DONE - Switch to using react-router
  - Show posts on a user profile
  - Admin can ban/unban user on profile
 
+ - Find a way to run workers/workers KV locally so we can simulate the entire environment
  - Get a staging environment
  - Get individual dev environments for testing (copy of database?)
  - Get publish to production using CI and npm version ...
  - Get tests running on CI builds (docker/puppeteer)
 
+ - Bug: Video was too wide (black background to the right)
  - Bug: Some gif animations are too fast (min frame rate?)
- - Bug: Motion track first frame is offset
+ - Bug: Motion track first/last frame is offset (almost like it's wrapping first/last)
  - Bug: Animation after encoding does not always match video frame
  - Visiblity toggle kinda sucks in animator, we should just make it a timeline thing
  - Upgrade moveable and test new mobile touch controls

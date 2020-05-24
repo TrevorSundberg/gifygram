@@ -1,5 +1,6 @@
 import {API_THREAD_LIST, ReturnedPost} from "../../../common/common";
 import {AbortablePromise, abortableJsonFetch, cancel, makeUrl} from "../shared/shared";
+import {Card, CardMedia} from "@material-ui/core";
 import React from "react";
 
 interface ThreadsProps {
@@ -36,19 +37,20 @@ export class Threads extends React.Component<ThreadsProps, ThreadsState> {
         columnWidth: "150px",
         columnGap: "10px"
       }}>
-        {this.state.threads.map((thread) => <div
+        {this.state.threads.map((thread) => <Card
           key={thread.id}
           style={{
-            borderRadius: "3px",
-            overflow: "hidden",
-            backgroundColor: "white",
-            marginBottom: "10px",
             breakInside: "avoid"
           }}
           onClick={() => {
             this.props.history.push(`/thread?threadId=${thread.id}`);
           }}>
           {thread.username}
+          <CardMedia
+            component="video"
+            src={makeUrl("/api/animation/video", {id: thread.id})}
+            title="Contemplative Reptile"
+          />
           <video
             style={{width: "100%"}}
             muted
@@ -63,7 +65,7 @@ export class Threads extends React.Component<ThreadsProps, ThreadsState> {
             style={{padding: "6px", paddingTop: "0px"}}>
             TITLE: {thread.title}
           </div>
-        </div>)}
+        </Card>)}
       </div>);
   }
 }
