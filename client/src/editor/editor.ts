@@ -24,6 +24,7 @@ import {Timeline} from "./timeline";
 import {VideoEncoder} from "./videoEncoder";
 import {VideoEncoderH264MP4} from "./videoEncoderH264MP4";
 import {VideoPlayer} from "./videoPlayer";
+import {signInIfNeeded} from "../shared/auth";
 import svgToMiniDataURI from "mini-svg-data-uri";
 
 export class Editor {
@@ -195,6 +196,7 @@ export class Editor {
     };
 
     const makePost = async (title: string, message: string) => {
+      const headers = await signInIfNeeded();
       const result = await render();
       if (result) {
         const jsonBuffer = new TextEncoder().encode(manager.saveToJson());
@@ -215,7 +217,8 @@ export class Editor {
           ...remixId ? {replyId: remixId} : {}
         }), {
           body: blob,
-          method: "POST"
+          method: "POST",
+          headers
         });
         const post: {id: string; threadId: string} = checkResponseJson(await response.json());
         if (post.id === post.threadId) {

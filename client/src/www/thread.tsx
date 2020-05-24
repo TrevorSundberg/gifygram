@@ -1,6 +1,7 @@
 import {API_POST_CREATE, API_POST_LIST} from "../../../common/common";
 import {checkResponseJson, makeUrl} from "../shared/shared";
 import React from "react";
+import {signInIfNeeded} from "../shared/auth";
 
 interface ThreadProps {
   id: string;
@@ -109,6 +110,7 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
           <button
             className="btn btn-primary"
             onClick={async () => {
+              const headers = await signInIfNeeded();
               const title = this.state.postTitle;
               const message = this.state.postMessage;
               this.setState({postTitle: "", postMessage: ""});
@@ -117,7 +119,7 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
                 title,
                 message,
                 replyId: this.props.id
-              }));
+              }), {headers});
               const newPost: {id: string} = checkResponseJson(await response.json());
               // Append our post to the end.
               this.setState((previous) => ({

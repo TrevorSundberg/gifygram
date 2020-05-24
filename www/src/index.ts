@@ -160,6 +160,7 @@ const validateJwtGoogle = async (input: RequestInput) => {
 };
 
 const postCreate = async (input: RequestInput, createThread: boolean, userdata: any) => {
+  await validateJwtGoogle(input);
   const title = expectStringParam(input, "title", API_POST_CREATE_MAX_TITLE_LENGTH);
   const message = expectStringParam(input, "message", API_POST_CREATE_MAX_MESSAGE_LENGTH);
   const id = uuid();
