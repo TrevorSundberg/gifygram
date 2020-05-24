@@ -13,7 +13,9 @@
     "baseUrl": "./",
     "types": [
       "node",
-      "dom-mediacapture-record"
+      "dom-mediacapture-record",
+      "gapi",
+      "gapi.auth2"
     ]
   },
   "exclude": [
