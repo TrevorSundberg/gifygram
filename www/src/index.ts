@@ -25,7 +25,7 @@ import {uuid} from "uuidv4";
 
 const CONTENT_TYPE_APPLICATION_JSON = "application/json";
 const CONTENT_TYPE_VIDEO_MP4 = "video/mp4";
-const CONTENT_TYPE_IMAGE_PNG = "image/png";
+const CONTENT_TYPE_IMAGE_JPEG = "image/jpeg";
 
 interface RequestInput {
   request: Request;
@@ -121,15 +121,10 @@ const videoMp4Header = new Uint8Array([
   0x6f,
   0x6d
 ]);
-const imagePngHeader = new Uint8Array([
-  137,
-  80,
-  78,
-  71,
-  13,
-  10,
-  26,
-  10
+const imageJpegHeader = new Uint8Array([
+  0xff,
+  0xd8,
+  0xff
 ]);
 
 const expectFileHeader = async (name: string, buffer: ArrayBuffer, expectedHeader: Uint8Array) => {
@@ -250,7 +245,7 @@ handlers[API_ANIMATION_CREATE] = async (input) => {
 
   await Promise.all([
     expectFileHeader("video:video/mp4", video, videoMp4Header),
-    expectFileHeader("thumbnail:image/png", thumbnail, imagePngHeader)
+    expectFileHeader("thumbnail:image/jpeg", thumbnail, imageJpegHeader)
   ]);
 
   const {id} = output;
@@ -269,7 +264,7 @@ handlers[API_ANIMATION_JSON] = async (input) => {
 
 handlers[API_ANIMATION_THUMBNAIL] = async (input) => {
   const result = await db.get(`animation/thumbnail:${expectUuidParam(input, "id")}`, "arrayBuffer");
-  return {response: new Response(result, responseOptions(CONTENT_TYPE_IMAGE_PNG))};
+  return {response: new Response(result, responseOptions(CONTENT_TYPE_IMAGE_JPEG))};
 };
 
 handlers[API_ANIMATION_VIDEO] = async (input) => {

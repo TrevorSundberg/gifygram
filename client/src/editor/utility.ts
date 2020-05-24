@@ -13,6 +13,7 @@ export const MAX_OUTPUT_SIZE: Size = [
   854,
   480
 ];
+export const THUMBNAIL_DOWNSAMPLE = 2;
 
 export class Deferred<T> implements Promise<T> {
   private resolveSelf;

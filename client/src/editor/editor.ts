@@ -10,7 +10,7 @@ import {
   API_POST_CREATE_MAX_MESSAGE_LENGTH,
   API_POST_CREATE_MAX_TITLE_LENGTH
 } from "../../../common/common";
-import {Deferred, NeverAsync, Utility, canvasToArrayBuffer} from "./utility";
+import {Deferred, NeverAsync, THUMBNAIL_DOWNSAMPLE, Utility, canvasToArrayBuffer} from "./utility";
 import {Manager, SerializedData} from "./manager";
 import {RenderFrameEvent, Renderer} from "./renderer";
 import {checkResponseJson, makeUrl} from "../shared/shared";
@@ -163,10 +163,15 @@ export class Editor {
       );
       manager.updateExternally = true;
       manager.selectWidget(null);
-      let firstFramePng: ArrayBuffer = null;
+      let firstFrameJpeg: ArrayBuffer = null;
       renderer.onRenderFrame = async (event: RenderFrameEvent) => {
-        if (firstFramePng === null) {
-          firstFramePng = await canvasToArrayBuffer(renderer.resizeCanvas, "image/png");
+        if (firstFrameJpeg === null) {
+          const downsampleCanvas = document.createElement("canvas");
+          downsampleCanvas.width = renderer.resizeCanvas.width / THUMBNAIL_DOWNSAMPLE;
+          downsampleCanvas.height = renderer.resizeCanvas.height / THUMBNAIL_DOWNSAMPLE;
+          const downsampleContext = downsampleCanvas.getContext("2d");
+          downsampleContext.drawImage(renderer.resizeCanvas, 0, 0, downsampleCanvas.width, downsampleCanvas.height);
+          firstFrameJpeg = await canvasToArrayBuffer(downsampleCanvas, "image/jpeg");
         }
         await videoEncoder.processFrame();
         modal.setProgress(event.progress, "Rendering");
@@ -180,7 +185,7 @@ export class Editor {
       modal.hide();
       renderer.onRenderFrame = null;
       manager.updateExternally = false;
-      return {firstFramePng, videoBlob};
+      return {firstFrameJpeg, videoBlob};
     };
 
     const makeLengthBuffer = (size: number) => {
@@ -194,7 +199,7 @@ export class Editor {
       if (result) {
         const jsonBuffer = new TextEncoder().encode(manager.saveToJson());
         const videoBuffer = await result.videoBlob.arrayBuffer();
-        const thumbnailBuffer = result.firstFramePng;
+        const thumbnailBuffer = result.firstFrameJpeg;
 
         const blob = new Blob([
           makeLengthBuffer(jsonBuffer.byteLength),
