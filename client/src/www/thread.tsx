@@ -1,5 +1,5 @@
 import {API_POST_CREATE, API_POST_LIST} from "../../../common/common";
-import {checkResponseJson, makeUrl} from "../shared/shared";
+import {AbortablePromise, abortableJsonFetch, cancel, makeUrl} from "../shared/shared";
 import React from "react";
 import {signInIfNeeded} from "../shared/auth";
 
@@ -16,6 +16,10 @@ interface Post {
   replyId: string | null;
 }
 
+interface PostCreate {
+  id: string;
+}
+
 interface ThreadState {
   posts: Post[];
   postTitle: string;
@@ -28,6 +32,10 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
     postTitle: "",
     postMessage: ""
   }
+
+  private postListFetch: AbortablePromise<Post[]>;
+
+  private postCreateFetch: AbortablePromise<PostCreate>;
 
   public constructor (props: ThreadProps) {
     super(props);
@@ -44,10 +52,17 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
   }
 
   public async componentDidMount () {
-    const response = await fetch(makeUrl(API_POST_LIST, {threadId: this.props.id}));
-    const posts: Post[] = checkResponseJson(await response.json());
-    posts.reverse();
-    this.setState({posts});
+    this.postListFetch = abortableJsonFetch<Post[]>(API_POST_LIST, {threadId: this.props.id});
+    const posts: Post[] = await this.postListFetch;
+    if (posts) {
+      posts.reverse();
+      this.setState({posts});
+    }
+  }
+
+  public componentWillUnmount () {
+    cancel(this.postListFetch);
+    cancel(this.postCreateFetch);
   }
 
   public render () {
@@ -116,25 +131,28 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
               const message = this.state.postMessage;
               this.setState({postTitle: "", postMessage: ""});
 
-              const response = await fetch(makeUrl(API_POST_CREATE, {
+              this.postCreateFetch = abortableJsonFetch(API_POST_CREATE, {
                 title,
                 message,
                 replyId: this.props.id
-              }), {headers});
-              const newPost: {id: string} = checkResponseJson(await response.json());
-              // Append our post to the end.
-              this.setState((previous) => ({
-                posts: [
-                  ...previous.posts,
-                  {
-                    id: newPost.id,
-                    title,
-                    message,
-                    userdata: "comment",
-                    replyId: this.props.id
-                  }
-                ]
-              }));
+              }, {headers});
+
+              const newPost = await this.postCreateFetch;
+              if (newPost) {
+                // Append our post to the end.
+                this.setState((previous) => ({
+                  posts: [
+                    ...previous.posts,
+                    {
+                      id: newPost.id,
+                      title,
+                      message,
+                      userdata: "comment",
+                      replyId: this.props.id
+                    }
+                  ]
+                }));
+              }
             }}>
             Post
           </button>

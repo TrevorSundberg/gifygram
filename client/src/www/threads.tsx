@@ -1,4 +1,4 @@
-import {checkResponseJson, makeUrl} from "../shared/shared";
+import {AbortablePromise, abortableJsonFetch, cancel, makeUrl} from "../shared/shared";
 import {API_THREAD_LIST} from "../../../common/common";
 import React from "react";
 
@@ -20,10 +20,18 @@ export class Threads extends React.Component<ThreadsProps, ThreadsState> {
     threads: []
   }
 
+  private threadListFetch: AbortablePromise<Thread[]>;
+
   public async componentDidMount () {
-    const response = await fetch(makeUrl(API_THREAD_LIST));
-    const threads: Thread[] = checkResponseJson(await response.json());
-    this.setState({threads});
+    this.threadListFetch = abortableJsonFetch<Thread[]>(API_THREAD_LIST);
+    const threads = await this.threadListFetch;
+    if (threads) {
+      this.setState({threads});
+    }
+  }
+
+  public componentWillUnmount () {
+    cancel(this.threadListFetch);
   }
 
   public render () {
