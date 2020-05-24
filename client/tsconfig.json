@@ -11,6 +11,8 @@
     "allowJs": true,
     "esModuleInterop": true,
     "baseUrl": "./",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
     "types": [
       "node",
       "dom-mediacapture-record",
