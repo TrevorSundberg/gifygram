@@ -12,6 +12,10 @@ import {
 import {getAssetFromKV} from "@cloudflare/kv-asset-handler";
 import {uuid} from "uuidv4";
 
+const CONTENT_TYPE_APPLICATION_JSON = "application/json";
+const CONTENT_TYPE_VIDEO_MP4 = "video/mp4";
+const CONTENT_TYPE_IMAGE_PNG = "image/png";
+
 interface RequestInput {
   request: Request;
   url: URL;
@@ -44,10 +48,11 @@ const parseBinaryChunks = (buffer: ArrayBuffer) => {
 };
 
 // TODO(trevor): Remove this once it's all hosted in the same place.
-const createAccessHeaders = () => new Headers({
-  "Access-Control-Allow-Origin": "*"
+const createAccessHeaders = (mimeType: string) => new Headers({
+  "Access-Control-Allow-Origin": "*",
+  "Content-Type": mimeType || "application/octet-stream"
 });
-const responseOptions = () => ({headers: createAccessHeaders()});
+const responseOptions = (mimeType: string) => ({headers: createAccessHeaders(mimeType)});
 
 export const expect = <T>(value: T | null | undefined) => {
   if (!value) {
@@ -150,7 +155,7 @@ const postCreate = async (input: RequestInput, createThread: boolean, userdata: 
     replyId ? db.put(`post/replyId:${id}`, replyId) : null
   ]);
   return {
-    response: new Response(JSON.stringify({id, threadId}), responseOptions()),
+    response: new Response(JSON.stringify({id, threadId}), responseOptions(CONTENT_TYPE_APPLICATION_JSON)),
     threadId,
     id
   };
@@ -169,7 +174,7 @@ handlers[API_THREAD_LIST] = async () => {
       title: await db.get(`post/title:${id}`, "text")
     })));
 
-  return {response: new Response(JSON.stringify(threads), responseOptions())};
+  return {response: new Response(JSON.stringify(threads), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 
 handlers[API_POST_LIST] = async (input) => {
@@ -186,7 +191,7 @@ handlers[API_POST_LIST] = async (input) => {
       replyId: await db.get(`post/replyId:${id}`, "text")
     })));
 
-  return {response: new Response(JSON.stringify(posts), responseOptions())};
+  return {response: new Response(JSON.stringify(posts), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 
 handlers[API_ANIMATION_CREATE] = async (input) => {
@@ -218,17 +223,17 @@ handlers[API_ANIMATION_CREATE] = async (input) => {
 
 handlers[API_ANIMATION_JSON] = async (input) => {
   const result = await db.get(`animation/json:${expectUuidParam(input, "id")}`, "text");
-  return {response: new Response(result, responseOptions())};
+  return {response: new Response(result, responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 
 handlers[API_ANIMATION_THUMBNAIL] = async (input) => {
   const result = await db.get(`animation/thumbnail:${expectUuidParam(input, "id")}`, "arrayBuffer");
-  return {response: new Response(result, responseOptions())};
+  return {response: new Response(result, responseOptions(CONTENT_TYPE_IMAGE_PNG))};
 };
 
 handlers[API_ANIMATION_VIDEO] = async (input) => {
   const result = await db.get(`animation/video:${expectUuidParam(input, "id")}`, "arrayBuffer");
-  return {response: new Response(result, responseOptions())};
+  return {response: new Response(result, responseOptions(CONTENT_TYPE_VIDEO_MP4))};
 };
 
 const handleRequest = async (event: FetchEvent): Promise<Response> => {
@@ -246,7 +251,7 @@ const handleRequest = async (event: FetchEvent): Promise<Response> => {
         pathname: url.pathname
       }),
       {
-        headers: createAccessHeaders(),
+        headers: createAccessHeaders(CONTENT_TYPE_APPLICATION_JSON),
         status: 500
       }
     );
