@@ -72,8 +72,7 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
                   muted
                   loop
                   autoPlay
-                  src={makeUrl("/api/animation/video", {id: post.id})}
-                  poster={makeUrl("/api/animation/thumbnail", {id: post.id})}>
+                  src={makeUrl("/api/animation/video", {id: post.id})}>
                 </video>
                 <button
                   className="btn btn-primary"

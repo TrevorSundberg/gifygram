@@ -1,7 +1,6 @@
 import {
   API_ANIMATION_CREATE,
   API_ANIMATION_JSON,
-  API_ANIMATION_THUMBNAIL,
   API_ANIMATION_VIDEO,
   API_AUTHTEST,
   API_POST_CREATE,
@@ -25,7 +24,6 @@ import {uuid} from "uuidv4";
 
 const CONTENT_TYPE_APPLICATION_JSON = "application/json";
 const CONTENT_TYPE_VIDEO_MP4 = "video/mp4";
-const CONTENT_TYPE_IMAGE_JPEG = "image/jpeg";
 
 interface RequestInput {
   request: Request;
@@ -120,11 +118,6 @@ const videoMp4Header = new Uint8Array([
   0x73,
   0x6f,
   0x6d
-]);
-const imageJpegHeader = new Uint8Array([
-  0xff,
-  0xd8,
-  0xff
 ]);
 
 const expectFileHeader = async (name: string, buffer: ArrayBuffer, expectedHeader: Uint8Array) => {
@@ -235,23 +228,18 @@ handlers[API_ANIMATION_CREATE] = async (input) => {
 
   const [
     jsonBinary,
-    video,
-    thumbnail
+    video
   ] = parseBinaryChunks(await input.request.arrayBuffer());
 
   const json: string = new TextDecoder().decode(jsonBinary);
   // TODO(trevor): Use ajv to validate, for now it just checks that it's json.
   JSON.parse(json);
 
-  await Promise.all([
-    expectFileHeader("video:video/mp4", video, videoMp4Header),
-    expectFileHeader("thumbnail:image/jpeg", thumbnail, imageJpegHeader)
-  ]);
+  await expectFileHeader("video:video/mp4", video, videoMp4Header);
 
   const {id} = output;
   await Promise.all([
     db.put(`animation/json:${id}`, json),
-    db.put(`animation/thumbnail:${id}`, thumbnail),
     db.put(`animation/video:${id}`, video)
   ]);
   return output;
@@ -260,11 +248,6 @@ handlers[API_ANIMATION_CREATE] = async (input) => {
 handlers[API_ANIMATION_JSON] = async (input) => {
   const result = await db.get(`animation/json:${expectUuidParam(input, "id")}`, "text");
   return {response: new Response(result, responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
-};
-
-handlers[API_ANIMATION_THUMBNAIL] = async (input) => {
-  const result = await db.get(`animation/thumbnail:${expectUuidParam(input, "id")}`, "arrayBuffer");
-  return {response: new Response(result, responseOptions(CONTENT_TYPE_IMAGE_JPEG))};
 };
 
 handlers[API_ANIMATION_VIDEO] = async (input) => {

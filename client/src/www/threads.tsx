@@ -49,8 +49,7 @@ export class Threads extends React.Component<{}, ThreadsState> {
             onMouseLeave={(event) => (event.target as HTMLVideoElement).pause()}
             onTouchStart={(event) => (event.target as HTMLVideoElement).play().catch(() => 0)}
             onTouchEnd={(event) => (event.target as HTMLVideoElement).pause()}
-            src={makeUrl("/api/animation/video", {id: thread.id})}
-            poster={makeUrl("/api/animation/thumbnail", {id: thread.id})}>
+            src={makeUrl("/api/animation/video", {id: thread.id})}>
           </video>
           <div
             style={{padding: "6px", paddingTop: "0px"}}>
