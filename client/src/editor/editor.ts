@@ -38,7 +38,7 @@ export class Editor {
 
   private tooltips: JQuery<HTMLElement>;
 
-  public constructor (parent: HTMLElement, remixId?: string) {
+  public constructor (parent: HTMLElement, history: import("history").History, remixId?: string) {
     this.root = $(require("./editor.html").default).appendTo(parent);
 
     const getElement = (name: string) => this.root.find(`#${name}`).get(0);
@@ -221,10 +221,12 @@ export class Editor {
           headers
         });
         const post: {id: string; threadId: string} = checkResponseJson(await response.json());
+        // If the user goes back to the editor in history, they'll be editing a remix of their post.
+        history.replace(`/?remixId=${post.id}`);
         if (post.id === post.threadId) {
-          window.location.href = `?threadId=${post.threadId}`;
+          history.push(`/thread?threadId=${post.threadId}`);
         } else {
-          window.location.href = `?threadId=${post.threadId}#${post.id}`;
+          history.push(`/thread?threadId=${post.threadId}#${post.id}`);
         }
       }
     };

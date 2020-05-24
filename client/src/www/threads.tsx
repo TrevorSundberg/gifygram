@@ -7,11 +7,15 @@ interface Thread {
   title: string;
 }
 
+interface ThreadsProps {
+  history: import("history").History;
+}
+
 interface ThreadsState {
   threads: Thread[];
 }
 
-export class Threads extends React.Component<{}, ThreadsState> {
+export class Threads extends React.Component<ThreadsProps, ThreadsState> {
   public state: ThreadsState = {
     threads: []
   }
@@ -39,7 +43,7 @@ export class Threads extends React.Component<{}, ThreadsState> {
             breakInside: "avoid"
           }}
           onClick={() => {
-            window.location.href = `?threadId=${thread.id}`;
+            this.props.history.push(`/thread?threadId=${thread.id}`);
           }}>
           <video
             style={{width: "100%"}}

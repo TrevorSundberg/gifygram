@@ -4,6 +4,7 @@ import ReactDOM from "react-dom";
 
 export interface EditorProps {
   remixId?: string;
+  history: import("history").History;
 }
 
 export class EditorComponent extends React.Component<EditorProps> {
@@ -11,7 +12,7 @@ export class EditorComponent extends React.Component<EditorProps> {
 
   public componentDidMount () {
     // eslint-disable-next-line react/no-find-dom-node
-    this.editor = new Editor(ReactDOM.findDOMNode(this) as HTMLElement, this.props.remixId);
+    this.editor = new Editor(ReactDOM.findDOMNode(this) as HTMLElement, this.props.history, this.props.remixId);
   }
 
   public componentWillUnmount () {

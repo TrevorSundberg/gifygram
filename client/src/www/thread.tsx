@@ -5,6 +5,7 @@ import {signInIfNeeded} from "../shared/auth";
 
 interface ThreadProps {
   id: string;
+  history: import("history").History;
 }
 
 interface Post {
@@ -78,7 +79,7 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
                 <button
                   className="btn btn-primary"
                   onClick={() => {
-                    window.location.href = `?remixId=${post.id}`;
+                    this.props.history.push(`/?remixId=${post.id}`);
                   }}>
                     Remix
                 </button>

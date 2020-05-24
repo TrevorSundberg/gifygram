@@ -10,6 +10,7 @@ import {
   API_THREAD_LIST,
   AUTH_GOOGLE_CLIENT_ID
 } from "../../common/common";
+import {getAssetFromKV, serveSinglePageApp} from "@cloudflare/kv-asset-handler";
 
 // eslint-disable-next-line no-var,vars-on-top,init-declarations
 declare var global: any;
@@ -19,7 +20,6 @@ global.window = window;
 import {Jose} from "jose-jwe-jws";
 (Jose as any).crypto = crypto;
 
-import {getAssetFromKV} from "@cloudflare/kv-asset-handler";
 import {uuid} from "uuidv4";
 
 const CONTENT_TYPE_APPLICATION_JSON = "application/json";
@@ -273,7 +273,7 @@ const handleRequest = async (event: FetchEvent): Promise<Response> => {
     if (handler) {
       return (await handler({request: event.request, url, event})).response;
     }
-    return await getAssetFromKV(event);
+    return await getAssetFromKV(event, {mapRequestToAsset: serveSinglePageApp});
   } catch (err) {
     return new Response(
       JSON.stringify({

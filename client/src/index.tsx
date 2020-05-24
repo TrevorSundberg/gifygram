@@ -1,4 +1,9 @@
 import "bootstrap/dist/css/bootstrap.min.css";
+import {
+  BrowserRouter,
+  Route,
+  Switch
+} from "react-router-dom";
 import {AuthTest} from "./www/authtest";
 import {EditorComponent} from "./editor/editorComponent";
 import React from "react";
@@ -26,18 +31,25 @@ if (url.hash) {
   }
 }
 
+const getUrlParam = (props: { location: import("history").Location }, name: string) =>
+  new URLSearchParams(props.location.search).get(name);
+
 ReactDOM.render(
-  (() => {
-    if (url.searchParams.has("threads")) {
-      return <Threads/>;
-    }
-    if (url.searchParams.has("threadId")) {
-      return <Thread id={url.searchParams.get("threadId")}/>;
-    }
-    if (url.searchParams.has("authtest")) {
-      return <AuthTest/>;
-    }
-    return <EditorComponent remixId={url.searchParams.get("remixId")}/>;
-  })(),
+  <BrowserRouter>
+    <Switch>
+      <Route path="/threads"
+        render={(props) => <Threads history={props.history}/>}
+      />
+      <Route path="/thread"
+        render={(props) => <Thread history={props.history} id={getUrlParam(props, "threadId")}/>}
+      />
+      <Route path="/authtest">
+        <AuthTest/>
+      </Route>
+      <Route path="/"
+        render={(props) => <EditorComponent history={props.history} remixId={getUrlParam(props, "remixId")}/>}
+      />
+    </Switch>
+  </BrowserRouter>,
   document.getElementById("root")
 );
