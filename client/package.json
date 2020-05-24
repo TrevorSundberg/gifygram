@@ -35,6 +35,7 @@
     "react-bootstrap": "^1.0.1",
     "react-dom": "^16.13.0",
     "react-giphy-searchbox-stickers": "^1.0.5",
+    "react-google-login": "^5.1.20",
     "resize-observer-polyfill": "^1.5.1",
     "scenejs": "^1.1.5",
     "style-loader": "^1.1.3",

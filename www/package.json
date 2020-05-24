@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@cloudflare/kv-asset-handler": "0.0.10",
+    "jose-jwe-jws": "^0.2.2",
     "uuidv4": "^6.0.8"
   }
 }

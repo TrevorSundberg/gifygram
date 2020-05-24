@@ -1,4 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
+import {AuthTest} from "./www/authtest";
 import {EditorComponent} from "./editor/editorComponent";
 import React from "react";
 import ReactDOM from "react-dom";
@@ -32,6 +33,9 @@ ReactDOM.render(
     }
     if (url.searchParams.has("threadId")) {
       return <Thread id={url.searchParams.get("threadId")}/>;
+    }
+    if (url.searchParams.has("authtest")) {
+      return <AuthTest/>;
     }
     return <EditorComponent remixId={url.searchParams.get("remixId")}/>;
   })(),

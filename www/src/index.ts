@@ -3,12 +3,23 @@ import {
   API_ANIMATION_JSON,
   API_ANIMATION_THUMBNAIL,
   API_ANIMATION_VIDEO,
+  API_AUTHTEST,
   API_POST_CREATE,
   API_POST_CREATE_MAX_MESSAGE_LENGTH,
   API_POST_CREATE_MAX_TITLE_LENGTH,
   API_POST_LIST,
-  API_THREAD_LIST
+  API_THREAD_LIST,
+  AUTH_GOOGLE_CLIENT_ID
 } from "../../common/common";
+
+// eslint-disable-next-line no-var,vars-on-top,init-declarations
+declare var global: any;
+// eslint-disable-next-line no-var,vars-on-top,init-declarations
+var window: any = {};
+global.window = window;
+import {Jose} from "jose-jwe-jws";
+(Jose as any).crypto = crypto;
+
 import {getAssetFromKV} from "@cloudflare/kv-asset-handler";
 import {uuid} from "uuidv4";
 
@@ -130,6 +141,36 @@ const expectFileHeader = async (name: string, buffer: ArrayBuffer, expectedHeade
   }
 };
 
+const validateJwtGoogle = async (input: RequestInput) => {
+  const token = expectString("authorization", input.request.headers.get("authorization"), 4096);
+
+  const response = await fetch("https://www.googleapis.com/oauth2/v3/certs");
+  const jwks: {keys: JWKRSA[]} = await response.json();
+
+  const cryptographer = new Jose.WebCryptographer();
+  const verifier = new Jose.JoseJWS.Verifier(cryptographer, token);
+
+  await Promise.all([jwks.keys.map((key) => verifier.addRecipient(key, key.kid, key.alg as SignAlgorithm))]);
+
+  const results = await verifier.verify();
+  const verified = results.filter((result) => result.verified);
+  if (verified.length === 0) {
+    throw new Error("JWT was not verified with any key");
+  }
+
+  const content = JSON.parse(verified[0].payload as string);
+  if (content.iss !== "accounts.google.com") {
+    throw new Error(`Invalid issuer ${content.iss}`);
+  }
+  if (content.aud !== AUTH_GOOGLE_CLIENT_ID) {
+    throw new Error(`Invalid audience ${content.aud}`);
+  }
+  if (content.exp <= Math.ceil(Date.now() / 1000)) {
+    throw new Error(`JWT expired ${content.exp}`);
+  }
+  return content;
+};
+
 const postCreate = async (input: RequestInput, createThread: boolean, userdata: any) => {
   const title = expectStringParam(input, "title", API_POST_CREATE_MAX_TITLE_LENGTH);
   const message = expectStringParam(input, "message", API_POST_CREATE_MAX_MESSAGE_LENGTH);
@@ -234,6 +275,16 @@ handlers[API_ANIMATION_THUMBNAIL] = async (input) => {
 handlers[API_ANIMATION_VIDEO] = async (input) => {
   const result = await db.get(`animation/video:${expectUuidParam(input, "id")}`, "arrayBuffer");
   return {response: new Response(result, responseOptions(CONTENT_TYPE_VIDEO_MP4))};
+};
+
+handlers[API_AUTHTEST] = async (input) => {
+  const content = await validateJwtGoogle(input);
+  return {
+    response: new Response(
+      JSON.stringify({authorized: true, content}),
+      responseOptions(CONTENT_TYPE_APPLICATION_JSON)
+    )
+  };
 };
 
 const handleRequest = async (event: FetchEvent): Promise<Response> => {
