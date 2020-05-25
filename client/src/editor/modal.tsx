@@ -58,38 +58,40 @@ export const ModalComponent: React.FC<ModalProps> = (props) => <Dialog
   aria-describedby="alert-dialog-description"
 >
   <DialogTitle id="alert-dialog-title">{props.title}</DialogTitle>
-  <DialogContent>
-    { props.children }
-    <div ref={(ref) => {
-      if (props.content) {
-        props.content.appendTo(ref);
+  <form>
+    <DialogContent>
+      { props.children }
+      <div ref={(ref) => {
+        if (props.content) {
+          props.content.appendTo(ref);
+        }
+        if (props.onShown) {
+          props.onShown();
+        }
+      }}>
+        {props.render ? props.render() : null}
+      </div>
+    </DialogContent>
+    <DialogActions>
+      {
+        (props.buttons || []).map((button) => <Button
+          key={button.name}
+          onClick={() => {
+            if (props.defer) {
+              props.defer.resolve(button);
+            }
+            if (button.callback) {
+              button.callback(button);
+            }
+            removeModalInternal(props.id);
+          }}
+          color="primary"
+          type={button.submitOnEnter ? "submit" : "button"}>
+          {button.name}
+        </Button>)
       }
-      if (props.onShown) {
-        props.onShown();
-      }
-    }}>
-      {props.render ? props.render() : null}
-    </div>
-  </DialogContent>
-  <DialogActions>
-    {
-      (props.buttons || []).map((button) => <Button
-        key={button.name}
-        onClick={() => {
-          if (props.defer) {
-            props.defer.resolve(button);
-          }
-          if (button.callback) {
-            button.callback(button);
-          }
-          removeModalInternal(props.id);
-        }}
-        color="primary"
-        autoFocus={button.submitOnEnter}>
-        {button.name}
-      </Button>)
-    }
-  </DialogActions>
+    </DialogActions>
+  </form>
 </Dialog>;
 
 export const ModalContainer: React.FC = () => {
