@@ -16,7 +16,9 @@ import $ from "jquery";
 import {Background} from "./background";
 import {Modal} from "./modal";
 import {ModalProgress} from "./modalProgress";
+import React from "react";
 import {StickerSearch} from "./stickerSearch";
+import {TextField} from "@material-ui/core";
 import TextToSVG from "text-to-svg";
 import {Timeline} from "./timeline";
 import {VideoEncoder} from "./videoEncoder";
@@ -103,15 +105,17 @@ export class Editor {
     });
 
     getElement("text").addEventListener("click", async () => {
-      const input = $("<input type='text' class='md-textarea form-control' autofocus></textarea>");
       const modal = new Modal();
+      let text = "";
       const button = await modal.open({
         buttons: [{dismiss: true, name: "OK", submitOnEnter: true}],
-        content: input,
+        // eslint-disable-next-line react/display-name
+        render: () => <TextField onChange={(e) => {
+          text = e.target.value;
+        }} autoFocus={true}/>,
         dismissable: true,
         title: "Text"
       });
-      const text = input.val();
       if (button && text) {
         const textToSVG = await fontPromise;
         const svgText = textToSVG.getSVG(text, {
