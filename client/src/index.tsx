@@ -11,6 +11,7 @@ import {EditorComponent} from "./editor/editorComponent";
 import IconButton from "@material-ui/core/IconButton";
 import InputBase from "@material-ui/core/InputBase";
 import MenuIcon from "@material-ui/icons/Menu";
+import {ModalContainer} from "./editor/modal";
 import {Profile} from "./www/profile";
 import React from "react";
 import ReactDOM from "react-dom";
@@ -109,6 +110,7 @@ const App = () => {
         />
       </Switch>
     </BrowserRouter>
+    <ModalContainer/>
   </ThemeProvider>;
 };
 
