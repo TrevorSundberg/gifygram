@@ -114,7 +114,8 @@ DONE - Store user id (from google) along with posts
 DONE - Refactor all post data to be in a single json document
 DONE - Display user ids in thread comments
 
- - Theme the page so it doesn't look so bad
+ - Replace Modal, ModalProgress with material UI
+ - Replace buttons with tooltips with material UI
  - Make a page where you can edit your profile
  - Make basic profile page
  - Link user ids in thread/threads to profile page

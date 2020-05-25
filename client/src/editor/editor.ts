@@ -1,5 +1,3 @@
-import "bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/fontawesome.css";
 import "@fortawesome/fontawesome-free/css/solid.css";
 import "@fortawesome/fontawesome-free/css/brands.css";
@@ -358,17 +356,12 @@ export class Editor {
       timeline.deleteKeyframesInRange(player.getSelectionRangeInOrder());
       manager.updateChanges();
     });
-
-    this.tooltips = this.root.find("[data-toggle=\"tooltip\"]").tooltip({
-      trigger: "hover"
-    });
   }
 
   public destroy () {
     if (window.onbeforeunload === this.unloadCallback) {
       window.onbeforeunload = null;
     }
-    this.tooltips.tooltip("hide");
     this.background.destroy();
     this.manager.destroy();
     this.root.remove();

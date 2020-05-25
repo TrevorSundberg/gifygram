@@ -11,18 +11,16 @@ export type StickerType = "sticker" | "video";
 export class StickerSearch {
   public static async searchForStickerUrl (type: StickerType): Promise<AttributedSource> {
     const modal = new Modal();
+    const waitForShow = new Deferred<void>();
     const div = $("<div/>");
     const modalPromise = modal.open({
       content: div,
       dismissable: true,
       fullscreen: true,
-      title: "Sticker Search"
+      title: "Sticker Search",
+      onShown: () => waitForShow.resolve()
     }).then(() => null);
 
-    const waitForShow = new Deferred<void>();
-    modal.root.one("shown.bs.modal", () => {
-      waitForShow.resolve();
-    });
     await waitForShow;
 
     const defer = new Deferred<any>();
