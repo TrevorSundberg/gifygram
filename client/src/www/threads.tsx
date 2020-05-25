@@ -45,7 +45,8 @@ export const Threads: React.FC<ThreadsProps> = ({history}: ThreadsProps) => {
       {threads.map((thread) => <Card
         key={thread.id}
         style={{
-          breakInside: "avoid"
+          breakInside: "avoid",
+          position: "relative"
         }}
         onClick={() => {
           history.push(`/thread?threadId=${thread.id}`);

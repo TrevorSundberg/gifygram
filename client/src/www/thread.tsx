@@ -63,8 +63,7 @@ export class Thread extends React.Component<ThreadProps, ThreadState> {
             borderRadius: "3px",
             overflow: "hidden",
             backgroundColor: "white",
-            marginBottom: "10px",
-            breakInside: "avoid"
+            marginBottom: "10px"
           }}>
           {
             post.userdata === "animation"
