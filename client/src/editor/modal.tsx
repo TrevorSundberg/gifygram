@@ -30,7 +30,7 @@ export interface ModalProps extends ModalOpenParameters {
   defer?: Deferred<ModalButton>;
 }
 
-export const ModalComponent: React.FC<ModalProps> = (props: React.PropsWithChildren<ModalProps>) => {
+export const ModalComponent: React.FC<ModalProps> = (props) => {
   const [
     completed,
     setCompleted

@@ -73,7 +73,8 @@ module.exports = {
     "implicit-arrow-linebreak": "off",
     "sort-keys": "off",
     "no-undefined": "off",
-    "@typescript-eslint/no-non-null-assertion": "off"
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "react/prop-types": "off"
   },
   settings: {
     react: {

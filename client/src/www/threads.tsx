@@ -17,7 +17,7 @@ interface ThreadsProps {
   history: import("history").History;
 }
 
-export const Threads: React.FC<ThreadsProps> = ({history}: React.PropsWithChildren<ThreadsProps>) => {
+export const Threads: React.FC<ThreadsProps> = (props) => {
   const [
     threads,
     setThreads
@@ -49,7 +49,7 @@ export const Threads: React.FC<ThreadsProps> = ({history}: React.PropsWithChildr
           position: "relative"
         }}
         onClick={() => {
-          history.push(`/thread?threadId=${thread.id}`);
+          props.history.push(`/thread?threadId=${thread.id}`);
         }}>
         <CardHeader
           avatar={
