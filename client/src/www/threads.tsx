@@ -1,5 +1,4 @@
 import {API_THREAD_LIST, ReturnedPost} from "../../../common/common";
-import React, {useEffect, useState} from "react";
 import {abortableJsonFetch, cancel, makeUrl} from "../shared/shared";
 import Avatar from "@material-ui/core/Avatar";
 import Card from "@material-ui/core/Card";
@@ -10,6 +9,7 @@ import CardMedia from "@material-ui/core/CardMedia";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import IconButton from "@material-ui/core/IconButton";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
+import React from "react";
 import ShareIcon from "@material-ui/icons/Share";
 import Typography from "@material-ui/core/Typography";
 
@@ -21,9 +21,9 @@ export const Threads: React.FC<ThreadsProps> = ({history}: React.PropsWithChildr
   const [
     threads,
     setThreads
-  ] = useState<ReturnedPost[]>([]);
+  ] = React.useState<ReturnedPost[]>([]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const threadListFetch = abortableJsonFetch<ReturnedPost[]>(API_THREAD_LIST);
     threadListFetch.then((threadList) => {
       if (threadList) {

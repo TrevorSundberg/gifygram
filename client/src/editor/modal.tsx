@@ -1,7 +1,7 @@
 import "./modal.css";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle} from "@material-ui/core";
-import React, {useState} from "react";
 import {Deferred} from "./utility";
+import React from "react";
 import ReactDOM from "react-dom";
 
 export type ModalCallback = (button: ModalButton) => unknown;
@@ -34,7 +34,7 @@ export const ModalComponent: React.FC<ModalProps> = (props: React.PropsWithChild
   const [
     completed,
     setCompleted
-  ] = useState(false);
+  ] = React.useState(false);
   return <Dialog
     open={props.open && !completed}
     disableBackdropClick={!props.dismissable}
