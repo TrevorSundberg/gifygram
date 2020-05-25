@@ -53,6 +53,42 @@ const removeModalInternal = (id: number) => {
 
 export const ModalComponent: React.FC<ModalProps> = (props) => {
   const classes = useStyles();
+  const hasSubmitButton = Boolean(props.buttons && props.buttons.find((button) => button.submitOnEnter));
+  const content = <div>
+    <DialogContent>
+      { props.children }
+      <div ref={(ref) => {
+        if (props.content) {
+          props.content.appendTo(ref);
+        }
+        if (props.onShown) {
+          props.onShown();
+        }
+      }}>
+        {props.render ? props.render() : null}
+      </div>
+    </DialogContent>
+    <DialogActions>
+      {
+        (props.buttons || []).map((button) => <Button
+          key={button.name}
+          onClick={() => {
+            if (props.defer) {
+              props.defer.resolve(button);
+            }
+            if (button.callback) {
+              button.callback(button);
+            }
+            removeModalInternal(props.id);
+          }}
+          color="primary"
+          type={button.submitOnEnter ? "submit" : "button"}>
+          {button.name}
+        </Button>)
+      }
+    </DialogActions>
+  </div>;
+
   return <Dialog
     open={true}
     disableBackdropClick={!props.dismissable}
@@ -75,40 +111,11 @@ export const ModalComponent: React.FC<ModalProps> = (props) => {
           : null
       }
     </DialogTitle>
-    <form>
-      <DialogContent>
-        { props.children }
-        <div ref={(ref) => {
-          if (props.content) {
-            props.content.appendTo(ref);
-          }
-          if (props.onShown) {
-            props.onShown();
-          }
-        }}>
-          {props.render ? props.render() : null}
-        </div>
-      </DialogContent>
-      <DialogActions>
-        {
-          (props.buttons || []).map((button) => <Button
-            key={button.name}
-            onClick={() => {
-              if (props.defer) {
-                props.defer.resolve(button);
-              }
-              if (button.callback) {
-                button.callback(button);
-              }
-              removeModalInternal(props.id);
-            }}
-            color="primary"
-            type={button.submitOnEnter ? "submit" : "button"}>
-            {button.name}
-          </Button>)
-        }
-      </DialogActions>
-    </form>
+    {
+      hasSubmitButton
+        ? <form>{content}</form>
+        : content
+    }
   </Dialog>;
 };
 
