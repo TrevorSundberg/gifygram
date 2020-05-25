@@ -60,15 +60,6 @@ export const useStyles = makeStyles((theme: Theme) =>
 
 export const theme = createMuiTheme({
   palette: {
-    type: "dark",
-    primary: {
-      main: "#221266"
-    },
-    secondary: {
-      main: "#6c1b92"
-    },
-    background: {
-      default: "#111"
-    }
+    type: "dark"
   }
 });
