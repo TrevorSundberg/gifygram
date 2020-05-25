@@ -12,7 +12,6 @@ import IconButton from "@material-ui/core/IconButton";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import ShareIcon from "@material-ui/icons/Share";
 import Typography from "@material-ui/core/Typography";
-import {useStyles} from "./style";
 
 interface ThreadsProps {
   history: import("history").History;

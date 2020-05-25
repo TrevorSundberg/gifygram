@@ -4,7 +4,6 @@ import {
   Route,
   Switch
 } from "react-router-dom";
-import {theme, useStyles} from "./www/style";
 import AppBar from "@material-ui/core/AppBar";
 import {AuthTest} from "./www/authtest";
 import Button from "@material-ui/core/Button";
@@ -22,6 +21,10 @@ import {Thread} from "./www/thread";
 import {Threads} from "./www/threads";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
+
+// Don't understand why the order of this import matters. Seems like a bug in material-ui.
+// eslint-disable-next-line sort-imports
+import {theme, useStyles} from "./www/style";
 
 const url = new URL(window.location.href);
 
