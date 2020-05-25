@@ -18,7 +18,7 @@ import {Modal} from "./modal";
 import {ModalProgress} from "./modalProgress";
 import React from "react";
 import {StickerSearch} from "./stickerSearch";
-import {TextField} from "@material-ui/core";
+import TextField from "@material-ui/core/TextField";
 import TextToSVG from "text-to-svg";
 import {Timeline} from "./timeline";
 import {VideoEncoder} from "./videoEncoder";
