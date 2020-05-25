@@ -9,6 +9,7 @@ export interface ModalOpenParameters {
   fullscreen?: boolean;
   buttons?: ModalButton[];
   content?: JQuery;
+  render? (): React.ReactNode;
   onShown?: () => unknown;
 }
 
@@ -66,7 +67,9 @@ export const ModalComponent: React.FC<ModalProps> = (props) => <Dialog
       if (props.onShown) {
         props.onShown();
       }
-    }}></div>
+    }}>
+      {props.render ? props.render() : null}
+    </div>
   </DialogContent>
   <DialogActions>
     {
