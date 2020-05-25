@@ -17,7 +17,7 @@ interface ThreadsProps {
   history: import("history").History;
 }
 
-export const Threads: React.FC<ThreadsProps> = ({history}: ThreadsProps) => {
+export const Threads: React.FC<ThreadsProps> = ({history}: React.PropsWithChildren<ThreadsProps>) => {
   const [
     threads,
     setThreads
