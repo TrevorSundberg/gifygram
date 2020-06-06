@@ -74,7 +74,8 @@ module.exports = {
     "sort-keys": "off",
     "no-undefined": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "react/prop-types": "off"
+    "react/prop-types": "off",
+    "react/display-name": "off"
   },
   settings: {
     react: {

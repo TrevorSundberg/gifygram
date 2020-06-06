@@ -109,10 +109,9 @@ export class Editor {
       let text = "";
       const button = await modal.open({
         buttons: [{dismiss: true, name: "OK", submitOnEnter: true}],
-        // eslint-disable-next-line react/display-name
-        render: () => <TextField onChange={(e) => {
+        render: () => <TextField autoFocus={true} onChange={(e) => {
           text = e.target.value;
-        }} autoFocus={true}/>,
+        }}/>,
         dismissable: true,
         title: "Text"
       });
@@ -235,25 +234,38 @@ export class Editor {
 
     getElement("post").addEventListener("click", (): NeverAsync => {
       manager.selectWidget(null);
-      const content = $(require("./post.html").default);
-      const title = content.find("#title") as JQuery<HTMLTextAreaElement>;
-      title.attr("maxlength", API_POST_CREATE_MAX_TITLE_LENGTH);
-      const message = content.find("#message") as JQuery<HTMLTextAreaElement>;
-      message.attr("maxlength", API_POST_CREATE_MAX_MESSAGE_LENGTH);
+      let title = "";
+      let message = "";
       const modal = new Modal();
       modal.open({
         buttons: [
           {
-            callback: () => makePost(
-              title.val() as string,
-              message.val() as string
-            ),
+            callback: () => makePost(title, message),
             dismiss: true,
             submitOnEnter: true,
             name: "Post"
           }
         ],
-        content,
+        render: () => <div>
+          <div>
+            <TextField
+              label="Title"
+              inputProps={{maxLength: API_POST_CREATE_MAX_TITLE_LENGTH}}
+              autoFocus={true}
+              onChange={(e) => {
+                title = e.target.value;
+              }}/>
+          </div>
+          <div>
+            <TextField
+              label="Message"
+              multiline={true}
+              inputProps={{maxLength: API_POST_CREATE_MAX_MESSAGE_LENGTH}}
+              onChange={(e) => {
+                message = e.target.value;
+              }}/>
+          </div>
+        </div>,
         dismissable: true,
         title: "Post"
       });
