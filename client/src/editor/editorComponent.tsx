@@ -7,13 +7,14 @@ export interface EditorProps {
 }
 
 export const EditorComponent: React.FC<EditorProps> = (props) => {
-  let editor: Editor = null;
+  const div = React.useRef<HTMLDivElement>();
 
-  React.useEffect(() => () => {
-    editor.destroy();
+  React.useEffect(() => {
+    const editor = new Editor(div.current, props.history, props.remixId);
+    return () => {
+      editor.destroy();
+    };
   }, []);
 
-  return <div ref={(div) => {
-    editor = new Editor(div, props.history, props.remixId);
-  }}></div>;
+  return <div ref={div}></div>;
 };
