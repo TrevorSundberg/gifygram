@@ -4,9 +4,7 @@ import "@fortawesome/fontawesome-free/css/brands.css";
 import "./editor.css";
 import {
   API_ANIMATION_CREATE,
-  API_ANIMATION_JSON,
-  API_POST_CREATE_MAX_MESSAGE_LENGTH,
-  API_POST_CREATE_MAX_TITLE_LENGTH
+  API_ANIMATION_JSON
 } from "../../../common/common";
 import {Deferred, NeverAsync, THUMBNAIL_DOWNSAMPLE, Utility, canvasToArrayBuffer} from "./utility";
 import {MODALS_CHANGED, Modal} from "./modal";
@@ -16,6 +14,7 @@ import {checkResponseJson, makeUrl} from "../shared/shared";
 import $ from "jquery";
 import {Background} from "./background";
 import {ModalProgress} from "./modalProgress";
+import {NewPost} from "../shared/newPost";
 import React from "react";
 import {StickerSearch} from "./stickerSearch";
 import TextField from "@material-ui/core/TextField";
@@ -249,26 +248,10 @@ export class Editor {
             name: "Post"
           }
         ],
-        render: () => <div>
-          <div>
-            <TextField
-              label="Title"
-              inputProps={{maxLength: API_POST_CREATE_MAX_TITLE_LENGTH}}
-              autoFocus={true}
-              onChange={(e) => {
-                title = e.target.value;
-              }}/>
-          </div>
-          <div>
-            <TextField
-              label="Message"
-              multiline={true}
-              inputProps={{maxLength: API_POST_CREATE_MAX_MESSAGE_LENGTH}}
-              onChange={(e) => {
-                message = e.target.value;
-              }}/>
-          </div>
-        </div>,
+        render: () => <NewPost onChange={(newTitle, newMessage) => {
+          title = newTitle;
+          message = newMessage;
+        }}/>,
         dismissable: true,
         title: "Post"
       });
