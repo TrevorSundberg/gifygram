@@ -13,12 +13,6 @@ interface PostCreate {
   id: string;
 }
 
-interface ThreadState {
-  posts: ReturnedPost[];
-  postTitle: string;
-  postMessage: string;
-}
-
 export const Thread: React.FC<ThreadProps> = (props) => {
   // We make a fake first post that includes the video to load it quicker.
   const [posts, setPosts] = React.useState<ReturnedPost[]>([createPsuedoPost(props.id, "animation")]);
