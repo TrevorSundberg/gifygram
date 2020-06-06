@@ -2,7 +2,9 @@ import {API_POST_CREATE, API_POST_LIST, ReturnedPost} from "../../../common/comm
 import {abortableJsonFetch, cancel, makeUrl} from "../shared/shared";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
+import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
+import {NewPost} from "../shared/newPost";
 import React from "react";
 import {createPsuedoPost} from "./post";
 import {signInIfNeeded} from "../shared/auth";
@@ -64,56 +66,50 @@ export const Thread: React.FC<ThreadProps> = (props) => {
           </div>
           : null
       }
-      {post.username}
-      <div
-        style={{padding: "6px", paddingTop: "0px"}}>
+      <CardContent>
+        {post.username}
+        <br/>
         {post.replyId ? <div><a href={`#${post.replyId}`}>IN REPLY TO</a><br/></div> : null}
             TITLE: {post.title}
         <br/>
             MESSAGE: {post.message}
-      </div>
+      </CardContent>
     </Card>)}
     <Card>
-          Title:<br/>
-      <textarea
-        id="title"
-        className="md-textarea form-control"
-        onChange={(value) => setPostTitle(value.target.value)}
-        value={postTitle}/>
-          Message:<br/>
-      <textarea
-        id="message"
-        className="md-textarea form-control"
-        value={postMessage}
-        onChange={(value) => setPostMessage(value.target.value)}/>
-      <button
-        className="btn btn-primary"
-        onClick={async () => {
-          const headers = await signInIfNeeded();
-          setPostTitle("");
-          setPostMessage("");
+      <CardContent>
+        <NewPost onChange={(newTitle, newMessage) => {
+          setPostTitle(newTitle);
+          setPostMessage(newMessage);
+        }}/>
+        <Button
+          className="btn btn-primary"
+          onClick={async () => {
+            const headers = await signInIfNeeded();
+            setPostTitle("");
+            setPostMessage("");
 
-          const postCreateFetch = abortableJsonFetch<PostCreate>(API_POST_CREATE, {
-            postTitle,
-            postMessage,
-            replyId: props.id
-          }, {headers});
+            const postCreateFetch = abortableJsonFetch<PostCreate>(API_POST_CREATE, {
+              postTitle,
+              postMessage,
+              replyId: props.id
+            }, {headers});
 
-          React.useEffect(() => () => {
-            cancel(postCreateFetch);
-          }, []);
+            React.useEffect(() => () => {
+              cancel(postCreateFetch);
+            }, []);
 
-          const newPost = await postCreateFetch;
-          if (newPost) {
+            const newPost = await postCreateFetch;
+            if (newPost) {
             // Append our post to the end.
-            setPosts((previous) => [
-              ...previous,
-              createPsuedoPost(newPost.id, "comment", props.id, props.id, postTitle, postMessage)
-            ]);
-          }
-        }}>
+              setPosts((previous) => [
+                ...previous,
+                createPsuedoPost(newPost.id, "comment", props.id, props.id, postTitle, postMessage)
+              ]);
+            }
+          }}>
             Post
-      </button>
+        </Button>
+      </CardContent>
     </Card>
   </div>;
 };
