@@ -62,7 +62,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       top: theme.spacing(1),
       color: theme.palette.grey[500]
     }
-  }));
+  }), {index: 1});
 
 export const theme = createMuiTheme({
   palette: {
