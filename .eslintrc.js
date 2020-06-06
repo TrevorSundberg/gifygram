@@ -75,7 +75,8 @@ module.exports = {
     "no-undefined": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "react/prop-types": "off",
-    "react/display-name": "off"
+    "react/display-name": "off",
+    "array-element-newline": "off"
   },
   settings: {
     react: {
