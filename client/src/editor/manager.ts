@@ -291,9 +291,11 @@ export class Manager {
     if (widget) {
       this.widgetContainer.focus();
       this.selection = new Gizmo(widget);
+      // We intentionally do not call removeEventListener because we already create a new Gizmo each time.
       this.selection.addEventListener(
         "transformKeyframe",
-        () => this.keyframe(this.selection.widget.element, "transform")
+        // We also do not use `this.selection.widget` because we clear selection on motion capture.
+        () => this.keyframe(widget.element, "transform")
       );
     }
     this.updateMarkers();
