@@ -1,25 +1,19 @@
 import {Editor} from "./editor";
 import React from "react";
-import ReactDOM from "react-dom";
 
 export interface EditorProps {
   remixId?: string;
   history: import("history").History;
 }
 
-export class EditorComponent extends React.Component<EditorProps> {
-  private editor: Editor;
+export const EditorComponent: React.FC<EditorProps> = (props) => {
+  let editor: Editor = null;
 
-  public componentDidMount () {
-    // eslint-disable-next-line react/no-find-dom-node
-    this.editor = new Editor(ReactDOM.findDOMNode(this) as HTMLElement, this.props.history, this.props.remixId);
-  }
+  React.useEffect(() => () => {
+    editor.destroy();
+  }, []);
 
-  public componentWillUnmount () {
-    this.editor.destroy();
-  }
-
-  public render () {
-    return <div></div>;
-  }
-}
+  return <div ref={(div) => {
+    editor = new Editor(div, props.history, props.remixId);
+  }}></div>;
+};
