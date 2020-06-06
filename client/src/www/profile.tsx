@@ -3,41 +3,31 @@ import {AbortablePromise, abortableJsonFetch, cancel} from "../shared/shared";
 import React from "react";
 import {signInIfNeeded} from "../shared/auth";
 
-interface ProfileProps {
-  history: import("history").History;
-}
+export const Profile: React.FC = () => {
+  const [user, setUser] = React.useState<StoredUser>(null);
 
-interface ProfileState {
-  user: StoredUser;
-}
+  React.useEffect(() => {
+    let profileFetch: AbortablePromise<StoredUser> = null;
+    (async () => {
+      const headers = await signInIfNeeded();
+      profileFetch = abortableJsonFetch<StoredUser>(API_PROFILE, null, {headers});
+      const profile = await profileFetch;
+      if (profile) {
+        setUser(profile);
+      }
+    })();
 
-export class Profile extends React.Component<ProfileProps, ProfileState> {
-  public state: ProfileState = {
-    user: null
+    return () => {
+      cancel(profileFetch);
+    };
+  }, []);
+
+
+  if (!user) {
+    return <div>Loading</div>;
   }
-
-  private profileFetch: AbortablePromise<StoredUser>;
-
-  public async componentDidMount () {
-    const headers = await signInIfNeeded();
-    this.profileFetch = abortableJsonFetch<StoredUser>(API_PROFILE, null, {headers});
-    const user = await this.profileFetch;
-    if (user) {
-      this.setState({user});
-    }
-  }
-
-  public componentWillUnmount () {
-    cancel(this.profileFetch);
-  }
-
-  public render () {
-    if (!this.state.user) {
-      return <div>Loading</div>;
-    }
-    return (
-      <div>
-        Username: <input type="text" value={this.state.user.username}/>
-      </div>);
-  }
-}
+  return (
+    <div>
+        Username: <input type="text" value={user.username}/>
+    </div>);
+};

@@ -97,7 +97,7 @@ const App = () => {
                 render={(prop) => <Thread history={prop.history} id={getUrlParam(prop, "threadId")}/>}
               />
               <Route path="/profile"
-                render={(prop) => <Profile history={prop.history}/>}
+                render={() => <Profile/>}
               />
               <Route path="/authtest">
                 <AuthTest/>
