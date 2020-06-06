@@ -342,6 +342,7 @@ export class Manager {
   }
 
   public destroy () {
+    this.selectWidget(null);
     cancelAnimationFrame(this.requestedAnimationFrame);
   }
 }
