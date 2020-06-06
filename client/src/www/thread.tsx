@@ -1,5 +1,8 @@
 import {API_POST_CREATE, API_POST_LIST, ReturnedPost} from "../../../common/common";
 import {abortableJsonFetch, cancel, makeUrl} from "../shared/shared";
+import Button from "@material-ui/core/Button";
+import Card from "@material-ui/core/Card";
+import CardMedia from "@material-ui/core/CardMedia";
 import React from "react";
 import {createPsuedoPost} from "./post";
 import {signInIfNeeded} from "../shared/auth";
@@ -34,37 +37,30 @@ export const Thread: React.FC<ThreadProps> = (props) => {
   }, []);
 
   // /cancel(this.postCreateFetch);
-  return <div
-    style={{
-      borderRadius: "3px",
-      backgroundColor: "white"
-    }}>
-    {posts.map((post) => <div
+  return <div>
+    {posts.map((post) => <Card
       key={post.id}
       id={post.id}
-      style={{
-        borderRadius: "3px",
-        overflow: "hidden",
-        backgroundColor: "white",
-        marginBottom: "10px"
-      }}>
+      style={{marginBottom: 4}}>
       {
         post.userdata === "animation"
           ? <div>
-            <video
-              style={{width: "100%"}}
-              muted
-              loop
-              autoPlay
-              src={makeUrl("/api/animation/video", {id: post.id})}>
-            </video>
-            <button
+            <CardMedia>
+              <video
+                style={{width: "100%"}}
+                muted
+                loop
+                autoPlay
+                src={makeUrl("/api/animation/video", {id: post.id})}>
+              </video>
+            </CardMedia>
+            <Button
               className="btn btn-primary"
               onClick={() => {
                 props.history.push(`/?remixId=${post.id}`);
               }}>
                 Remix
-            </button>
+            </Button>
           </div>
           : null
       }
@@ -76,8 +72,8 @@ export const Thread: React.FC<ThreadProps> = (props) => {
         <br/>
             MESSAGE: {post.message}
       </div>
-    </div>)}
-    <div>
+    </Card>)}
+    <Card>
           Title:<br/>
       <textarea
         id="title"
@@ -118,6 +114,6 @@ export const Thread: React.FC<ThreadProps> = (props) => {
         }}>
             Post
       </button>
-    </div>
+    </Card>
   </div>;
 };
