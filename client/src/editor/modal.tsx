@@ -10,6 +10,8 @@ import IconButton from "@material-ui/core/IconButton";
 import React from "react";
 import {useStyles} from "../www/style";
 
+export const MODALS_CHANGED = "modalsChanged";
+
 export type ModalCallback = (button: ModalButton) => unknown;
 
 export interface ModalButton {
@@ -38,8 +40,6 @@ export interface ModalProps extends ModalOpenParameters {
 }
 
 const allModals: ModalProps[] = [];
-const modalEvents = new EventTarget();
-const modalsChangedEvent = "modalsChanged";
 let modalIdCounter = 0;
 
 const removeModalInternal = (id: number) => {
@@ -47,7 +47,7 @@ const removeModalInternal = (id: number) => {
   if (index !== -1) {
     allModals[index].defer.resolve(null);
     allModals.splice(index, 1);
-    modalEvents.dispatchEvent(new Event(modalsChangedEvent));
+    window.dispatchEvent(new Event(MODALS_CHANGED));
   }
 };
 
@@ -128,9 +128,9 @@ export const ModalContainer: React.FC = () => {
     const onModalsChanged = () => {
       setModals([...allModals]);
     };
-    modalEvents.addEventListener(modalsChangedEvent, onModalsChanged);
+    window.addEventListener(MODALS_CHANGED, onModalsChanged);
     return () => {
-      modalEvents.removeEventListener(modalsChangedEvent, onModalsChanged);
+      window.removeEventListener(MODALS_CHANGED, onModalsChanged);
     };
   }, []);
   return <div id="modals">{modals.map((modal) => <ModalComponent key={modal.id} {...modal}/>)}</div>;
@@ -146,7 +146,7 @@ export class Modal {
       defer,
       id: this.id
     });
-    modalEvents.dispatchEvent(new Event(modalsChangedEvent));
+    window.dispatchEvent(new Event(MODALS_CHANGED));
     return defer;
   }
 

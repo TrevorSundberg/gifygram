@@ -9,12 +9,12 @@ import {
   API_POST_CREATE_MAX_TITLE_LENGTH
 } from "../../../common/common";
 import {Deferred, NeverAsync, THUMBNAIL_DOWNSAMPLE, Utility, canvasToArrayBuffer} from "./utility";
+import {MODALS_CHANGED, Modal} from "./modal";
 import {Manager, SerializedData} from "./manager";
 import {RenderFrameEvent, Renderer} from "./renderer";
 import {checkResponseJson, makeUrl} from "../shared/shared";
 import $ from "jquery";
 import {Background} from "./background";
-import {Modal} from "./modal";
 import {ModalProgress} from "./modalProgress";
 import React from "react";
 import {StickerSearch} from "./stickerSearch";
@@ -31,6 +31,8 @@ export class Editor {
   public root: JQuery;
 
   public unloadCallback: () => void;
+
+  public modalChangedCallback: () => void;
 
   private background: Background;
 
@@ -53,6 +55,9 @@ export class Editor {
     this.background = background;
     const manager = new Manager(background, videoParent, widgetContainer, player, timeline, renderer);
     this.manager = manager;
+
+    this.modalChangedCallback = () => manager.selectWidget(null);
+    window.addEventListener(MODALS_CHANGED, this.modalChangedCallback);
 
     this.unloadCallback = () => {
       if (manager.hasUnsavedChanges && location.protocol === "https:") {
@@ -164,7 +169,6 @@ export class Editor {
         (progress) => modal.setProgress(progress, "Encoding")
       );
       manager.updateExternally = true;
-      manager.selectWidget(null);
       let firstFrameJpeg: ArrayBuffer = null;
       renderer.onRenderFrame = async (event: RenderFrameEvent) => {
         if (firstFrameJpeg === null) {
@@ -233,7 +237,6 @@ export class Editor {
     };
 
     getElement("post").addEventListener("click", (): NeverAsync => {
-      manager.selectWidget(null);
       let title = "";
       let message = "";
       const modal = new Modal();
@@ -272,7 +275,6 @@ export class Editor {
     });
 
     getElement("share").addEventListener("click", (): NeverAsync => {
-      manager.selectWidget(null);
       const base64 = manager.saveToBase64();
       const url = new URL(window.location.href);
       url.searchParams.set(urlDataParameter, base64);
@@ -381,5 +383,6 @@ export class Editor {
     this.background.destroy();
     this.manager.destroy();
     this.root.remove();
+    window.removeEventListener(MODALS_CHANGED, this.modalChangedCallback);
   }
 }
