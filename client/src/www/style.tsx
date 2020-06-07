@@ -61,6 +61,10 @@ export const useStyles = makeStyles((theme: Theme) =>
       right: theme.spacing(1),
       top: theme.spacing(1),
       color: theme.palette.grey[500]
+    },
+    link: {
+      color: "inherit",
+      textDecoration: "inherit"
     }
   }), {index: 1});
 

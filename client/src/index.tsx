@@ -1,5 +1,6 @@
 import {
   BrowserRouter,
+  Link,
   Route,
   Switch
 } from "react-router-dom";
@@ -68,6 +69,10 @@ const App = () => {
                 <Typography noWrap variant="h6" className={classes.title}>
                 Made It For Fun
                 </Typography>
+                <Link to="/" className={classes.link}>
+                  <Button>Create</Button>
+                </Link>
+                <Button>Login</Button>
                 <div className={classes.search}>
                   <div className={classes.searchIcon}>
                     <SearchIcon />
@@ -81,7 +86,6 @@ const App = () => {
                     inputProps={{"aria-label": "search"}}
                   />
                 </div>
-                <Button color="inherit">Login</Button>
               </Toolbar>
             </AppBar>
           </div>
