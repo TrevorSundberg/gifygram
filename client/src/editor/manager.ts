@@ -195,6 +195,7 @@ export class Manager {
     this.timeline.setNormalizedTime(0);
     this.videoPlayer.video.currentTime = 0;
     this.hasUnsavedChanges = false;
+    await this.videoPlayer.loadPromise;
     this.spinner.hide();
   }
 
