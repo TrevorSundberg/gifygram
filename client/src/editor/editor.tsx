@@ -40,6 +40,7 @@ export class Editor {
   private tooltips: JQuery<HTMLElement>;
 
   public constructor (parent: HTMLElement, history: import("history").History, remixId?: string) {
+    document.documentElement.style.overflow = "hidden";
     this.root = $(require("./editor.html").default).appendTo(parent);
 
     const getElement = (name: string) => this.root.find(`#${name}`).get(0);
@@ -367,5 +368,6 @@ export class Editor {
     this.manager.destroy();
     this.root.remove();
     window.removeEventListener(MODALS_CHANGED, this.modalChangedCallback);
+    document.documentElement.style.overflow = null;
   }
 }
