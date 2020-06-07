@@ -182,6 +182,7 @@ export class Manager {
   }
 
   public async load (data: SerializedData) {
+    this.spinner.show();
     this.videoPlayer.setAttributedSrc(data.videoAttributedSource);
     this.clearWidgets();
     for (const init of data.widgets) {
@@ -194,6 +195,7 @@ export class Manager {
     this.timeline.setNormalizedTime(0);
     this.videoPlayer.video.currentTime = 0;
     this.hasUnsavedChanges = false;
+    this.spinner.hide();
   }
 
   private update () {
