@@ -101,7 +101,7 @@ export class Gif extends Image {
     this.loadPromise = frameDataPromise.then((frameData: any[]) => {
       this.frames = frameData.map((frame) => ({
         canvas: frame.getImage() as HTMLCanvasElement,
-        delaySeconds: Math.max(frame.frameInfo.delay, 1) / 100
+        delaySeconds: Math.max(frame.frameInfo.delay, 10) / 100
       }));
 
       for (const frame of this.frames) {
