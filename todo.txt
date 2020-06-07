@@ -113,9 +113,9 @@ DONE - Bug: componentDidMount makes fetch promises that must be cancelled in com
 DONE - Store user id (from google) along with posts
 DONE - Refactor all post data to be in a single json document
 DONE - Display user ids in thread comments
+DONE - Replace Modal, ModalProgress with material UI
 
- - Replace Modal, ModalProgress with material UI
- - Replace buttons with tooltips with material UI
+ - Replace /threads with / and make the editor into /editor
  - Make a page where you can edit your profile
  - Make basic profile page
  - Link user ids in thread/threads to profile page
