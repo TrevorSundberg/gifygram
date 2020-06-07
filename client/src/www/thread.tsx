@@ -46,28 +46,27 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       style={{marginBottom: 4}}>
       {
         post.userdata === "animation"
-          ? <div>
-            <CardMedia>
-              <video
-                style={{width: "100%"}}
-                muted
-                loop
-                autoPlay
-                src={makeUrl("/api/animation/video", {id: post.id})}>
-              </video>
-            </CardMedia>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => {
-                props.history.push(`/?remixId=${post.id}`);
-              }}>
-                Remix
-            </Button>
-          </div>
+          ? <CardMedia>
+            <video
+              style={{width: "100%"}}
+              muted
+              loop
+              autoPlay
+              src={makeUrl("/api/animation/video", {id: post.id})}>
+            </video>
+          </CardMedia>
           : null
       }
       <CardContent>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => {
+            props.history.push(`/?remixId=${post.id}`);
+          }}>
+          Remix
+        </Button>
+        <br/>
         {post.username}
         <br/>
         {post.replyId ? <div><a href={`#${post.replyId}`}>IN REPLY TO</a><br/></div> : null}
