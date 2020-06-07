@@ -57,7 +57,8 @@ export const Thread: React.FC<ThreadProps> = (props) => {
               </video>
             </CardMedia>
             <Button
-              className="btn btn-primary"
+              variant="contained"
+              color="primary"
               onClick={() => {
                 props.history.push(`/?remixId=${post.id}`);
               }}>
@@ -82,7 +83,8 @@ export const Thread: React.FC<ThreadProps> = (props) => {
           setPostMessage(newMessage);
         }}/>
         <Button
-          className="btn btn-primary"
+          variant="contained"
+          color="primary"
           onClick={async () => {
             const headers = await signInIfNeeded();
             setPostTitle("");
