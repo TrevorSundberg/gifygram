@@ -67,7 +67,9 @@ const App = () => {
                   <MenuIcon />
                 </IconButton>
                 <Typography noWrap variant="h6" className={classes.title}>
-                Made It For Fun
+                  <Link to="/threads" className={classes.link}>
+                    Made It For Fun
+                  </Link>
                 </Typography>
                 <Link to="/" className={classes.link}>
                   <Button>Create</Button>
