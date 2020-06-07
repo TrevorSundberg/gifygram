@@ -14,6 +14,7 @@ export const NewPost: React.FC<NewPostProps> = (props) => {
   return <div>
     <div>
       <TextField
+        fullWidth
         label="Title"
         inputProps={{maxLength: API_POST_CREATE_MAX_TITLE_LENGTH}}
         autoFocus={props.autoFocusTitle}
@@ -25,6 +26,7 @@ export const NewPost: React.FC<NewPostProps> = (props) => {
     </div>
     <div>
       <TextField
+        fullWidth
         label="Message"
         multiline={true}
         inputProps={{maxLength: API_POST_CREATE_MAX_MESSAGE_LENGTH}}
