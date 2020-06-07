@@ -12,6 +12,7 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import React from "react";
 import ShareIcon from "@material-ui/icons/Share";
 import Typography from "@material-ui/core/Typography";
+import {useStyles} from "./style";
 
 interface ThreadsProps {
   history: import("history").History;
@@ -36,6 +37,7 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
     };
   }, []);
 
+  const classes = useStyles();
   return (
     <div style={{
       columnCount: 4,
@@ -70,7 +72,7 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
           <video
             width={thread.userdata.width}
             height={thread.userdata.height}
-            style={{width: "100%"}}
+            className={classes.video}
             muted
             loop
             onMouseEnter={(event) => (event.target as HTMLVideoElement).play().catch(() => 0)}

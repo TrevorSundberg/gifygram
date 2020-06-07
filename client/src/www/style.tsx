@@ -65,6 +65,10 @@ export const useStyles = makeStyles((theme: Theme) =>
     link: {
       color: "inherit",
       textDecoration: "inherit"
+    },
+    video: {
+      width: "100%",
+      height: "auto"
     }
   }), {index: 1});
 

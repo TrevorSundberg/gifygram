@@ -8,6 +8,7 @@ import {NewPost} from "../shared/newPost";
 import React from "react";
 import {createPsuedoPost} from "./post";
 import {signInIfNeeded} from "../shared/auth";
+import {useStyles} from "./style";
 
 interface ThreadProps {
   id: string;
@@ -47,7 +48,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
     };
   }, []);
 
-  // /cancel(this.postCreateFetch);
+  const classes = useStyles();
   return <div>
     {posts.map((post) => <Card
       key={post.id}
@@ -59,7 +60,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
             <video
               width={post.userdata.width}
               height={post.userdata.height}
-              style={{width: "100%"}}
+              className={classes.video}
               muted
               loop
               autoPlay
