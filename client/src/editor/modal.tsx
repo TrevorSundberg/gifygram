@@ -133,7 +133,7 @@ export const ModalContainer: React.FC = () => {
       window.removeEventListener(MODALS_CHANGED, onModalsChanged);
     };
   }, []);
-  return <div id="modals">{modals.map((modal) => <ModalComponent key={modal.id} {...modal}/>)}</div>;
+  return <div>{modals.map((modal) => <ModalComponent key={modal.id} {...modal}/>)}</div>;
 };
 
 export class Modal {
