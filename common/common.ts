@@ -1,5 +1,5 @@
 export const API_POST_CREATE_MAX_MESSAGE_LENGTH = 1000;
-export const API_POST_CREATE_MAX_TITLE_LENGTH = 100;
+export const API_POST_CREATE_MAX_TITLE_LENGTH = 26;
 
 export const API_POST_CREATE = "/api/post/create";
 export const API_THREAD_LIST = "/api/thread/list";

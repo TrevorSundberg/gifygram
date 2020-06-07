@@ -65,7 +65,6 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
             </IconButton>
           }
           title={thread.title}
-          subheader={thread.username}
         />
         <CardMedia>
           <AnimationVideo
@@ -79,11 +78,10 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
           />
         </CardMedia>
         <CardContent>
-          <Typography variant="body2" color="textSecondary" component="p">
+          <Typography noWrap variant="body2" color="textSecondary" component="p">
             {thread.message}
           </Typography>
         </CardContent>
-
         <CardActions disableSpacing>
           <IconButton>
             <FavoriteIcon />
