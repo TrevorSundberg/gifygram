@@ -1,4 +1,4 @@
-import {API_THREAD_LIST, ReturnedPost} from "../../../common/common";
+import {API_THREAD_LIST, ReturnedThread} from "../../../common/common";
 import {abortableJsonFetch, cancel, makeUrl} from "../shared/shared";
 import Avatar from "@material-ui/core/Avatar";
 import Card from "@material-ui/core/Card";
@@ -21,10 +21,10 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
   const [
     threads,
     setThreads
-  ] = React.useState<ReturnedPost[]>([]);
+  ] = React.useState<ReturnedThread[]>([]);
 
   React.useEffect(() => {
-    const threadListFetch = abortableJsonFetch<ReturnedPost[]>(API_THREAD_LIST);
+    const threadListFetch = abortableJsonFetch<ReturnedThread[]>(API_THREAD_LIST);
     threadListFetch.then((threadList) => {
       if (threadList) {
         setThreads(threadList);
@@ -68,6 +68,8 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
         />
         <CardMedia>
           <video
+            width={thread.userdata.width}
+            height={thread.userdata.height}
             style={{width: "100%"}}
             muted
             loop

@@ -1,8 +1,8 @@
-import {PostType, ReturnedPost} from "../../../common/common";
+import {PostData, ReturnedPost} from "../../../common/common";
 
 export const createPsuedoPost = (
   id: string,
-  userdata: PostType,
+  userdata: PostData,
   replyId?: string,
   threadId?: string,
   title = "",

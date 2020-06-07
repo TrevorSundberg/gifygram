@@ -191,7 +191,12 @@ export class Editor {
       modal.hide();
       renderer.onRenderFrame = null;
       manager.updateExternally = false;
-      return {firstFrameJpeg, videoBlob};
+      return {
+        firstFrameJpeg,
+        videoBlob,
+        width: renderer.resizeCanvas.width,
+        height: renderer.resizeCanvas.height
+      };
     };
 
     const makeLengthBuffer = (size: number) => {
@@ -219,6 +224,8 @@ export class Editor {
         const response = await fetch(makeUrl(API_ANIMATION_CREATE, {
           title,
           message,
+          width: result.width,
+          height: result.height,
           ...remixId ? {replyId: remixId} : {}
         }), {
           body: blob,

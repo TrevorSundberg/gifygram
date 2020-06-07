@@ -1,3 +1,5 @@
+import {MAX_VIDEO_SIZE_X, MAX_VIDEO_SIZE_Y} from "../../../common/common";
+
 export const FRAME_RATE = 30;
 export const FRAME_TIME = 1 / FRAME_RATE;
 export const DURATION_PER_ENCODE = 1;
@@ -10,8 +12,8 @@ export const TARGET_WIDGET_SIZE: Size = [
   400
 ];
 export const MAX_OUTPUT_SIZE: Size = [
-  854,
-  480
+  MAX_VIDEO_SIZE_X,
+  MAX_VIDEO_SIZE_Y
 ];
 export const THUMBNAIL_DOWNSAMPLE = 2;
 

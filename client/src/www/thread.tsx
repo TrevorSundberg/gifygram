@@ -20,7 +20,16 @@ interface PostCreate {
 
 export const Thread: React.FC<ThreadProps> = (props) => {
   // We make a fake first post that includes the video to load it quicker.
-  const [posts, setPosts] = React.useState<ReturnedPost[]>([createPsuedoPost(props.id, "animation")]);
+  const [posts, setPosts] = React.useState<ReturnedPost[]>([
+    createPsuedoPost(
+      props.id,
+      {
+        type: "animation",
+        width: 1,
+        height: 1
+      }
+    )
+  ]);
   const [postTitle, setPostTitle] = React.useState("");
   const [postMessage, setPostMessage] = React.useState("");
 
@@ -45,9 +54,11 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       id={post.id}
       style={{marginBottom: 4}}>
       {
-        post.userdata === "animation"
+        post.userdata.type === "animation"
           ? <CardMedia>
             <video
+              width={post.userdata.width}
+              height={post.userdata.height}
               style={{width: "100%"}}
               muted
               loop
@@ -104,7 +115,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
             // Append our post to the end.
               setPosts((previous) => [
                 ...previous,
-                createPsuedoPost(newPost.id, "comment", props.id, props.id, postTitle, postMessage)
+                createPsuedoPost(newPost.id, {type: "comment"}, props.id, props.id, postTitle, postMessage)
               ]);
             }
           }}>

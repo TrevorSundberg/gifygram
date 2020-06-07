@@ -10,6 +10,9 @@ import {
   API_PROFILE,
   API_THREAD_LIST,
   AUTH_GOOGLE_CLIENT_ID,
+  MAX_VIDEO_SIZE_X,
+  MAX_VIDEO_SIZE_Y,
+  PostData,
   ReturnedPost,
   StoredPost,
   StoredUser
@@ -91,11 +94,33 @@ const expectString = (name: string, value: string | null | undefined, maxLength:
   return value;
 };
 
-const expectStringParam = (input: RequestInput, name: string, maxLength: number) =>
-  expectString(name, input.url.searchParams.get(name), maxLength);
+const expectInteger = (
+  name: string,
+  value: string | null | undefined,
+  minInclusive: number,
+  maxInclusive: number
+): number => {
+  if (typeof value !== "string") {
+    throw new Error(`Expected ${name} to be a string represntation of a number but got ${value}`);
+  }
+  const number = parseInt(value, 10);
+  if (number < minInclusive || number > maxInclusive) {
+    throw new Error(`Number ${name} was outside range [${minInclusive},${maxInclusive}]: ${value}`);
+  }
+  if (!isFinite(number)) {
+    throw new Error(`Number ${name} was not finite: ${value}`);
+  }
+  return number;
+};
 
 const expectUuidParam = (input: RequestInput, name: string) =>
   expectUuid(name, input.url.searchParams.get(name));
+
+const expectStringParam = (input: RequestInput, name: string, maxLength: number) =>
+  expectString(name, input.url.searchParams.get(name), maxLength);
+
+const expectIntegerParam = (input: RequestInput, name: string, minInclusive: number, maxInclusive: number) =>
+  expectInteger(name, input.url.searchParams.get(name), minInclusive, maxInclusive);
 
 const videoMp4Header = new Uint8Array([
   0x00,
@@ -168,7 +193,7 @@ const validateJwtGoogle = async (input: RequestInput): Promise<StoredUser> => {
   return user;
 };
 
-const postCreate = async (input: RequestInput, createThread: boolean, userdata: any) => {
+const postCreate = async (input: RequestInput, createThread: boolean, userdata: PostData) => {
   const user = await validateJwtGoogle(input);
   const title = expectStringParam(input, "title", API_POST_CREATE_MAX_TITLE_LENGTH);
   const message = expectStringParam(input, "message", API_POST_CREATE_MAX_MESSAGE_LENGTH);
@@ -208,7 +233,7 @@ const postCreate = async (input: RequestInput, createThread: boolean, userdata: 
   };
 };
 
-handlers[API_POST_CREATE] = async (input) => postCreate(input, false, "comment");
+handlers[API_POST_CREATE] = async (input) => postCreate(input, false, {type: "comment"});
 
 const getBarIds = (list: {keys: { name: string }[]}) =>
   list.keys.map((key) => key.name.split("|")[1]);
@@ -246,7 +271,11 @@ handlers[API_ANIMATION_CREATE] = async (input) => {
 
   await expectFileHeader("video:video/mp4", video, videoMp4Header);
 
-  const output = await postCreate(input, true, "animation");
+  const output = await postCreate(input, true, {
+    type: "animation",
+    width: expectIntegerParam(input, "width", 1, MAX_VIDEO_SIZE_X),
+    height: expectIntegerParam(input, "height", 1, MAX_VIDEO_SIZE_Y)
+  });
 
   const {id} = output;
   await Promise.all([
