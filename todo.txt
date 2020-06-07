@@ -114,8 +114,11 @@ DONE - Store user id (from google) along with posts
 DONE - Refactor all post data to be in a single json document
 DONE - Display user ids in thread comments
 DONE - Replace Modal, ModalProgress with material UI
+DONE - Replace /threads with / and make the editor into /editor
+DONE - Bug: Some gif animations are too fast (min frame rate?)
+DONE - Store width/height of video so we can reserve video element size (layout)
 
- - Replace /threads with / and make the editor into /editor
+ - Remove firstFrameJpeg / downsampleCanvas / thumbnail (unused)
  - Make a page where you can edit your profile
  - Make basic profile page
  - Link user ids in thread/threads to profile page
@@ -153,7 +156,6 @@ DONE - Replace Modal, ModalProgress with material UI
  - Get tests running on CI builds (docker/puppeteer)
 
  - Bug: Video was too wide (black background to the right)
- - Bug: Some gif animations are too fast (min frame rate?)
  - Bug: Motion track first/last frame is offset (almost like it's wrapping first/last)
  - Bug: Animation after encoding does not always match video frame
  - Visiblity toggle kinda sucks in animator, we should just make it a timeline thing
