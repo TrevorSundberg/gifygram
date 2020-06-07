@@ -46,7 +46,8 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
         key={thread.id}
         style={{
           breakInside: "avoid",
-          position: "relative"
+          position: "relative",
+          marginBottom: "10px"
         }}
         onClick={() => {
           props.history.push(`/thread?threadId=${thread.id}`);
