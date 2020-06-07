@@ -3,6 +3,7 @@ import React from "react";
 import TextField from "@material-ui/core/TextField";
 
 export interface NewPostProps {
+  autoFocusTitle: boolean;
   onChange: (title: string, message: string) => unknown;
 }
 
@@ -15,7 +16,7 @@ export const NewPost: React.FC<NewPostProps> = (props) => {
       <TextField
         label="Title"
         inputProps={{maxLength: API_POST_CREATE_MAX_TITLE_LENGTH}}
-        autoFocus={true}
+        autoFocus={props.autoFocusTitle}
         value={postTitle}
         onChange={(e) => {
           setPostTitle(e.target.value);

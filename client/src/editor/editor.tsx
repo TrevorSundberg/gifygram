@@ -249,7 +249,7 @@ export class Editor {
             name: "Post"
           }
         ],
-        render: () => <NewPost onChange={(newTitle, newMessage) => {
+        render: () => <NewPost autoFocusTitle={true} onChange={(newTitle, newMessage) => {
           title = newTitle;
           message = newMessage;
         }}/>,

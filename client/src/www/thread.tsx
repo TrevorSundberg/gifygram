@@ -77,7 +77,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
     </Card>)}
     <Card>
       <CardContent>
-        <NewPost onChange={(newTitle, newMessage) => {
+        <NewPost autoFocusTitle={false} onChange={(newTitle, newMessage) => {
           setPostTitle(newTitle);
           setPostMessage(newMessage);
         }}/>
