@@ -62,7 +62,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
           variant="contained"
           color="primary"
           onClick={() => {
-            props.history.push(`/?remixId=${post.id}`);
+            props.history.push(`/editor?remixId=${post.id}`);
           }}>
           Remix
         </Button>

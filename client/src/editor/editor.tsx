@@ -226,7 +226,7 @@ export class Editor {
         });
         const post: {id: string; threadId: string} = checkResponseJson(await response.json());
         // If the user goes back to the editor in history, they'll be editing a remix of their post.
-        history.replace(`/?remixId=${post.id}`);
+        history.replace(`/editor?remixId=${post.id}`);
         if (post.id === post.threadId) {
           history.push(`/thread?threadId=${post.threadId}`);
         } else {

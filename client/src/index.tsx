@@ -59,7 +59,10 @@ const App = () => {
     <CssBaseline />
     <BrowserRouter>
       <Switch>
-        <Route path="/:page">
+        <Route path="/editor"
+          render={(prop) => <EditorComponent history={prop.history} remixId={getUrlParam(prop, "remixId")}/>}
+        />
+        <Route>
           <div className={classes.toolbar} style={{width: "100%", marginBottom: 10}}>
             <AppBar position="fixed">
               <Toolbar className={classes.pageWidth}>
@@ -67,11 +70,11 @@ const App = () => {
                   <MenuIcon />
                 </IconButton>
                 <Typography noWrap variant="h6" className={classes.title}>
-                  <Link to="/threads" className={classes.link}>
+                  <Link to="/" className={classes.link}>
                     Made It For Fun
                   </Link>
                 </Typography>
-                <Link to="/" className={classes.link}>
+                <Link to="/editor" className={classes.link}>
                   <Button>Create</Button>
                 </Link>
                 <Button>Login</Button>
@@ -93,24 +96,21 @@ const App = () => {
           </div>
           <div className={classes.pageWidth}>
             <Switch>
-              <Route path="/threads"
+              <Route exact path="/"
                 render={(prop) => <Threads history={prop.history}/>}
               />
-              <Route path="/thread"
+              <Route exact path="/thread"
                 render={(prop) => <Thread history={prop.history} id={getUrlParam(prop, "threadId")}/>}
               />
-              <Route path="/profile"
+              <Route exact path="/profile"
                 render={() => <Profile/>}
               />
-              <Route path="/authtest">
+              <Route exact path="/authtest">
                 <AuthTest/>
               </Route>
             </Switch>
           </div>
         </Route>
-        <Route path="/"
-          render={(prop) => <EditorComponent history={prop.history} remixId={getUrlParam(prop, "remixId")}/>}
-        />
       </Switch>
     </BrowserRouter>
     <ModalContainer/>
