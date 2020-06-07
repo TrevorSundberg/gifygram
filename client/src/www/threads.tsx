@@ -1,5 +1,6 @@
 import {API_THREAD_LIST, ReturnedThread} from "../../../common/common";
-import {abortableJsonFetch, cancel, makeUrl} from "../shared/shared";
+import {abortableJsonFetch, cancel} from "../shared/shared";
+import {AnimationVideo} from "./animationVideo";
 import Avatar from "@material-ui/core/Avatar";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
@@ -12,7 +13,6 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import React from "react";
 import ShareIcon from "@material-ui/icons/Share";
 import Typography from "@material-ui/core/Typography";
-import {useStyles} from "./style";
 
 interface ThreadsProps {
   history: import("history").History;
@@ -37,7 +37,6 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
     };
   }, []);
 
-  const classes = useStyles();
   return (
     <div style={{
       columnCount: 4,
@@ -69,18 +68,15 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
           subheader={thread.username}
         />
         <CardMedia>
-          <video
+          <AnimationVideo
+            id={thread.id}
             width={thread.userdata.width}
             height={thread.userdata.height}
-            className={classes.video}
-            muted
-            loop
             onMouseEnter={(event) => (event.target as HTMLVideoElement).play().catch(() => 0)}
             onMouseLeave={(event) => (event.target as HTMLVideoElement).pause()}
             onTouchStart={(event) => (event.target as HTMLVideoElement).play().catch(() => 0)}
             onTouchEnd={(event) => (event.target as HTMLVideoElement).pause()}
-            src={makeUrl("/api/animation/video", {id: thread.id})}>
-          </video>
+          />
         </CardMedia>
         <CardContent>
           <Typography variant="body2" color="textSecondary" component="p">

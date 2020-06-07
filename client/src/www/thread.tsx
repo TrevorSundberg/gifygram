@@ -1,5 +1,6 @@
 import {API_POST_CREATE, API_POST_LIST, ReturnedPost} from "../../../common/common";
-import {abortableJsonFetch, cancel, makeUrl} from "../shared/shared";
+import {abortableJsonFetch, cancel} from "../shared/shared";
+import {AnimationVideo} from "./animationVideo";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
@@ -8,7 +9,6 @@ import {NewPost} from "../shared/newPost";
 import React from "react";
 import {createPsuedoPost} from "./post";
 import {signInIfNeeded} from "../shared/auth";
-import {useStyles} from "./style";
 
 interface ThreadProps {
   id: string;
@@ -48,7 +48,6 @@ export const Thread: React.FC<ThreadProps> = (props) => {
     };
   }, []);
 
-  const classes = useStyles();
   return <div>
     {posts.map((post) => <Card
       key={post.id}
@@ -57,15 +56,12 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       {
         post.userdata.type === "animation"
           ? <CardMedia>
-            <video
+            <AnimationVideo
+              id={post.id}
               width={post.userdata.width}
               height={post.userdata.height}
-              className={classes.video}
-              muted
-              loop
               autoPlay
-              src={makeUrl("/api/animation/video", {id: post.id})}>
-            </video>
+            />
           </CardMedia>
           : null
       }
