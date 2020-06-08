@@ -3,7 +3,7 @@ export const isDevEnvironment = () => window.location.protocol === "http:";
 
 export const makeServerUrl = (path: string, params?: Record<string, any>) => {
   const url = new URL(isDevEnvironment()
-    ? "http://localhost:8787"
+    ? "http://localhost:3000"
     : window.location.origin);
   url.pathname = path;
   if (params) {

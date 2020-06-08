@@ -19,6 +19,7 @@ import {
   StoredUser
 } from "../../common/common";
 import {getAssetFromKV, serveSinglePageApp} from "@cloudflare/kv-asset-handler";
+import {isDevEnvironment, patchDevKv} from "./dev";
 
 // eslint-disable-next-line no-var,vars-on-top,init-declarations
 declare var global: any;
@@ -30,7 +31,7 @@ import {Jose} from "jose-jwe-jws";
 
 import {uuid} from "uuidv4";
 
-const isDevEnvironment = () => MODE === "dev";
+patchDevKv(db);
 
 const CONTENT_TYPE_APPLICATION_JSON = "application/json";
 const CONTENT_TYPE_VIDEO_MP4 = "video/mp4";

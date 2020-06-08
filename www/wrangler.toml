@@ -6,16 +6,15 @@ route = ""
 zone_id = ""
 webpack_config = "webpack.config.js"
 kv-namespaces = [
-  { binding = "db", id = "1f78c527740146e9a05fe5e8bddbebdf" }
+  { binding = "db", id = "3cad38b1a6fe4f9ea58296bc3b0ac1a2" }
 ]
-vars = {MODE = "dev"}
 
 [site]
 bucket = "./static"
 entry-point = "./static-site"
 
 [env.prod]
-vars = {MODE = "prod"}
+vars = {production = true}
 kv-namespaces = [
   { binding = "db", id = "3cad38b1a6fe4f9ea58296bc3b0ac1a2" }
 ]
