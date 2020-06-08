@@ -13,10 +13,14 @@ export interface AnimationVideoProps extends
 export const AnimationVideo: React.FC<AnimationVideoProps> = (props) => {
   const classes = useStyles();
   return <div
-    className={classes.videoAspectRatioWrapper}
-    style={{
-      paddingBottom: `${props.height / props.width * 100}%`
-    }}>
+    // If created from createPsuedoPost, then we don't know width/height but the video may be loaded.
+    style={props.width === 0
+      ? null
+      : {
+        position: "relative",
+        height: 0,
+        paddingBottom: `${props.height / props.width * 100}%`
+      }}>
     <video
       width={props.width}
       height={props.height}

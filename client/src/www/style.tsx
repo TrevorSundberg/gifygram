@@ -66,10 +66,6 @@ export const useStyles = makeStyles((theme: Theme) =>
       color: "inherit",
       textDecoration: "inherit"
     },
-    videoAspectRatioWrapper: {
-      position: "relative",
-      height: 0
-    },
     video: {
       width: "100%",
       height: "auto"

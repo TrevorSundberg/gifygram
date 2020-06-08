@@ -26,8 +26,8 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       props.id,
       {
         type: "animation",
-        width: 1,
-        height: 1
+        width: 0,
+        height: 0
       }
     )
   ]);
