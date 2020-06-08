@@ -182,15 +182,12 @@ const validateJwtGoogle = async (input: RequestInput): Promise<StoredUser> => {
 
   const content = await (async (): Promise<JwtPayload> => {
     if (isDevEnvironment()) {
-      if (token !== "dev") {
-        throw new Error("Expected token to be 'dev'");
-      }
       return {
         iss: AUTH_GOOGLE_ISSUER,
         aud: AUTH_GOOGLE_CLIENT_ID,
         exp: `${Number.MAX_SAFE_INTEGER}`,
-        sub: "anonymous",
-        given_name: "anonymous"
+        sub: token,
+        given_name: token
       };
     }
 

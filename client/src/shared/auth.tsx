@@ -27,8 +27,15 @@ const auth2Promise = new Promise<GoogleAuth>((resolve, reject) => {
 
 export const signInIfNeeded = async () => {
   if (isDevEnvironment()) {
+    const devUser = "devUser";
+    // eslint-disable-next-line no-alert
+    const username = localStorage.getItem(devUser) || prompt("Pick a unique dev username");
+    if (!username) {
+      throw new Error("Dev username was empty");
+    }
+    localStorage.setItem(devUser, username);
     return {
-      Authorization: "dev"
+      Authorization: username
     };
   }
   const auth2 = await auth2Promise;
