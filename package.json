@@ -2,7 +2,6 @@
   "name": "madeitforfun",
   "version": "1.0.0",
   "description": "A stupid website for animating images on top of videos.",
-  "main": "index.js",
   "scripts": {
     "buildClient": "cd client && npm install && npm run build",
     "buildWww": "cd www && npm install && npm run build",
