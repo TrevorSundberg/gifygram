@@ -2,13 +2,13 @@
   "private": true,
   "scripts": {
     "build": "webpack",
-    "dev": "NODE_ENV=development npm run build",
     "format": "prettier --write '**/*.{css,json,md}'",
     "transpile": "tsc --project ./test",
     "clear": "wrangler kv:key list --binding=db > list.json && sed -i 's/\"name\"/\"value\":\"\",\"key\"/g' list.json && wrangler kv:bulk delete --binding=db list.json && rm list.json",
     "buildClient": "cd ../client && npm run build",
     "publish": "npm run buildClient && wrangler publish --env prod",
-    "start": "npm run dev && cloudworker dist/worker.development.js --watch --kv-set db.key=value"
+    "liveWebpackServer": "NODE_ENV=development webpack",
+    "liveCloudWorker": "cloudworker dist/worker.development.js --watch --kv-set db.key=value"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^1.0.1",

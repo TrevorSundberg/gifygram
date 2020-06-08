@@ -9,8 +9,8 @@ export const patchDevKv = (kv: KVNamespace) => {
   if (!isDevEnvironment()) {
     return;
   }
-  if (typeof kv.list !== "undefined") {
-    throw new Error("Unexpected 'list' function exists");
+  if (typeof (kv as any).store === "undefined") {
+    throw new Error("Expected this to be an emulated KVNamespace");
   }
   // eslint-disable-next-line func-names
   kv.list = async function (

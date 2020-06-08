@@ -2,9 +2,10 @@
 export const isDevEnvironment = () => window.location.protocol === "http:";
 
 export const makeServerUrl = (path: string, params?: Record<string, any>) => {
-  const url = new URL(isDevEnvironment()
-    ? "http://localhost:3000"
-    : window.location.origin);
+  const url = new URL(window.location.origin);
+  if (isDevEnvironment()) {
+    url.port = "3000";
+  }
   url.pathname = path;
   if (params) {
     for (const key of Object.keys(params)) {
