@@ -118,6 +118,8 @@ DONE - Replace /threads with / and make the editor into /editor
 DONE - Bug: Some gif animations are too fast (min frame rate?)
 DONE - Store width/height of video so we can reserve video element size (layout)
 DONE - Remove firstFrameJpeg / downsampleCanvas / thumbnail (unused)
+DONE - Titles are only for animations
+DONE - Need to clear message after its done
 
  - Share Card implementation in thread/threads
  - Make a page where you can edit your profile
@@ -127,9 +129,9 @@ DONE - Remove firstFrameJpeg / downsampleCanvas / thumbnail (unused)
  - Bug: Keep posting/rendering modal up while logging in (or spinner? block basically & catch error on failure)
  - Need to prompt for username/handle (make a profile where you can edit this)
  - Bug: Sometimes a newly made post doesn't exist (routed to another edge machine?)
-   - Could make it so if we go to a page with a hash url, it does N many retries to get the post...
-   - Make a fake post and navigate to it with react router when creating the animation (same as comment)
    - https://community.cloudflare.com/t/listing-items-returns-inconsistent-state/122680/15
+   - Make a system where we store changes in a local cache and append them until they are confirmed added
+   - All create API calls return a full object that would appear in the list too
  - Limit video to 10MB or slightly less just in case (9MB?) (use kbps and length)
  - Last touched video continues playing (don't require touch down)
  - Tags/keywords

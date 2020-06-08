@@ -123,6 +123,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
               ]);
             }
             setPostCreateFetch(null);
+            setPostMessage("");
           }}>
             Post
         </Button>
