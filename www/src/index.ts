@@ -193,9 +193,9 @@ const validateJwtGoogle = async (input: RequestInput): Promise<StoredUser> => {
   return user;
 };
 
-const postCreate = async (input: RequestInput, createThread: boolean, userdata: PostData) => {
+const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: boolean, userdata: PostData) => {
   const user = await validateJwtGoogle(input);
-  const title = expectStringParam(input, "title", API_POST_CREATE_MAX_TITLE_LENGTH);
+  const title = hasTitle ? expectStringParam(input, "title", API_POST_CREATE_MAX_TITLE_LENGTH) : null;
   const message = expectStringParam(input, "message", API_POST_CREATE_MAX_MESSAGE_LENGTH);
   const id = uuid();
 
@@ -233,7 +233,7 @@ const postCreate = async (input: RequestInput, createThread: boolean, userdata: 
   };
 };
 
-handlers[API_POST_CREATE] = async (input) => postCreate(input, false, {type: "comment"});
+handlers[API_POST_CREATE] = async (input) => postCreate(input, false, false, {type: "comment"});
 
 const getBarIds = (list: {keys: { name: string }[]}) =>
   list.keys.map((key) => key.name.split("|")[1]);
@@ -271,7 +271,7 @@ handlers[API_ANIMATION_CREATE] = async (input) => {
 
   await expectFileHeader("video:video/mp4", video, videoMp4Header);
 
-  const output = await postCreate(input, true, {
+  const output = await postCreate(input, true, true, {
     type: "animation",
     width: expectIntegerParam(input, "width", 1, MAX_VIDEO_SIZE_X),
     height: expectIntegerParam(input, "height", 1, MAX_VIDEO_SIZE_Y)

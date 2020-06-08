@@ -30,7 +30,7 @@ export type PostData = PostComment | PostAnimation;
 export interface StoredPost {
   id: string;
   threadId: string;
-  title: string;
+  title: string | null;
   message: string;
   userdata: PostData;
   userId: string;
