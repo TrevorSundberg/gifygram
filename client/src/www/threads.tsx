@@ -2,6 +2,7 @@ import {API_THREAD_LIST, ReturnedThread} from "../../../common/common";
 import {abortableJsonFetch, cancel} from "../shared/shared";
 import {AnimationVideo} from "./animationVideo";
 import Avatar from "@material-ui/core/Avatar";
+import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
@@ -89,6 +90,16 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
           <IconButton>
             <ShareIcon />
           </IconButton>
+          <div style={{flexGrow: 1}}></div>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={(e) => {
+              e.stopPropagation();
+              props.history.push(`/editor?remixId=${thread.id}`);
+            }}>
+            Remix
+          </Button>
         </CardActions>
       </Card>)}
     </div>);
