@@ -11,13 +11,14 @@ const path = require("path");
   });
 
   // Start the webpack dev for the server.
+  const backendDir = path.join(__dirname, "www");
   execa("npm", ["run", "liveWebpackServer"], {
     stdio: "inherit",
-    cwd: path.join(__dirname, "www")
+    cwd: backendDir
   });
 
   // Cloudworker will fail if dist/worker.development.js does not exist, so wait for it.
-  const workerJsPath = path.join(__dirname, "www", "dist", "worker.development.js");
+  const workerJsPath = path.join(backendDir, "dist", "worker.development.js");
   await new Promise((resolve) => {
     const interval = setInterval(() => {
       if (fs.existsSync(workerJsPath)) {
@@ -33,6 +34,6 @@ const path = require("path");
   // Start the Cloudflare Worker emulation (cloudworker).
   execa("npm", ["run", "liveCloudWorker"], {
     stdio: "inherit",
-    cwd: path.join(__dirname, "www")
+    cwd: backendDir
   });
 })();
