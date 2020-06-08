@@ -16,6 +16,8 @@ export class Gizmo extends EventTarget {
       pinchable: true,
       rotatable: true,
       scalable: true,
+      pinchOutside: true,
+      pinchThreshold: Number.MAX_SAFE_INTEGER,
       target: widget.element
     });
     this.moveable = moveable;

@@ -30,7 +30,7 @@
     "jquery": "^3.4.1",
     "jsfeat": "0.0.8",
     "mini-svg-data-uri": "^1.1.3",
-    "moveable": "^0.13.4",
+    "moveable": "^0.17.10",
     "pako": "^1.0.11",
     "popper.js": "^1.16.1",
     "raw-loader": "^4.0.0",
