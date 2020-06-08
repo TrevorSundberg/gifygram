@@ -118,12 +118,13 @@ DONE - Replace /threads with / and make the editor into /editor
 DONE - Bug: Some gif animations are too fast (min frame rate?)
 DONE - Store width/height of video so we can reserve video element size (layout)
 
+ - Share Card implementation in thread/threads
  - Remove firstFrameJpeg / downsampleCanvas / thumbnail (unused)
  - Make a page where you can edit your profile
  - Make basic profile page
  - Link user ids in thread/threads to profile page
  - Make editable profile page
- - Bug: Keep posting/rendering modal up while logging in
+ - Bug: Keep posting/rendering modal up while logging in (or spinner? block basically & catch error on failure)
  - Need to prompt for username/handle (make a profile where you can edit this)
  - Bug: Sometimes a newly made post doesn't exist (routed to another edge machine?)
    - Could make it so if we go to a page with a hash url, it does N many retries to get the post...
@@ -132,7 +133,7 @@ DONE - Store width/height of video so we can reserve video element size (layout)
  - Limit video to 10MB or slightly less just in case (9MB?) (use kbps and length)
  - Last touched video continues playing (don't require touch down)
  - Tags/keywords
- - Infinite scrolling with using CSS grid
+ - Infinite scrolling using CSS grid
  - Like post or comment - (approximate, non-atomic and underestimate + actual vote by user)
  - Track views / popularity (approximate, non-atomic and underestimate + actual view by user)
  - Flag post or comment (approximate, non-atomic and underestimate + actual flag by user)
@@ -157,7 +158,7 @@ DONE - Store width/height of video so we can reserve video element size (layout)
 
  - Bug: Video was too wide (black background to the right)
  - Bug: Motion track first/last frame is offset (almost like it's wrapping first/last)
- - Bug: Animation after encoding does not always match video frame
+ - Bug: Widgets after encoding does not always match current video frame (widgets in wrong position)
  - Visiblity toggle kinda sucks in animator, we should just make it a timeline thing
  - Upgrade moveable and test new mobile touch controls
  - Custom dialog for listing stickers / videos
