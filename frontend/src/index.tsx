@@ -4,9 +4,9 @@ import {
   Route,
   Switch
 } from "react-router-dom";
-import {theme, useStyles} from "./www/style";
+import {theme, useStyles} from "./page/style";
 import AppBar from "@material-ui/core/AppBar";
-import {AuthTest} from "./www/authtest";
+import {AuthTest} from "./page/authtest";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import {EditorComponent} from "./editor/editorComponent";
@@ -14,13 +14,13 @@ import IconButton from "@material-ui/core/IconButton";
 import InputBase from "@material-ui/core/InputBase";
 import MenuIcon from "@material-ui/icons/Menu";
 import {ModalContainer} from "./editor/modal";
-import {Profile} from "./www/profile";
+import {Profile} from "./page/profile";
 import React from "react";
 import ReactDOM from "react-dom";
 import SearchIcon from "@material-ui/icons/Search";
 import {ThemeProvider} from "@material-ui/core/styles";
-import {Thread} from "./www/thread";
-import {Threads} from "./www/threads";
+import {Thread} from "./page/thread";
+import {Threads} from "./page/threads";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 
