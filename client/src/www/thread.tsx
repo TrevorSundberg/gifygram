@@ -67,14 +67,18 @@ export const Thread: React.FC<ThreadProps> = (props) => {
           : null
       }
       <CardContent>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => {
-            props.history.push(`/editor?remixId=${post.id}`);
-          }}>
-          Remix
-        </Button>
+        {
+          post.userdata.type === "animation"
+            ? <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                props.history.push(`/editor?remixId=${post.id}`);
+              }}>
+              Remix
+            </Button>
+            : null
+        }
         <br/>
         {post.username}
         <br/>
