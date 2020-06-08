@@ -6,7 +6,7 @@ import {
   API_ANIMATION_CREATE,
   API_ANIMATION_JSON
 } from "../../../common/common";
-import {Deferred, NeverAsync, THUMBNAIL_DOWNSAMPLE, Utility, canvasToArrayBuffer} from "./utility";
+import {Deferred, NeverAsync, Utility} from "./utility";
 import {MODALS_CHANGED, Modal} from "./modal";
 import {Manager, SerializedData} from "./manager";
 import {RenderFrameEvent, Renderer} from "./renderer";
@@ -169,16 +169,7 @@ export class Editor {
         (progress) => modal.setProgress(progress, "Encoding")
       );
       manager.updateExternally = true;
-      let firstFrameJpeg: ArrayBuffer = null;
       renderer.onRenderFrame = async (event: RenderFrameEvent) => {
-        if (firstFrameJpeg === null) {
-          const downsampleCanvas = document.createElement("canvas");
-          downsampleCanvas.width = renderer.resizeCanvas.width / THUMBNAIL_DOWNSAMPLE;
-          downsampleCanvas.height = renderer.resizeCanvas.height / THUMBNAIL_DOWNSAMPLE;
-          const downsampleContext = downsampleCanvas.getContext("2d");
-          downsampleContext.drawImage(renderer.resizeCanvas, 0, 0, downsampleCanvas.width, downsampleCanvas.height);
-          firstFrameJpeg = await canvasToArrayBuffer(downsampleCanvas, "image/jpeg");
-        }
         await videoEncoder.processFrame();
         modal.setProgress(event.progress, "Rendering");
       };
@@ -192,7 +183,6 @@ export class Editor {
       renderer.onRenderFrame = null;
       manager.updateExternally = false;
       return {
-        firstFrameJpeg,
         videoBlob,
         width: renderer.resizeCanvas.width,
         height: renderer.resizeCanvas.height
@@ -211,15 +201,12 @@ export class Editor {
       if (result) {
         const jsonBuffer = new TextEncoder().encode(manager.saveToJson());
         const videoBuffer = await result.videoBlob.arrayBuffer();
-        const thumbnailBuffer = result.firstFrameJpeg;
 
         const blob = new Blob([
           makeLengthBuffer(jsonBuffer.byteLength),
           jsonBuffer,
           makeLengthBuffer(videoBuffer.byteLength),
-          videoBuffer,
-          makeLengthBuffer(thumbnailBuffer.byteLength),
-          thumbnailBuffer
+          videoBuffer
         ]);
         const response = await fetch(makeServerUrl(API_ANIMATION_CREATE, {
           title,

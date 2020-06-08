@@ -15,7 +15,6 @@ export const MAX_OUTPUT_SIZE: Size = [
   MAX_VIDEO_SIZE_X,
   MAX_VIDEO_SIZE_Y
 ];
-export const THUMBNAIL_DOWNSAMPLE = 2;
 
 export class Deferred<T> implements Promise<T> {
   private resolveSelf;
@@ -148,15 +147,3 @@ export const resizeMinimumKeepAspect = (current: Size, target: Size): Size => {
 };
 
 export type TimeRange = [number, number];
-
-export const canvasToArrayBuffer = async (canvas: HTMLCanvasElement, mimeType: string) => {
-  const defer = new Deferred<ArrayBuffer>();
-  canvas.toBlob((blob) => {
-    const reader = new FileReader();
-    reader.addEventListener("loadend", () => {
-      defer.resolve(reader.result as ArrayBuffer);
-    });
-    reader.readAsArrayBuffer(blob);
-  }, mimeType);
-  return defer;
-};

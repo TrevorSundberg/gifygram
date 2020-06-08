@@ -117,9 +117,9 @@ DONE - Replace Modal, ModalProgress with material UI
 DONE - Replace /threads with / and make the editor into /editor
 DONE - Bug: Some gif animations are too fast (min frame rate?)
 DONE - Store width/height of video so we can reserve video element size (layout)
+DONE - Remove firstFrameJpeg / downsampleCanvas / thumbnail (unused)
 
  - Share Card implementation in thread/threads
- - Remove firstFrameJpeg / downsampleCanvas / thumbnail (unused)
  - Make a page where you can edit your profile
  - Make basic profile page
  - Link user ids in thread/threads to profile page
