@@ -4,10 +4,10 @@ const fs = require("fs");
 const path = require("path");
 
 (async () => {
-  // Start the webpack dev for the client.
-  execa("npm", ["run", "liveWebpackClient"], {
+  // Start the webpack dev for the frontend.
+  execa("npm", ["run", "liveWebpackFrontend"], {
     stdio: "inherit",
-    cwd: path.join(__dirname, "client")
+    cwd: path.join(__dirname, "frontend")
   });
 
   // Start the webpack dev for the server.

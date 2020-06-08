@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "A stupid website for animating images on top of videos.",
   "scripts": {
-    "buildClient": "cd client && npm install && npm run build",
+    "buildFrontend": "cd frontend && npm install && npm run build",
     "buildWww": "cd www && npm install && npm run build",
-    "build": "npm install && npm run lint && npm run buildClient && npm run buildWww",
+    "build": "npm install && npm run lint && npm run buildFrontend && npm run buildWww",
     "lint": "eslint --ext .ts,.tsx .",
     "start": "node dev.js"
   },

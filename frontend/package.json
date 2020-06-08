@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "build": "rm -rf ./dist && webpack --mode production",
-    "liveWebpackClient": "webpack-dev-server --mode development --open --hot"
+    "liveWebpackFrontend": "webpack-dev-server --mode development --open --hot"
   },
   "keywords": [],
   "dependencies": {
