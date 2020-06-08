@@ -1,5 +1,5 @@
 import {API_POST_CREATE, API_POST_LIST, ReturnedPost} from "../../../common/common";
-import {abortableJsonFetch, cancel} from "../shared/shared";
+import {AbortablePromise, abortableJsonFetch, cancel} from "../shared/shared";
 import {AnimationVideo} from "./animationVideo";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
@@ -33,6 +33,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
   ]);
   const [postTitle, setPostTitle] = React.useState("");
   const [postMessage, setPostMessage] = React.useState("");
+  const [postCreateFetch, setPostCreateFetch] = React.useState<AbortablePromise<PostCreate>>(null);
 
   React.useEffect(() => {
     const postListFetch = abortableJsonFetch<ReturnedPost[]>(API_POST_LIST, {threadId: props.id});
@@ -45,6 +46,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
 
     return () => {
       cancel(postListFetch);
+      cancel(postCreateFetch);
     };
   }, []);
 
@@ -94,22 +96,17 @@ export const Thread: React.FC<ThreadProps> = (props) => {
           color="primary"
           onClick={async () => {
             const headers = await signInIfNeeded();
-            setPostTitle("");
-            setPostMessage("");
 
-            const postCreateFetch = abortableJsonFetch<PostCreate>(API_POST_CREATE, {
-              postTitle,
-              postMessage,
+            const postCreateFetchPromise = abortableJsonFetch<PostCreate>(API_POST_CREATE, {
+              title: postTitle,
+              message: postMessage,
               replyId: props.id
             }, {headers});
+            setPostCreateFetch(postCreateFetchPromise);
 
-            React.useEffect(() => () => {
-              cancel(postCreateFetch);
-            }, []);
-
-            const newPost = await postCreateFetch;
+            const newPost = await postCreateFetchPromise;
             if (newPost) {
-            // Append our post to the end.
+              // Append our post to the end.
               setPosts((previous) => [
                 ...previous,
                 createPsuedoPost(newPost.id, {type: "comment"}, props.id, props.id, postTitle, postMessage)
