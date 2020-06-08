@@ -7,12 +7,12 @@
     "transpile": "tsc --project ./test",
     "clear": "wrangler kv:key list --binding=db > list.json && sed -i 's/\"name\"/\"value\":\"\",\"key\"/g' list.json && wrangler kv:bulk delete --binding=db list.json && rm list.json",
     "buildClient": "cd ../client && npm run build",
-    "preview": "npm run buildClient && wrangler preview",
-    "publish": "npm run buildClient && wrangler publish"
+    "publish": "npm run buildClient && wrangler publish --env prod",
+    "start": "wrangler dev"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^1.0.1",
-    "@cloudflare/wrangler": "^1.9.0",
+    "@cloudflare/wrangler": "^1.9.2",
     "@types/chai": "^4.2.11",
     "@types/mocha": "^5.2.7",
     "chai": "^4.2.0",

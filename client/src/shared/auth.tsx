@@ -1,8 +1,13 @@
 import {AUTH_GOOGLE_CLIENT_ID} from "../../../common/common";
+import {isDevEnvironment} from "./shared";
 
 type GoogleAuth = Omit<gapi.auth2.GoogleAuth, "then">;
 
 const auth2Promise = new Promise<GoogleAuth>((resolve, reject) => {
+  if (isDevEnvironment()) {
+    resolve(null);
+    return;
+  }
   const script = document.createElement("script");
   script.onload = () => {
     window.gapi.load("auth2", () => {
@@ -21,6 +26,11 @@ const auth2Promise = new Promise<GoogleAuth>((resolve, reject) => {
 });
 
 export const signInIfNeeded = async () => {
+  if (isDevEnvironment()) {
+    return {
+      Authorization: "dev"
+    };
+  }
   const auth2 = await auth2Promise;
   if (auth2.isSignedIn.get()) {
     return {

@@ -1,5 +1,10 @@
+// Assume we're in dev if the protocol is http: (not https:)
+export const isDevEnvironment = () => window.location.protocol === "http:";
+
 export const makeServerUrl = (path: string, params?: Record<string, any>) => {
-  const url = new URL("https://www.welderengine.workers.dev");
+  const url = new URL(isDevEnvironment()
+    ? "http://localhost:8787"
+    : window.location.origin);
   url.pathname = path;
   if (params) {
     for (const key of Object.keys(params)) {

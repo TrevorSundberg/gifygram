@@ -10,6 +10,7 @@ import {
   API_PROFILE,
   API_THREAD_LIST,
   AUTH_GOOGLE_CLIENT_ID,
+  AUTH_GOOGLE_ISSUER,
   MAX_VIDEO_SIZE_X,
   MAX_VIDEO_SIZE_Y,
   PostData,
@@ -28,6 +29,8 @@ import {Jose} from "jose-jwe-jws";
 (Jose as any).crypto = crypto;
 
 import {uuid} from "uuidv4";
+
+const isDevEnvironment = () => MODE === "dev";
 
 const CONTENT_TYPE_APPLICATION_JSON = "application/json";
 const CONTENT_TYPE_VIDEO_MP4 = "video/mp4";
@@ -63,9 +66,15 @@ const parseBinaryChunks = (buffer: ArrayBuffer) => {
   return result;
 };
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, HEAD, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization"
+};
+
 // TODO(trevor): Remove this once it's all hosted in the same place.
 const createAccessHeaders = (mimeType: string) => new Headers({
-  "Access-Control-Allow-Origin": "*",
+  ...corsHeaders,
   "Content-Type": mimeType || "application/octet-stream"
 });
 const responseOptions = (mimeType: string) => ({headers: createAccessHeaders(mimeType)});
@@ -158,31 +167,55 @@ const expectFileHeader = async (name: string, buffer: ArrayBuffer, expectedHeade
   }
 };
 
+interface JwtPayload {
+  iss: string;
+  aud: string;
+  exp: string;
+
+  sub: string;
+  given_name: string;
+}
+
 const validateJwtGoogle = async (input: RequestInput): Promise<StoredUser> => {
   const token = expectString("authorization", input.request.headers.get("authorization"), 4096);
 
-  const response = await fetch("https://www.googleapis.com/oauth2/v3/certs");
-  const jwks: {keys: JWKRSA[]} = await response.json();
+  const content = await (async (): Promise<JwtPayload> => {
+    if (isDevEnvironment()) {
+      if (token !== "dev") {
+        throw new Error("Expected token to be 'dev'");
+      }
+      return {
+        iss: AUTH_GOOGLE_ISSUER,
+        aud: AUTH_GOOGLE_CLIENT_ID,
+        exp: `${Number.MAX_SAFE_INTEGER}`,
+        sub: "anonymous",
+        given_name: "anonymous"
+      };
+    }
 
-  const cryptographer = new Jose.WebCryptographer();
-  const verifier = new Jose.JoseJWS.Verifier(cryptographer, token);
+    const response = await fetch("https://www.googleapis.com/oauth2/v3/certs");
+    const jwks: {keys: JWKRSA[]} = await response.json();
 
-  await Promise.all([jwks.keys.map((key) => verifier.addRecipient(key, key.kid, key.alg as SignAlgorithm))]);
+    const cryptographer = new Jose.WebCryptographer();
+    const verifier = new Jose.JoseJWS.Verifier(cryptographer, token);
 
-  const results = await verifier.verify();
-  const verified = results.filter((result) => result.verified);
-  if (verified.length === 0) {
-    throw new Error("JWT was not verified with any key");
-  }
+    await Promise.all([jwks.keys.map((key) => verifier.addRecipient(key, key.kid, key.alg as SignAlgorithm))]);
 
-  const content = JSON.parse(verified[0].payload as string);
-  if (content.iss !== "accounts.google.com") {
+    const results = await verifier.verify();
+    const verified = results.filter((result) => result.verified);
+    if (verified.length === 0) {
+      throw new Error("JWT was not verified with any key");
+    }
+    return JSON.parse(verified[0].payload as string) as JwtPayload;
+  })();
+
+  if (content.iss !== AUTH_GOOGLE_ISSUER) {
     throw new Error(`Invalid issuer ${content.iss}`);
   }
   if (content.aud !== AUTH_GOOGLE_CLIENT_ID) {
     throw new Error(`Invalid audience ${content.aud}`);
   }
-  if (content.exp <= Math.ceil(Date.now() / 1000)) {
+  if (parseInt(content.exp, 10) <= Math.ceil(Date.now() / 1000)) {
     throw new Error(`JWT expired ${content.exp}`);
   }
   const user: StoredUser = {
@@ -315,7 +348,27 @@ handlers[API_AUTHTEST] = async (input) => {
   };
 };
 
+const handleOptions = (request: Request) => {
+  if (
+    request.headers.get("Origin") !== null &&
+    request.headers.get("Access-Control-Request-Method") !== null &&
+    request.headers.get("Access-Control-Request-Headers") !== null) {
+    return new Response(null, {
+      headers: corsHeaders
+    });
+  }
+
+  return new Response(null, {
+    headers: {
+      Allow: "GET, HEAD, POST, OPTIONS"
+    }
+  });
+};
+
 const handleRequest = async (event: FetchEvent): Promise<Response> => {
+  if (event.request.method === "OPTIONS") {
+    return handleOptions(event.request);
+  }
   const url = new URL(decodeURI(event.request.url));
   try {
     const handler = handlers[url.pathname];
