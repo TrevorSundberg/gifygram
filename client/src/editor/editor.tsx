@@ -10,7 +10,7 @@ import {Deferred, NeverAsync, THUMBNAIL_DOWNSAMPLE, Utility, canvasToArrayBuffer
 import {MODALS_CHANGED, Modal} from "./modal";
 import {Manager, SerializedData} from "./manager";
 import {RenderFrameEvent, Renderer} from "./renderer";
-import {checkResponseJson, makeUrl} from "../shared/shared";
+import {checkResponseJson, makeServerUrl} from "../shared/shared";
 import $ from "jquery";
 import {Background} from "./background";
 import {ModalProgress} from "./modalProgress";
@@ -75,7 +75,7 @@ export class Editor {
       manager.loadFromBase64(urlData);
     } else if (remixId) {
       (async () => {
-        const response = await fetch(makeUrl(API_ANIMATION_JSON, {id: remixId}));
+        const response = await fetch(makeServerUrl(API_ANIMATION_JSON, {id: remixId}));
         const animation: SerializedData = checkResponseJson(await response.json());
         manager.load(animation);
       })();
@@ -221,7 +221,7 @@ export class Editor {
           makeLengthBuffer(thumbnailBuffer.byteLength),
           thumbnailBuffer
         ]);
-        const response = await fetch(makeUrl(API_ANIMATION_CREATE, {
+        const response = await fetch(makeServerUrl(API_ANIMATION_CREATE, {
           title,
           message,
           width: result.width,

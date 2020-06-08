@@ -1,8 +1,5 @@
-export const makeUrl = (path: string, params?: Record<string, any>) => {
-  const current = new URL(window.location.href);
-  const url = new URL(current.hostname === "0.0.0.0"
-    ? "https://www.welderengine.workers.dev"
-    : current.origin);
+export const makeServerUrl = (path: string, params?: Record<string, any>) => {
+  const url = new URL("https://www.welderengine.workers.dev");
   url.pathname = path;
   if (params) {
     for (const key of Object.keys(params)) {
@@ -30,7 +27,7 @@ const abortableJsonFetchInternal = async <T>(
   params?: Record<string, any>,
   options?: RequestInit): Promise<T | null> => {
   try {
-    const response = await fetch(makeUrl(path, params), {signal: controller.signal, ...options});
+    const response = await fetch(makeServerUrl(path, params), {signal: controller.signal, ...options});
     return checkResponseJson(await response.json());
   } catch (err) {
     if (err instanceof Error && err.name === "AbortError") {

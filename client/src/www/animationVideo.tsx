@@ -1,6 +1,6 @@
 import {API_ANIMATION_VIDEO} from "../../../common/common";
 import React from "react";
-import {makeUrl} from "../shared/shared";
+import {makeServerUrl} from "../shared/shared";
 import {useStyles} from "./style";
 
 export interface AnimationVideoProps extends
@@ -23,7 +23,7 @@ export const AnimationVideo: React.FC<AnimationVideoProps> = (props) => {
       className={classes.video}
       muted
       loop
-      src={makeUrl(API_ANIMATION_VIDEO, {id: props.id})}
+      src={makeServerUrl(API_ANIMATION_VIDEO, {id: props.id})}
       {...props}>
     </video>
   </div>;
