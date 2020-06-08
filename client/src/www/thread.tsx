@@ -93,6 +93,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       <CardContent>
         <TextField
           fullWidth
+          disabled={Boolean(postCreateFetch)}
           label="Comment"
           multiline={true}
           inputProps={{maxLength: API_POST_CREATE_MAX_MESSAGE_LENGTH}}
@@ -101,6 +102,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
             setPostMessage(e.target.value);
           }}/>
         <Button
+          disabled={Boolean(postCreateFetch)}
           variant="contained"
           color="primary"
           onClick={async () => {
@@ -120,6 +122,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
                 createPsuedoPost(newPost.id, {type: "comment"}, props.id, props.id, null, postMessage)
               ]);
             }
+            setPostCreateFetch(null);
           }}>
             Post
         </Button>
