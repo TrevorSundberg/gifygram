@@ -111,7 +111,7 @@ const expectInteger = (
   maxInclusive: number
 ): number => {
   if (typeof value !== "string") {
-    throw new Error(`Expected ${name} to be a string represntation of a number but got ${value}`);
+    throw new Error(`Expected ${name} to be a string representation of a number but got ${value}`);
   }
   const number = parseInt(value, 10);
   if (number < minInclusive || number > maxInclusive) {
