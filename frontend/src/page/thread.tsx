@@ -7,7 +7,7 @@ import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import React from "react";
 import TextField from "@material-ui/core/TextField";
-import {createPsuedoPost} from "./post";
+import {Post, createPsuedoPost} from "./post";
 import {signInIfNeeded} from "../shared/auth";
 
 interface ThreadProps {
@@ -50,45 +50,12 @@ export const Thread: React.FC<ThreadProps> = (props) => {
   }, []);
 
   return <div>
-    {posts.map((post) => <Card
+    {posts.map((post) => <Post
       key={post.id}
-      id={post.id}
-      style={{marginBottom: 4}}>
-      {
-        post.userdata.type === "animation"
-          ? <CardMedia>
-            <AnimationVideo
-              id={post.id}
-              width={post.userdata.width}
-              height={post.userdata.height}
-              autoPlay
-            />
-          </CardMedia>
-          : null
-      }
-      <CardContent>
-        {
-          post.userdata.type === "animation"
-            ? <Button
-              variant="contained"
-              color="primary"
-              onClick={() => {
-                props.history.push(`/editor?remixId=${post.id}`);
-              }}>
-              Remix
-            </Button>
-            : null
-        }
-        <br/>
-        {post.username}
-        <br/>
-        {post.replyId ? <div><a href={`#${post.replyId}`}>IN REPLY TO</a><br/></div> : null}
-        <br/>
-        {post.title}
-        <br/>
-            MESSAGE: {post.message}
-      </CardContent>
-    </Card>)}
+      post={post}
+      cardStyle={{marginBottom: 4}}
+      videoProps={{autoPlay: true}}
+      history={props.history}/>)}
     <Card>
       <CardContent>
         <TextField
