@@ -9,6 +9,7 @@
     "buildFrontend": "cd frontend && npm run build",
     "buildBackend": "cd backend && npm run build",
     "buildAll": "npm run installAll && npm run lint && npm run buildFrontend && npm run buildBackend",
+    "publish": "npm run buildAll && cd backend && npm run publish",
     "lint": "eslint --ext .ts,.tsx .",
     "start": "node dev.js"
   },
