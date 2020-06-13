@@ -6,6 +6,7 @@ import {
   API_POST_CREATE,
   API_POST_CREATE_MAX_MESSAGE_LENGTH,
   API_POST_CREATE_MAX_TITLE_LENGTH,
+  API_POST_LIKE,
   API_POST_LIST,
   API_PROFILE,
   API_THREAD_LIST,
@@ -35,6 +36,8 @@ patchDevKv(db);
 
 const CONTENT_TYPE_APPLICATION_JSON = "application/json";
 const CONTENT_TYPE_VIDEO_MP4 = "video/mp4";
+
+const AUTHORIZATION_HEADER = "authorization";
 
 interface RequestInput {
   request: Request;
@@ -123,6 +126,13 @@ const expectInteger = (
   return number;
 };
 
+const expectBoolean = (name: string, value: string | null | undefined): boolean => {
+  if (value !== "true" && value !== "false") {
+    throw new Error(`Expected ${name} to be a string of 'true' or 'false' but got ${value}`);
+  }
+  return value === "true";
+};
+
 const expectUuidParam = (input: RequestInput, name: string) =>
   expectUuid(name, input.url.searchParams.get(name));
 
@@ -131,6 +141,9 @@ const expectStringParam = (input: RequestInput, name: string, maxLength: number)
 
 const expectIntegerParam = (input: RequestInput, name: string, minInclusive: number, maxInclusive: number) =>
   expectInteger(name, input.url.searchParams.get(name), minInclusive, maxInclusive);
+
+const expectBooleanParam = (input: RequestInput, name: string) =>
+  expectBoolean(name, input.url.searchParams.get(name));
 
 const videoMp4Header = new Uint8Array([
   0x00,
@@ -224,6 +237,15 @@ const validateJwtGoogle = async (input: RequestInput): Promise<StoredUser> => {
   return user;
 };
 
+const optionalValidateJwtGoogle = async (input: RequestInput): Promise<StoredUser | null> => {
+  if (input.request.headers.has(AUTHORIZATION_HEADER)) {
+    await validateJwtGoogle(input);
+  }
+  return null;
+};
+
+const getPost = async (id: string) => expect(await db.get<StoredPost>(`post:${id}`, "json"));
+
 const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: boolean, userdata: PostData) => {
   const user = await validateJwtGoogle(input);
   const title = hasTitle ? expectStringParam(input, "title", API_POST_CREATE_MAX_TITLE_LENGTH) : null;
@@ -238,7 +260,7 @@ const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: 
       await db.put(`thread:${newToOld}|${id}`, id);
       return id;
     }
-    const replyPost = await db.get<StoredPost>(`post:${expectUuid("replyId", replyId)}`, "json");
+    const replyPost = await getPost(expectUuid("replyId", replyId));
     const replyThreadId = replyPost!.id;
     return expectUuid("replyThreadId", replyThreadId);
   })();
@@ -269,24 +291,32 @@ handlers[API_POST_CREATE] = async (input) => postCreate(input, false, false, {ty
 const getBarIds = (list: {keys: { name: string }[]}) =>
   list.keys.map((key) => key.name.split("|")[1]);
 
-const getPostsFromIds = async (ids: string[]): Promise<ReturnedPost[]> => {
-  const posts = await Promise.all(ids.map(async (id) => expect(await db.get<StoredPost>(`post:${id}`, "json"))));
+const getPostsFromIds = async (input: RequestInput, ids: string[]): Promise<ReturnedPost[]> => {
+  const authedUser = await optionalValidateJwtGoogle(input);
+  const posts = await Promise.all(ids.map(getPost));
   return Promise.all(posts.map(async (post) => {
     const user = await db.get<StoredUser>(`user:${post.userId}`, "json");
-    return {...post, username: user!.username};
+    return {
+      ...post,
+      username: user!.username,
+      liked: authedUser
+        ? await db.get(`post/like:${authedUser.id}:${post.id}`) !== null
+        : false,
+      likes: parseInt(await db.get(`post/likes:${post.id}`) || "0", 10)
+    };
   }));
 };
 
-handlers[API_THREAD_LIST] = async () => {
+handlers[API_THREAD_LIST] = async (input) => {
   const list = await db.list({prefix: "thread:"});
-  const threads = await getPostsFromIds(getBarIds(list));
+  const threads = await getPostsFromIds(input, getBarIds(list));
   return {response: new Response(JSON.stringify(threads), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 
 handlers[API_POST_LIST] = async (input) => {
   const threadId = expectUuidParam(input, "threadId");
   const list = await db.list({prefix: `thread/post:${threadId}:`});
-  const posts = await getPostsFromIds(getBarIds(list));
+  const posts = await getPostsFromIds(input, getBarIds(list));
   return {response: new Response(JSON.stringify(posts), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 
@@ -331,6 +361,35 @@ handlers[API_PROFILE] = async (input) => {
   return {
     response: new Response(
       JSON.stringify(user),
+      responseOptions(CONTENT_TYPE_APPLICATION_JSON)
+    )
+  };
+};
+
+handlers[API_POST_LIKE] = async (input) => {
+  const user = await validateJwtGoogle(input);
+  const id = expectUuidParam(input, "id");
+  const newValue = expectBooleanParam(input, "value");
+  // Validate that the post exists.
+  await getPost(id);
+
+  const oldValue = Boolean(await db.get(`post/like:${user.id}:${id}`));
+
+  if (newValue !== oldValue) {
+    const likesKey = `post/likes:${id}`;
+    const prevLikes = parseInt(await db.get(likesKey) || "0", 10);
+    if (newValue) {
+      await db.put(`post/like:${user.id}:${id}`, "1");
+      await db.put(`post/likes:${id}`, `${prevLikes + 1}`);
+    } else {
+      await db.delete(`post/like:${user.id}:${id}`);
+      await db.put(`post/likes:${id}`, `${prevLikes - 1}`);
+    }
+  }
+
+  return {
+    response: new Response(
+      JSON.stringify({}),
       responseOptions(CONTENT_TYPE_APPLICATION_JSON)
     )
   };

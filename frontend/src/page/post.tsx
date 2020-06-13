@@ -1,6 +1,7 @@
-import {PostData, ReturnedPost} from "../../../common/common";
+import {API_POST_LIKE, PostData, ReturnedPost} from "../../../common/common";
 import {AnimationVideo} from "./animationVideo";
 import Avatar from "@material-ui/core/Avatar";
+import Badge from "@material-ui/core/Badge";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
@@ -14,6 +15,8 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import React from "react";
 import ShareIcon from "@material-ui/icons/Share";
 import Typography from "@material-ui/core/Typography";
+import {abortableJsonFetch} from "../shared/shared";
+import {signInIfNeeded} from "../shared/auth";
 
 export const createPsuedoPost = (
   id: string,
@@ -30,7 +33,9 @@ export const createPsuedoPost = (
   userdata,
   replyId,
   userId: "",
-  username: "Me"
+  username: "Me",
+  liked: false,
+  likes: 0
 });
 
 interface PostProps {
@@ -41,62 +46,83 @@ interface PostProps {
   history: import("history").History;
 }
 
-export const Post: React.FC<PostProps> = (props) => <Card
-  key={props.post.id}
-  style={props.cardStyle}
-  onClick={props.onClick}>
-  <CardHeader
-    avatar={
-      <Avatar>
-        {props.post.username.slice(0, 1).toUpperCase()}
-      </Avatar>
-    }
-    action={
-      <IconButton>
-        <MoreVertIcon />
-      </IconButton>
-    }
-    title={props.post.title}
-    subheader={props.post.username}
-  />
-  {
-    props.post.userdata.type === "animation"
-      ? <CardMedia>
-        <AnimationVideo
-          {...props.videoProps}
-          id={props.post.id}
-          width={props.post.userdata.width}
-          height={props.post.userdata.height}
-        />
-      </CardMedia>
-      : null
-  }
-  <CardContent>
-    {props.post.replyId ? <Link href={`#${props.post.replyId}`}>IN REPLY TO</Link> : null}
-    <Typography noWrap variant="body2" color="textSecondary" component="p">
-      {props.post.message}
-    </Typography>
-  </CardContent>
-  <CardActions disableSpacing>
-    <IconButton>
-      <FavoriteIcon />
-    </IconButton>
-    <IconButton>
-      <ShareIcon />
-    </IconButton>
-    <div style={{flexGrow: 1}}></div>
+export const Post: React.FC<PostProps> = (props) => {
+  const [liked, setLiked] = React.useState(props.post.liked);
+  const [likes, setLikes] = React.useState(props.post.likes);
+
+  // Since we create the psuedo post to start with, the number of likes can change from props.
+  React.useEffect(() => {
+    setLikes(props.post.likes);
+  }, [props.post.likes]);
+
+  return <Card
+    key={props.post.id}
+    style={props.cardStyle}
+    onClick={props.onClick}>
+    <CardHeader
+      avatar={
+        <Avatar>
+          {props.post.username.slice(0, 1).toUpperCase()}
+        </Avatar>
+      }
+      action={
+        <IconButton>
+          <MoreVertIcon />
+        </IconButton>
+      }
+      title={props.post.title}
+      subheader={props.post.username}
+    />
     {
       props.post.userdata.type === "animation"
-        ? <Button
-          variant="contained"
-          color="primary"
-          onClick={(e) => {
-            e.stopPropagation();
-            props.history.push(`/editor?remixId=${props.post.id}`);
-          }}>
-              Remix
-        </Button>
+        ? <CardMedia>
+          <AnimationVideo
+            {...props.videoProps}
+            id={props.post.id}
+            width={props.post.userdata.width}
+            height={props.post.userdata.height}
+          />
+        </CardMedia>
         : null
     }
-  </CardActions>
-</Card>;
+    <CardContent>
+      {props.post.replyId ? <Link href={`#${props.post.replyId}`}>IN REPLY TO</Link> : null}
+      <Typography noWrap variant="body2" color="textSecondary" component="p">
+        {props.post.message}
+      </Typography>
+    </CardContent>
+    <CardActions disableSpacing>
+      <IconButton
+        color={liked ? "secondary" : "default"}
+        onClick={async (e) => {
+          e.stopPropagation();
+          setLiked(!liked);
+          const newLikes = liked ? likes - 1 : likes + 1;
+          setLikes(newLikes);
+          const headers = await signInIfNeeded();
+          await abortableJsonFetch(API_POST_LIKE, {id: props.post.id, value: !liked}, {headers});
+        }}>
+        <Badge badgeContent={likes} color="primary">
+          <FavoriteIcon />
+        </Badge>
+      </IconButton>
+      <IconButton>
+        <ShareIcon />
+      </IconButton>
+      <div style={{flexGrow: 1}}></div>
+      {
+        props.post.userdata.type === "animation"
+          ? <Button
+            variant="contained"
+            color="primary"
+            onClick={(e) => {
+              e.stopPropagation();
+              props.history.push(`/editor?remixId=${props.post.id}`);
+            }}>
+              Remix
+          </Button>
+          : null
+      }
+    </CardActions>
+  </Card>;
+};
