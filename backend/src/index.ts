@@ -378,6 +378,7 @@ const handleRequest = async (event: FetchEvent): Promise<Response> => {
     return new Response(
       JSON.stringify({
         err: `${err}`,
+        stack: `${err && err.stack}`,
         pathname: url.pathname
       }),
       {
