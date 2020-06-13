@@ -120,6 +120,7 @@ DONE - Store width/height of video so we can reserve video element size (layout)
 DONE - Remove firstFrameJpeg / downsampleCanvas / thumbnail (unused)
 DONE - Titles are only for animations
 DONE - Need to clear message after its done
+DONE - Find a way to run workers/workers KV locally so we can simulate the entire environment
 
  - Share Card implementation in thread/threads
  - Make a page where you can edit your profile
@@ -152,7 +153,6 @@ DONE - Need to clear message after its done
  - Show posts on a user profile
  - Admin can ban/unban user on profile
 
- - Find a way to run workers/workers KV locally so we can simulate the entire environment
  - Get a staging environment
  - Get individual dev environments for testing (copy of database?)
  - Get publish to production using CI and npm version ...
