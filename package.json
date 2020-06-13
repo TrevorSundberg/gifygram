@@ -4,8 +4,8 @@
   "description": "A stupid website for animating images on top of videos.",
   "scripts": {
     "buildFrontend": "cd frontend && npm install && npm run build",
-    "buildWww": "cd www && npm install && npm run build",
-    "build": "npm install && npm run lint && npm run buildFrontend && npm run buildWww",
+    "buildBackend": "cd backend && npm install && npm run build",
+    "build": "npm install && npm run lint && npm run buildFrontend && npm run buildBackend",
     "lint": "eslint --ext .ts,.tsx .",
     "start": "node dev.js"
   },

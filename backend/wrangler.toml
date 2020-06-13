@@ -1,4 +1,4 @@
-name = "www"
+name = "backend"
 type = "webpack"
 account_id = "c23e8e6efebf3303153d65a556df5bc8"
 workers_dev = true

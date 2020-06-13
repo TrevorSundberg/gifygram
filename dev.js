@@ -11,7 +11,7 @@ const path = require("path");
   });
 
   // Start the webpack dev for the server.
-  const backendDir = path.join(__dirname, "www");
+  const backendDir = path.join(__dirname, "backend");
   execa("npm", ["run", "liveWebpackServer"], {
     stdio: "inherit",
     cwd: backendDir
