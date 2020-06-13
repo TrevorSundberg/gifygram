@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "A stupid website for animating images on top of videos.",
   "scripts": {
-    "buildFrontend": "cd frontend && npm install && npm run build",
-    "buildBackend": "cd backend && npm install && npm run build",
-    "build": "npm install && npm run lint && npm run buildFrontend && npm run buildBackend",
+    "installFrontend": "cd frontend && npm install",
+    "installBackend": "cd backend && npm install",
+    "installAll": "npm install && npm run installFrontend && npm run installBackend",
+    "buildFrontend": "cd frontend && npm run build",
+    "buildBackend": "cd backend && npm run build",
+    "buildAll": "npm run installAll && npm run lint && npm run buildFrontend && npm run buildBackend",
     "lint": "eslint --ext .ts,.tsx .",
     "start": "node dev.js"
   },
