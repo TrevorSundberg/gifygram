@@ -12,7 +12,6 @@ import CardMedia from "@material-ui/core/CardMedia";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import IconButton from "@material-ui/core/IconButton";
 import Link from "@material-ui/core/Link";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
 import React from "react";
 import {ShareButton} from "./shareButton";
 import Typography from "@material-ui/core/Typography";
