@@ -56,40 +56,41 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       history={props.history}/>)}
     <Card>
       <CardContent>
-        <TextField
-          fullWidth
-          disabled={Boolean(postCreateFetch)}
-          label="Comment"
-          multiline={true}
-          inputProps={{maxLength: API_POST_CREATE_MAX_MESSAGE_LENGTH}}
-          value={postMessage}
-          onChange={(e) => {
-            setPostMessage(e.target.value);
-          }}/>
-        <Button
-          disabled={Boolean(postCreateFetch)}
-          variant="contained"
-          color="primary"
-          onClick={async () => {
-            const postCreateFetchPromise = abortableJsonFetch<PostCreate>(API_POST_CREATE, Auth.Required, {
-              message: postMessage,
-              replyId: props.id
-            });
-            setPostCreateFetch(postCreateFetchPromise);
+        <form>
+          <TextField
+            fullWidth
+            disabled={Boolean(postCreateFetch)}
+            label="Comment"
+            inputProps={{maxLength: API_POST_CREATE_MAX_MESSAGE_LENGTH}}
+            value={postMessage}
+            onChange={(e) => {
+              setPostMessage(e.target.value);
+            }}/>
+          <Button
+            type="submit"
+            style={{display: "none"}}
+            disabled={Boolean(postCreateFetch)}
+            onClick={async () => {
+              const postCreateFetchPromise = abortableJsonFetch<PostCreate>(API_POST_CREATE, Auth.Required, {
+                message: postMessage,
+                replyId: props.id
+              });
+              setPostCreateFetch(postCreateFetchPromise);
 
-            const newPost = await postCreateFetchPromise;
-            if (newPost) {
-              // Append our post to the end.
-              setPosts((previous) => [
-                ...previous,
-                createPsuedoPost(newPost.id, {type: "comment"}, props.id, props.id, null, postMessage)
-              ]);
-            }
-            setPostCreateFetch(null);
-            setPostMessage("");
-          }}>
+              const newPost = await postCreateFetchPromise;
+              if (newPost) {
+                // Append our post to the end.
+                setPosts((previous) => [
+                  ...previous,
+                  createPsuedoPost(newPost.id, {type: "comment"}, props.id, props.id, null, postMessage)
+                ]);
+              }
+              setPostCreateFetch(null);
+              setPostMessage("");
+            }}>
             Post
-        </Button>
+          </Button>
+        </form>
       </CardContent>
     </Card>
   </div>;
