@@ -8,11 +8,11 @@ import {
   API_POST_CREATE_MAX_MESSAGE_LENGTH,
   API_POST_CREATE_MAX_TITLE_LENGTH
 } from "../../../common/common";
+import {Auth, abortableJsonFetch} from "../shared/shared";
 import {Deferred, NeverAsync, Utility} from "./utility";
 import {MODALS_CHANGED, Modal} from "./modal";
 import {Manager, SerializedData} from "./manager";
 import {RenderFrameEvent, Renderer} from "./renderer";
-import {checkResponseJson, makeServerUrl} from "../shared/shared";
 import $ from "jquery";
 import {Background} from "./background";
 import {ModalProgress} from "./modalProgress";
@@ -24,7 +24,6 @@ import {Timeline} from "./timeline";
 import {VideoEncoder} from "./videoEncoder";
 import {VideoEncoderH264MP4} from "./videoEncoderH264MP4";
 import {VideoPlayer} from "./videoPlayer";
-import {signInIfNeeded} from "../shared/auth";
 import svgToMiniDataURI from "mini-svg-data-uri";
 
 export class Editor {
@@ -76,8 +75,7 @@ export class Editor {
       manager.loadFromBase64(urlData);
     } else if (remixId) {
       (async () => {
-        const response = await fetch(makeServerUrl(API_ANIMATION_JSON, {id: remixId}));
-        const animation: SerializedData = checkResponseJson(await response.json());
+        const animation = await abortableJsonFetch<SerializedData>(API_ANIMATION_JSON, Auth.Optional, {id: remixId});
         manager.load(animation);
       })();
     } else {
@@ -197,7 +195,6 @@ export class Editor {
     };
 
     const makePost = async (title: string, message: string) => {
-      const headers = await signInIfNeeded();
       const result = await render();
       if (result) {
         const jsonBuffer = new TextEncoder().encode(manager.saveToJson());
@@ -209,18 +206,21 @@ export class Editor {
           makeLengthBuffer(videoBuffer.byteLength),
           videoBuffer
         ]);
-        const response = await fetch(makeServerUrl(API_ANIMATION_CREATE, {
-          title,
-          message,
-          width: result.width,
-          height: result.height,
-          ...remixId ? {replyId: remixId} : {}
-        }), {
-          body: blob,
-          method: "POST",
-          headers
-        });
-        const post: {id: string; threadId: string} = checkResponseJson(await response.json());
+        const post = await abortableJsonFetch<{id: string; threadId: string}>(
+          API_ANIMATION_CREATE,
+          Auth.Required,
+          {
+            title,
+            message,
+            width: result.width,
+            height: result.height,
+            ...remixId ? {replyId: remixId} : {}
+          },
+          {
+            body: blob,
+            method: "POST"
+          }
+        );
         // If the user goes back to the editor in history, they'll be editing a remix of their post.
         history.replace(`/editor?remixId=${post.id}`);
         if (post.id === post.threadId) {

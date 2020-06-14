@@ -1,7 +1,6 @@
 import {API_PROFILE, StoredUser} from "../../../common/common";
-import {AbortablePromise, abortableJsonFetch, cancel} from "../shared/shared";
+import {AbortablePromise, Auth, abortableJsonFetch, cancel} from "../shared/shared";
 import React from "react";
-import {signInIfNeeded} from "../shared/auth";
 
 export const Profile: React.FC = () => {
   const [user, setUser] = React.useState<StoredUser>(null);
@@ -9,8 +8,7 @@ export const Profile: React.FC = () => {
   React.useEffect(() => {
     let profileFetch: AbortablePromise<StoredUser> = null;
     (async () => {
-      const headers = await signInIfNeeded();
-      profileFetch = abortableJsonFetch<StoredUser>(API_PROFILE, null, {headers});
+      profileFetch = abortableJsonFetch<StoredUser>(API_PROFILE, Auth.Required);
       const profile = await profileFetch;
       if (profile) {
         setUser(profile);

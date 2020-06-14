@@ -1,14 +1,11 @@
 import {API_POST_CREATE, API_POST_CREATE_MAX_MESSAGE_LENGTH, API_POST_LIST, ReturnedPost} from "../../../common/common";
-import {AbortablePromise, abortableJsonFetch, cancel} from "../shared/shared";
-import {AnimationVideo} from "./animationVideo";
+import {AbortablePromise, Auth, abortableJsonFetch, cancel} from "../shared/shared";
+import {Post, createPsuedoPost} from "./post";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
-import CardMedia from "@material-ui/core/CardMedia";
 import React from "react";
 import TextField from "@material-ui/core/TextField";
-import {Post, createPsuedoPost} from "./post";
-import {signInIfNeeded} from "../shared/auth";
 
 interface ThreadProps {
   id: string;
@@ -35,7 +32,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
   const [postCreateFetch, setPostCreateFetch] = React.useState<AbortablePromise<PostCreate>>(null);
 
   React.useEffect(() => {
-    const postListFetch = abortableJsonFetch<ReturnedPost[]>(API_POST_LIST, {threadId: props.id});
+    const postListFetch = abortableJsonFetch<ReturnedPost[]>(API_POST_LIST, Auth.Optional, {threadId: props.id});
     postListFetch.then((postList) => {
       if (postList) {
         postList.reverse();
@@ -73,12 +70,10 @@ export const Thread: React.FC<ThreadProps> = (props) => {
           variant="contained"
           color="primary"
           onClick={async () => {
-            const headers = await signInIfNeeded();
-
-            const postCreateFetchPromise = abortableJsonFetch<PostCreate>(API_POST_CREATE, {
+            const postCreateFetchPromise = abortableJsonFetch<PostCreate>(API_POST_CREATE, Auth.Required, {
               message: postMessage,
               replyId: props.id
-            }, {headers});
+            });
             setPostCreateFetch(postCreateFetchPromise);
 
             const newPost = await postCreateFetchPromise;

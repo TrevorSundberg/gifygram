@@ -76,7 +76,8 @@ module.exports = {
     "@typescript-eslint/no-non-null-assertion": "off",
     "react/prop-types": "off",
     "react/display-name": "off",
-    "array-element-newline": "off"
+    "array-element-newline": "off",
+    "default-param-last": "off"
   },
   settings: {
     react: {

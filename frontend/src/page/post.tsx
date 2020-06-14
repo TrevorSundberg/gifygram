@@ -1,4 +1,5 @@
 import {API_POST_LIKE, PostData, ReturnedPost} from "../../../common/common";
+import {Auth, abortableJsonFetch} from "../shared/shared";
 import {AnimationVideo} from "./animationVideo";
 import Avatar from "@material-ui/core/Avatar";
 import Badge from "@material-ui/core/Badge";
@@ -15,8 +16,6 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import React from "react";
 import ShareIcon from "@material-ui/icons/Share";
 import Typography from "@material-ui/core/Typography";
-import {abortableJsonFetch} from "../shared/shared";
-import {signInIfNeeded} from "../shared/auth";
 
 export const createPsuedoPost = (
   id: string,
@@ -99,8 +98,7 @@ export const Post: React.FC<PostProps> = (props) => {
           setLiked(!liked);
           const newLikes = liked ? likes - 1 : likes + 1;
           setLikes(newLikes);
-          const headers = await signInIfNeeded();
-          await abortableJsonFetch(API_POST_LIKE, {id: props.post.id, value: !liked}, {headers});
+          await abortableJsonFetch(API_POST_LIKE, Auth.Required, {id: props.post.id, value: !liked});
         }}>
         <Badge badgeContent={likes} color="primary">
           <FavoriteIcon />
