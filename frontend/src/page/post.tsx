@@ -88,35 +88,37 @@ export const Post: React.FC<PostProps> = (props) => <Card
   }
   {
     props.post.title
-      ? <CardContent style={{paddingBottom: 0}}>
-        <Typography noWrap={props.preview} variant="body2" color="textSecondary" component="p">
-          {props.post.message}
-        </Typography>
-      </CardContent>
+      ? <div>
+        <CardContent style={{paddingBottom: 0}}>
+          <Typography noWrap={props.preview} variant="body2" color="textSecondary" component="p">
+            {props.post.message}
+          </Typography>
+        </CardContent>
+        <CardActions disableSpacing>
+          {
+            props.post.userdata.type === "animation"
+              ? <Button
+                variant="contained"
+                color="primary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  props.history.push(`/editor?remixId=${props.post.id}`);
+                }}>
+                Remix
+              </Button>
+              : null
+          }
+          <div style={{flexGrow: 1}}></div>
+          <ShareButton
+            title={props.post.title}
+            url={makeLocalUrl(
+              "/thread",
+              {threadId: props.post.threadId},
+              props.post.id === props.post.threadId ? null : props.post.id
+            )}/>
+          <LikeButton post={props.post}/>
+        </CardActions>
+      </div>
       : null
   }
-  <CardActions disableSpacing>
-    {
-      props.post.userdata.type === "animation"
-        ? <Button
-          variant="contained"
-          color="primary"
-          onClick={(e) => {
-            e.stopPropagation();
-            props.history.push(`/editor?remixId=${props.post.id}`);
-          }}>
-              Remix
-        </Button>
-        : null
-    }
-    <div style={{flexGrow: 1}}></div>
-    <ShareButton
-      title={props.post.title}
-      url={makeLocalUrl(
-        "/thread",
-        {threadId: props.post.threadId},
-        props.post.id === props.post.threadId ? null : props.post.id
-      )}/>
-    <LikeButton post={props.post}/>
-  </CardActions>
 </Card>;
