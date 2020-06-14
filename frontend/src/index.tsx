@@ -77,7 +77,6 @@ const App = () => {
                 <Link to="/editor" className={classes.link}>
                   <Button>Create</Button>
                 </Link>
-                <Button>Login</Button>
               </Toolbar>
             </AppBar>
           </div>
