@@ -29,7 +29,7 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
   return (
     <div style={{
       columnCount: 4,
-      columnWidth: "150px",
+      columnWidth: "175px",
       columnGap: "10px"
     }}>
       {threads.map((thread) => <Post
