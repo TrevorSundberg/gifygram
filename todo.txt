@@ -121,8 +121,12 @@ DONE - Remove firstFrameJpeg / downsampleCanvas / thumbnail (unused)
 DONE - Titles are only for animations
 DONE - Need to clear message after its done
 DONE - Find a way to run workers/workers KV locally so we can simulate the entire environment
+DONE - Share Card implementation in thread/threads
+DONE - Like post or comment - (approximate, non-atomic and underestimate + actual vote by user)
+DONE - Just make authorization happen right at the beginning of CF requests and it sets it on RequestInput
+DONE - Make the share button work
 
- - Share Card implementation in thread/threads
+ - Need to attribute original gifs
  - Make a page where you can edit your profile
  - Make basic profile page
  - Link user ids in thread/threads to profile page
@@ -137,7 +141,6 @@ DONE - Find a way to run workers/workers KV locally so we can simulate the entir
  - Last touched video continues playing (don't require touch down)
  - Tags/keywords
  - Infinite scrolling using CSS grid
- - Like post or comment - (approximate, non-atomic and underestimate + actual vote by user)
  - Track views / popularity (approximate, non-atomic and underestimate + actual view by user)
  - Flag post or comment (approximate, non-atomic and underestimate + actual flag by user)
  - Multiple boards and posting by board?
@@ -153,6 +156,7 @@ DONE - Find a way to run workers/workers KV locally so we can simulate the entir
  - Show posts on a user profile
  - Admin can ban/unban user on profile
 
+ - Relaunch cloudworker if it dies (until we exit)
  - Get a staging environment
  - Get individual dev environments for testing (copy of database?)
  - Get publish to production using CI and npm version ...
@@ -182,8 +186,6 @@ DONE - Find a way to run workers/workers KV locally so we can simulate the entir
 
  - Facial recognition
  - Green screening
-
- - Share on giphy, imgur, etc.
 
 Sound (postponed):
  - Use media scene and change to playing the scenejs rather than seeking it on every video frame
