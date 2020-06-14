@@ -111,27 +111,6 @@ export const Post: React.FC<PostProps> = (props) => {
         : null
     }
     <CardActions disableSpacing>
-      <IconButton
-        color={liked ? "secondary" : "default"}
-        onClick={async (e) => {
-          e.stopPropagation();
-          setLiked(!liked);
-          const newLikes = liked ? likes - 1 : likes + 1;
-          setLikes(newLikes);
-          await abortableJsonFetch(API_POST_LIKE, Auth.Required, {id: props.post.id, value: !liked});
-        }}>
-        <Badge badgeContent={likes} color="primary">
-          <FavoriteIcon />
-        </Badge>
-      </IconButton>
-      <ShareButton
-        title={props.post.title}
-        url={makeLocalUrl(
-          "/thread",
-          {threadId: props.post.threadId},
-          props.post.id === props.post.threadId ? null : props.post.id
-        )}/>
-      <div style={{flexGrow: 1}}></div>
       {
         props.post.userdata.type === "animation"
           ? <Button
@@ -145,6 +124,27 @@ export const Post: React.FC<PostProps> = (props) => {
           </Button>
           : null
       }
+      <div style={{flexGrow: 1}}></div>
+      <ShareButton
+        title={props.post.title}
+        url={makeLocalUrl(
+          "/thread",
+          {threadId: props.post.threadId},
+          props.post.id === props.post.threadId ? null : props.post.id
+        )}/>
+      <IconButton
+        color={liked ? "secondary" : "default"}
+        onClick={async (e) => {
+          e.stopPropagation();
+          setLiked(!liked);
+          const newLikes = liked ? likes - 1 : likes + 1;
+          setLikes(newLikes);
+          await abortableJsonFetch(API_POST_LIKE, Auth.Required, {id: props.post.id, value: !liked});
+        }}>
+        <Badge badgeContent={likes} color="primary">
+          <FavoriteIcon />
+        </Badge>
+      </IconButton>
     </CardActions>
   </Card>;
 };
