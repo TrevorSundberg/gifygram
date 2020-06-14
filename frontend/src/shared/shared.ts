@@ -82,22 +82,6 @@ export const checkResponseJson = <T extends ResponseJson>(json: T) => {
   return json;
 };
 
-const abortableJsonFetchInternal = async <T>(
-  controller: AbortController,
-  path: string,
-  params?: Record<string, any>,
-  options?: RequestInit): Promise<T | null> => {
-  try {
-    const response = await fetch(makeServerUrl(path, params), {signal: controller.signal, ...options});
-    return checkResponseJson(await response.json());
-  } catch (err) {
-    if (err instanceof Error && err.name === "AbortError") {
-      return null;
-    }
-    throw err;
-  }
-};
-
 export type AbortablePromise<T> = Promise<T | null> & {controller: AbortController};
 
 export enum Auth {
