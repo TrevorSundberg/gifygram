@@ -109,7 +109,11 @@ export const Post: React.FC<PostProps> = (props) => {
       </IconButton>
       <ShareButton
         title={props.post.title}
-        url={makeLocalUrl("/thread", {threadId: props.post.id})}/>
+        url={makeLocalUrl(
+          "/thread",
+          {threadId: props.post.threadId},
+          props.post.id === props.post.threadId ? null : props.post.id
+        )}/>
       <div style={{flexGrow: 1}}></div>
       {
         props.post.userdata.type === "animation"

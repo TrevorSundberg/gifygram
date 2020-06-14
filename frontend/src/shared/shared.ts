@@ -74,9 +74,12 @@ export const makeServerUrl = (path: string, params?: Record<string, any>) => {
   return url.href;
 };
 
-export const makeLocalUrl = (path: string, params?: Record<string, any>) => {
+export const makeLocalUrl = (path: string, params?: Record<string, any>, hash?: string) => {
   const url = new URL(window.location.origin);
   applyPathAndParams(url, path, params);
+  if (hash) {
+    url.hash = hash;
+  }
   return url.href;
 };
 
