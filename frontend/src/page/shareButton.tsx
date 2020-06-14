@@ -22,6 +22,7 @@ import Popover from "@material-ui/core/Popover";
 import React from "react";
 import ShareIcon from "@material-ui/icons/Share";
 import TextField from "@material-ui/core/TextField";
+import copy from "copy-to-clipboard";
 
 interface ShareButtonProps {
   title: string;
@@ -30,6 +31,7 @@ interface ShareButtonProps {
 
 export const ShareButton: React.FC<ShareButtonProps> = (props) => {
   const [anchorElement, setAnchorElement] = React.useState<HTMLButtonElement | null>(null);
+  const [copied, setCopied] = React.useState(false);
 
   const classes = useStyles();
   return <div>
@@ -67,7 +69,12 @@ export const ShareButton: React.FC<ShareButtonProps> = (props) => {
               }}
               variant="outlined"
             />
-            <Button>
+            <Button
+              color={copied ? "secondary" : "default"}
+              onClick={(e) => {
+                e.stopPropagation();
+                setCopied(copy(props.url));
+              }}>
               Copy
             </Button>
           </div>
