@@ -99,7 +99,7 @@ export const Post: React.FC<PostProps> = (props) => {
         </CardMedia>
         : null
     }
-    <CardContent>
+    <CardContent style={{paddingBottom: 0}}>
       {props.post.replyId ? <Link href={`#${props.post.replyId}`}>IN REPLY TO</Link> : null}
       <Typography noWrap={props.preview} variant="body2" color="textSecondary" component="p">
         {props.post.message}
