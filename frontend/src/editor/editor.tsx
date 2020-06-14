@@ -181,11 +181,14 @@ export class Editor {
       modal.hide();
       renderer.onRenderFrame = null;
       manager.updateExternally = false;
-      return {
-        videoBlob,
-        width: renderer.resizeCanvas.width,
-        height: renderer.resizeCanvas.height
-      };
+      if (videoBlob) {
+        return {
+          videoBlob,
+          width: renderer.resizeCanvas.width,
+          height: renderer.resizeCanvas.height
+        };
+      }
+      return null;
     };
 
     const makeLengthBuffer = (size: number) => {
