@@ -383,7 +383,7 @@ handlers[API_POST_LIKE] = async (input) => {
       await db.put(`post/likes:${id}`, `${prevLikes + 1}`);
     } else {
       await db.delete(`post/like:${user.id}:${id}`);
-      await db.put(`post/likes:${id}`, `${prevLikes - 1}`);
+      await db.put(`post/likes:${id}`, `${Math.max(prevLikes - 1, 0)}`);
     }
   }
 
