@@ -94,7 +94,7 @@ const App = () => {
               </Toolbar>
             </AppBar>
           </div>
-          <div className={classes.pageWidth}>
+          <div className={classes.pageWidth} id="page">
             <Switch>
               <Route exact path="/"
                 render={(prop) => <Threads history={prop.history}/>}

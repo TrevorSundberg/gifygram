@@ -56,17 +56,27 @@ export const signInIfNeeded = async () => {
   }
 };
 
-export const makeServerUrl = (path: string, params?: Record<string, any>) => {
-  const url = new URL(window.location.origin);
-  if (isDevEnvironment()) {
-    url.port = "3000";
-  }
+const applyPathAndParams = (url: URL, path: string, params?: Record<string, any>) => {
   url.pathname = path;
   if (params) {
     for (const key of Object.keys(params)) {
       url.searchParams.set(key, params[key]);
     }
   }
+};
+
+export const makeServerUrl = (path: string, params?: Record<string, any>) => {
+  const url = new URL(window.location.origin);
+  if (isDevEnvironment()) {
+    url.port = "3000";
+  }
+  applyPathAndParams(url, path, params);
+  return url.href;
+};
+
+export const makeLocalUrl = (path: string, params?: Record<string, any>) => {
+  const url = new URL(window.location.origin);
+  applyPathAndParams(url, path, params);
   return url.href;
 };
 

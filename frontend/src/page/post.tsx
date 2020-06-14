@@ -1,5 +1,5 @@
 import {API_POST_LIKE, PostData, ReturnedPost} from "../../../common/common";
-import {Auth, abortableJsonFetch} from "../shared/shared";
+import {Auth, abortableJsonFetch, makeLocalUrl} from "../shared/shared";
 import {AnimationVideo} from "./animationVideo";
 import Avatar from "@material-ui/core/Avatar";
 import Badge from "@material-ui/core/Badge";
@@ -14,7 +14,7 @@ import IconButton from "@material-ui/core/IconButton";
 import Link from "@material-ui/core/Link";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import React from "react";
-import ShareIcon from "@material-ui/icons/Share";
+import {ShareButton} from "./shareButton";
 import Typography from "@material-ui/core/Typography";
 
 export const createPsuedoPost = (
@@ -107,9 +107,9 @@ export const Post: React.FC<PostProps> = (props) => {
           <FavoriteIcon />
         </Badge>
       </IconButton>
-      <IconButton>
-        <ShareIcon />
-      </IconButton>
+      <ShareButton
+        title={props.post.title}
+        url={makeLocalUrl("/thread", {threadId: props.post.id})}/>
       <div style={{flexGrow: 1}}></div>
       {
         props.post.userdata.type === "animation"

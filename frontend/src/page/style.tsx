@@ -69,6 +69,9 @@ export const useStyles = makeStyles((theme: Theme) =>
     video: {
       width: "100%",
       height: "auto"
+    },
+    shareSocialButton: {
+      flex: 1
     }
   }), {index: 1});
 
@@ -77,3 +80,7 @@ export const theme = createMuiTheme({
     type: "dark"
   }
 });
+
+export const constants = {
+  shareIconSize: 32
+};
