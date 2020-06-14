@@ -27,16 +27,11 @@ const auth2Promise = new Promise<GoogleAuth>((resolve, reject) => {
   document.body.appendChild(script);
 });
 
+const LOCAL_STORAGE_KEY_DEV_USER = "devUser";
+
 export const getAuthIfSignedIn = async (): Promise<string | null> => {
   if (isDevEnvironment()) {
-    const devUser = "devUser";
-    // eslint-disable-next-line no-alert
-    const username = localStorage.getItem(devUser) || prompt("Pick a unique dev username");
-    if (!username) {
-      throw new Error("Dev username was empty");
-    }
-    localStorage.setItem(devUser, username);
-    return username;
+    return localStorage.getItem(LOCAL_STORAGE_KEY_DEV_USER);
   }
   const auth2 = await auth2Promise;
   if (auth2.isSignedIn.get()) {
@@ -46,6 +41,14 @@ export const getAuthIfSignedIn = async (): Promise<string | null> => {
 };
 
 export const signInIfNeeded = async () => {
+  if (isDevEnvironment()) {
+    // eslint-disable-next-line no-alert
+    const username = localStorage.getItem(LOCAL_STORAGE_KEY_DEV_USER) || prompt("Pick a unique dev username");
+    if (!username) {
+      throw new Error("Dev username was empty");
+    }
+    localStorage.setItem(LOCAL_STORAGE_KEY_DEV_USER, username);
+  }
   const auth = await getAuthIfSignedIn();
   if (!auth) {
     const auth2 = await auth2Promise;
@@ -112,13 +115,22 @@ export const abortableJsonFetch = <T>(
     if (auth === Auth.Required) {
       await signInIfNeeded();
     }
-    return abortableJsonFetchInternal<T>(controller, path, params, {
-      ...options,
-      headers: {
-        ...options?.headers,
-        Authorization: await getAuthIfSignedIn()
+    try {
+      const response = await fetch(makeServerUrl(path, params), {
+        signal: controller.signal,
+        ...options,
+        headers: {
+          ...options?.headers,
+          Authorization: await getAuthIfSignedIn()
+        }
+      });
+      return checkResponseJson(await response.json());
+    } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") {
+        return null;
       }
-    });
+      throw err;
+    }
   })();
   const abortable = promise as AbortablePromise<T>;
   abortable.controller = controller;
