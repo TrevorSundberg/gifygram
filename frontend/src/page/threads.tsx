@@ -33,6 +33,7 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
       columnGap: "10px"
     }}>
       {threads.map((thread) => <Post
+        preview={true}
         key={thread.id}
         post={thread}
         history={props.history}

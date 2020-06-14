@@ -48,6 +48,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
 
   return <div>
     {posts.map((post) => <Post
+      preview={false}
       key={post.id}
       post={post}
       cardStyle={{marginBottom: 4}}

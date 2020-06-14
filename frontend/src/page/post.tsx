@@ -39,6 +39,7 @@ export const createPsuedoPost = (
 
 interface PostProps {
   post: ReturnedPost;
+  preview: boolean;
   cardStyle?: React.CSSProperties;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
   videoProps?: React.DetailedHTMLProps<React.VideoHTMLAttributes<HTMLVideoElement>, HTMLVideoElement>;
@@ -90,7 +91,7 @@ export const Post: React.FC<PostProps> = (props) => {
     }
     <CardContent>
       {props.post.replyId ? <Link href={`#${props.post.replyId}`}>IN REPLY TO</Link> : null}
-      <Typography noWrap variant="body2" color="textSecondary" component="p">
+      <Typography noWrap={props.preview} variant="body2" color="textSecondary" component="p">
         {props.post.message}
       </Typography>
     </CardContent>
