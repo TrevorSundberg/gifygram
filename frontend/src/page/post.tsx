@@ -64,6 +64,9 @@ export const Post: React.FC<PostProps> = (props) => <Card
         {props.post.username.slice(0, 1).toUpperCase()}
       </Avatar>
     }
+    action={
+      <LikeButton post={props.post}/>
+    }
     title={<div>
       {props.post.username}
       {props.post.replyId ? <span> <Link
@@ -116,7 +119,6 @@ export const Post: React.FC<PostProps> = (props) => <Card
               {threadId: props.post.threadId},
               props.post.id === props.post.threadId ? null : props.post.id
             )}/>
-          <LikeButton post={props.post}/>
         </CardActions>
       </div>
       : null
