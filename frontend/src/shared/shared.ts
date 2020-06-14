@@ -115,13 +115,17 @@ export const abortableJsonFetch = <T>(
     if (auth === Auth.Required) {
       await signInIfNeeded();
     }
+    const authString = await getAuthIfSignedIn();
+    const authHeaders = authString
+      ? {Authorization: authString}
+      : null;
     try {
       const response = await fetch(makeServerUrl(path, params), {
         signal: controller.signal,
         ...options,
         headers: {
           ...options?.headers,
-          Authorization: await getAuthIfSignedIn()
+          ...authHeaders
         }
       });
       return checkResponseJson(await response.json());
