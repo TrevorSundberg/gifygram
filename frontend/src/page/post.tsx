@@ -62,7 +62,17 @@ export const Post: React.FC<PostProps> = (props) => {
     key={props.post.id}
     id={props.post.id}
     style={props.cardStyle}
-    onClick={props.onClick}>
+    onClick={(e) => {
+      // Prevent the Popover from triggering us on close.
+      if (e.target instanceof HTMLDivElement) {
+        if (e.target.getAttribute("aria-hidden") === "true") {
+          return;
+        }
+      }
+      if (props.onClick) {
+        props.onClick(e);
+      }
+    }}>
     <CardHeader
       avatar={
         <Avatar>
