@@ -49,7 +49,10 @@ export const Post: React.FC<PostProps> = (props) => {
   const [liked, setLiked] = React.useState(props.post.liked);
   const [likes, setLikes] = React.useState(props.post.likes);
 
-  // Since we create the psuedo post to start with, the number of likes can change from props.
+  // Since we create the psuedo post to start with, the like staet can change from props.
+  React.useEffect(() => {
+    setLiked(props.post.liked);
+  }, [props.post.liked]);
   React.useEffect(() => {
     setLikes(props.post.likes);
   }, [props.post.likes]);
