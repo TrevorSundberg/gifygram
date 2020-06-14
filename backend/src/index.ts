@@ -39,18 +39,6 @@ const CONTENT_TYPE_VIDEO_MP4 = "video/mp4";
 
 const AUTHORIZATION_HEADER = "authorization";
 
-interface RequestInput {
-  request: Request;
-  url: URL;
-  event: FetchEvent;
-}
-
-interface RequestOutput {
-  response: Response;
-}
-
-const handlers: Record<string, (input: RequestInput) => Promise<RequestOutput>> = {};
-
 // `${Number.MAX_SAFE_INTEGER}`.length;
 const MAX_NUMBER_LENGTH_BASE_10 = 16;
 
@@ -83,9 +71,9 @@ const createAccessHeaders = (mimeType: string) => new Headers({
 });
 const responseOptions = (mimeType: string) => ({headers: createAccessHeaders(mimeType)});
 
-const expect = <T>(value: T | null | undefined) => {
+const expect = <T>(name: string, value: T | null | undefined) => {
   if (!value) {
-    throw new Error(`Expected value but got ${value}`);
+    throw new Error(`Expected ${name} but got ${value}`);
   }
   return value;
 };
@@ -132,6 +120,90 @@ const expectBoolean = (name: string, value: string | null | undefined): boolean 
   }
   return value === "true";
 };
+
+class RequestInput {
+  public readonly request: Request;
+
+  public readonly url: URL;
+
+  public readonly event: FetchEvent;
+
+  private authedUser?: StoredUser = undefined;
+
+  public constructor (event: FetchEvent) {
+    this.request = event.request;
+    this.url = new URL(decodeURI(event.request.url));
+    this.event = event;
+  }
+
+  private async validateJwtAndGetUser (): Promise<StoredUser> {
+    const token = expectString("authorization", this.request.headers.get("authorization"), 4096);
+
+    const content = await (async (): Promise<JwtPayload> => {
+      if (isDevEnvironment()) {
+        return {
+          iss: AUTH_GOOGLE_ISSUER,
+          aud: AUTH_GOOGLE_CLIENT_ID,
+          exp: `${Number.MAX_SAFE_INTEGER}`,
+          sub: token,
+          given_name: token
+        };
+      }
+
+      const response = await fetch("https://www.googleapis.com/oauth2/v3/certs");
+      const jwks: {keys: JWKRSA[]} = await response.json();
+
+      const cryptographer = new Jose.WebCryptographer();
+      const verifier = new Jose.JoseJWS.Verifier(cryptographer, token);
+
+      await Promise.all([jwks.keys.map((key) => verifier.addRecipient(key, key.kid, key.alg as SignAlgorithm))]);
+
+      const results = await verifier.verify();
+      const verified = results.filter((result) => result.verified);
+      if (verified.length === 0) {
+        throw new Error("JWT was not verified with any key");
+      }
+      return JSON.parse(verified[0].payload as string) as JwtPayload;
+    })();
+
+    if (content.iss !== AUTH_GOOGLE_ISSUER) {
+      throw new Error(`Invalid issuer ${content.iss}`);
+    }
+    if (content.aud !== AUTH_GOOGLE_CLIENT_ID) {
+      throw new Error(`Invalid audience ${content.aud}`);
+    }
+    if (parseInt(content.exp, 10) <= Math.ceil(Date.now() / 1000)) {
+      throw new Error(`JWT expired ${content.exp}`);
+    }
+    const user: StoredUser = {
+      id: content.sub,
+      username: content.given_name
+    };
+    await db.put(`user:${user.id}`, JSON.stringify(user));
+    return user;
+  }
+
+  public async getAuthedUser (): Promise<StoredUser | null> {
+    if (this.authedUser) {
+      return this.authedUser;
+    }
+    if (this.request.headers.has(AUTHORIZATION_HEADER)) {
+      this.authedUser = await this.validateJwtAndGetUser();
+      return this.authedUser;
+    }
+    return null;
+  }
+
+  public async requireAuthedUser (): Promise<StoredUser> {
+    return expect("auth", await this.getAuthedUser());
+  }
+}
+
+interface RequestOutput {
+  response: Response;
+}
+
+const handlers: Record<string, (input: RequestInput) => Promise<RequestOutput>> = {};
 
 const expectUuidParam = (input: RequestInput, name: string) =>
   expectUuid(name, input.url.searchParams.get(name));
@@ -190,64 +262,10 @@ interface JwtPayload {
   given_name: string;
 }
 
-const validateJwtGoogle = async (input: RequestInput): Promise<StoredUser> => {
-  const token = expectString("authorization", input.request.headers.get("authorization"), 4096);
-
-  const content = await (async (): Promise<JwtPayload> => {
-    if (isDevEnvironment()) {
-      return {
-        iss: AUTH_GOOGLE_ISSUER,
-        aud: AUTH_GOOGLE_CLIENT_ID,
-        exp: `${Number.MAX_SAFE_INTEGER}`,
-        sub: token,
-        given_name: token
-      };
-    }
-
-    const response = await fetch("https://www.googleapis.com/oauth2/v3/certs");
-    const jwks: {keys: JWKRSA[]} = await response.json();
-
-    const cryptographer = new Jose.WebCryptographer();
-    const verifier = new Jose.JoseJWS.Verifier(cryptographer, token);
-
-    await Promise.all([jwks.keys.map((key) => verifier.addRecipient(key, key.kid, key.alg as SignAlgorithm))]);
-
-    const results = await verifier.verify();
-    const verified = results.filter((result) => result.verified);
-    if (verified.length === 0) {
-      throw new Error("JWT was not verified with any key");
-    }
-    return JSON.parse(verified[0].payload as string) as JwtPayload;
-  })();
-
-  if (content.iss !== AUTH_GOOGLE_ISSUER) {
-    throw new Error(`Invalid issuer ${content.iss}`);
-  }
-  if (content.aud !== AUTH_GOOGLE_CLIENT_ID) {
-    throw new Error(`Invalid audience ${content.aud}`);
-  }
-  if (parseInt(content.exp, 10) <= Math.ceil(Date.now() / 1000)) {
-    throw new Error(`JWT expired ${content.exp}`);
-  }
-  const user: StoredUser = {
-    id: content.sub,
-    username: content.given_name
-  };
-  await db.put(`user:${user.id}`, JSON.stringify(user));
-  return user;
-};
-
-const optionalValidateJwtGoogle = async (input: RequestInput): Promise<StoredUser | null> => {
-  if (input.request.headers.has(AUTHORIZATION_HEADER)) {
-    await validateJwtGoogle(input);
-  }
-  return null;
-};
-
-const getPost = async (id: string) => expect(await db.get<StoredPost>(`post:${id}`, "json"));
+const getPost = async (id: string) => expect("post", await db.get<StoredPost>(`post:${id}`, "json"));
 
 const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: boolean, userdata: PostData) => {
-  const user = await validateJwtGoogle(input);
+  const user = await input.requireAuthedUser();
   const title = hasTitle ? expectStringParam(input, "title", API_POST_CREATE_MAX_TITLE_LENGTH) : null;
   const message = expectStringParam(input, "message", API_POST_CREATE_MAX_MESSAGE_LENGTH);
   const id = uuid();
@@ -292,7 +310,7 @@ const getBarIds = (list: {keys: { name: string }[]}) =>
   list.keys.map((key) => key.name.split("|")[1]);
 
 const getPostsFromIds = async (input: RequestInput, ids: string[]): Promise<ReturnedPost[]> => {
-  const authedUser = await optionalValidateJwtGoogle(input);
+  const authedUser = await input.getAuthedUser();
   const posts = await Promise.all(ids.map(getPost));
   return Promise.all(posts.map(async (post) => {
     const user = await db.get<StoredUser>(`user:${post.userId}`, "json");
@@ -357,7 +375,7 @@ handlers[API_ANIMATION_VIDEO] = async (input) => {
 };
 
 handlers[API_PROFILE] = async (input) => {
-  const user = await validateJwtGoogle(input);
+  const user = await input.requireAuthedUser();
   return {
     response: new Response(
       JSON.stringify(user),
@@ -367,7 +385,7 @@ handlers[API_PROFILE] = async (input) => {
 };
 
 handlers[API_POST_LIKE] = async (input) => {
-  const user = await validateJwtGoogle(input);
+  const user = await input.requireAuthedUser();
   const id = expectUuidParam(input, "id");
   const newValue = expectBooleanParam(input, "value");
   // Validate that the post exists.
@@ -396,7 +414,7 @@ handlers[API_POST_LIKE] = async (input) => {
 };
 
 handlers[API_AUTHTEST] = async (input) => {
-  const content = await validateJwtGoogle(input);
+  const content = await input.requireAuthedUser();
   return {
     response: new Response(
       JSON.stringify({authorized: true, content}),
@@ -426,11 +444,11 @@ const handleRequest = async (event: FetchEvent): Promise<Response> => {
   if (event.request.method === "OPTIONS") {
     return handleOptions(event.request);
   }
-  const url = new URL(decodeURI(event.request.url));
+  const input = new RequestInput(event);
   try {
-    const handler = handlers[url.pathname];
+    const handler = handlers[input.url.pathname];
     if (handler) {
-      return (await handler({request: event.request, url, event})).response;
+      return (await handler(input)).response;
     }
     return await getAssetFromKV(event, {mapRequestToAsset: serveSinglePageApp});
   } catch (err) {
@@ -438,7 +456,7 @@ const handleRequest = async (event: FetchEvent): Promise<Response> => {
       JSON.stringify({
         err: `${err}`,
         stack: `${err && err.stack}`,
-        pathname: url.pathname
+        pathname: input.url.pathname
       }),
       {
         headers: createAccessHeaders(CONTENT_TYPE_APPLICATION_JSON),
