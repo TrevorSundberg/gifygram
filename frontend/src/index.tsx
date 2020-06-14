@@ -75,7 +75,7 @@ const App = () => {
                   </Link>
                 </Typography>
                 <Link to="/editor" className={classes.link}>
-                  <Button>Create</Button>
+                  <Button variant="contained" color="secondary">Create</Button>
                 </Link>
               </Toolbar>
             </AppBar>
