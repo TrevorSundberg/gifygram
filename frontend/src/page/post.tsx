@@ -59,6 +59,7 @@ export const Post: React.FC<PostProps> = (props) => {
 
   return <Card
     key={props.post.id}
+    id={props.post.id}
     style={props.cardStyle}
     onClick={props.onClick}>
     <CardHeader
