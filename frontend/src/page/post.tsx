@@ -40,7 +40,7 @@ export const createPsuedoPost = (
 interface PostProps {
   post: ReturnedPost;
   cardStyle?: React.CSSProperties;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
   videoProps?: React.DetailedHTMLProps<React.VideoHTMLAttributes<HTMLVideoElement>, HTMLVideoElement>;
   history: import("history").History;
 }
