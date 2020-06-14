@@ -79,13 +79,15 @@ export const Post: React.FC<PostProps> = (props) => {
           {props.post.username.slice(0, 1).toUpperCase()}
         </Avatar>
       }
-      action={
-        <IconButton>
-          <MoreVertIcon />
-        </IconButton>
-      }
-      title={props.post.title}
-      subheader={props.post.username}
+      title={<div>
+        {props.post.username}
+        {props.post.replyId ? <span> <Link
+          variant="overline"
+          color="secondary"
+          href={`#${props.post.replyId}`}>replying to...</Link></span>
+          : null}
+      </div>}
+      subheader={props.post.title || props.post.message}
     />
     {
       props.post.userdata.type === "animation"
@@ -99,12 +101,15 @@ export const Post: React.FC<PostProps> = (props) => {
         </CardMedia>
         : null
     }
-    <CardContent style={{paddingBottom: 0}}>
-      {props.post.replyId ? <Link href={`#${props.post.replyId}`}>IN REPLY TO</Link> : null}
-      <Typography noWrap={props.preview} variant="body2" color="textSecondary" component="p">
-        {props.post.message}
-      </Typography>
-    </CardContent>
+    {
+      props.post.title
+        ? <CardContent style={{paddingBottom: 0}}>
+          <Typography noWrap={props.preview} variant="body2" color="textSecondary" component="p">
+            {props.post.message}
+          </Typography>
+        </CardContent>
+        : null
+    }
     <CardActions disableSpacing>
       <IconButton
         color={liked ? "secondary" : "default"}
