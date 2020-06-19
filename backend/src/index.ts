@@ -386,7 +386,10 @@ handlers[API_PROFILE] = async (input) => {
 };
 
 handlers[API_PROFILE_UPDATE] = async (input) => {
+  const params = input.url.searchParams;
   const user = await input.requireAuthedUser();
+  user.username = params.get('username');
+  user.bio = params.get('bio');
   await db.put(`user:${user.id}`, JSON.stringify(user));
   return {
     response: new Response(
