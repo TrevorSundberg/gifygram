@@ -51,7 +51,8 @@ export const Profile: React.FC = () => {
         </div>
         <Button
           type="submit"
-          onClick={async () => {
+          onClick={async (e) => {
+            e.preventDefault();
             const profileUpdateFetchPromise = abortableJsonFetch<StoredUser>(
               API_PROFILE_UPDATE,
               Auth.Required,
