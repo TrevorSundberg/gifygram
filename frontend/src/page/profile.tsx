@@ -27,45 +27,39 @@ export const Profile: React.FC = () => {
     return <div>Loading</div>;
   }
   return (
-    <div>
-      <form>
-        <div>
-          <TextField
-            fullWidth
-            label="Username"
-            value={user.username}
-            onChange={(e) => {
-              user.username = e.target.value;
-              setUser(user);
-            }}/>
-        </div>
-        <div>
-          <TextField
-            fullWidth
-            label="Bio"
-            value={user.bio}
-            onChange={(e) => {
-              user.bio = e.target.value;
-              setUser(user);
-            }}/>
-        </div>
-        <Button
-          type="submit"
-          onClick={async (e) => {
-            e.preventDefault();
-            const profileUpdateFetchPromise = abortableJsonFetch<StoredUser>(
-              API_PROFILE_UPDATE,
-              Auth.Required,
-              user
-            );
+    <form>
+      <TextField
+        fullWidth
+        label="Username"
+        value={user.username}
+        onChange={(e) => {
+          user.username = e.target.value;
+          setUser(user);
+        }}/>
+      <TextField
+        fullWidth
+        label="Bio"
+        value={user.bio}
+        onChange={(e) => {
+          user.bio = e.target.value;
+          setUser(user);
+        }}/>
+      <Button
+        type="submit"
+        onClick={async (e) => {
+          e.preventDefault();
+          const profileUpdateFetchPromise = abortableJsonFetch<StoredUser>(
+            API_PROFILE_UPDATE,
+            Auth.Required,
+            user
+          );
 
-            const updatedUser = await profileUpdateFetchPromise;
-            if (updatedUser) {
-              setUser(updatedUser);
-            }
-          }}>
-          Update
-        </Button>
-      </form>
-    </div>);
+          const updatedUser = await profileUpdateFetchPromise;
+          if (updatedUser) {
+            setUser(updatedUser);
+          }
+        }}>
+        Update
+      </Button>
+    </form>);
 };
