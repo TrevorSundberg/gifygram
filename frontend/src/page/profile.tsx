@@ -1,4 +1,4 @@
-import {API_PROFILE, StoredUser} from "../../../common/common";
+import {API_PROFILE, API_PROFILE_CREATE, StoredUser} from "../../../common/common";
 import {AbortablePromise, Auth, abortableJsonFetch, cancel} from "../shared/shared";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
@@ -30,7 +30,13 @@ export const Profile: React.FC = () => {
     <div>
       <form>
         <div>
-          Username: <input type="text" value={user.username}/>
+          <TextField
+            fullWidth
+            label="Username"
+            value={user.username}
+            onChange={(e) => {
+              setUser(user);
+            }}/>
         </div>
         <div>
           <TextField
@@ -38,12 +44,19 @@ export const Profile: React.FC = () => {
             label="Bio"
             value={user.bio}
             onChange={(e) => {
+              setUser(user);
             }}/>
         </div>
         <Button
           type="submit"
           onClick={async () => {
-            console.log('clicked');
+            const profileUpdateFetchPromise = abortableJsonFetch<StoredUser>(
+              API_PROFILE_CREATE,
+              Auth.Required,
+              user
+            );
+
+            await profileUpdateFetchPromise;
           }}>
           Update
         </Button>
