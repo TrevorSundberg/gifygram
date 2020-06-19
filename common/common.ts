@@ -10,6 +10,7 @@ export const API_ANIMATION_JSON = "/api/animation/json";
 export const API_ANIMATION_VIDEO = "/api/animation/video";
 export const API_AUTHTEST = "/api/authtest";
 export const API_PROFILE = "/api/profile";
+export const API_PROFILE_CREATE = "/api/profile/create";
 
 export const AUTH_GOOGLE_ISSUER = "accounts.google.com";
 export const AUTH_GOOGLE_CLIENT_ID = "608893334527-510lc0vbk5pd6ag7jdl6aka2hhhp9f69.apps.googleusercontent.com";
@@ -52,6 +53,7 @@ export interface ReturnedThread extends ReturnedPost {
 export interface StoredUser {
   id: string;
   username: string;
+  bio: string;
 }
 
 export const MAX_VIDEO_SIZE_X = 854;

@@ -1,5 +1,7 @@
 import {API_PROFILE, StoredUser} from "../../../common/common";
 import {AbortablePromise, Auth, abortableJsonFetch, cancel} from "../shared/shared";
+import Button from "@material-ui/core/Button";
+import TextField from "@material-ui/core/TextField";
 import React from "react";
 
 export const Profile: React.FC = () => {
@@ -26,6 +28,25 @@ export const Profile: React.FC = () => {
   }
   return (
     <div>
-        Username: <input type="text" value={user.username}/>
+      <form>
+        <div>
+          Username: <input type="text" value={user.username}/>
+        </div>
+        <div>
+          <TextField
+            fullWidth
+            label="Bio"
+            value={user.bio}
+            onChange={(e) => {
+            }}/>
+        </div>
+        <Button
+          type="submit"
+          onClick={async () => {
+            console.log('clicked');
+          }}>
+          Update
+        </Button>
+      </form>
     </div>);
 };

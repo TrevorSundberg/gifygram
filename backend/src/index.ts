@@ -9,6 +9,7 @@ import {
   API_POST_LIKE,
   API_POST_LIST,
   API_PROFILE,
+  API_PROFILE_CREATE,
   API_THREAD_LIST,
   AUTH_GOOGLE_CLIENT_ID,
   AUTH_GOOGLE_ISSUER,
@@ -376,6 +377,17 @@ handlers[API_ANIMATION_VIDEO] = async (input) => {
 
 handlers[API_PROFILE] = async (input) => {
   const user = await input.requireAuthedUser();
+  return {
+    response: new Response(
+      JSON.stringify(user),
+      responseOptions(CONTENT_TYPE_APPLICATION_JSON)
+    )
+  };
+};
+
+handlers[API_PROFILE_CREATE] = async (input) => {
+  const user = await input.requireAuthedUser();
+  await db.put(`user:${user.id}`, JSON.stringify(user));
   return {
     response: new Response(
       JSON.stringify(user),
