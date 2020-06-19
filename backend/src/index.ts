@@ -9,6 +9,8 @@ import {
   API_POST_LIKE,
   API_POST_LIST,
   API_PROFILE,
+  API_PROFILE_MAX_BIO_LENGTH,
+  API_PROFILE_MAX_USERNAME_LENGTH,
   API_PROFILE_UPDATE,
   API_THREAD_LIST,
   AUTH_GOOGLE_CLIENT_ID,
@@ -386,10 +388,9 @@ handlers[API_PROFILE] = async (input) => {
 };
 
 handlers[API_PROFILE_UPDATE] = async (input) => {
-  const params = input.url.searchParams;
   const user = await input.requireAuthedUser();
-  user.username = params.get('username');
-  user.bio = params.get('bio');
+  user.username = expectStringParam(input, "username", API_PROFILE_MAX_USERNAME_LENGTH);
+  user.bio = expectStringParam(input, "bio", API_PROFILE_MAX_BIO_LENGTH);
   await db.put(`user:${user.id}`, JSON.stringify(user));
   return {
     response: new Response(
