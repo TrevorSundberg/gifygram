@@ -35,6 +35,7 @@ export const Profile: React.FC = () => {
             label="Username"
             value={user.username}
             onChange={(e) => {
+              user.username = e.target.value;
               setUser(user);
             }}/>
         </div>
@@ -44,6 +45,7 @@ export const Profile: React.FC = () => {
             label="Bio"
             value={user.bio}
             onChange={(e) => {
+              user.bio = e.target.value;
               setUser(user);
             }}/>
         </div>
@@ -56,7 +58,10 @@ export const Profile: React.FC = () => {
               user
             );
 
-            await profileUpdateFetchPromise;
+            const updatedUser = await profileUpdateFetchPromise;
+            if (updatedUser) {
+              setUser(updatedUser);
+            }
           }}>
           Update
         </Button>
