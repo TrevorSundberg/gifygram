@@ -1,4 +1,4 @@
-import {API_PROFILE, API_PROFILE_CREATE, StoredUser} from "../../../common/common";
+import {API_PROFILE, API_PROFILE_UPDATE, StoredUser} from "../../../common/common";
 import {AbortablePromise, Auth, abortableJsonFetch, cancel} from "../shared/shared";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
@@ -51,7 +51,7 @@ export const Profile: React.FC = () => {
           type="submit"
           onClick={async () => {
             const profileUpdateFetchPromise = abortableJsonFetch<StoredUser>(
-              API_PROFILE_CREATE,
+              API_PROFILE_UPDATE,
               Auth.Required,
               user
             );

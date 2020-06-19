@@ -9,7 +9,7 @@ import {
   API_POST_LIKE,
   API_POST_LIST,
   API_PROFILE,
-  API_PROFILE_CREATE,
+  API_PROFILE_UPDATE,
   API_THREAD_LIST,
   AUTH_GOOGLE_CLIENT_ID,
   AUTH_GOOGLE_ISSUER,
@@ -385,7 +385,7 @@ handlers[API_PROFILE] = async (input) => {
   };
 };
 
-handlers[API_PROFILE_CREATE] = async (input) => {
+handlers[API_PROFILE_UPDATE] = async (input) => {
   const user = await input.requireAuthedUser();
   await db.put(`user:${user.id}`, JSON.stringify(user));
   return {
