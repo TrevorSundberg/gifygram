@@ -33,16 +33,14 @@ export const Profile: React.FC = () => {
         label="Username"
         value={user.username}
         onChange={(e) => {
-          user.username = e.target.value;
-          setUser(user);
+          setUser({...user, username: e.target.value});
         }}/>
       <TextField
         fullWidth
         label="Bio"
         value={user.bio}
         onChange={(e) => {
-          user.bio = e.target.value;
-          setUser(user);
+          setUser({...user, bio: e.target.value});
         }}/>
       <Button
         type="submit"
