@@ -178,10 +178,16 @@ class RequestInput {
     if (parseInt(content.exp, 10) <= Math.ceil(Date.now() / 1000)) {
       throw new Error(`JWT expired ${content.exp}`);
     }
+    const existingUser = await db.get<StoredUser>(`user:${content.sub}`, "json");
+    if (existingUser) {
+      return existingUser;
+    }
     const user: StoredUser = {
       id: content.sub,
-      username: content.given_name
+      username: content.given_name,
+      bio: ""
     };
+
     await db.put(`user:${user.id}`, JSON.stringify(user));
     return user;
   }
