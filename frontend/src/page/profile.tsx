@@ -54,7 +54,8 @@ export const Profile: React.FC = () => {
           const profileUpdateFetchPromise = abortableJsonFetch<StoredUser>(
             API_PROFILE_UPDATE,
             Auth.Required,
-            user
+            user,
+            {method: "POST"}
           );
           setProfileUpdateFetch(profileUpdateFetchPromise);
 
