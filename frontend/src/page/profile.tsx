@@ -1,8 +1,8 @@
 import {API_PROFILE, API_PROFILE_UPDATE, StoredUser} from "../../../common/common";
 import {AbortablePromise, Auth, abortableJsonFetch, cancel} from "../shared/shared";
 import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
 import React from "react";
+import TextField from "@material-ui/core/TextField";
 
 export const Profile: React.FC = () => {
   const [user, setUser] = React.useState<StoredUser>(null);
