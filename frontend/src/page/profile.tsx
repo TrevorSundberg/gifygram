@@ -6,6 +6,7 @@ import React from "react";
 
 export const Profile: React.FC = () => {
   const [user, setUser] = React.useState<StoredUser>(null);
+  const [profileUpdateFetch, setProfileUpdateFetch] = React.useState<AbortablePromise<StoredUser>>(null);
 
   React.useEffect(() => {
     let profileFetch: AbortablePromise<StoredUser> = null;
@@ -20,6 +21,10 @@ export const Profile: React.FC = () => {
     return () => {
       cancel(profileFetch);
     };
+  }, []);
+
+  React.useEffect(() => () => {
+    cancel(profileUpdateFetch);
   }, []);
 
 
@@ -51,6 +56,7 @@ export const Profile: React.FC = () => {
             Auth.Required,
             user
           );
+          setProfileUpdateFetch(profileUpdateFetchPromise);
 
           const updatedUser = await profileUpdateFetchPromise;
           if (updatedUser) {
