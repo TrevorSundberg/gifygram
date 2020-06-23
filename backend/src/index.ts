@@ -9,6 +9,9 @@ import {
   API_POST_LIKE,
   API_POST_LIST,
   API_PROFILE,
+  API_PROFILE_MAX_BIO_LENGTH,
+  API_PROFILE_MAX_USERNAME_LENGTH,
+  API_PROFILE_UPDATE,
   API_THREAD_LIST,
   AUTH_GOOGLE_CLIENT_ID,
   AUTH_GOOGLE_ISSUER,
@@ -175,11 +178,18 @@ class RequestInput {
     if (parseInt(content.exp, 10) <= Math.ceil(Date.now() / 1000)) {
       throw new Error(`JWT expired ${content.exp}`);
     }
+    const userKey = `user:${content.sub}`;
+    const existingUser = await db.get<StoredUser>(userKey, "json");
+    if (existingUser) {
+      return existingUser;
+    }
     const user: StoredUser = {
       id: content.sub,
-      username: content.given_name
+      username: content.given_name,
+      bio: ""
     };
-    await db.put(`user:${user.id}`, JSON.stringify(user));
+
+    await db.put(userKey, JSON.stringify(user));
     return user;
   }
 
@@ -376,6 +386,19 @@ handlers[API_ANIMATION_VIDEO] = async (input) => {
 
 handlers[API_PROFILE] = async (input) => {
   const user = await input.requireAuthedUser();
+  return {
+    response: new Response(
+      JSON.stringify(user),
+      responseOptions(CONTENT_TYPE_APPLICATION_JSON)
+    )
+  };
+};
+
+handlers[API_PROFILE_UPDATE] = async (input) => {
+  const user = await input.requireAuthedUser();
+  user.username = expectStringParam(input, "username", API_PROFILE_MAX_USERNAME_LENGTH);
+  user.bio = expectStringParam(input, "bio", API_PROFILE_MAX_BIO_LENGTH);
+  await db.put(`user:${user.id}`, JSON.stringify(user));
   return {
     response: new Response(
       JSON.stringify(user),
