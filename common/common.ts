@@ -58,5 +58,10 @@ export interface StoredUser {
   bio: string;
 }
 
+export interface StoredUserAvatar {
+  id: string;
+  userId: string;
+}
+
 export const MAX_VIDEO_SIZE_X = 854;
 export const MAX_VIDEO_SIZE_Y = 480;

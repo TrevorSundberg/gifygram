@@ -47,6 +47,21 @@ export const Profile: React.FC = () => {
         onChange={(e) => {
           setUser({...user, bio: e.target.value});
         }}/>
+      <input
+        accept="image/*"
+        style={{display: 'none'}}
+        id="raised-button-file"
+        multiple
+        type="file"
+        onChange={(e) => {
+          console.log(e.target.value);
+        }}
+      />
+      <label htmlFor="raised-button-file">
+        <Button component="span">
+          Upload
+        </Button>
+      </label>
       <Button
         type="submit"
         onClick={async (e) => {
