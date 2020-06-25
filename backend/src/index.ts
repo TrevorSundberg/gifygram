@@ -9,6 +9,8 @@ import {
   API_POST_LIKE,
   API_POST_LIST,
   API_PROFILE,
+  API_PROFILE_AVATAR,
+  API_PROFILE_AVATAR_CREATE,
   API_PROFILE_MAX_BIO_LENGTH,
   API_PROFILE_MAX_USERNAME_LENGTH,
   API_PROFILE_UPDATE,
@@ -382,6 +384,15 @@ handlers[API_ANIMATION_JSON] = async (input) => {
 handlers[API_ANIMATION_VIDEO] = async (input) => {
   const result = await db.get(`animation/video:${expectUuidParam(input, "id")}`, "arrayBuffer");
   return {response: new Response(result, responseOptions(CONTENT_TYPE_VIDEO_MP4))};
+};
+
+handlers[API_PROFILE_AVATAR] = async (input) => {
+  const result = await db.get(`profile/avatar:${expectUuidParam(input, "id")}`, "arrayBuffer");
+  // TODO how to handle content type?
+  return {response: new Response(result, responseOptions(CONTENT_TYPE_VIDEO_MP4))};
+};
+
+handlers[API_PROFILE_AVATAR_CREATE] = async (input) => {
 };
 
 handlers[API_PROFILE] = async (input) => {

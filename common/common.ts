@@ -10,6 +10,8 @@ export const API_POST_LIKE = "/api/post/like";
 export const API_ANIMATION_CREATE = "/api/animation/create";
 export const API_ANIMATION_JSON = "/api/animation/json";
 export const API_ANIMATION_VIDEO = "/api/animation/video";
+export const API_PROFILE_AVATAR = "/api/profile/avatar";
+export const API_PROFILE_AVATAR_CREATE = "/api/profile/avatar/create";
 export const API_AUTHTEST = "/api/authtest";
 export const API_PROFILE = "/api/profile";
 export const API_PROFILE_UPDATE = "/api/profile/update";
@@ -61,6 +63,7 @@ export interface StoredUser {
 export interface StoredUserAvatar {
   id: string;
   userId: string;
+  contentType: string; // allow jpg or png or gif etc?
 }
 
 export const MAX_VIDEO_SIZE_X = 854;
