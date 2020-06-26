@@ -393,6 +393,10 @@ handlers[API_PROFILE_AVATAR] = async (input) => {
 };
 
 handlers[API_PROFILE_AVATAR_CREATE] = async (input) => {
+  const id = uuid();
+  const base64ImageData = input;
+  const result = await db.put(`profile/avatar:${id}`, base64ImageData);
+  return {response: new Response(result, responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 
 handlers[API_PROFILE] = async (input) => {

@@ -1,12 +1,14 @@
-import {API_PROFILE, API_PROFILE_UPDATE, StoredUser} from "../../../common/common";
+import {API_PROFILE, API_PROFILE_UPDATE, API_PROFILE_AVATAR_CREATE, StoredUser, StoredUserAvatar} from "../../../common/common";
 import {AbortablePromise, Auth, abortableJsonFetch, cancel} from "../shared/shared";
 import Button from "@material-ui/core/Button";
 import React from "react";
 import TextField from "@material-ui/core/TextField";
+import {UserAvatar} from "./userAvatar";
 
 export const Profile: React.FC = () => {
   const [user, setUser] = React.useState<StoredUser>(null);
   const [profileUpdateFetch, setProfileUpdateFetch] = React.useState<AbortablePromise<StoredUser>>(null);
+  const [userAvatar, setUserAvatar] = React.useState<StoredUserAvatar>(null);
 
   React.useEffect(() => {
     let profileFetch: AbortablePromise<StoredUser> = null;
@@ -53,8 +55,25 @@ export const Profile: React.FC = () => {
         id="raised-button-file"
         multiple
         type="file"
-        onChange={(e) => {
+        onChange={async (e) => {
           console.log(e.target.value);
+          const reader = new FileReader();
+          const [file] = e.target.files;
+          reader.onload = async () => {
+            setUserAvatar({data: reader.result as string});
+
+            const avatarCreatePromise = abortableJsonFetch<StoredUserAvatar>(
+              API_PROFILE_AVATAR_CREATE,
+              Auth.Required,
+              userAvatar,
+              {method: "POST"}
+            );
+            const updatedUserAvatar = await avatarCreatePromise;
+            if (updatedUserAvatar) {
+              setUserAvatar(updatedUserAvatar);
+            }
+          };
+          reader.readAsDataURL(file);
         }}
       />
       <label htmlFor="raised-button-file">
@@ -62,6 +81,9 @@ export const Profile: React.FC = () => {
           Upload
         </Button>
       </label>
+      <UserAvatar
+        user={user}
+      />
       <Button
         type="submit"
         onClick={async (e) => {

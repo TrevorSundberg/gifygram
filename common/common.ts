@@ -58,12 +58,11 @@ export interface StoredUser {
   id: string;
   username: string;
   bio: string;
+  avatarId: string;
 }
 
 export interface StoredUserAvatar {
-  id: string;
-  userId: string;
-  contentType: string; // allow jpg or png or gif etc?
+  data: string;
 }
 
 export const MAX_VIDEO_SIZE_X = 854;
