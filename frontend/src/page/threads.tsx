@@ -40,7 +40,8 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
         cardStyle={{
           breakInside: "avoid",
           position: "relative",
-          marginBottom: "10px"
+          marginBottom: "10px",
+          overflow: "visible"
         }}
         onClick={() => {
           props.history.push(`/thread?threadId=${thread.id}`);
