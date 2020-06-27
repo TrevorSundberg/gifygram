@@ -1,5 +1,7 @@
 import {AUTH_GOOGLE_CLIENT_ID} from "../../../common/common";
 
+export const EVENT_LOGGED_IN = "loggedIn";
+
 // Assume we're in dev if the protocol is http: (not https:)
 export const isDevEnvironment = () => window.location.protocol === "http:";
 
@@ -40,6 +42,8 @@ export const getAuthIfSignedIn = async (): Promise<string | null> => {
   return null;
 };
 
+const triggerLoggedIn = () => window.dispatchEvent(new Event(EVENT_LOGGED_IN));
+
 export const signInIfNeeded = async () => {
   const auth = await getAuthIfSignedIn();
   if (auth) {
@@ -53,11 +57,13 @@ export const signInIfNeeded = async () => {
       throw new Error("Dev username was empty");
     }
     localStorage.setItem(LOCAL_STORAGE_KEY_DEV_USER, username);
+    triggerLoggedIn();
     return;
   }
 
   const auth2 = await auth2Promise;
   await auth2.signIn();
+  triggerLoggedIn();
 };
 
 const applyPathAndParams = (url: URL, path: string, params?: Record<string, any>) => {

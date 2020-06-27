@@ -4,6 +4,8 @@ import {
   Route,
   Switch
 } from "react-router-dom";
+import {EVENT_LOGGED_IN, getAuthIfSignedIn} from "./shared/shared";
+import {LoginContext, LoginState} from "./page/login";
 import {theme, useStyles} from "./page/style";
 import AppBar from "@material-ui/core/AppBar";
 import {AuthTest} from "./page/authtest";
@@ -52,52 +54,71 @@ const getUrlParam = (props: { location: import("history").Location }, name: stri
   new URLSearchParams(props.location.search).get(name);
 
 const App = () => {
+  const [loggedIn, setLoggedIn] = React.useState<LoginState>(false);
+
+  React.useEffect(() => {
+    const onLoggedIn = () => {
+      setLoggedIn(true);
+    };
+    getAuthIfSignedIn().then((auth) => {
+      if (auth) {
+        onLoggedIn();
+      }
+    });
+    window.addEventListener(EVENT_LOGGED_IN, onLoggedIn);
+    return () => {
+      window.removeEventListener(EVENT_LOGGED_IN, onLoggedIn);
+    };
+  }, []);
+
   const classes = useStyles();
   return <ThemeProvider theme={theme}>
     <CssBaseline />
-    <BrowserRouter>
-      <Switch>
-        <Route path="/editor"
-          render={(prop) => <EditorComponent history={prop.history} remixId={getUrlParam(prop, "remixId")}/>}
-        />
-        <Route>
-          <div className={classes.toolbar} style={{width: "100%", marginBottom: 10}}>
-            <AppBar position="fixed">
-              <Toolbar className={classes.pageWidth}>
-                <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
-                  <MenuIcon />
-                </IconButton>
-                <Typography noWrap variant="h6" className={classes.title}>
-                  <Link to="/" className={classes.link}>
-                    {require("../title")}
+    <LoginContext.Provider value={loggedIn}>
+      <BrowserRouter>
+        <Switch>
+          <Route path="/editor"
+            render={(prop) => <EditorComponent history={prop.history} remixId={getUrlParam(prop, "remixId")}/>}
+          />
+          <Route>
+            <div className={classes.toolbar} style={{width: "100%", marginBottom: 10}}>
+              <AppBar position="fixed">
+                <Toolbar className={classes.pageWidth}>
+                  <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
+                    <MenuIcon />
+                  </IconButton>
+                  <Typography noWrap variant="h6" className={classes.title}>
+                    <Link to="/" className={classes.link}>
+                      {require("../title")}
+                    </Link>
+                  </Typography>
+                  <Link to="/editor" className={classes.link}>
+                    <Button variant="contained" color="secondary">Create</Button>
                   </Link>
-                </Typography>
-                <Link to="/editor" className={classes.link}>
-                  <Button variant="contained" color="secondary">Create</Button>
-                </Link>
-              </Toolbar>
-            </AppBar>
-          </div>
-          <div className={classes.pageWidth} id="page">
-            <Switch>
-              <Route exact path="/"
-                render={(prop) => <Threads history={prop.history}/>}
-              />
-              <Route exact path="/thread"
-                render={(prop) => <Thread history={prop.history} id={getUrlParam(prop, "threadId")}/>}
-              />
-              <Route exact path="/profile"
-                render={() => <Profile/>}
-              />
-              <Route exact path="/authtest">
-                <AuthTest/>
-              </Route>
-            </Switch>
-          </div>
-        </Route>
-      </Switch>
-    </BrowserRouter>
-    <ModalContainer/>
+                </Toolbar>
+              </AppBar>
+            </div>
+            <div className={classes.pageWidth} id="page">
+              <Switch>
+                <Route exact path="/"
+                  render={(prop) => <Threads history={prop.history}/>}
+                />
+                <Route exact path="/thread"
+                  render={(prop) => <Thread history={prop.history} id={getUrlParam(prop, "threadId")}/>}
+                />
+                <Route exact path="/profile"
+                  render={() => <Profile/>}
+                />
+                <Route exact path="/authtest">
+                  <AuthTest/>
+                </Route>
+              </Switch>
+            </div>
+          </Route>
+        </Switch>
+      </BrowserRouter>
+      <ModalContainer/>
+    </LoginContext.Provider>
   </ThemeProvider>;
 };
 

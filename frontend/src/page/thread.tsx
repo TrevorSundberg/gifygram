@@ -4,6 +4,7 @@ import {Post, createPsuedoPost} from "./post";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
+import {LoginContext} from "./login";
 import React from "react";
 import TextField from "@material-ui/core/TextField";
 
@@ -31,6 +32,8 @@ export const Thread: React.FC<ThreadProps> = (props) => {
   const [postMessage, setPostMessage] = React.useState("");
   const [postCreateFetch, setPostCreateFetch] = React.useState<AbortablePromise<PostCreate>>(null);
 
+  const loggedIn = React.useContext(LoginContext);
+
   React.useEffect(() => {
     const postListFetch = abortableJsonFetch<ReturnedPost[]>(API_POST_LIST, Auth.Optional, {threadId: props.id});
     postListFetch.then((postList) => {
@@ -42,8 +45,12 @@ export const Thread: React.FC<ThreadProps> = (props) => {
 
     return () => {
       cancel(postListFetch);
-      cancel(postCreateFetch);
     };
+  }, [loggedIn]);
+
+
+  React.useEffect(() => () => {
+    cancel(postCreateFetch);
   }, []);
 
   return <div>

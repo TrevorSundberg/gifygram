@@ -1,5 +1,6 @@
 import {API_THREAD_LIST, ReturnedThread} from "../../../common/common";
 import {abortableJsonFetch, cancel} from "../shared/shared";
+import {LoginContext} from "./login";
 import {Post} from "./post";
 import React from "react";
 
@@ -13,6 +14,8 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
     setThreads
   ] = React.useState<ReturnedThread[]>([]);
 
+  const loggedIn = React.useContext(LoginContext);
+
   React.useEffect(() => {
     const threadListFetch = abortableJsonFetch<ReturnedThread[]>(API_THREAD_LIST);
     threadListFetch.then((threadList) => {
@@ -24,7 +27,7 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
     return () => {
       cancel(threadListFetch);
     };
-  }, []);
+  }, [loggedIn]);
 
   return (
     <div style={{
