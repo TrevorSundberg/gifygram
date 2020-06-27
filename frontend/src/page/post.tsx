@@ -29,7 +29,7 @@ export const createPsuedoPost = (
   userdata,
   replyId,
   userId: "",
-  username: "Me",
+  username: "",
   liked: false,
   likes: 0
 });
