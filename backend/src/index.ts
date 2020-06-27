@@ -124,6 +124,8 @@ const expectBoolean = (name: string, value: string | null | undefined): boolean 
   return value === "true";
 };
 
+type JWKS = {keys: JWKRSA[]};
+
 class RequestInput {
   public readonly request: Request;
 
@@ -153,8 +155,19 @@ class RequestInput {
         };
       }
 
-      const response = await fetch("https://www.googleapis.com/oauth2/v3/certs");
-      const jwks: {keys: JWKRSA[]} = await response.json();
+      const jwks = await (async () => {
+        const authGoogleKey = "auth:google";
+        const cachedJwks = await db.get<JWKS>(authGoogleKey, "json");
+        if (cachedJwks) {
+          return cachedJwks;
+        }
+        const response = await fetch("https://www.googleapis.com/oauth2/v3/certs");
+        const newJwks: JWKS = await response.json();
+
+        const expiration = Math.floor(Date.parse(expect("expires", response.headers.get("expires"))) / 1000);
+        await db.put(authGoogleKey, JSON.stringify(newJwks), {expiration});
+        return newJwks;
+      })();
 
       const cryptographer = new Jose.WebCryptographer();
       const verifier = new Jose.JoseJWS.Verifier(cryptographer, token);
