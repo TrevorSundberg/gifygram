@@ -75,7 +75,7 @@ export const Post: React.FC<PostProps> = (props) => <Card
         href={`#${props.post.replyId}`}>replying to...</Link></span>
         : null}
     </div>}
-    subheader={props.post.title || props.post.message}
+    subheader={typeof props.post.title === "string" ? props.post.title : props.post.message}
   />
   {
     props.post.userdata.type === "animation"
@@ -90,7 +90,7 @@ export const Post: React.FC<PostProps> = (props) => <Card
       : null
   }
   {
-    props.post.title
+    typeof props.post.title === "string"
       ? <div>
         <CardContent style={{paddingBottom: 0}}>
           <Typography noWrap={props.preview} variant="body2" color="textSecondary" component="p">
