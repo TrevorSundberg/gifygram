@@ -41,19 +41,23 @@ export const getAuthIfSignedIn = async (): Promise<string | null> => {
 };
 
 export const signInIfNeeded = async () => {
+  const auth = await getAuthIfSignedIn();
+  if (auth) {
+    return;
+  }
+
   if (isDevEnvironment()) {
     // eslint-disable-next-line no-alert
-    const username = localStorage.getItem(LOCAL_STORAGE_KEY_DEV_USER) || prompt("Pick a unique dev username");
+    const username = prompt("Pick a unique dev username");
     if (!username) {
       throw new Error("Dev username was empty");
     }
     localStorage.setItem(LOCAL_STORAGE_KEY_DEV_USER, username);
+    return;
   }
-  const auth = await getAuthIfSignedIn();
-  if (!auth) {
-    const auth2 = await auth2Promise;
-    await auth2.signIn();
-  }
+
+  const auth2 = await auth2Promise;
+  await auth2.signIn();
 };
 
 const applyPathAndParams = (url: URL, path: string, params?: Record<string, any>) => {
