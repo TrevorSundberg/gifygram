@@ -69,7 +69,7 @@ const App = () => {
                 </IconButton>
                 <Typography noWrap variant="h6" className={classes.title}>
                   <Link to="/" className={classes.link}>
-                    Made It For Fun
+                    {require("../title")}
                   </Link>
                 </Typography>
                 <Link to="/editor" className={classes.link}>

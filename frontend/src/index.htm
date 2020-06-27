@@ -4,13 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Made It For Fun</title>
-  <meta property="og:title" content="Made It For Fun" />
+  <title><%= htmlWebpackPlugin.options.title %></title>
+  <meta property="og:title" content="<%= htmlWebpackPlugin.options.title %>" />
   <meta property="og:description" content="A stupid website for animating images on top of videos.">
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://madeitfor.fun/" />
   <meta property="og:image"
     content="https://raw.githubusercontent.com/TrevorSundberg/madeitforfun/master/preview.gif" />
+  <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@700&display=swap" rel="stylesheet">
   <style>
     html,
     body {
