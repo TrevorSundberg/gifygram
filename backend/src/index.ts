@@ -468,18 +468,54 @@ const handleRequest = async (event: FetchEvent): Promise<Response> => {
     return handleOptions(event.request);
   }
   const input = new RequestInput(event);
-  try {
-    const handler = handlers[input.url.pathname];
-    if (handler) {
-      return (await handler(input)).response;
+  const handler = handlers[input.url.pathname];
+  if (handler) {
+    return (await handler(input)).response;
+  }
+  return getAssetFromKV(event, {mapRequestToAsset: serveSinglePageApp});
+};
+
+const handleRanges = async (event: FetchEvent): Promise<Response> => {
+  const response = await handleRequest(event);
+  response.headers.append("accept-ranges", "bytes");
+
+  const rangeHeader = event.request.headers.get("range");
+
+  const canHandleRangeRequest =
+    !isDevEnvironment() &&
+    event.request.method === "GET" &&
+    response.status === 200 &&
+    response.body;
+
+  if (canHandleRangeRequest && rangeHeader) {
+    const rangeResults = (/bytes=([0-9]+)-([0-9]+)?/u).exec(rangeHeader);
+    if (!rangeResults) {
+      throw new Error(`Invalid range header: ${rangeHeader}`);
     }
-    return await getAssetFromKV(event, {mapRequestToAsset: serveSinglePageApp});
+    const buffer = await response.arrayBuffer();
+    const begin = parseInt(rangeResults[1], 10);
+    const end = parseInt(rangeResults[2], 10) || buffer.byteLength - 1;
+    const slice = buffer.slice(begin, end + 1);
+    response.headers.append("content-range", `bytes ${begin}-${end}/${buffer.byteLength}`);
+    return new Response(slice, {
+      status: 206,
+      headers: response.headers
+    });
+  }
+  return response;
+};
+
+const handleErrors = async (event: FetchEvent): Promise<Response> => {
+  try {
+    return await handleRanges(event);
   } catch (err) {
+    const fullError = err && err.stack || err;
+    console.error(fullError);
     return new Response(
       JSON.stringify({
-        err: `${err}`,
-        stack: `${err && err.stack}`,
-        pathname: input.url.pathname
+        err: `${fullError}`,
+        url: event.request.url,
+        headers: event.request.headers
       }),
       {
         headers: createAccessHeaders(CONTENT_TYPE_APPLICATION_JSON),
@@ -490,5 +526,5 @@ const handleRequest = async (event: FetchEvent): Promise<Response> => {
 };
 
 addEventListener("fetch", (event) => {
-  event.respondWith(handleRequest(event));
+  event.respondWith(handleErrors(event));
 });
