@@ -1,6 +1,7 @@
 import {PostData, ReturnedPost} from "../../../common/common";
 import {AnimationVideo} from "./animationVideo";
 import Avatar from "@material-ui/core/Avatar";
+import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
@@ -13,6 +14,8 @@ import React from "react";
 import {ShareButton} from "./shareButton";
 import Typography from "@material-ui/core/Typography";
 import {makeLocalUrl} from "../shared/shared";
+import millify from "millify";
+import pluralize from "pluralize";
 
 export const createPsuedoPost = (
   id: string,
@@ -31,7 +34,8 @@ export const createPsuedoPost = (
   userId: "",
   username: "",
   liked: false,
-  likes: 0
+  likes: 0,
+  views: 0
 });
 
 interface PostProps {
@@ -97,7 +101,7 @@ export const Post: React.FC<PostProps> = (props) => <Card
             {props.post.message}
           </Typography>
         </CardContent>
-        <CardActions disableSpacing>
+        <CardActions disableSpacing style={{justifyContent: "space-between"}}>
           {
             props.post.userdata.type === "animation"
               ? <Button
@@ -111,6 +115,14 @@ export const Post: React.FC<PostProps> = (props) => <Card
               </Button>
               : null
           }
+          <Box ml={1}>
+            <Typography variant={props.preview ? "caption" : "body2"} color={"textSecondary"} component="p">
+              {props.preview
+                ? millify(props.post.views, {precision: 1})
+                : props.post.views.toLocaleString()}
+              {` ${pluralize("view", props.post.views)}`}
+            </Typography>
+          </Box>
           <div style={{flexGrow: 1}}></div>
           <ShareButton
             title={props.post.title}

@@ -46,6 +46,7 @@ export interface ReturnedPost extends StoredPost {
   username: string;
   liked: boolean;
   likes: number;
+  views: number;
 }
 
 export interface ReturnedThread extends ReturnedPost {
