@@ -430,17 +430,18 @@ handlers[API_POST_LIKE] = async (input) => {
   // Validate that the post exists.
   await getPost(id);
 
-  const oldValue = Boolean(await db.get(`post/like:${user.id}:${id}`));
+  const likeKey = `post/like:${user.id}:${id}`;
+  const oldValue = Boolean(await db.get(likeKey));
 
   if (newValue !== oldValue) {
     const likesKey = `post/likes:${id}`;
     const prevLikes = parseInt(await db.get(likesKey) || "0", 10);
     if (newValue) {
-      await db.put(`post/like:${user.id}:${id}`, "1");
-      await db.put(`post/likes:${id}`, `${prevLikes + 1}`);
+      await db.put(likeKey, "1");
+      await db.put(likesKey, `${prevLikes + 1}`);
     } else {
-      await db.delete(`post/like:${user.id}:${id}`);
-      await db.put(`post/likes:${id}`, `${Math.max(prevLikes - 1, 0)}`);
+      await db.delete(likeKey);
+      await db.put(likesKey, `${Math.max(prevLikes - 1, 0)}`);
     }
   }
 
