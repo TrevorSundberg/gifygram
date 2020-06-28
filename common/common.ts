@@ -59,4 +59,8 @@ export interface StoredUser {
   bio: string;
 }
 
+export interface PostLike {
+  likes: number;
+}
+
 export const MAX_VIDEO_SIZE = 720;

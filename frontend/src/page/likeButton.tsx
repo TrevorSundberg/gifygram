@@ -1,4 +1,4 @@
-import {API_POST_LIKE, ReturnedPost} from "../../../common/common";
+import {API_POST_LIKE, PostLike, ReturnedPost} from "../../../common/common";
 import {Auth, abortableJsonFetch} from "../shared/shared";
 import Badge from "@material-ui/core/Badge";
 import FavoriteIcon from "@material-ui/icons/Favorite";
@@ -25,10 +25,11 @@ export const LikeButton: React.FC<LikeButtonProps> = (props) => {
     color={liked ? "secondary" : "default"}
     onClick={async (e) => {
       e.stopPropagation();
-      await abortableJsonFetch(API_POST_LIKE, Auth.Required, {id: props.post.id, value: !liked});
-      setLiked(!liked);
-      const newLikes = liked ? likes - 1 : likes + 1;
-      setLikes(newLikes);
+      const value = !liked;
+      const postLike =
+        await abortableJsonFetch<PostLike>(API_POST_LIKE, Auth.Required, {id: props.post.id, value});
+      setLiked(value);
+      setLikes(postLike.likes);
     }}>
     <Badge badgeContent={likes} color="primary">
       <FavoriteIcon />

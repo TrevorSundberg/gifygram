@@ -17,6 +17,7 @@ import {
   AUTH_GOOGLE_ISSUER,
   MAX_VIDEO_SIZE,
   PostData,
+  PostLike,
   ReturnedPost,
   StoredPost,
   StoredUser
@@ -467,21 +468,31 @@ handlers[API_POST_LIKE] = async (input) => {
   const likeKey = `post/like:${user.id}:${id}`;
   const oldValue = Boolean(await db.get(likeKey));
 
-  if (newValue !== oldValue) {
-    const likesKey = `post/likes:${id}`;
-    const prevLikes = parseInt(await db.get(likesKey) || "0", 10);
-    if (newValue) {
-      await db.put(likeKey, "1");
-      await db.put(likesKey, `${prevLikes + 1}`);
-    } else {
+  const likesKey = `post/likes:${id}`;
+  const prevLikes = parseInt(await db.get(likesKey) || "0", 10);
+  const likes = await (async () => {
+    if (newValue !== oldValue) {
+      if (newValue) {
+        const newLikes = prevLikes + 1;
+        await db.put(likeKey, "1");
+        await db.put(likesKey, `${newLikes}`);
+        return newLikes;
+      }
+      const newLikes = prevLikes - 1;
       await db.delete(likeKey);
-      await db.put(likesKey, `${Math.max(prevLikes - 1, 0)}`);
+      await db.put(likesKey, `${Math.max(newLikes, 0)}`);
+      return newLikes;
     }
-  }
+    return prevLikes;
+  })();
 
+
+  const result: PostLike = {
+    likes
+  };
   return {
     response: new Response(
-      JSON.stringify({}),
+      JSON.stringify(result),
       responseOptions(CONTENT_TYPE_APPLICATION_JSON)
     )
   };
