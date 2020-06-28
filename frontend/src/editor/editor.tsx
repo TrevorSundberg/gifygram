@@ -231,13 +231,14 @@ export class Editor {
           }
         );
 
-        // Since this is creating both a post inside a thread, as well as the thread itself, add it to both.
+        // Since this is creating both a post inside a thread (may be itself), cache it within that thread.
         cacheAdd(post.threadId, post);
-        cacheAdd(THREADS_CACHE_KEY, post);
 
         // If the user goes back to the editor in history, they'll be editing a remix of their post.
         history.replace(`/editor?remixId=${post.id}`);
         if (post.id === post.threadId) {
+          // Since this is creating a thread, also add it to the thread cache.
+          cacheAdd(THREADS_CACHE_KEY, post);
           history.push(`/thread?threadId=${post.threadId}`);
         } else {
           history.push(`/thread?threadId=${post.threadId}#${post.id}`);
