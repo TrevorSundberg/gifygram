@@ -45,6 +45,8 @@ const CONTENT_TYPE_VIDEO_MP4 = "video/mp4";
 
 const AUTHORIZATION_HEADER = "authorization";
 
+const CACHE_CONTROL_IMMUTABLE = "public,max-age=31536000,immutable";
+
 // `${Number.MAX_SAFE_INTEGER}`.length;
 const MAX_NUMBER_LENGTH_BASE_10 = 16;
 
@@ -71,11 +73,13 @@ const corsHeaders = {
 };
 
 // TODO(trevor): Remove this once it's all hosted in the same place.
-const createAccessHeaders = (mimeType: string) => new Headers({
+const createHeaders = (mimeType: string, immutable = false) => new Headers({
   ...corsHeaders,
-  "Content-Type": mimeType || "application/octet-stream"
+  "content-type": mimeType || "application/octet-stream",
+  ...immutable ? {"cache-control": CACHE_CONTROL_IMMUTABLE} : {}
 });
-const responseOptions = (mimeType: string) => ({headers: createAccessHeaders(mimeType)});
+const responseOptions = (mimeType: string, immutable = false) =>
+  ({headers: createHeaders(mimeType, immutable)});
 
 const expect = <T>(name: string, value: T | null | undefined) => {
   if (!value) {
@@ -435,12 +439,12 @@ handlers[API_ANIMATION_CREATE] = async (input) => {
 
 handlers[API_ANIMATION_JSON] = async (input) => {
   const result = await db.get(`animation/json:${expectUuidParam(input, "id")}`, "text");
-  return {response: new Response(result, responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
+  return {response: new Response(result, responseOptions(CONTENT_TYPE_APPLICATION_JSON, true))};
 };
 
 handlers[API_ANIMATION_VIDEO] = async (input) => {
   const result = await db.get(`animation/video:${expectUuidParam(input, "id")}`, "arrayBuffer");
-  return {response: new Response(result, responseOptions(CONTENT_TYPE_VIDEO_MP4))};
+  return {response: new Response(result, responseOptions(CONTENT_TYPE_VIDEO_MP4, true))};
 };
 
 handlers[API_PROFILE] = async (input) => {
@@ -556,7 +560,7 @@ const handleRequest = async (event: FetchEvent): Promise<Response> => {
 
   // We use content based hashes with webpack, but index.html (or any other .html) is not hashed.
   if (!isHtml) {
-    response.headers.set("cache-control", "public,max-age=31536000,immutable");
+    response.headers.set("cache-control", CACHE_CONTROL_IMMUTABLE);
   }
   return response;
 };
@@ -604,7 +608,7 @@ const handleErrors = async (event: FetchEvent): Promise<Response> => {
         headers: event.request.headers
       }),
       {
-        headers: createAccessHeaders(CONTENT_TYPE_APPLICATION_JSON),
+        headers: createHeaders(CONTENT_TYPE_APPLICATION_JSON),
         status: 500
       }
     );
