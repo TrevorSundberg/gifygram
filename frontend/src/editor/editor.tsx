@@ -358,7 +358,7 @@ export class Editor {
       const filename = `MadeItForFun-${new Date().toISOString().
         replace(/[^a-zA-Z0-9-]/ug, "-")}`;
       const result = await render();
-      if (result.videoBlob) {
+      if (result) {
         download(URL.createObjectURL(result.videoBlob), filename);
       }
     });
