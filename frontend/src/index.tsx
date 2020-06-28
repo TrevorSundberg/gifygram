@@ -1,3 +1,4 @@
+import "./page/fonts.css";
 import {
   BrowserRouter,
   Link,
