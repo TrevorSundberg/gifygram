@@ -9,8 +9,7 @@ import {
   API_POST_CREATE_MAX_TITLE_LENGTH,
   ReturnedPost
 } from "../../../common/common";
-import {Auth, abortableJsonFetch} from "../shared/shared";
-import {Deferred, NeverAsync, Utility} from "./utility";
+import {Auth, Deferred, NeverAsync, abortableJsonFetch} from "../shared/shared";
 import {MODALS_CHANGED, Modal} from "./modal";
 import {Manager, SerializedData} from "./manager";
 import {RenderFrameEvent, Renderer} from "./renderer";
@@ -22,6 +21,7 @@ import {StickerSearch} from "./stickerSearch";
 import TextField from "@material-ui/core/TextField";
 import TextToSVG from "text-to-svg";
 import {Timeline} from "./timeline";
+import {Utility} from "./utility";
 import {VideoEncoder} from "./videoEncoder";
 import {VideoEncoderH264MP4} from "./videoEncoderH264MP4";
 import {VideoPlayer} from "./videoPlayer";

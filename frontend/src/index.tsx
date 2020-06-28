@@ -4,8 +4,15 @@ import {
   Route,
   Switch
 } from "react-router-dom";
-import {EVENT_LOGGED_IN, getAuthIfSignedIn} from "./shared/shared";
-import {LoginContext, LoginState} from "./page/login";
+import {
+  Deferred,
+  EVENT_LOGGED_IN,
+  EVENT_REQUEST_LOGIN,
+  RequestLoginEvent,
+  getAuthIfSignedIn,
+  signInWithGoogle
+} from "./shared/shared";
+import {LoginContext, LoginDialog, LoginState} from "./page/login";
 import {theme, useStyles} from "./page/style";
 import AppBar from "@material-ui/core/AppBar";
 import {AuthTest} from "./page/authtest";
@@ -60,6 +67,7 @@ const getUrlParam = (props: { location: import("history").Location }, name: stri
   new URLSearchParams(props.location.search).get(name);
 
 const App = () => {
+  const [showLoginDeferred, setShowLoginDeferred] = React.useState<Deferred<void> | null>(null);
   const [loggedIn, setLoggedIn] = React.useState<LoginState>(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
@@ -67,14 +75,22 @@ const App = () => {
     const onLoggedIn = () => {
       setLoggedIn(true);
     };
+
     getAuthIfSignedIn().then((auth) => {
       if (auth) {
         onLoggedIn();
       }
     });
+
+    const onRequestLogin = (event: RequestLoginEvent) => {
+      setShowLoginDeferred(event.deferredLoginPicked);
+    };
+
     window.addEventListener(EVENT_LOGGED_IN, onLoggedIn);
+    window.addEventListener(EVENT_REQUEST_LOGIN, onRequestLogin);
     return () => {
       window.removeEventListener(EVENT_LOGGED_IN, onLoggedIn);
+      window.removeEventListener(EVENT_REQUEST_LOGIN, onRequestLogin);
     };
   }, []);
 
@@ -138,6 +154,17 @@ const App = () => {
           </ListItem>
         </List>
       </Drawer>
+      <LoginDialog
+        open={Boolean(showLoginDeferred)}
+        onClose={() => {
+          showLoginDeferred.reject(new Error("The login was cancelled"));
+          setShowLoginDeferred(null);
+        }}
+        onSignInWithGoogle={async () => {
+          await signInWithGoogle();
+          showLoginDeferred.resolve();
+          setShowLoginDeferred(null);
+        }}/>
     </LoginContext.Provider>
   </ThemeProvider>;
 };

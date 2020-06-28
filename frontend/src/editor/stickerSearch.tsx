@@ -1,5 +1,6 @@
 import "./stickerSearch.css";
-import {AttributedSource, Deferred} from "./utility";
+import {AttributedSource} from "./utility";
+import {Deferred} from "../shared/shared";
 import {Modal} from "./modal";
 import React from "react";
 import ReactGiphySearchbox from "react-giphy-searchbox-stickers";

@@ -1,6 +1,57 @@
 import {AUTH_GOOGLE_CLIENT_ID} from "../../../common/common";
 
 export const EVENT_LOGGED_IN = "loggedIn";
+export const EVENT_REQUEST_LOGIN = "requestLogin";
+
+export type NeverAsync = void;
+
+export class Deferred<T> implements Promise<T> {
+  private resolveSelf;
+
+  private rejectSelf;
+
+  private promise: Promise<T>
+
+  public constructor () {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolveSelf = resolve;
+      this.rejectSelf = reject;
+    });
+  }
+
+  public then<TResult1 = T, TResult2 = never> (
+    onfulfilled?: ((value: T) =>
+    TResult1 | PromiseLike<TResult1>) | undefined | null,
+    onrejected?: ((reason: any) =>
+    TResult2 | PromiseLike<TResult2>) | undefined | null
+  ): Promise<TResult1 | TResult2> {
+    return this.promise.then(onfulfilled, onrejected);
+  }
+
+  public catch<TResult = never> (onrejected?: ((reason: any) =>
+  TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult> {
+    return this.promise.then(onrejected);
+  }
+
+  public finally (onfinally?: (() => void) | undefined | null): Promise<T> {
+    console.log(onfinally);
+    throw new Error("Not implemented");
+  }
+
+  public resolve (val: T) {
+    this.resolveSelf(val);
+  }
+
+  public reject (reason: any) {
+    this.rejectSelf(reason);
+  }
+
+  public [Symbol.toStringTag]: "Promise"
+}
+
+export class RequestLoginEvent extends Event {
+  public deferredLoginPicked = new Deferred<void>();
+}
 
 // Assume we're in dev if the protocol is http: (not https:)
 export const isDevEnvironment = () => window.location.protocol === "http:";
@@ -28,6 +79,10 @@ const auth2Promise = new Promise<GoogleAuth>((resolve, reject) => {
   script.defer = true;
   document.body.appendChild(script);
 });
+let googleAuth2: GoogleAuth = null;
+auth2Promise.then((auth2) => {
+  googleAuth2 = auth2;
+});
 
 const LOCAL_STORAGE_KEY_DEV_USER = "devUser";
 
@@ -50,6 +105,14 @@ export const signInIfNeeded = async () => {
     return;
   }
 
+  const requestLogin = new RequestLoginEvent(EVENT_REQUEST_LOGIN);
+  window.dispatchEvent(requestLogin);
+
+  await requestLogin.deferredLoginPicked;
+};
+
+// Don't await before here because this creates a popup (needs synchronous trusted click event)
+export const signInWithGoogle = (): NeverAsync => {
   if (isDevEnvironment()) {
     // eslint-disable-next-line no-alert
     const username = prompt("Pick a unique dev username");
@@ -61,9 +124,8 @@ export const signInIfNeeded = async () => {
     return;
   }
 
-  const auth2 = await auth2Promise;
-  await auth2.signIn();
-  triggerLoggedIn();
+  // We know googleAuth2 is not null because getAuthIfSignedIn should have been called before this.
+  googleAuth2.signIn().then(() => triggerLoggedIn());
 };
 
 const applyPathAndParams = (url: URL, path: string, params?: Record<string, any>) => {

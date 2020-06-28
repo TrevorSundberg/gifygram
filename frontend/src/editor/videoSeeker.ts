@@ -1,4 +1,5 @@
-import {Deferred, FRAME_TIME} from "./utility";
+import {Deferred} from "../shared/shared";
+import {FRAME_TIME} from "./utility";
 import {VideoPlayer} from "./videoPlayer";
 
 export class VideoSeekerFrame {

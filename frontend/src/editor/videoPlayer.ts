@@ -1,5 +1,6 @@
 import "./videoPlayer.css";
-import {AttributedSource, Deferred, MAX_OUTPUT_SIZE, Size, TimeRange, resizeMinimumKeepAspect} from "./utility";
+import {AttributedSource, MAX_OUTPUT_SIZE, Size, TimeRange, resizeMinimumKeepAspect} from "./utility";
+import {Deferred} from "../shared/shared";
 import {MAX_VIDEO_SIZE} from "../../../common/common";
 
 interface Point {
