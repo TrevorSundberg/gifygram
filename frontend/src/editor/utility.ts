@@ -1,19 +1,15 @@
-import {MAX_VIDEO_SIZE_X, MAX_VIDEO_SIZE_Y} from "../../../common/common";
+import {MAX_VIDEO_SIZE} from "../../../common/common";
 
 export const FRAME_RATE = 30;
 export const FRAME_TIME = 1 / FRAME_RATE;
 export const DURATION_PER_ENCODE = 1;
-export const TARGET_CANVAS_SIZE: Size = [
-  1280,
-  1280
-];
 export const TARGET_WIDGET_SIZE: Size = [
   400,
   400
 ];
 export const MAX_OUTPUT_SIZE: Size = [
-  MAX_VIDEO_SIZE_X,
-  MAX_VIDEO_SIZE_Y
+  MAX_VIDEO_SIZE,
+  MAX_VIDEO_SIZE
 ];
 
 export class Deferred<T> implements Promise<T> {

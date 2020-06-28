@@ -15,8 +15,7 @@ import {
   API_THREAD_LIST,
   AUTH_GOOGLE_CLIENT_ID,
   AUTH_GOOGLE_ISSUER,
-  MAX_VIDEO_SIZE_X,
-  MAX_VIDEO_SIZE_Y,
+  MAX_VIDEO_SIZE,
   PostData,
   ReturnedPost,
   StoredPost,
@@ -403,8 +402,8 @@ handlers[API_ANIMATION_CREATE] = async (input) => {
 
   const output = await postCreate(input, true, true, {
     type: "animation",
-    width: expectIntegerParam(input, "width", 1, MAX_VIDEO_SIZE_X),
-    height: expectIntegerParam(input, "height", 1, MAX_VIDEO_SIZE_Y)
+    width: expectIntegerParam(input, "width", 1, MAX_VIDEO_SIZE),
+    height: expectIntegerParam(input, "height", 1, MAX_VIDEO_SIZE)
   });
 
   const {id} = output;

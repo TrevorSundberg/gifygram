@@ -1,5 +1,6 @@
 import "./videoPlayer.css";
-import {AttributedSource, Deferred, Size, TARGET_CANVAS_SIZE, TimeRange, resizeMinimumKeepAspect} from "./utility";
+import {AttributedSource, Deferred, MAX_OUTPUT_SIZE, Size, TimeRange, resizeMinimumKeepAspect} from "./utility";
+import {MAX_VIDEO_SIZE} from "../../../common/common";
 
 interface Point {
   clientX: number;
@@ -184,13 +185,13 @@ export class VideoPlayer extends EventTarget {
 
   public getRawSize (): Size {
     return [
-      this.video.videoWidth || 1280,
-      this.video.videoHeight || 720
+      this.video.videoWidth || MAX_VIDEO_SIZE,
+      this.video.videoHeight || MAX_VIDEO_SIZE
     ];
   }
 
   public getAspectSize () {
-    return resizeMinimumKeepAspect(this.getRawSize(), TARGET_CANVAS_SIZE);
+    return resizeMinimumKeepAspect(this.getRawSize(), MAX_OUTPUT_SIZE);
   }
 
   public getNormalizedCurrentTime () {
