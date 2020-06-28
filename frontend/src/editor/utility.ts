@@ -4,8 +4,8 @@ export const FRAME_RATE = 24;
 export const FRAME_TIME = 1 / FRAME_RATE;
 export const DURATION_PER_ENCODE = 1;
 export const TARGET_WIDGET_SIZE: Size = [
-  400,
-  400
+  MAX_VIDEO_SIZE / 3,
+  MAX_VIDEO_SIZE / 3
 ];
 export const MAX_OUTPUT_SIZE: Size = [
   MAX_VIDEO_SIZE,
