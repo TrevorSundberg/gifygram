@@ -11,8 +11,14 @@ import AppBar from "@material-ui/core/AppBar";
 import {AuthTest} from "./page/authtest";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
+import Drawer from "@material-ui/core/Drawer";
 import {EditorComponent} from "./editor/editorComponent";
+import GitHubIcon from "@material-ui/icons/GitHub";
 import IconButton from "@material-ui/core/IconButton";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
 import MenuIcon from "@material-ui/icons/Menu";
 import {ModalContainer} from "./editor/modal";
 import {Profile} from "./page/profile";
@@ -55,6 +61,7 @@ const getUrlParam = (props: { location: import("history").Location }, name: stri
 
 const App = () => {
   const [loggedIn, setLoggedIn] = React.useState<LoginState>(false);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   React.useEffect(() => {
     const onLoggedIn = () => {
@@ -84,7 +91,12 @@ const App = () => {
             <div className={classes.toolbar} style={{width: "100%", marginBottom: 10}}>
               <AppBar position="fixed">
                 <Toolbar className={classes.pageWidth}>
-                  <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
+                  <IconButton
+                    edge="start"
+                    className={classes.menuButton}
+                    color="inherit"
+                    aria-label="menu"
+                    onClick={() => setDrawerOpen(true)}>
                     <MenuIcon />
                   </IconButton>
                   <Typography noWrap variant="h6" className={classes.title}>
@@ -118,6 +130,14 @@ const App = () => {
         </Switch>
       </BrowserRouter>
       <ModalContainer/>
+      <Drawer anchor={"left"} open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <List style={{minWidth: "250px"}}>
+          <ListItem button onClick={() => window.open("https://github.com/TrevorSundberg/madeitforfun")}>
+            <ListItemIcon><GitHubIcon/></ListItemIcon>
+            <ListItemText primary={"See On GitHub"} />
+          </ListItem>
+        </List>
+      </Drawer>
     </LoginContext.Provider>
   </ThemeProvider>;
 };
