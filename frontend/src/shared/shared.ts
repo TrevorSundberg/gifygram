@@ -3,7 +3,7 @@ import {AUTH_GOOGLE_CLIENT_ID} from "../../../common/common";
 export const EVENT_LOGGED_IN = "loggedIn";
 export const EVENT_REQUEST_LOGIN = "requestLogin";
 
-export type NeverAsync = void;
+export type NeverAsync<T = void> = T;
 
 export class Deferred<T> implements Promise<T> {
   private resolveSelf;
@@ -112,7 +112,7 @@ export const signInIfNeeded = async () => {
 };
 
 // Don't await before here because this creates a popup (needs synchronous trusted click event)
-export const signInWithGoogle = (): NeverAsync => {
+export const signInWithGoogle = (): NeverAsync<Promise<void> | null> => {
   if (isDevEnvironment()) {
     // eslint-disable-next-line no-alert
     const username = prompt("Pick a unique dev username");
@@ -121,11 +121,13 @@ export const signInWithGoogle = (): NeverAsync => {
     }
     localStorage.setItem(LOCAL_STORAGE_KEY_DEV_USER, username);
     triggerLoggedIn();
-    return;
+    return null;
   }
 
   // We know googleAuth2 is not null because getAuthIfSignedIn should have been called before this.
-  googleAuth2.signIn().then(() => triggerLoggedIn());
+  return googleAuth2.signIn().then(() => {
+    triggerLoggedIn();
+  });
 };
 
 const applyPathAndParams = (url: URL, path: string, params?: Record<string, any>) => {
