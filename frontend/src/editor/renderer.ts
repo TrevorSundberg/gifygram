@@ -8,8 +8,6 @@ export class RenderFrameEvent {
   public progress: number;
 }
 
-const WATERMARK_FONT = "30px Arvo";
-
 export class Renderer extends VideoSeeker {
   private readonly canvas: HTMLCanvasElement;
 
@@ -68,16 +66,6 @@ export class Renderer extends VideoSeeker {
         this.context.resetTransform();
       }
     }
-
-    const args: [string, number, number] = [`${require("../../title")}.com`, 10, 10];
-    this.context.font = WATERMARK_FONT;
-    this.context.textAlign = "left";
-    this.context.textBaseline = "top";
-    this.context.fillStyle = "black";
-    this.context.lineWidth = 4;
-    this.context.strokeText(...args);
-    this.context.fillStyle = "white";
-    this.context.fillText(...args);
   }
 
   private updateResizeCanvsaSize () {
@@ -100,7 +88,6 @@ export class Renderer extends VideoSeeker {
   }
 
   public async render (): Promise<boolean> {
-    await document.fonts.load(WATERMARK_FONT);
     return this.run(0);
   }
 }
