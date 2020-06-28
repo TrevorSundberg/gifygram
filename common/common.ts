@@ -59,4 +59,4 @@ export interface StoredUser {
   bio: string;
 }
 
-export const MAX_VIDEO_SIZE = 960;
+export const MAX_VIDEO_SIZE = 854;
