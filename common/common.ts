@@ -24,8 +24,16 @@ export type PostComment = {
   type: "comment";
 }
 
+export interface AttributedSource {
+  originUrl: string;
+  title: string;
+  previewGifUrl: string;
+  src: string;
+}
+
 export type PostAnimation = {
   type: "animation";
+  attribution: AttributedSource[];
   width: number;
   height: number;
 }
@@ -62,6 +70,15 @@ export interface StoredUser {
 
 export interface PostLike {
   likes: number;
+}
+
+export interface WidgetData {
+  attributedSource: AttributedSource;
+}
+
+export interface AnimationData {
+  videoAttributedSource: AttributedSource;
+  widgets: WidgetData[];
 }
 
 export const MAX_VIDEO_SIZE = 720;

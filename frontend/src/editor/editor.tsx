@@ -82,7 +82,9 @@ export class Editor {
       })();
     } else {
       player.setAttributedSrc({
-        attribution: "",
+        originUrl: "",
+        title: "",
+        previewGifUrl: "",
         src: require("../public/sample.mp4").default as string
       });
     }
@@ -134,7 +136,9 @@ export class Editor {
         const src = svgToMiniDataURI(svg.get(0).outerHTML) as string;
         await manager.addWidget({
           attributedSource: {
-            attribution: "",
+            originUrl: "",
+            title: "",
+            previewGifUrl: "",
             src
           }, type: "svg"
         });

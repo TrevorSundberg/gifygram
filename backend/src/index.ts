@@ -15,12 +15,15 @@ import {
   API_THREAD_LIST,
   AUTH_GOOGLE_CLIENT_ID,
   AUTH_GOOGLE_ISSUER,
+  AnimationData,
+  AttributedSource,
   MAX_VIDEO_SIZE,
   PostData,
   PostLike,
   ReturnedPost,
   StoredPost,
-  StoredUser
+  StoredUser,
+  oldVersion
 } from "../../common/common";
 import {getAssetFromKV, serveSinglePageApp} from "@cloudflare/kv-asset-handler";
 import {isDevEnvironment, patchDevKv} from "./dev";
@@ -346,6 +349,9 @@ const getPostsFromIds = async (input: RequestInput, ids: string[]): Promise<Retu
   const authedUser = await input.getAuthedUser();
   const posts = await Promise.all(ids.map(getPost));
   return Promise.all(posts.map(async (post) => {
+    if (post.userdata.type === "animation") {
+      post.userdata.attribution = oldVersion(post.userdata.attribution || []);
+    }
     const user = await db.get<StoredUser>(`user:${post.userId}`, "json");
     return {
       ...post,
@@ -404,12 +410,17 @@ handlers[API_ANIMATION_CREATE] = async (input) => {
 
   const json: string = new TextDecoder().decode(jsonBinary);
   // TODO(trevor): Use ajv to validate, for now it just checks that it's json.
-  JSON.parse(json);
+  const animationData: AnimationData = JSON.parse(json);
+  const attribution: AttributedSource[] = [
+    animationData.videoAttributedSource,
+    ...animationData.widgets.map((widget) => widget.attributedSource)
+  ];
 
   await expectFileHeader("video:video/mp4", video, videoMp4Header);
 
   const output = await postCreate(input, true, true, {
     type: "animation",
+    attribution: attribution.filter((attribute) => Boolean(attribute.originUrl)),
     width: expectIntegerParam(input, "width", 1, MAX_VIDEO_SIZE),
     height: expectIntegerParam(input, "height", 1, MAX_VIDEO_SIZE)
   });

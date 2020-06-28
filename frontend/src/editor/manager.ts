@@ -1,5 +1,6 @@
-import {AttributedSource, RELATIVE_WIDGET_SIZE, Size, Utility, getAspect, resizeMinimumKeepAspect} from "./utility";
+import {AnimationData, WidgetData} from "../../../common/common";
 import {Gif, Image, StaticImage} from "./image";
+import {RELATIVE_WIDGET_SIZE, Size, Utility, getAspect, resizeMinimumKeepAspect} from "./utility";
 import {Timeline, Track, Tracks} from "./timeline";
 import {Background} from "./background";
 import {Compress} from "./compression";
@@ -12,15 +13,13 @@ const uuidv4: typeof import("uuid/v4") = require("uuid/v4");
 
 export type ElementFactory = (id: string) => Promise<HTMLElement>;
 
-export interface WidgetInit {
+export interface WidgetInit extends WidgetData {
   id?: string;
   type: "gif" | "svg";
-  attributedSource: AttributedSource;
 }
 
-export interface SerializedData {
+export interface SerializedData extends AnimationData {
   tracks: Tracks;
-  videoAttributedSource: AttributedSource;
   widgets: WidgetInit[];
 }
 
@@ -179,8 +178,8 @@ export class Manager {
 
   public getAttributionList (): string[] {
     return [
-      this.videoPlayer.getAttributedSrc().attribution,
-      ...this.widgets.map((widget) => widget.init.attributedSource.attribution)
+      this.videoPlayer.getAttributedSrc().originUrl,
+      ...this.widgets.map((widget) => widget.init.attributedSource.originUrl)
     ].filter((value) => Boolean(value));
   }
 

@@ -9,8 +9,10 @@ import CardHeader from "@material-ui/core/CardHeader";
 import CardMedia from "@material-ui/core/CardMedia";
 import {LikeButton} from "./likeButton";
 import Link from "@material-ui/core/Link";
+import MenuItem from "@material-ui/core/MenuItem";
 import React from "react";
 import {ReturnedPost} from "../../../common/common";
+import Select from "@material-ui/core/Select";
 import {ShareButton} from "./shareButton";
 import TimerIcon from "@material-ui/icons/Timer";
 import Tooltip from "@material-ui/core/Tooltip";
@@ -115,6 +117,38 @@ export const Post: React.FC<PostProps> = (props) => <Card
             </Typography>
           </Box>
           <div style={{flexGrow: 1}}></div>
+          {
+            props.post.userdata.type === "animation" && !props.preview
+              ? <Box mr={1}>
+                <Select
+                  value="placeholder"
+                  MenuProps={{
+                    disableScrollLock: true
+                  }}>
+                  <MenuItem value="placeholder" disabled>
+                    Attribution
+                  </MenuItem>
+                  {
+                    props.post.userdata.attribution.map((attributedSource) =>
+                      <Link
+                        key={attributedSource.src}
+                        href={attributedSource.originUrl}
+                        color="textPrimary"
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        <MenuItem>
+                          <Box mr={1}>
+                            <img src={attributedSource.previewGifUrl} height={24}/>
+                          </Box>
+                          {attributedSource.title}
+                        </MenuItem>
+                      </Link>)
+                  }
+                </Select>
+              </Box>
+              : null
+          }
           <ShareButton
             title={props.post.title}
             url={makeLocalUrl(

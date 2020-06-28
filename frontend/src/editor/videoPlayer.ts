@@ -1,7 +1,7 @@
 import "./videoPlayer.css";
-import {AttributedSource, RELATIVE_VIDEO_SIZE, Size, TimeRange, resizeMinimumKeepAspect} from "./utility";
+import {AttributedSource, MAX_VIDEO_SIZE} from "../../../common/common";
+import {RELATIVE_VIDEO_SIZE, Size, TimeRange, resizeMinimumKeepAspect} from "./utility";
 import {Deferred} from "../shared/shared";
-import {MAX_VIDEO_SIZE} from "../../../common/common";
 
 interface Point {
   clientX: number;
@@ -157,16 +157,13 @@ export class VideoPlayer extends EventTarget {
     const blob = await response.blob();
     this.video.src = URL.createObjectURL(blob);
     this.video.dataset.src = attributedSource.src;
-    this.video.dataset.attribution = attributedSource.attribution;
+    this.video.dataset.attributionJson = JSON.stringify(attributedSource);
     await this.loadPromise;
     this.dispatchEvent(new Event("srcChanged"));
   }
 
   public getAttributedSrc (): AttributedSource {
-    return {
-      attribution: this.video.dataset.attribution,
-      src: this.video.dataset.src
-    };
+    return JSON.parse(this.video.dataset.attributionJson);
   }
 
   public setMarkers (normalizedMarkerTimes: number[]) {

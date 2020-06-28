@@ -24,6 +24,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       message: "",
       userdata: {
         type: "animation",
+        attribution: [],
         width: 0,
         height: 0
       },

@@ -80,11 +80,6 @@ export class Utility {
   }
 }
 
-export interface AttributedSource {
-  attribution: string;
-  src: string;
-}
-
 export type Size = [number, number];
 
 export const getAspect = (size: Size) => size[0] / size[1];
