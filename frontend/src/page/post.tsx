@@ -1,4 +1,3 @@
-import {PostData, ReturnedPost} from "../../../common/common";
 import {AnimationVideo} from "./animationVideo";
 import Avatar from "@material-ui/core/Avatar";
 import Box from "@material-ui/core/Box";
@@ -11,6 +10,7 @@ import CardMedia from "@material-ui/core/CardMedia";
 import {LikeButton} from "./likeButton";
 import Link from "@material-ui/core/Link";
 import React from "react";
+import {ReturnedPost} from "../../../common/common";
 import {ShareButton} from "./shareButton";
 import Typography from "@material-ui/core/Typography";
 import {makeLocalUrl} from "../shared/shared";
