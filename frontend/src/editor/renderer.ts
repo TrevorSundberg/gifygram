@@ -8,7 +8,7 @@ export class RenderFrameEvent {
   public progress: number;
 }
 
-const WATERMARK_FONT = "24px Arvo";
+const WATERMARK_FONT = "30px Arvo";
 
 export class Renderer extends VideoSeeker {
   private readonly canvas: HTMLCanvasElement;
