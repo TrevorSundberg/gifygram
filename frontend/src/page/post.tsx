@@ -34,7 +34,7 @@ export const Post: React.FC<PostProps> = (props) => <Card
   style={props.cardStyle}
   onClick={(e) => {
     // Prevent the share Popover from triggering us on close.
-    let element = e.target as HTMLElement;
+    let element = e.target instanceof HTMLElement ? e.target : null;
     while (element) {
       if (element.getAttribute("data-ignore-click") === "true") {
         return;
