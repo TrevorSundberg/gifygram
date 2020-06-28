@@ -6,7 +6,8 @@ import {
   API_ANIMATION_CREATE,
   API_ANIMATION_JSON,
   API_POST_CREATE_MAX_MESSAGE_LENGTH,
-  API_POST_CREATE_MAX_TITLE_LENGTH
+  API_POST_CREATE_MAX_TITLE_LENGTH,
+  ReturnedPost
 } from "../../../common/common";
 import {Auth, abortableJsonFetch} from "../shared/shared";
 import {Deferred, NeverAsync, Utility} from "./utility";
@@ -209,7 +210,7 @@ export class Editor {
           makeLengthBuffer(videoBuffer.byteLength),
           videoBuffer
         ]);
-        const post = await abortableJsonFetch<{id: string; threadId: string}>(
+        const post = await abortableJsonFetch<ReturnedPost>(
           API_ANIMATION_CREATE,
           Auth.Required,
           {

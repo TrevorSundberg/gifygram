@@ -17,27 +17,6 @@ import {makeLocalUrl} from "../shared/shared";
 import millify from "millify";
 import pluralize from "pluralize";
 
-export const createPsuedoPost = (
-  id: string,
-  userdata: PostData,
-  replyId?: string,
-  threadId?: string,
-  title = "",
-  message = ""
-): ReturnedPost => ({
-  id,
-  threadId: threadId || id,
-  title,
-  message,
-  userdata,
-  replyId,
-  userId: "",
-  username: "",
-  liked: false,
-  likes: 0,
-  views: 0
-});
-
 interface PostProps {
   post: ReturnedPost;
   preview: boolean;

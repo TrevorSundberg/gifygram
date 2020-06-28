@@ -13,7 +13,7 @@ export interface AnimationVideoProps extends
 export const AnimationVideo: React.FC<AnimationVideoProps> = (props) => {
   const classes = useStyles();
   return <div
-    // If created from createPsuedoPost, then we don't know width/height but the video may be loaded.
+    // If this is a pseudo post, then we don't know width/height but the video may be loaded.
     style={props.width === 0
       ? null
       : {

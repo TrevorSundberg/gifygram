@@ -319,8 +319,18 @@ const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: 
     db.put(`thread/post:${threadId}:${newToOld}|${id}`, id),
     db.put(`post:${id}`, JSON.stringify(post))
   ]);
+
+  // We return what the post would actually look like if it were listed (for quick display in React).
+  const returnedPost: ReturnedPost = {
+    ...post,
+    username: user!.username,
+    liked: false,
+    likes: 0,
+    views: 0
+  };
+
   return {
-    response: new Response(JSON.stringify({id, threadId}), responseOptions(CONTENT_TYPE_APPLICATION_JSON)),
+    response: new Response(JSON.stringify(returnedPost), responseOptions(CONTENT_TYPE_APPLICATION_JSON)),
     threadId,
     id
   };
