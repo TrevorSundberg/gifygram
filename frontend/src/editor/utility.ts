@@ -3,14 +3,20 @@ import {MAX_VIDEO_SIZE} from "../../../common/common";
 export const FRAME_RATE = 24;
 export const FRAME_TIME = 1 / FRAME_RATE;
 export const DURATION_PER_ENCODE = 1;
-export const TARGET_WIDGET_SIZE: Size = [
-  MAX_VIDEO_SIZE / 3,
-  MAX_VIDEO_SIZE / 3
-];
 export const MAX_OUTPUT_SIZE: Size = [
   MAX_VIDEO_SIZE,
   MAX_VIDEO_SIZE
 ];
+
+/**
+ * Do NOT change these constants, this would be a breaking change as they
+ * affect sizes of widgets and positioning within the video. When the animations
+ * are serialized all their positions are relative to these constants.
+ * Note also that they cannot be small (less than 22) as that starts to
+ * cause browser artifacts, presumingly due to the use of transforms.
+ */
+export const RELATIVE_WIDGET_SIZE = 400;
+export const RELATIVE_VIDEO_SIZE = 1280;
 
 export interface Transform {
   rotate: number;

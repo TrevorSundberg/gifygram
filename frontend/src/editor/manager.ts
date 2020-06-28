@@ -1,4 +1,4 @@
-import {AttributedSource, Size, TARGET_WIDGET_SIZE, Utility, getAspect, resizeMinimumKeepAspect} from "./utility";
+import {AttributedSource, RELATIVE_WIDGET_SIZE, Size, Utility, getAspect, resizeMinimumKeepAspect} from "./utility";
 import {Gif, Image, StaticImage} from "./image";
 import {Timeline, Track, Tracks} from "./timeline";
 import {Background} from "./background";
@@ -224,14 +224,8 @@ export class Manager {
       Image.setImage(img, image);
       await image.loadPromise;
       const frame = image.getFrameAtTime(0);
-      const size = resizeMinimumKeepAspect([
-        frame.width,
-        frame.height
-      ], TARGET_WIDGET_SIZE);
-      [
-        img.width,
-        img.height
-      ] = size;
+      const size = resizeMinimumKeepAspect([frame.width, frame.height], [RELATIVE_WIDGET_SIZE, RELATIVE_WIDGET_SIZE]);
+      [img.width, img.height] = size;
       img.style.left = `${-size[0] / 2}px`;
       img.style.top = `${-size[1] / 2}px`;
       return img;

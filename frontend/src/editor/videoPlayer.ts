@@ -1,5 +1,5 @@
 import "./videoPlayer.css";
-import {AttributedSource, MAX_OUTPUT_SIZE, Size, TimeRange, resizeMinimumKeepAspect} from "./utility";
+import {AttributedSource, RELATIVE_VIDEO_SIZE, Size, TimeRange, resizeMinimumKeepAspect} from "./utility";
 import {Deferred} from "../shared/shared";
 import {MAX_VIDEO_SIZE} from "../../../common/common";
 
@@ -192,7 +192,7 @@ export class VideoPlayer extends EventTarget {
   }
 
   public getAspectSize () {
-    return resizeMinimumKeepAspect(this.getRawSize(), MAX_OUTPUT_SIZE);
+    return resizeMinimumKeepAspect(this.getRawSize(), [RELATIVE_VIDEO_SIZE, RELATIVE_VIDEO_SIZE]);
   }
 
   public getNormalizedCurrentTime () {
