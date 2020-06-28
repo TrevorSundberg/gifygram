@@ -392,9 +392,6 @@ handlers[API_POST_LIST] = async (input) => {
   }
 
   const list = await db.list({prefix: `thread/post:${threadId}:`});
-  if (list.keys.length === 0) {
-    throw new Error(`The thread does not exist (no posts): ${threadId}`);
-  }
   const posts = await getPostsFromIds(input, getBarIds(list));
   return {response: new Response(JSON.stringify(posts), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };

@@ -1,5 +1,6 @@
 import {API_POST_CREATE, API_POST_CREATE_MAX_MESSAGE_LENGTH, API_POST_LIST, ReturnedPost} from "../../../common/common";
 import {AbortablePromise, Auth, abortableJsonFetch, cancel} from "../shared/shared";
+import {cacheAdd, cacheGetArrayOrNull, cacheMergeIntoArray} from "../shared/cache";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
@@ -14,8 +15,8 @@ interface ThreadProps {
 }
 
 export const Thread: React.FC<ThreadProps> = (props) => {
-  // We make a fake first post that includes the video to load it quicker.
-  const [posts, setPosts] = React.useState<ReturnedPost[]>([
+  // Try to load the first posts from the cache, or create a psuedo post that includes the video to load it quicker.
+  const [posts, setPosts] = React.useState<ReturnedPost[]>(cacheGetArrayOrNull<ReturnedPost>(props.id) || [
     {
       id: props.id,
       threadId: props.id,
@@ -31,7 +32,8 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       username: "",
       liked: false,
       likes: 0,
-      views: 0
+      views: 0,
+      cached: true
     }
   ]);
   const [postMessage, setPostMessage] = React.useState("");
@@ -43,6 +45,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
     const postListFetch = abortableJsonFetch<ReturnedPost[]>(API_POST_LIST, Auth.Optional, {threadId: props.id});
     postListFetch.then((postList) => {
       if (postList) {
+        cacheMergeIntoArray(props.id, postList);
         postList.reverse();
         setPosts(postList);
       }
@@ -91,6 +94,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
 
               const newPost = await postCreateFetchPromise;
               if (newPost) {
+                cacheAdd(newPost.threadId, newPost);
                 // Append our post to the end.
                 setPosts((previous) => [
                   ...previous,

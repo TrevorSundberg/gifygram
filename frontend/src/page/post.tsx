@@ -12,6 +12,8 @@ import Link from "@material-ui/core/Link";
 import React from "react";
 import {ReturnedPost} from "../../../common/common";
 import {ShareButton} from "./shareButton";
+import TimerIcon from "@material-ui/icons/Timer";
+import Tooltip from "@material-ui/core/Tooltip";
 import Typography from "@material-ui/core/Typography";
 import {makeLocalUrl} from "../shared/shared";
 import millify from "millify";
@@ -51,7 +53,14 @@ export const Post: React.FC<PostProps> = (props) => <Card
       </Avatar>
     }
     action={
-      <LikeButton post={props.post}/>
+      <div>
+        {props.post.cached
+          ? <Tooltip title="The post is pending">
+            <TimerIcon fontSize="inherit"/>
+          </Tooltip>
+          : null}
+        <LikeButton post={props.post}/>
+      </div>
     }
     title={<div>
       {props.post.username}

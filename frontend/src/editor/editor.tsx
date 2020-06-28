@@ -9,7 +9,7 @@ import {
   API_POST_CREATE_MAX_TITLE_LENGTH,
   ReturnedPost
 } from "../../../common/common";
-import {Auth, Deferred, NeverAsync, abortableJsonFetch} from "../shared/shared";
+import {Auth, Deferred, NeverAsync, THREADS_CACHE_KEY, abortableJsonFetch} from "../shared/shared";
 import {MODALS_CHANGED, Modal} from "./modal";
 import {Manager, SerializedData} from "./manager";
 import {RenderFrameEvent, Renderer} from "./renderer";
@@ -25,6 +25,7 @@ import {Utility} from "./utility";
 import {VideoEncoder} from "./videoEncoder";
 import {VideoEncoderH264MP4} from "./videoEncoderH264MP4";
 import {VideoPlayer} from "./videoPlayer";
+import {cacheAdd} from "../shared/cache";
 import svgToMiniDataURI from "mini-svg-data-uri";
 
 export class Editor {
@@ -225,6 +226,11 @@ export class Editor {
             method: "POST"
           }
         );
+
+        // Since this is creating both a post inside a thread, as well as the thread itself, add it to both.
+        cacheAdd(post.threadId, post);
+        cacheAdd(THREADS_CACHE_KEY, post);
+
         // If the user goes back to the editor in history, they'll be editing a remix of their post.
         history.replace(`/editor?remixId=${post.id}`);
         if (post.id === post.threadId) {

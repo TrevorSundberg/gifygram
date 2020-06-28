@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
+const uuidv4 = require("uuid/v4");
+const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
@@ -84,6 +86,9 @@ module.exports = {
       favicon: "./src/public/favicon.png",
       template: "./src/index.htm",
       title: require("./title")
+    }),
+    new webpack.DefinePlugin({
+      CACHE_GUID: JSON.stringify(uuidv4())
     })
   ],
   resolve: {
