@@ -31,12 +31,15 @@ export const Post: React.FC<PostProps> = (props) => <Card
   id={props.post.id}
   style={props.cardStyle}
   onClick={(e) => {
-    // Prevent the Popover from triggering us on close.
-    if (e.target instanceof HTMLDivElement) {
-      if (e.target.getAttribute("aria-hidden") === "true") {
+    // Prevent the share Popover from triggering us on close.
+    let element = e.target as HTMLElement;
+    while (element) {
+      if (element.getAttribute("data-ignore-click") === "true") {
         return;
       }
+      element = element.parentElement;
     }
+
     if (props.onClick) {
       props.onClick(e);
     }

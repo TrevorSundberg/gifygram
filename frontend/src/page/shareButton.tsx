@@ -42,6 +42,7 @@ export const ShareButton: React.FC<ShareButtonProps> = (props) => {
       <ShareIcon />
     </IconButton>
     <Popover
+      data-ignore-click="true"
       open={Boolean(anchorElement)}
       anchorEl={anchorElement}
       container={document.getElementById("page")}
