@@ -542,7 +542,23 @@ const handleRequest = async (event: FetchEvent): Promise<Response> => {
   if (handler) {
     return (await handler(input)).response;
   }
-  return getAssetFromKV(event, {mapRequestToAsset: serveSinglePageApp});
+
+  let isHtml = false;
+  const response = await getAssetFromKV(event, {
+    mapRequestToAsset: (request: Request): Request => {
+      const spaRequest = serveSinglePageApp(request);
+      if (new URL(spaRequest.url).pathname.endsWith(".html")) {
+        isHtml = true;
+      }
+      return spaRequest;
+    }
+  });
+
+  // We use content based hashes with webpack, but index.html (or any other .html) is not hashed.
+  if (!isHtml) {
+    response.headers.set("cache-control", "public,max-age=31536000,immutable");
+  }
+  return response;
 };
 
 const handleRanges = async (event: FetchEvent): Promise<Response> => {
