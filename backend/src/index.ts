@@ -498,7 +498,6 @@ handlers[API_POST_LIKE] = async (input) => {
     return prevLikes;
   })();
 
-
   const result: PostLike = {
     likes
   };
