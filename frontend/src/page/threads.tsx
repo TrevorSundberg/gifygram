@@ -52,10 +52,15 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
           props.history.push(`/thread?threadId=${thread.id}`);
         }}
         videoProps={{
+          tabIndex: 0,
           onMouseEnter: (event) => (event.target as HTMLVideoElement).play().catch(() => 0),
           onMouseLeave: (event) => (event.target as HTMLVideoElement).pause(),
-          onTouchStart: (event) => (event.target as HTMLVideoElement).play().catch(() => 0),
-          onTouchEnd: (event) => (event.target as HTMLVideoElement).pause()
+          onTouchStart: (event) => {
+            const element = event.target as HTMLVideoElement;
+            element.focus({preventScroll: true});
+            element.play().catch(() => 0);
+          },
+          onBlur: (event) => (event.target as HTMLVideoElement).pause()
         }}
       />)}
     </div>);
