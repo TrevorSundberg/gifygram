@@ -22,6 +22,11 @@ export const AnimationVideo: React.FC<AnimationVideoProps> = (props) => {
         paddingBottom: `${props.height / props.width * 100}%`
       }}>
     <video
+      ref={(ref) => {
+        if (ref) {
+          (ref as any).disableRemotePlayback = true;
+        }
+      }}
       width={props.width}
       height={props.height}
       className={classes.video}
