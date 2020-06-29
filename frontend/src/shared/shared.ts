@@ -88,18 +88,35 @@ auth2Promise.then((auth2) => {
 
 const LOCAL_STORAGE_KEY_DEV_USER = "devUser";
 
-export const getAuthIfSignedIn = async (): Promise<string | null> => {
+export interface AuthUser {
+  jwt: string;
+  id: string;
+}
+
+export const getAuthIfSignedIn = async (): Promise<AuthUser | null> => {
   if (isDevEnvironment()) {
-    return localStorage.getItem(LOCAL_STORAGE_KEY_DEV_USER);
+    const user = localStorage.getItem(LOCAL_STORAGE_KEY_DEV_USER);
+    return {jwt: user, id: user};
   }
   const auth2 = await auth2Promise;
   if (auth2.isSignedIn.get()) {
-    return auth2.currentUser.get().getAuthResponse().id_token;
+    const userGoogle = auth2.currentUser.get();
+    console.log(userGoogle.getId());
+    return {jwt: userGoogle.getAuthResponse().id_token, id: userGoogle.getId()};
   }
   return null;
 };
 
-const triggerLoggedIn = () => window.dispatchEvent(new Event(EVENT_LOGGED_IN));
+export class LoginEvent extends Event {
+  public userId: string;
+
+  public constructor (userId: string) {
+    super(EVENT_LOGGED_IN);
+    this.userId = userId;
+  }
+}
+
+const triggerLoggedIn = (userId: string) => window.dispatchEvent(new LoginEvent(userId));
 
 export const signInIfNeeded = async () => {
   const auth = await getAuthIfSignedIn();
@@ -122,13 +139,13 @@ export const signInWithGoogle = (): NeverAsync<Promise<void> | null> => {
       throw new Error("Dev username was empty");
     }
     localStorage.setItem(LOCAL_STORAGE_KEY_DEV_USER, username);
-    triggerLoggedIn();
+    triggerLoggedIn(username);
     return null;
   }
 
   // We know googleAuth2 is not null because getAuthIfSignedIn should have been called before this.
-  return googleAuth2.signIn().then(() => {
-    triggerLoggedIn();
+  return googleAuth2.signIn().then((userGoogle) => {
+    triggerLoggedIn(userGoogle.getId());
   });
 };
 
@@ -188,9 +205,9 @@ export const abortableJsonFetch = <T>(
     if (auth === Auth.Required) {
       await signInIfNeeded();
     }
-    const authString = await getAuthIfSignedIn();
-    const authHeaders = authString
-      ? {Authorization: authString}
+    const authUser = await getAuthIfSignedIn();
+    const authHeaders = authUser
+      ? {Authorization: authUser.jwt}
       : null;
     try {
       const response = await fetch(makeServerUrl(path, params), {

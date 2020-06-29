@@ -1,7 +1,7 @@
 import {API_THREAD_LIST, ReturnedThread} from "../../../common/common";
 import {THREADS_CACHE_KEY, abortableJsonFetch, cancel} from "../shared/shared";
 import {cacheGetArrayOrNull, cacheMergeIntoArray} from "../shared/cache";
-import {LoginContext} from "./login";
+import {LoginUserIdContext} from "./login";
 import {Post} from "./post";
 import React from "react";
 
@@ -15,7 +15,7 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
     setThreads
   ] = React.useState<ReturnedThread[]>(cacheGetArrayOrNull<ReturnedThread>(THREADS_CACHE_KEY) || []);
 
-  const loggedIn = React.useContext(LoginContext);
+  const loggedInUserId = React.useContext(LoginUserIdContext);
 
   React.useEffect(() => {
     const threadListFetch = abortableJsonFetch<ReturnedThread[]>(API_THREAD_LIST);
@@ -29,7 +29,7 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
     return () => {
       cancel(threadListFetch);
     };
-  }, [loggedIn]);
+  }, [loggedInUserId]);
 
   return (
     <div style={{

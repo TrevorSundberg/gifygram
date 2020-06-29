@@ -9,11 +9,12 @@ import {
   Deferred,
   EVENT_LOGGED_IN,
   EVENT_REQUEST_LOGIN,
+  LoginEvent,
   RequestLoginEvent,
   getAuthIfSignedIn,
   signInWithGoogle
 } from "./shared/shared";
-import {LoginContext, LoginDialog, LoginState} from "./page/login";
+import {LoginDialog, LoginUserIdContext, LoginUserIdState} from "./page/login";
 import {theme, useStyles} from "./page/style";
 import AppBar from "@material-ui/core/AppBar";
 import {AuthTest} from "./page/authtest";
@@ -69,17 +70,17 @@ const getUrlParam = (props: { location: import("history").Location }, name: stri
 
 const App = () => {
   const [showLoginDeferred, setShowLoginDeferred] = React.useState<Deferred<void> | null>(null);
-  const [loggedIn, setLoggedIn] = React.useState<LoginState>(false);
+  const [loggedInUserId, setLoggedInUserId] = React.useState<LoginUserIdState>(null);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   React.useEffect(() => {
-    const onLoggedIn = () => {
-      setLoggedIn(true);
+    const onLoggedIn = (event: LoginEvent) => {
+      setLoggedInUserId(event.userId);
     };
 
-    getAuthIfSignedIn().then((auth) => {
-      if (auth) {
-        onLoggedIn();
+    getAuthIfSignedIn().then((authUser) => {
+      if (authUser) {
+        onLoggedIn(new LoginEvent(authUser.id));
       }
     });
 
@@ -98,7 +99,7 @@ const App = () => {
   const classes = useStyles();
   return <ThemeProvider theme={theme}>
     <CssBaseline />
-    <LoginContext.Provider value={loggedIn}>
+    <LoginUserIdContext.Provider value={loggedInUserId}>
       <BrowserRouter>
         <Switch>
           <Route path="/editor"
@@ -166,7 +167,7 @@ const App = () => {
           showLoginDeferred.resolve();
           setShowLoginDeferred(null);
         }}/>
-    </LoginContext.Provider>
+    </LoginUserIdContext.Provider>
   </ThemeProvider>;
 };
 

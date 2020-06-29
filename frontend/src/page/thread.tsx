@@ -4,7 +4,7 @@ import {cacheAdd, cacheGetArrayOrNull, cacheMergeIntoArray} from "../shared/cach
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
-import {LoginContext} from "./login";
+import {LoginUserIdContext} from "./login";
 import {Post} from "./post";
 import React from "react";
 import TextField from "@material-ui/core/TextField";
@@ -40,7 +40,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
   const [postMessage, setPostMessage] = React.useState("");
   const [postCreateFetch, setPostCreateFetch] = React.useState<AbortablePromise<ReturnedPost>>(null);
 
-  const loggedIn = React.useContext(LoginContext);
+  const loggedInUserId = React.useContext(LoginUserIdContext);
 
   React.useEffect(() => {
     const postListFetch = abortableJsonFetch<ReturnedPost[]>(API_POST_LIST, Auth.Optional, {threadId: props.id});
@@ -55,7 +55,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
     return () => {
       cancel(postListFetch);
     };
-  }, [loggedIn]);
+  }, [loggedInUserId]);
 
 
   React.useEffect(() => () => {
