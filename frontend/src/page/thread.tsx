@@ -34,7 +34,8 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       liked: false,
       likes: 0,
       views: 0,
-      cached: true
+      cached: true,
+      sortKey: ""
     }
   ]);
   const [postMessage, setPostMessage] = React.useState("");

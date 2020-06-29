@@ -57,16 +57,29 @@ export const cacheAdd = (key: string, value: CacheItem) => {
   cacheStoreArray(key, array);
 };
 
+const deleteInternal = (value: CacheItem, array: CacheArray) => {
+  const index = array.findIndex((cacheItem) => cacheItem.id === value.id);
+  if (index !== -1) {
+    array.splice(index, 1);
+  }
+};
+
+export const cacheDelete = (key: string, value: CacheItem) => {
+  const array = cacheGetArrayOrNull(key);
+  if (!array) {
+    return;
+  }
+
+  deleteInternal(value, array);
+};
+
 export const cacheMergeIntoArray = (key: string, response: CacheItem[]) => {
   const array = cacheGetArrayOrNull(key);
   if (!array) {
     return;
   }
   for (const item of response) {
-    const index = array.findIndex((cacheItem) => cacheItem.id === item.id);
-    if (index !== -1) {
-      array.splice(index, 1);
-    }
+    deleteInternal(item, array);
   }
   for (const cacheItem of array) {
     // We always add to the front since it's always newest first (even with posts in a thread).

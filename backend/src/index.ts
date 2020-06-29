@@ -6,6 +6,7 @@ import {
   API_POST_CREATE,
   API_POST_CREATE_MAX_MESSAGE_LENGTH,
   API_POST_CREATE_MAX_TITLE_LENGTH,
+  API_POST_DELETE,
   API_POST_LIKE,
   API_POST_LIST,
   API_PROFILE,
@@ -322,7 +323,8 @@ const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: 
     message,
     userdata,
     userId: user.id,
-    replyId
+    replyId,
+    sortKey: newToOld
   };
 
   await Promise.all([
@@ -378,7 +380,7 @@ handlers[API_THREAD_LIST] = async (input) => {
 };
 
 const addView = async (type: "authed" | "ip", viewId: string, threadId: string) => {
-  const viewKey = `post/view/${type}:${viewId}:${threadId}`;
+  const viewKey = `post/view/${type}:${threadId}:${viewId}`;
   const hasViewed = Boolean(await db.get(viewKey));
   if (!hasViewed) {
     await db.put(viewKey, TRUE_VALUE);
@@ -479,7 +481,7 @@ handlers[API_POST_LIKE] = async (input) => {
   // Validate that the post exists.
   await getPost(id);
 
-  const likeKey = `post/like:${user.id}:${id}`;
+  const likeKey = `post/like:${id}:${user.id}`;
   const oldValue = Boolean(await db.get(likeKey));
 
   const likesKey = `post/likes:${id}`;
@@ -506,6 +508,38 @@ handlers[API_POST_LIKE] = async (input) => {
   return {
     response: new Response(
       JSON.stringify(result),
+      responseOptions(CONTENT_TYPE_APPLICATION_JSON)
+    )
+  };
+};
+
+handlers[API_POST_DELETE] = async (input) => {
+  const user = await input.requireAuthedUser();
+  const postId = expectUuidParam(input, "id");
+
+  const post = await getPost(postId);
+  if (post.userId !== user.id) {
+    throw new Error("Attempting to delete post that did not belong to the user");
+  }
+
+  // We don't delete the individual views or likes, just the counts (unbounded operation).
+  await Promise.all([
+    db.delete(`post:${postId}`),
+    db.delete(`post/likes:${postId}`),
+    db.delete(`post/views:${postId}`),
+
+    db.delete(`animation/json:${postId}`),
+    db.delete(`animation/video:${postId}`),
+
+    db.delete(`thread:${post.sortKey}|${postId}`),
+    db.delete(`thread/post:${post.threadId}:${post.sortKey}|${postId}`),
+
+    db.put(`post/delete:${postId}`, TRUE_VALUE)
+  ]);
+
+  return {
+    response: new Response(
+      JSON.stringify({}),
       responseOptions(CONTENT_TYPE_APPLICATION_JSON)
     )
   };
