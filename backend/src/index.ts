@@ -50,6 +50,8 @@ const CACHE_CONTROL_IMMUTABLE = "public,max-age=31536000,immutable";
 // `${Number.MAX_SAFE_INTEGER}`.length;
 const MAX_NUMBER_LENGTH_BASE_10 = 16;
 
+const TRUE_VALUE = "1";
+
 const sortKeyNewToOld = () => (Number.MAX_SAFE_INTEGER - Date.now()).toString().
   padStart(MAX_NUMBER_LENGTH_BASE_10, "0");
 
@@ -379,7 +381,7 @@ const addView = async (type: "authed" | "ip", viewId: string, threadId: string) 
   const viewKey = `post/view/${type}:${viewId}:${threadId}`;
   const hasViewed = Boolean(await db.get(viewKey));
   if (!hasViewed) {
-    await db.put(viewKey, "1");
+    await db.put(viewKey, TRUE_VALUE);
   }
   return hasViewed;
 };
@@ -486,7 +488,7 @@ handlers[API_POST_LIKE] = async (input) => {
     if (newValue !== oldValue) {
       if (newValue) {
         const newLikes = prevLikes + 1;
-        await db.put(likeKey, "1");
+        await db.put(likeKey, TRUE_VALUE);
         await db.put(likesKey, `${newLikes}`);
         return newLikes;
       }
