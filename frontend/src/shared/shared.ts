@@ -96,12 +96,14 @@ export interface AuthUser {
 export const getAuthIfSignedIn = async (): Promise<AuthUser | null> => {
   if (isDevEnvironment()) {
     const user = localStorage.getItem(LOCAL_STORAGE_KEY_DEV_USER);
-    return {jwt: user, id: user};
+    if (user) {
+      return {jwt: user, id: user};
+    }
+    return null;
   }
   const auth2 = await auth2Promise;
   if (auth2.isSignedIn.get()) {
     const userGoogle = auth2.currentUser.get();
-    console.log(userGoogle.getId());
     return {jwt: userGoogle.getAuthResponse().id_token, id: userGoogle.getId()};
   }
   return null;
