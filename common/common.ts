@@ -62,6 +62,7 @@ export interface StoredUser {
 }
 
 export interface StoredUserAvatar {
+  id: string;
   data: string;
 }
 

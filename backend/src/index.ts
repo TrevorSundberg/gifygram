@@ -41,6 +41,7 @@ patchDevKv(db);
 
 const CONTENT_TYPE_APPLICATION_JSON = "application/json";
 const CONTENT_TYPE_VIDEO_MP4 = "video/mp4";
+const CONTENT_TYPE_IMAGE_JPEG = "image/jpeg";
 
 const AUTHORIZATION_HEADER = "authorization";
 
@@ -387,16 +388,16 @@ handlers[API_ANIMATION_VIDEO] = async (input) => {
 };
 
 handlers[API_PROFILE_AVATAR] = async (input) => {
-  const result = await db.get(`user/avatar:${expectUuidParam(input, "id")}`, "arrayBuffer");
-  // TODO how to handle content type?
-  return {response: new Response(result, responseOptions(CONTENT_TYPE_VIDEO_MP4))};
+  const result = await db.get(`user/avatar:${expectUuidParam(input, "id")}`, "text") as string;
+  const image = Buffer.from(result.replace(/^data:image\/(png|jpeg|jpg);base64,/, ''), "base64");
+  return {response: new Response(image, responseOptions(CONTENT_TYPE_IMAGE_JPEG))};
 };
 
 handlers[API_PROFILE_AVATAR_CREATE] = async (input) => {
   const id = uuid();
   const base64ImageData = await input.request.text();
   await db.put(`user/avatar:${id}`, base64ImageData);
-  const resJson = JSON.stringify({data: base64ImageData});
+  const resJson = JSON.stringify({data: base64ImageData, id});
   return {response: new Response(resJson, responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 

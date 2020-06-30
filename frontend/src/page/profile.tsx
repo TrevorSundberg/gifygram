@@ -60,7 +60,7 @@ export const Profile: React.FC = () => {
           const reader = new FileReader();
           const [file] = e.target.files;
           reader.onload = async () => {
-            setUserAvatar({data: reader.result as string});
+            setUserAvatar({...userAvatar, data: reader.result as string});
 
             const avatarCreatePromise = abortableJsonFetch<StoredUserAvatar>(
               API_PROFILE_AVATAR_CREATE,
@@ -73,7 +73,9 @@ export const Profile: React.FC = () => {
             );
             const updatedUserAvatar = await avatarCreatePromise;
             if (updatedUserAvatar) {
+              console.log(`setting updatedUserAvatar: ${updatedUserAvatar.data}`);
               setUserAvatar(updatedUserAvatar);
+              setUser({...user, avatarId: updatedUserAvatar.id});
             }
           };
           reader.readAsDataURL(file);
