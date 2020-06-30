@@ -388,16 +388,15 @@ handlers[API_ANIMATION_VIDEO] = async (input) => {
 };
 
 handlers[API_PROFILE_AVATAR] = async (input) => {
-  const result = await db.get(`user/avatar:${expectUuidParam(input, "id")}`, "text") as string;
-  const image = Buffer.from(result.replace(/^data:image\/(png|jpeg|jpg);base64,/, ''), "base64");
+  const image = await db.get(`user/avatar:${expectUuidParam(input, "id")}`, "arrayBuffer");
   return {response: new Response(image, responseOptions(CONTENT_TYPE_IMAGE_JPEG))};
 };
 
 handlers[API_PROFILE_AVATAR_CREATE] = async (input) => {
   const id = uuid();
-  const base64ImageData = await input.request.text();
-  await db.put(`user/avatar:${id}`, base64ImageData);
-  const resJson = JSON.stringify({data: base64ImageData, id});
+  const imageData = await input.request.arrayBuffer();
+  await db.put(`user/avatar:${id}`, imageData);
+  const resJson = JSON.stringify({id});
   return {response: new Response(resJson, responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 
