@@ -387,16 +387,20 @@ handlers[API_ANIMATION_VIDEO] = async (input) => {
 };
 
 handlers[API_PROFILE_AVATAR] = async (input) => {
-  const result = await db.get(`profile/avatar:${expectUuidParam(input, "id")}`, "arrayBuffer");
+  const result = await db.get(`user/avatar:${expectUuidParam(input, "id")}`, "arrayBuffer");
   // TODO how to handle content type?
   return {response: new Response(result, responseOptions(CONTENT_TYPE_VIDEO_MP4))};
 };
 
 handlers[API_PROFILE_AVATAR_CREATE] = async (input) => {
+  console.log(input.request);
   const id = uuid();
-  const base64ImageData = input;
-  const result = await db.put(`profile/avatar:${id}`, base64ImageData);
-  return {response: new Response(result, responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
+  const base64ImageData = input.request.body.toString() as string;
+  console.log(`base64: ${base64ImageData}`);
+  await db.put(`user/avatar:${id}`, base64ImageData as string);
+  const resJson = JSON.stringify({data: base64ImageData});
+  console.log(resJson);
+  return {response: new Response(resJson, responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 
 handlers[API_PROFILE] = async (input) => {

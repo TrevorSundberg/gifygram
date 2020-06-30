@@ -65,8 +65,11 @@ export const Profile: React.FC = () => {
             const avatarCreatePromise = abortableJsonFetch<StoredUserAvatar>(
               API_PROFILE_AVATAR_CREATE,
               Auth.Required,
-              userAvatar,
-              {method: "POST"}
+              {},
+              {
+                body: userAvatar.data,
+                method: "POST"
+              }
             );
             const updatedUserAvatar = await avatarCreatePromise;
             if (updatedUserAvatar) {
