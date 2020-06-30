@@ -29,6 +29,25 @@ export const Profile: React.FC = () => {
     cancel(profileUpdateFetch);
   }, []);
 
+  React.useEffect(() => {
+    if (userAvatar) {
+      const avatarCreatePromise = abortableJsonFetch<StoredUserAvatar>(
+        API_PROFILE_AVATAR_CREATE,
+        Auth.Required,
+        {},
+        {
+          body: userAvatar.file,
+          method: "POST"
+        }
+      );
+      (async () => {
+        const updatedUserAvatar = await avatarCreatePromise;
+        if (updatedUserAvatar) {
+          setUser({...user, avatarId: updatedUserAvatar.id});
+        }
+      })();
+    }
+  }, [userAvatar]);
 
   if (!user) {
     return <div>Loading</div>;
@@ -56,29 +75,8 @@ export const Profile: React.FC = () => {
         multiple
         type="file"
         onChange={async (e) => {
-          console.log(e.target.value);
-          const reader = new FileReader();
           const [file] = e.target.files;
-          reader.onload = async () => {
-            setUserAvatar({...userAvatar, data: reader.result as string});
-
-            const avatarCreatePromise = abortableJsonFetch<StoredUserAvatar>(
-              API_PROFILE_AVATAR_CREATE,
-              Auth.Required,
-              {},
-              {
-                body: userAvatar.data,
-                method: "POST"
-              }
-            );
-            const updatedUserAvatar = await avatarCreatePromise;
-            if (updatedUserAvatar) {
-              console.log(`setting updatedUserAvatar: ${updatedUserAvatar.data}`);
-              setUserAvatar(updatedUserAvatar);
-              setUser({...user, avatarId: updatedUserAvatar.id});
-            }
-          };
-          reader.readAsDataURL(file);
+          setUserAvatar({...userAvatar, file});
         }}
       />
       <label htmlFor="raised-button-file">

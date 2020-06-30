@@ -63,7 +63,7 @@ export interface StoredUser {
 
 export interface StoredUserAvatar {
   id: string;
-  data: string;
+  file: File;
 }
 
 export const MAX_VIDEO_SIZE_X = 854;
