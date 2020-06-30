@@ -41,10 +41,7 @@ export const Profile: React.FC = () => {
         }
       );
       (async () => {
-        const updatedUserAvatar = await avatarCreatePromise;
-        if (updatedUserAvatar) {
-          setUser({...user, avatarId: updatedUserAvatar.id});
-        }
+        await avatarCreatePromise;
       })();
     }
   }, [userAvatar]);
