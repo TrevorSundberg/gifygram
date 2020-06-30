@@ -395,7 +395,7 @@ handlers[API_PROFILE_AVATAR] = async (input) => {
 handlers[API_PROFILE_AVATAR_CREATE] = async (input) => {
   console.log(input.request);
   const id = uuid();
-  const base64ImageData = input.request.body.toString() as string;
+  const base64ImageData = await input.request.arrayBuffer();
   console.log(`base64: ${base64ImageData}`);
   await db.put(`user/avatar:${id}`, base64ImageData as string);
   const resJson = JSON.stringify({data: base64ImageData});
