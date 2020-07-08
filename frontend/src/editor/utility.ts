@@ -1,64 +1,22 @@
-import {MAX_VIDEO_SIZE_X, MAX_VIDEO_SIZE_Y} from "../../../common/common";
+import {MAX_VIDEO_SIZE} from "../../../common/common";
 
-export const FRAME_RATE = 30;
+export const FRAME_RATE = 24;
 export const FRAME_TIME = 1 / FRAME_RATE;
 export const DURATION_PER_ENCODE = 1;
-export const TARGET_CANVAS_SIZE: Size = [
-  1280,
-  1280
-];
-export const TARGET_WIDGET_SIZE: Size = [
-  400,
-  400
-];
 export const MAX_OUTPUT_SIZE: Size = [
-  MAX_VIDEO_SIZE_X,
-  MAX_VIDEO_SIZE_Y
+  MAX_VIDEO_SIZE,
+  MAX_VIDEO_SIZE
 ];
 
-export class Deferred<T> implements Promise<T> {
-  private resolveSelf;
-
-  private rejectSelf;
-
-  private promise: Promise<T>
-
-  public constructor () {
-    this.promise = new Promise((resolve, reject) => {
-      this.resolveSelf = resolve;
-      this.rejectSelf = reject;
-    });
-  }
-
-  public then<TResult1 = T, TResult2 = never> (
-    onfulfilled?: ((value: T) =>
-    TResult1 | PromiseLike<TResult1>) | undefined | null,
-    onrejected?: ((reason: any) =>
-    TResult2 | PromiseLike<TResult2>) | undefined | null
-  ): Promise<TResult1 | TResult2> {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-
-  public catch<TResult = never> (onrejected?: ((reason: any) =>
-  TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult> {
-    return this.promise.then(onrejected);
-  }
-
-  public finally (onfinally?: (() => void) | undefined | null): Promise<T> {
-    console.log(onfinally);
-    throw new Error("Not implemented");
-  }
-
-  public resolve (val: T) {
-    this.resolveSelf(val);
-  }
-
-  public reject (reason: any) {
-    this.rejectSelf(reason);
-  }
-
-  public [Symbol.toStringTag]: "Promise"
-}
+/**
+ * Do NOT change these constants, this would be a breaking change as they
+ * affect sizes of widgets and positioning within the video. When the animations
+ * are serialized all their positions are relative to these constants.
+ * Note also that they cannot be small (less than 22) as that starts to
+ * cause browser artifacts, presumingly due to the use of transforms.
+ */
+export const RELATIVE_WIDGET_SIZE = 400;
+export const RELATIVE_VIDEO_SIZE = 1280;
 
 export interface Transform {
   rotate: number;
@@ -120,13 +78,6 @@ export class Utility {
       ]
     };
   }
-}
-
-export type NeverAsync = void;
-
-export interface AttributedSource {
-  attribution: string;
-  src: string;
 }
 
 export type Size = [number, number];

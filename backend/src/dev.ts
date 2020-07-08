@@ -12,6 +12,20 @@ export const patchDevKv = (kv: KVNamespace) => {
   if (typeof (kv as any).store === "undefined") {
     throw new Error("Expected this to be an emulated KVNamespace");
   }
+  if (!(kv as any).hasCorrectDelete) {
+    const del = kv.delete;
+    // eslint-disable-next-line func-names
+    kv.delete = async function (key: string): Promise<void> {
+      try {
+        await del.call(this, key);
+      // eslint-disable-next-line no-empty
+      } catch {
+      }
+    };
+
+    (kv as any).hasCorrectDelete = true;
+  }
+
   // eslint-disable-next-line func-names
   kv.list = async function (
     this,

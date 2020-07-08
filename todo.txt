@@ -125,28 +125,27 @@ DONE - Share Card implementation in thread/threads
 DONE - Like post or comment - (approximate, non-atomic and underestimate + actual vote by user)
 DONE - Just make authorization happen right at the beginning of CF requests and it sets it on RequestInput
 DONE - Make the share button work
+DONE - Need to support Accept-Ranges/Range requests and 206 Partial Content from CF Workers (Safari/iOS)
+DONE - Make the comment box just work on submit (enter/ mobile send)
+DONE - Upgrade moveable and test new mobile touch controls
+DONE - When you login, the page doesn't update (maybe just refresh, or set global state)
+DONE - Make psuedo posts come from the server response on create
+DONE - Make the share on the same line as a comment post (like button in its own class if needed)
+DONE - Maybe we make a react specific path for sign-in that does the full screen dialog (sends events to the root app)
+DONE - Bug: Keep posting/rendering modal up while logging in (or spinner? block basically & catch error on failure)
+DONE - Make a system where we store changes in a local cache and append them until they are confirmed added
+DONE - Need to attribute original gifs (attributions button that does a popup with a scroll list, show gif or image in list)
+DONE - Last touched video continues playing (don't require touch down)
+DONE - Ability to delete if you made a post
 
- - Make the comment box just work on submit (enter/ mobile send) + ctrl+enter adds newline
- - Need to attribute original gifs
+ - Global admin role (and ability to assign other roles from command line)
  - Make a page where you can edit your profile
  - Make basic profile page
- - Link user ids in thread/threads to profile page
- - Make editable profile page
- - Bug: Keep posting/rendering modal up while logging in (or spinner? block basically & catch error on failure)
- - Need to prompt for username/handle (make a profile where you can edit this)
- - Bug: Sometimes a newly made post doesn't exist (routed to another edge machine?)
-   - https://community.cloudflare.com/t/listing-items-returns-inconsistent-state/122680/15
-   - Make a system where we store changes in a local cache and append them until they are confirmed added
-   - All create API calls return a full object that would appear in the list too
- - Limit video to 10MB or slightly less just in case (9MB?) (use kbps and length)
- - Last touched video continues playing (don't require touch down)
+ - Link user ids in thread/threads to profile page (/user/someone)
  - Tags/keywords
  - Infinite scrolling using CSS grid
  - Track views / popularity (approximate, non-atomic and underestimate + actual view by user)
  - Flag post or comment (approximate, non-atomic and underestimate + actual flag by user)
- - Multiple boards and posting by board?
- - Global admin role (and ability to assign other roles from command line)
- - Ability to delete if you made a post
  - Admin can delete posts
  - Sort by highest votes (utilize lexographic sort)
  - Sort by highest views (utilize lexographic sort)
@@ -163,22 +162,20 @@ DONE - Make the share button work
  - Get publish to production using CI and npm version ...
  - Get tests running on CI builds (docker/puppeteer)
 
+ - Bug: Motion tracked object gets deselected on occasion
  - Bug: Video was too wide (black background to the right)
  - Bug: Motion track first/last frame is offset (almost like it's wrapping first/last)
  - Bug: Widgets after encoding does not always match current video frame (widgets in wrong position)
+ - Loading screen for picking background video
  - Visiblity toggle kinda sucks in animator, we should just make it a timeline thing
- - Upgrade moveable and test new mobile touch controls
  - Custom dialog for listing stickers / videos
  - Import main video from youtube (clip the video)
  - Double click or double tap or tap + hold actions to change text or image
- - Upload videos or sprites
  - Export dialog (gif, mp4, webm), fps, max size / keep aspect, etc...
  - Customize text styles (font, color, outline, etc)
- - Make the manager create the container and widget container (pass in body)
 
  - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)
  - Scenejs Keyframe bug where it doesn't seek correctly: min repro and report it
- - Add credits to exported video (text file in ffmpeg)?
 
  - Import main video from disk
  - Import sprite from disk

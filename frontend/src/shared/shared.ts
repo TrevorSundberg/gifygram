@@ -1,5 +1,60 @@
 import {AUTH_GOOGLE_CLIENT_ID} from "../../../common/common";
 
+export const EVENT_LOGGED_IN = "loggedIn";
+export const EVENT_REQUEST_LOGIN = "requestLogin";
+
+export const THREADS_CACHE_KEY = "threads";
+
+export type NeverAsync<T = void> = T;
+
+export class Deferred<T> implements Promise<T> {
+  private resolveSelf;
+
+  private rejectSelf;
+
+  private promise: Promise<T>
+
+  public constructor () {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolveSelf = resolve;
+      this.rejectSelf = reject;
+    });
+  }
+
+  public then<TResult1 = T, TResult2 = never> (
+    onfulfilled?: ((value: T) =>
+    TResult1 | PromiseLike<TResult1>) | undefined | null,
+    onrejected?: ((reason: any) =>
+    TResult2 | PromiseLike<TResult2>) | undefined | null
+  ): Promise<TResult1 | TResult2> {
+    return this.promise.then(onfulfilled, onrejected);
+  }
+
+  public catch<TResult = never> (onrejected?: ((reason: any) =>
+  TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult> {
+    return this.promise.then(onrejected);
+  }
+
+  public finally (onfinally?: (() => void) | undefined | null): Promise<T> {
+    console.log(onfinally);
+    throw new Error("Not implemented");
+  }
+
+  public resolve (val: T) {
+    this.resolveSelf(val);
+  }
+
+  public reject (reason: any) {
+    this.rejectSelf(reason);
+  }
+
+  public [Symbol.toStringTag]: "Promise"
+}
+
+export class RequestLoginEvent extends Event {
+  public deferredLoginPicked = new Deferred<void>();
+}
+
 // Assume we're in dev if the protocol is http: (not https:)
 export const isDevEnvironment = () => window.location.protocol === "http:";
 
@@ -26,34 +81,74 @@ const auth2Promise = new Promise<GoogleAuth>((resolve, reject) => {
   script.defer = true;
   document.body.appendChild(script);
 });
+let googleAuth2: GoogleAuth = null;
+auth2Promise.then((auth2) => {
+  googleAuth2 = auth2;
+});
 
 const LOCAL_STORAGE_KEY_DEV_USER = "devUser";
 
-export const getAuthIfSignedIn = async (): Promise<string | null> => {
+export interface AuthUser {
+  jwt: string;
+  id: string;
+}
+
+export const getAuthIfSignedIn = async (): Promise<AuthUser | null> => {
   if (isDevEnvironment()) {
-    return localStorage.getItem(LOCAL_STORAGE_KEY_DEV_USER);
+    const user = localStorage.getItem(LOCAL_STORAGE_KEY_DEV_USER);
+    if (user) {
+      return {jwt: user, id: user};
+    }
+    return null;
   }
   const auth2 = await auth2Promise;
   if (auth2.isSignedIn.get()) {
-    return auth2.currentUser.get().getAuthResponse().id_token;
+    const userGoogle = auth2.currentUser.get();
+    return {jwt: userGoogle.getAuthResponse().id_token, id: userGoogle.getId()};
   }
   return null;
 };
 
+export class LoginEvent extends Event {
+  public userId: string;
+
+  public constructor (userId: string) {
+    super(EVENT_LOGGED_IN);
+    this.userId = userId;
+  }
+}
+
+const triggerLoggedIn = (userId: string) => window.dispatchEvent(new LoginEvent(userId));
+
 export const signInIfNeeded = async () => {
+  const auth = await getAuthIfSignedIn();
+  if (auth) {
+    return;
+  }
+
+  const requestLogin = new RequestLoginEvent(EVENT_REQUEST_LOGIN);
+  window.dispatchEvent(requestLogin);
+
+  await requestLogin.deferredLoginPicked;
+};
+
+// Don't await before here because this creates a popup (needs synchronous trusted click event)
+export const signInWithGoogle = (): NeverAsync<Promise<void> | null> => {
   if (isDevEnvironment()) {
     // eslint-disable-next-line no-alert
-    const username = localStorage.getItem(LOCAL_STORAGE_KEY_DEV_USER) || prompt("Pick a unique dev username");
+    const username = prompt("Pick a unique dev username");
     if (!username) {
       throw new Error("Dev username was empty");
     }
     localStorage.setItem(LOCAL_STORAGE_KEY_DEV_USER, username);
+    triggerLoggedIn(username);
+    return null;
   }
-  const auth = await getAuthIfSignedIn();
-  if (!auth) {
-    const auth2 = await auth2Promise;
-    await auth2.signIn();
-  }
+
+  // We know googleAuth2 is not null because getAuthIfSignedIn should have been called before this.
+  return googleAuth2.signIn().then((userGoogle) => {
+    triggerLoggedIn(userGoogle.getId());
+  });
 };
 
 const applyPathAndParams = (url: URL, path: string, params?: Record<string, any>) => {
@@ -112,9 +207,9 @@ export const abortableJsonFetch = <T>(
     if (auth === Auth.Required) {
       await signInIfNeeded();
     }
-    const authString = await getAuthIfSignedIn();
-    const authHeaders = authString
-      ? {Authorization: authString}
+    const authUser = await getAuthIfSignedIn();
+    const authHeaders = authUser
+      ? {Authorization: authUser.jwt}
       : null;
     try {
       const response = await fetch(makeServerUrl(path, params), {

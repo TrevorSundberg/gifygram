@@ -4,8 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Made It For Fun</title>
-  <meta property="og:title" content="Made It For Fun" />
+  <title><%= htmlWebpackPlugin.options.title %></title>
+  <link rel="shortcut icon" href="<%= require('./public/favicon.png').default %>">
+  <meta property="og:title" content="<%= htmlWebpackPlugin.options.title %>" />
   <meta property="og:description" content="A stupid website for animating images on top of videos.">
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://madeitfor.fun/" />

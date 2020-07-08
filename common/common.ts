@@ -7,6 +7,7 @@ export const API_POST_CREATE = "/api/post/create";
 export const API_THREAD_LIST = "/api/thread/list";
 export const API_POST_LIST = "/api/post/list";
 export const API_POST_LIKE = "/api/post/like";
+export const API_POST_DELETE = "/api/post/delete";
 export const API_ANIMATION_CREATE = "/api/animation/create";
 export const API_ANIMATION_JSON = "/api/animation/json";
 export const API_ANIMATION_VIDEO = "/api/animation/video";
@@ -26,8 +27,16 @@ export type PostComment = {
   type: "comment";
 }
 
+export interface AttributedSource {
+  originUrl: string;
+  title: string;
+  previewGifUrl: string;
+  src: string;
+}
+
 export type PostAnimation = {
   type: "animation";
+  attribution: AttributedSource[];
   width: number;
   height: number;
 }
@@ -42,12 +51,15 @@ export interface StoredPost {
   userdata: PostData;
   userId: string;
   replyId: string | null;
+  sortKey: string;
 }
 
 export interface ReturnedPost extends StoredPost {
   username: string;
   liked: boolean;
   likes: number;
+  views: number;
+  cached?: true;
 }
 
 export interface ReturnedThread extends ReturnedPost {
@@ -65,5 +77,17 @@ export interface StoredUserAvatar {
   file: File;
 }
 
-export const MAX_VIDEO_SIZE_X = 854;
-export const MAX_VIDEO_SIZE_Y = 480;
+export interface PostLike {
+  likes: number;
+}
+
+export interface WidgetData {
+  attributedSource: AttributedSource;
+}
+
+export interface AnimationData {
+  videoAttributedSource: AttributedSource;
+  widgets: WidgetData[];
+}
+
+export const MAX_VIDEO_SIZE = 720;

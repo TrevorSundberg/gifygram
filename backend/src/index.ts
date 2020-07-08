@@ -6,6 +6,7 @@ import {
   API_POST_CREATE,
   API_POST_CREATE_MAX_MESSAGE_LENGTH,
   API_POST_CREATE_MAX_TITLE_LENGTH,
+  API_POST_DELETE,
   API_POST_LIKE,
   API_POST_LIST,
   API_PROFILE,
@@ -17,12 +18,15 @@ import {
   API_THREAD_LIST,
   AUTH_GOOGLE_CLIENT_ID,
   AUTH_GOOGLE_ISSUER,
-  MAX_VIDEO_SIZE_X,
-  MAX_VIDEO_SIZE_Y,
+  AnimationData,
+  AttributedSource,
+  MAX_VIDEO_SIZE,
   PostData,
+  PostLike,
   ReturnedPost,
   StoredPost,
-  StoredUser
+  StoredUser,
+  oldVersion
 } from "../../common/common";
 import {getAssetFromKV, serveSinglePageApp} from "@cloudflare/kv-asset-handler";
 import {isDevEnvironment, patchDevKv} from "./dev";
@@ -45,8 +49,12 @@ const CONTENT_TYPE_IMAGE_JPEG = "image/jpeg";
 
 const AUTHORIZATION_HEADER = "authorization";
 
+const CACHE_CONTROL_IMMUTABLE = "public,max-age=31536000,immutable";
+
 // `${Number.MAX_SAFE_INTEGER}`.length;
 const MAX_NUMBER_LENGTH_BASE_10 = 16;
+
+const TRUE_VALUE = "1";
 
 const sortKeyNewToOld = () => (Number.MAX_SAFE_INTEGER - Date.now()).toString().
   padStart(MAX_NUMBER_LENGTH_BASE_10, "0");
@@ -71,11 +79,13 @@ const corsHeaders = {
 };
 
 // TODO(trevor): Remove this once it's all hosted in the same place.
-const createAccessHeaders = (mimeType: string) => new Headers({
+const createHeaders = (mimeType: string, immutable = false) => new Headers({
   ...corsHeaders,
-  "Content-Type": mimeType || "application/octet-stream"
+  "content-type": mimeType || "application/octet-stream",
+  ...immutable ? {"cache-control": CACHE_CONTROL_IMMUTABLE} : {}
 });
-const responseOptions = (mimeType: string) => ({headers: createAccessHeaders(mimeType)});
+const responseOptions = (mimeType: string, immutable = false) =>
+  ({headers: createHeaders(mimeType, immutable)});
 
 const expect = <T>(name: string, value: T | null | undefined) => {
   if (!value) {
@@ -127,6 +137,8 @@ const expectBoolean = (name: string, value: string | null | undefined): boolean 
   return value === "true";
 };
 
+type JWKS = {keys: JWKRSA[]};
+
 class RequestInput {
   public readonly request: Request;
 
@@ -156,8 +168,19 @@ class RequestInput {
         };
       }
 
-      const response = await fetch("https://www.googleapis.com/oauth2/v3/certs");
-      const jwks: {keys: JWKRSA[]} = await response.json();
+      const jwks = await (async () => {
+        const authGoogleKey = "auth:google";
+        const cachedJwks = await db.get<JWKS>(authGoogleKey, "json");
+        if (cachedJwks) {
+          return cachedJwks;
+        }
+        const response = await fetch("https://www.googleapis.com/oauth2/v3/certs");
+        const newJwks: JWKS = await response.json();
+
+        const expiration = Math.floor(Date.parse(expect("expires", response.headers.get("expires"))) / 1000);
+        await db.put(authGoogleKey, JSON.stringify(newJwks), {expiration});
+        return newJwks;
+      })();
 
       const cryptographer = new Jose.WebCryptographer();
       const verifier = new Jose.JoseJWS.Verifier(cryptographer, token);
@@ -303,15 +326,26 @@ const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: 
     message,
     userdata,
     userId: user.id,
-    replyId
+    replyId,
+    sortKey: newToOld
   };
 
   await Promise.all([
     db.put(`thread/post:${threadId}:${newToOld}|${id}`, id),
     db.put(`post:${id}`, JSON.stringify(post))
   ]);
+
+  // We return what the post would actually look like if it were listed (for quick display in React).
+  const returnedPost: ReturnedPost = {
+    ...post,
+    username: user!.username,
+    liked: false,
+    likes: 0,
+    views: 0
+  };
+
   return {
-    response: new Response(JSON.stringify({id, threadId}), responseOptions(CONTENT_TYPE_APPLICATION_JSON)),
+    response: new Response(JSON.stringify(returnedPost), responseOptions(CONTENT_TYPE_APPLICATION_JSON)),
     threadId,
     id
   };
@@ -326,6 +360,9 @@ const getPostsFromIds = async (input: RequestInput, ids: string[]): Promise<Retu
   const authedUser = await input.getAuthedUser();
   const posts = await Promise.all(ids.map(getPost));
   return Promise.all(posts.map(async (post) => {
+    if (post.userdata.type === "animation") {
+      post.userdata.attribution = oldVersion(post.userdata.attribution || []);
+    }
     const user = await db.get<StoredUser>(`user:${post.userId}`, "json");
     return {
       ...post,
@@ -333,7 +370,8 @@ const getPostsFromIds = async (input: RequestInput, ids: string[]): Promise<Retu
       liked: authedUser
         ? await db.get(`post/like:${authedUser.id}:${post.id}`) !== null
         : false,
-      likes: parseInt(await db.get(`post/likes:${post.id}`) || "0", 10)
+      likes: parseInt(await db.get(`post/likes:${post.id}`) || "0", 10),
+      views: parseInt(await db.get(`post/views:${post.id}`) || "0", 10)
     };
   }));
 };
@@ -344,8 +382,32 @@ handlers[API_THREAD_LIST] = async (input) => {
   return {response: new Response(JSON.stringify(threads), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 
+const addView = async (type: "authed" | "ip", viewId: string, threadId: string) => {
+  const viewKey = `post/view/${type}:${threadId}:${viewId}`;
+  const hasViewed = Boolean(await db.get(viewKey));
+  if (!hasViewed) {
+    await db.put(viewKey, TRUE_VALUE);
+  }
+  return hasViewed;
+};
+
 handlers[API_POST_LIST] = async (input) => {
   const threadId = expectUuidParam(input, "threadId");
+
+  const authedUser = await input.getAuthedUser();
+  const authedHasViewed = authedUser
+    ? await addView("authed", authedUser.id, threadId)
+    : false;
+
+  const ip = expect("ip", input.request.headers.get("cf-connecting-ip"));
+  const ipHasViewed = await addView("ip", ip, threadId);
+
+  if (authedUser && !authedHasViewed || !authedUser && !ipHasViewed) {
+    const viewsKey = `post/views:${threadId}`;
+    const prevLikes = parseInt(await db.get(viewsKey) || "0", 10);
+    await db.put(viewsKey, `${prevLikes + 1}`);
+  }
+
   const list = await db.list({prefix: `thread/post:${threadId}:`});
   const posts = await getPostsFromIds(input, getBarIds(list));
   return {response: new Response(JSON.stringify(posts), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
@@ -359,14 +421,19 @@ handlers[API_ANIMATION_CREATE] = async (input) => {
 
   const json: string = new TextDecoder().decode(jsonBinary);
   // TODO(trevor): Use ajv to validate, for now it just checks that it's json.
-  JSON.parse(json);
+  const animationData: AnimationData = JSON.parse(json);
+  const attribution: AttributedSource[] = [
+    animationData.videoAttributedSource,
+    ...animationData.widgets.map((widget) => widget.attributedSource)
+  ];
 
   await expectFileHeader("video:video/mp4", video, videoMp4Header);
 
   const output = await postCreate(input, true, true, {
     type: "animation",
-    width: expectIntegerParam(input, "width", 1, MAX_VIDEO_SIZE_X),
-    height: expectIntegerParam(input, "height", 1, MAX_VIDEO_SIZE_Y)
+    attribution: attribution.filter((attribute) => Boolean(attribute.originUrl)),
+    width: expectIntegerParam(input, "width", 1, MAX_VIDEO_SIZE),
+    height: expectIntegerParam(input, "height", 1, MAX_VIDEO_SIZE)
   });
 
   const {id} = output;
@@ -379,12 +446,12 @@ handlers[API_ANIMATION_CREATE] = async (input) => {
 
 handlers[API_ANIMATION_JSON] = async (input) => {
   const result = await db.get(`animation/json:${expectUuidParam(input, "id")}`, "text");
-  return {response: new Response(result, responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
+  return {response: new Response(result, responseOptions(CONTENT_TYPE_APPLICATION_JSON, true))};
 };
 
 handlers[API_ANIMATION_VIDEO] = async (input) => {
   const result = await db.get(`animation/video:${expectUuidParam(input, "id")}`, "arrayBuffer");
-  return {response: new Response(result, responseOptions(CONTENT_TYPE_VIDEO_MP4))};
+  return {response: new Response(result, responseOptions(CONTENT_TYPE_VIDEO_MP4, true))};
 };
 
 handlers[API_PROFILE_AVATAR] = async (input) => {
@@ -432,19 +499,61 @@ handlers[API_POST_LIKE] = async (input) => {
   // Validate that the post exists.
   await getPost(id);
 
-  const oldValue = Boolean(await db.get(`post/like:${user.id}:${id}`));
+  const likeKey = `post/like:${id}:${user.id}`;
+  const oldValue = Boolean(await db.get(likeKey));
 
-  if (newValue !== oldValue) {
-    const likesKey = `post/likes:${id}`;
-    const prevLikes = parseInt(await db.get(likesKey) || "0", 10);
-    if (newValue) {
-      await db.put(`post/like:${user.id}:${id}`, "1");
-      await db.put(`post/likes:${id}`, `${prevLikes + 1}`);
-    } else {
-      await db.delete(`post/like:${user.id}:${id}`);
-      await db.put(`post/likes:${id}`, `${Math.max(prevLikes - 1, 0)}`);
+  const likesKey = `post/likes:${id}`;
+  const prevLikes = parseInt(await db.get(likesKey) || "0", 10);
+  const likes = await (async () => {
+    if (newValue !== oldValue) {
+      if (newValue) {
+        const newLikes = prevLikes + 1;
+        await db.put(likeKey, TRUE_VALUE);
+        await db.put(likesKey, `${newLikes}`);
+        return newLikes;
+      }
+      const newLikes = prevLikes - 1;
+      await db.delete(likeKey);
+      await db.put(likesKey, `${Math.max(newLikes, 0)}`);
+      return newLikes;
     }
+    return prevLikes;
+  })();
+
+  const result: PostLike = {
+    likes
+  };
+  return {
+    response: new Response(
+      JSON.stringify(result),
+      responseOptions(CONTENT_TYPE_APPLICATION_JSON)
+    )
+  };
+};
+
+handlers[API_POST_DELETE] = async (input) => {
+  const user = await input.requireAuthedUser();
+  const postId = expectUuidParam(input, "id");
+
+  const post = await getPost(postId);
+  if (post.userId !== user.id) {
+    throw new Error("Attempting to delete post that did not belong to the user");
   }
+
+  // We don't delete the individual views or likes, just the counts (unbounded operation).
+  await Promise.all([
+    db.delete(`post:${postId}`),
+    db.delete(`post/likes:${postId}`),
+    db.delete(`post/views:${postId}`),
+
+    db.delete(`animation/json:${postId}`),
+    db.delete(`animation/video:${postId}`),
+
+    db.delete(`thread:${post.sortKey}|${postId}`),
+    db.delete(`thread/post:${post.threadId}:${post.sortKey}|${postId}`),
+
+    db.put(`post/delete:${postId}`, TRUE_VALUE)
+  ]);
 
   return {
     response: new Response(
@@ -486,21 +595,73 @@ const handleRequest = async (event: FetchEvent): Promise<Response> => {
     return handleOptions(event.request);
   }
   const input = new RequestInput(event);
-  try {
-    const handler = handlers[input.url.pathname];
-    if (handler) {
-      return (await handler(input)).response;
+  const handler = handlers[input.url.pathname];
+  if (handler) {
+    return (await handler(input)).response;
+  }
+
+  let isHtml = false;
+  const response = await getAssetFromKV(event, {
+    mapRequestToAsset: (request: Request): Request => {
+      const spaRequest = serveSinglePageApp(request);
+      if (new URL(spaRequest.url).pathname.endsWith(".html")) {
+        isHtml = true;
+      }
+      return spaRequest;
     }
-    return await getAssetFromKV(event, {mapRequestToAsset: serveSinglePageApp});
+  });
+
+  // We use content based hashes with webpack, but index.html (or any other .html) is not hashed.
+  if (!isHtml) {
+    response.headers.set("cache-control", CACHE_CONTROL_IMMUTABLE);
+  }
+  return response;
+};
+
+const handleRanges = async (event: FetchEvent): Promise<Response> => {
+  const response = await handleRequest(event);
+  response.headers.append("accept-ranges", "bytes");
+
+  const rangeHeader = event.request.headers.get("range");
+
+  const canHandleRangeRequest =
+    !isDevEnvironment() &&
+    event.request.method === "GET" &&
+    response.status === 200 &&
+    response.body;
+
+  if (canHandleRangeRequest && rangeHeader) {
+    const rangeResults = (/bytes=([0-9]+)-([0-9]+)?/u).exec(rangeHeader);
+    if (!rangeResults) {
+      throw new Error(`Invalid range header: ${rangeHeader}`);
+    }
+    const buffer = await response.arrayBuffer();
+    const begin = parseInt(rangeResults[1], 10);
+    const end = parseInt(rangeResults[2], 10) || buffer.byteLength - 1;
+    const slice = buffer.slice(begin, end + 1);
+    response.headers.append("content-range", `bytes ${begin}-${end}/${buffer.byteLength}`);
+    return new Response(slice, {
+      status: 206,
+      headers: response.headers
+    });
+  }
+  return response;
+};
+
+const handleErrors = async (event: FetchEvent): Promise<Response> => {
+  try {
+    return await handleRanges(event);
   } catch (err) {
+    const fullError = err && err.stack || err;
+    console.error(fullError);
     return new Response(
       JSON.stringify({
-        err: `${err}`,
-        stack: `${err && err.stack}`,
-        pathname: input.url.pathname
+        err: `${fullError}`,
+        url: event.request.url,
+        headers: event.request.headers
       }),
       {
-        headers: createAccessHeaders(CONTENT_TYPE_APPLICATION_JSON),
+        headers: createHeaders(CONTENT_TYPE_APPLICATION_JSON),
         status: 500
       }
     );
@@ -508,5 +669,5 @@ const handleRequest = async (event: FetchEvent): Promise<Response> => {
 };
 
 addEventListener("fetch", (event) => {
-  event.respondWith(handleRequest(event));
+  event.respondWith(handleErrors(event));
 });

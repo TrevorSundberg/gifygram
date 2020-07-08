@@ -6,10 +6,10 @@ import {
   API_ANIMATION_CREATE,
   API_ANIMATION_JSON,
   API_POST_CREATE_MAX_MESSAGE_LENGTH,
-  API_POST_CREATE_MAX_TITLE_LENGTH
+  API_POST_CREATE_MAX_TITLE_LENGTH,
+  ReturnedPost
 } from "../../../common/common";
-import {Auth, abortableJsonFetch} from "../shared/shared";
-import {Deferred, NeverAsync, Utility} from "./utility";
+import {Auth, Deferred, NeverAsync, THREADS_CACHE_KEY, abortableJsonFetch} from "../shared/shared";
 import {MODALS_CHANGED, Modal} from "./modal";
 import {Manager, SerializedData} from "./manager";
 import {RenderFrameEvent, Renderer} from "./renderer";
@@ -21,9 +21,11 @@ import {StickerSearch} from "./stickerSearch";
 import TextField from "@material-ui/core/TextField";
 import TextToSVG from "text-to-svg";
 import {Timeline} from "./timeline";
+import {Utility} from "./utility";
 import {VideoEncoder} from "./videoEncoder";
 import {VideoEncoderH264MP4} from "./videoEncoderH264MP4";
 import {VideoPlayer} from "./videoPlayer";
+import {cacheAdd} from "../shared/cache";
 import svgToMiniDataURI from "mini-svg-data-uri";
 
 export class Editor {
@@ -80,7 +82,9 @@ export class Editor {
       })();
     } else {
       player.setAttributedSrc({
-        attribution: "",
+        originUrl: "",
+        title: "",
+        previewGifUrl: "",
         src: require("../public/sample.mp4").default as string
       });
     }
@@ -132,7 +136,9 @@ export class Editor {
         const src = svgToMiniDataURI(svg.get(0).outerHTML) as string;
         await manager.addWidget({
           attributedSource: {
-            attribution: "",
+            originUrl: "",
+            title: "",
+            previewGifUrl: "",
             src
           }, type: "svg"
         });
@@ -209,7 +215,7 @@ export class Editor {
           makeLengthBuffer(videoBuffer.byteLength),
           videoBuffer
         ]);
-        const post = await abortableJsonFetch<{id: string; threadId: string}>(
+        const post = await abortableJsonFetch<ReturnedPost>(
           API_ANIMATION_CREATE,
           Auth.Required,
           {
@@ -224,9 +230,15 @@ export class Editor {
             method: "POST"
           }
         );
+
+        // Since this is creating both a post inside a thread (may be itself), cache it within that thread.
+        cacheAdd(post.threadId, post);
+
         // If the user goes back to the editor in history, they'll be editing a remix of their post.
         history.replace(`/editor?remixId=${post.id}`);
         if (post.id === post.threadId) {
+          // Since this is creating a thread, also add it to the thread cache.
+          cacheAdd(THREADS_CACHE_KEY, post);
           history.push(`/thread?threadId=${post.threadId}`);
         } else {
           history.push(`/thread?threadId=${post.threadId}#${post.id}`);
@@ -357,7 +369,7 @@ export class Editor {
       const filename = `MadeItForFun-${new Date().toISOString().
         replace(/[^a-zA-Z0-9-]/ug, "-")}`;
       const result = await render();
-      if (result.videoBlob) {
+      if (result) {
         download(URL.createObjectURL(result.videoBlob), filename);
       }
     });

@@ -1,4 +1,5 @@
-import {Deferred, FRAME_RATE} from "./utility";
+import {Deferred} from "../shared/shared";
+import {FRAME_RATE} from "./utility";
 import GifEncoder from "gif-encoder";
 import {VideoEncoder} from "./videoEncoder";
 

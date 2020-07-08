@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
+const uuidv4 = require("uuid/v4");
+const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
@@ -48,7 +50,7 @@ module.exports = {
             loader: "url-loader",
             options: {
               limit: 4096,
-              name: "public/[hash]-[name].[ext]"
+              name: "public/[name]-[contenthash].[ext]"
             }
           }
         ]
@@ -59,7 +61,7 @@ module.exports = {
           {
             loader: "file-loader",
             options: {
-              name: "public/[hash]-[name].[ext]"
+              name: "public/[name]-[contenthash].[ext]"
             }
           }
         ]
@@ -72,8 +74,8 @@ module.exports = {
   optimization: {
   },
   output: {
-    chunkFilename: "[name]-[id].js",
-    filename: "[name]-[id].js",
+    chunkFilename: "[name]-[chunkhash].js",
+    filename: "[name]-[hash].js",
     path: path.join(
       __dirname,
       "../backend/static"
@@ -81,8 +83,11 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      favicon: "./src/public/favicon.png",
-      template: "./src/index.html"
+      template: "./src/index.htm",
+      title: require("./title")
+    }),
+    new webpack.DefinePlugin({
+      CACHE_GUID: JSON.stringify(uuidv4())
     })
   ],
   resolve: {

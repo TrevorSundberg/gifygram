@@ -1,9 +1,11 @@
 import {API_POST_CREATE, API_POST_CREATE_MAX_MESSAGE_LENGTH, API_POST_LIST, ReturnedPost} from "../../../common/common";
 import {AbortablePromise, Auth, abortableJsonFetch, cancel} from "../shared/shared";
-import {Post, createPsuedoPost} from "./post";
+import {cacheAdd, cacheGetArrayOrNull, cacheMergeIntoArray} from "../shared/cache";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
+import {LoginUserIdContext} from "./login";
+import {Post} from "./post";
 import React from "react";
 import TextField from "@material-ui/core/TextField";
 
@@ -12,29 +14,40 @@ interface ThreadProps {
   history: import("history").History;
 }
 
-interface PostCreate {
-  id: string;
-}
-
 export const Thread: React.FC<ThreadProps> = (props) => {
-  // We make a fake first post that includes the video to load it quicker.
-  const [posts, setPosts] = React.useState<ReturnedPost[]>([
-    createPsuedoPost(
-      props.id,
-      {
+  // Try to load the first posts from the cache, or create a psuedo post that includes the video to load it quicker.
+  const [posts, setPosts] = React.useState<ReturnedPost[]>(cacheGetArrayOrNull<ReturnedPost>(props.id) || [
+    {
+      id: props.id,
+      threadId: props.id,
+      title: "",
+      message: "",
+      userdata: {
         type: "animation",
+        attribution: [],
         width: 0,
         height: 0
-      }
-    )
+      },
+      replyId: null,
+      userId: "",
+      username: "",
+      liked: false,
+      likes: 0,
+      views: 0,
+      cached: true,
+      sortKey: ""
+    }
   ]);
   const [postMessage, setPostMessage] = React.useState("");
-  const [postCreateFetch, setPostCreateFetch] = React.useState<AbortablePromise<PostCreate>>(null);
+  const [postCreateFetch, setPostCreateFetch] = React.useState<AbortablePromise<ReturnedPost>>(null);
+
+  const loggedInUserId = React.useContext(LoginUserIdContext);
 
   React.useEffect(() => {
     const postListFetch = abortableJsonFetch<ReturnedPost[]>(API_POST_LIST, Auth.Optional, {threadId: props.id});
     postListFetch.then((postList) => {
       if (postList) {
+        cacheMergeIntoArray(props.id, postList);
         postList.reverse();
         setPosts(postList);
       }
@@ -42,8 +55,12 @@ export const Thread: React.FC<ThreadProps> = (props) => {
 
     return () => {
       cancel(postListFetch);
-      cancel(postCreateFetch);
     };
+  }, [loggedInUserId]);
+
+
+  React.useEffect(() => () => {
+    cancel(postCreateFetch);
   }, []);
 
   return <div>
@@ -71,7 +88,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
             style={{display: "none"}}
             disabled={Boolean(postCreateFetch)}
             onClick={async () => {
-              const postCreateFetchPromise = abortableJsonFetch<PostCreate>(API_POST_CREATE, Auth.Required, {
+              const postCreateFetchPromise = abortableJsonFetch<ReturnedPost>(API_POST_CREATE, Auth.Required, {
                 message: postMessage,
                 replyId: props.id
               });
@@ -79,10 +96,11 @@ export const Thread: React.FC<ThreadProps> = (props) => {
 
               const newPost = await postCreateFetchPromise;
               if (newPost) {
+                cacheAdd(newPost.threadId, newPost);
                 // Append our post to the end.
                 setPosts((previous) => [
                   ...previous,
-                  createPsuedoPost(newPost.id, {type: "comment"}, props.id, props.id, null, postMessage)
+                  newPost
                 ]);
               }
               setPostCreateFetch(null);

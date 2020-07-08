@@ -1,5 +1,7 @@
 import "./videoPlayer.css";
-import {AttributedSource, Deferred, Size, TARGET_CANVAS_SIZE, TimeRange, resizeMinimumKeepAspect} from "./utility";
+import {AttributedSource, MAX_VIDEO_SIZE} from "../../../common/common";
+import {RELATIVE_VIDEO_SIZE, Size, TimeRange, resizeMinimumKeepAspect} from "./utility";
+import {Deferred} from "../shared/shared";
 
 interface Point {
   clientX: number;
@@ -155,16 +157,13 @@ export class VideoPlayer extends EventTarget {
     const blob = await response.blob();
     this.video.src = URL.createObjectURL(blob);
     this.video.dataset.src = attributedSource.src;
-    this.video.dataset.attribution = attributedSource.attribution;
+    this.video.dataset.attributionJson = JSON.stringify(attributedSource);
     await this.loadPromise;
     this.dispatchEvent(new Event("srcChanged"));
   }
 
   public getAttributedSrc (): AttributedSource {
-    return {
-      attribution: this.video.dataset.attribution,
-      src: this.video.dataset.src
-    };
+    return JSON.parse(this.video.dataset.attributionJson);
   }
 
   public setMarkers (normalizedMarkerTimes: number[]) {
@@ -184,13 +183,13 @@ export class VideoPlayer extends EventTarget {
 
   public getRawSize (): Size {
     return [
-      this.video.videoWidth || 1280,
-      this.video.videoHeight || 720
+      this.video.videoWidth || MAX_VIDEO_SIZE,
+      this.video.videoHeight || MAX_VIDEO_SIZE
     ];
   }
 
   public getAspectSize () {
-    return resizeMinimumKeepAspect(this.getRawSize(), TARGET_CANVAS_SIZE);
+    return resizeMinimumKeepAspect(this.getRawSize(), [RELATIVE_VIDEO_SIZE, RELATIVE_VIDEO_SIZE]);
   }
 
   public getNormalizedCurrentTime () {

@@ -1,5 +1,7 @@
 import {API_THREAD_LIST, ReturnedThread} from "../../../common/common";
-import {abortableJsonFetch, cancel} from "../shared/shared";
+import {THREADS_CACHE_KEY, abortableJsonFetch, cancel} from "../shared/shared";
+import {cacheGetArrayOrNull, cacheMergeIntoArray} from "../shared/cache";
+import {LoginUserIdContext} from "./login";
 import {Post} from "./post";
 import React from "react";
 
@@ -11,12 +13,15 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
   const [
     threads,
     setThreads
-  ] = React.useState<ReturnedThread[]>([]);
+  ] = React.useState<ReturnedThread[]>(cacheGetArrayOrNull<ReturnedThread>(THREADS_CACHE_KEY) || []);
+
+  const loggedInUserId = React.useContext(LoginUserIdContext);
 
   React.useEffect(() => {
     const threadListFetch = abortableJsonFetch<ReturnedThread[]>(API_THREAD_LIST);
     threadListFetch.then((threadList) => {
       if (threadList) {
+        cacheMergeIntoArray(THREADS_CACHE_KEY, threadList);
         setThreads(threadList);
       }
     });
@@ -24,7 +29,7 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
     return () => {
       cancel(threadListFetch);
     };
-  }, []);
+  }, [loggedInUserId]);
 
   return (
     <div style={{
@@ -40,16 +45,22 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
         cardStyle={{
           breakInside: "avoid",
           position: "relative",
-          marginBottom: "10px"
+          marginBottom: "10px",
+          overflow: "visible"
         }}
         onClick={() => {
           props.history.push(`/thread?threadId=${thread.id}`);
         }}
         videoProps={{
+          tabIndex: 0,
           onMouseEnter: (event) => (event.target as HTMLVideoElement).play().catch(() => 0),
           onMouseLeave: (event) => (event.target as HTMLVideoElement).pause(),
-          onTouchStart: (event) => (event.target as HTMLVideoElement).play().catch(() => 0),
-          onTouchEnd: (event) => (event.target as HTMLVideoElement).pause()
+          onTouchStart: (event) => {
+            const element = event.target as HTMLVideoElement;
+            element.focus({preventScroll: true});
+            element.play().catch(() => 0);
+          },
+          onBlur: (event) => (event.target as HTMLVideoElement).pause()
         }}
       />)}
     </div>);

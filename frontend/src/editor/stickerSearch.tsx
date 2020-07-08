@@ -1,5 +1,6 @@
 import "./stickerSearch.css";
-import {AttributedSource, Deferred} from "./utility";
+import {AttributedSource} from "../../../common/common";
+import {Deferred} from "../shared/shared";
 import {Modal} from "./modal";
 import React from "react";
 import ReactGiphySearchbox from "react-giphy-searchbox-stickers";
@@ -55,7 +56,9 @@ export class StickerSearch {
     }
 
     return {
-      attribution: result.url,
+      originUrl: result.url,
+      title: result.title,
+      previewGifUrl: result.images.preview_gif.url,
       src: result.images.original[type === "sticker" ? "url" : "mp4"] as string
     };
   }
