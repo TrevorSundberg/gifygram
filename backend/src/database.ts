@@ -19,6 +19,8 @@ const dbkeyPostLiked = (userId: UserId, postId: PostId) =>
   `post/liked:${userId}:${postId}`;
 const dbkeyPostLikes = (postId: PostId) =>
   `post/likes:${postId}`;
+const dbkeyPostViews = (postId: PostId) =>
+  `post/views:${postId}`;
 
 const TRUE_VALUE = "1";
 
@@ -78,3 +80,6 @@ export const dbModifyPostLiked = async (userId: UserId, postId: PostId, newValue
   }
   return prevLikes;
 };
+
+export const dbGetPostViews = async (postId: PostId): Promise<number> =>
+  parseInt(await db.get(dbkeyPostViews(postId)) || "0", 10);

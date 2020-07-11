@@ -34,6 +34,7 @@ import {
   dbGetPost,
   dbGetPostLiked,
   dbGetPostLikes,
+  dbGetPostViews,
   dbGetUser,
   dbModifyPostLiked,
   dbPutCachedJwksGoogle,
@@ -373,7 +374,7 @@ const getPostsFromIds = async (input: RequestInput, ids: string[]): Promise<Retu
         ? await dbGetPostLiked(authedUser.id, post.id)
         : false,
       likes: await dbGetPostLikes(post.id),
-      views: parseInt(await db.get(`post/views:${post.id}`) || "0", 10)
+      views: await dbGetPostViews(post.id)
     };
   }));
 };
