@@ -32,7 +32,10 @@ import {
   dbCreatePost,
   dbGetCachedJwksGoogle,
   dbGetPost,
+  dbGetPostLiked,
+  dbGetPostLikes,
   dbGetUser,
+  dbModifyPostLiked,
   dbPutCachedJwksGoogle,
   dbPutUser
 } from "./database";
@@ -367,9 +370,9 @@ const getPostsFromIds = async (input: RequestInput, ids: string[]): Promise<Retu
       ...post,
       username: user!.username,
       liked: authedUser
-        ? await db.get(`post/like:${authedUser.id}:${post.id}`) !== null
+        ? await dbGetPostLiked(authedUser.id, post.id)
         : false,
-      likes: parseInt(await db.get(`post/likes:${post.id}`) || "0", 10),
+      likes: await dbGetPostLikes(post.id),
       views: parseInt(await db.get(`post/views:${post.id}`) || "0", 10)
     };
   }));
@@ -477,38 +480,15 @@ handlers[API_PROFILE_UPDATE] = async (input) => {
 };
 
 handlers[API_POST_LIKE] = async (input) => {
-  const id = expectUuidParam(input, "id");
+  const postId = expectUuidParam(input, "id");
   const newValue = expectBooleanParam(input, "value");
   const [user] = await Promise.all([
     input.requireAuthedUser(),
     // Validate that the post exists (we don't use the result however).
-    getPost(id)
+    getPost(postId)
   ]);
 
-  const likeKey = `post/like:${id}:${user.id}`;
-  const oldValue = Boolean(await db.get(likeKey));
-
-  const likesKey = `post/likes:${id}`;
-  const prevLikes = parseInt(await db.get(likesKey) || "0", 10);
-  const likes = await (async () => {
-    if (newValue !== oldValue) {
-      if (newValue) {
-        const newLikes = prevLikes + 1;
-        await Promise.all([
-          db.put(likeKey, TRUE_VALUE),
-          db.put(likesKey, `${newLikes}`)
-        ]);
-        return newLikes;
-      }
-      const newLikes = prevLikes - 1;
-      await Promise.all([
-        db.delete(likeKey),
-        db.put(likesKey, `${Math.max(newLikes, 0)}`)
-      ]);
-      return newLikes;
-    }
-    return prevLikes;
-  })();
+  const likes = await dbModifyPostLiked(user.id, postId, newValue);
 
   const result: PostLike = {
     likes

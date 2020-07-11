@@ -15,6 +15,10 @@ const dbkeyThreadPost = (threadId: PostId, sortKey: SortKey, postId: PostId) =>
   `thread/post:${threadId}:${sortKey}|${postId}`;
 const dbkeyThread = (sortKey: SortKey, postId: PostId) =>
   `thread:${sortKey}|${postId}`;
+const dbkeyPostLiked = (userId: UserId, postId: PostId) =>
+  `post/liked:${userId}:${postId}`;
+const dbkeyPostLikes = (postId: PostId) =>
+  `post/likes:${postId}`;
 
 const TRUE_VALUE = "1";
 
@@ -42,4 +46,35 @@ export const dbCreatePost = async (post: StoredPost): Promise<void> => {
     db.put(dbkeyThreadPost(post.threadId, post.sortKey, post.id), TRUE_VALUE),
     db.put(dbkeyPost(post.id), JSON.stringify(post))
   ]);
+};
+
+export const dbGetPostLiked = async (userId: UserId, postId: PostId): Promise<boolean> =>
+  await db.get(dbkeyPostLiked(userId, postId)) !== null;
+
+export const dbGetPostLikes = async (postId: PostId): Promise<number> =>
+  parseInt(await db.get(dbkeyPostLikes(postId)) || "0", 10);
+
+export const dbModifyPostLiked = async (userId: UserId, postId: PostId, newValue: boolean): Promise<number> => {
+  const likedKey = dbkeyPostLiked(userId, postId);
+  const oldValue = Boolean(await db.get(likedKey));
+
+  const likesKey = dbkeyPostLikes(postId);
+  const prevLikes = parseInt(await db.get(likesKey) || "0", 10);
+  if (newValue !== oldValue) {
+    if (newValue) {
+      const newLikes = prevLikes + 1;
+      await Promise.all([
+        db.put(likedKey, TRUE_VALUE),
+        db.put(likesKey, `${newLikes}`)
+      ]);
+      return newLikes;
+    }
+    const newLikes = prevLikes - 1;
+    await Promise.all([
+      db.delete(likedKey),
+      db.put(likesKey, `${Math.max(newLikes, 0)}`)
+    ]);
+    return newLikes;
+  }
+  return prevLikes;
 };
