@@ -26,6 +26,7 @@ import {
   StoredUser,
   oldVersion
 } from "../../common/common";
+import {JWKS, dbGetCachedJwksGoogle, dbPutCachedJwksGoogle} from "./database";
 import {getAssetFromKV, serveSinglePageApp} from "@cloudflare/kv-asset-handler";
 import {isDevEnvironment, patchDevKv} from "./dev";
 
@@ -134,8 +135,6 @@ const expectBoolean = (name: string, value: string | null | undefined): boolean 
   return value === "true";
 };
 
-type JWKS = {keys: JWKRSA[]};
-
 class RequestInput {
   public readonly request: Request;
 
@@ -166,8 +165,7 @@ class RequestInput {
       }
 
       const jwks = await (async () => {
-        const authGoogleKey = "auth:google";
-        const cachedJwks = await db.get<JWKS>(authGoogleKey, "json");
+        const cachedJwks = await dbGetCachedJwksGoogle();
         if (cachedJwks) {
           return cachedJwks;
         }
@@ -175,7 +173,7 @@ class RequestInput {
         const newJwks: JWKS = await response.json();
 
         const expiration = Math.floor(Date.parse(expect("expires", response.headers.get("expires"))) / 1000);
-        await db.put(authGoogleKey, JSON.stringify(newJwks), {expiration});
+        await dbPutCachedJwksGoogle(newJwks, expiration);
         return newJwks;
       })();
 
