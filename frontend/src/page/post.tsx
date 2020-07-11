@@ -30,6 +30,7 @@ interface PostProps {
   onClick?: React.MouseEventHandler<HTMLDivElement>;
   videoProps?: React.DetailedHTMLProps<React.VideoHTMLAttributes<HTMLVideoElement>, HTMLVideoElement>;
   history: import("history").History;
+  onTrashed?: () => void;
 }
 
 export const Post: React.FC<PostProps> = (props) => {
@@ -69,7 +70,9 @@ export const Post: React.FC<PostProps> = (props) => {
             : null}
           {
             !props.preview && props.post.userId === loggedInUserId
-              ? <Box mr={1}><TrashButton post={props.post} history={props.history}/></Box>
+              ? <Box mr={1}>
+                <TrashButton post={props.post} onTrashed={props.onTrashed}/>
+              </Box>
               : null
           }
           <LikeButton post={props.post}/>

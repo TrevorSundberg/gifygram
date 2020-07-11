@@ -70,7 +70,21 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       post={post}
       cardStyle={{marginBottom: 4}}
       videoProps={{autoPlay: true}}
-      history={props.history}/>)}
+      history={props.history}
+      onTrashed={() => {
+        if (post.id === post.threadId) {
+          // Deleting the entire thread, so go back to home/root and don't keep this entry in history.
+          props.history.replace("/");
+        } else {
+          // Remove the post from the list.
+          setPosts((previous) => {
+            const newPosts = [...previous];
+            const index = newPosts.indexOf(post);
+            newPosts.splice(index, 1);
+            return newPosts;
+          });
+        }
+      }}/>)}
     <Card>
       <CardContent>
         <form>

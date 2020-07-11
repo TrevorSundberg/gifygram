@@ -7,7 +7,7 @@ import {cacheDelete} from "../shared/cache";
 
 interface TrashButtonProps {
   post: ReturnedPost;
-  history: import("history").History;
+  onTrashed: () => void;
 }
 
 export const TrashButton: React.FC<TrashButtonProps> = (props) =>
@@ -18,8 +18,7 @@ export const TrashButton: React.FC<TrashButtonProps> = (props) =>
     cacheDelete(props.post.threadId, props.post);
     cacheDelete(THREADS_CACHE_KEY, props.post);
 
-    // Go back to home/root and don't keep this entry in history.
-    props.history.replace("/");
+    props.onTrashed();
   }}>
     <DeleteIcon/>
   </IconButton>;
