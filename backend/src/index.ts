@@ -26,7 +26,7 @@ import {
   StoredUser,
   oldVersion
 } from "../../common/common";
-import {JWKS, dbGetCachedJwksGoogle, dbPutCachedJwksGoogle} from "./database";
+import {JWKS, dbGetCachedJwksGoogle, dbGetUser, dbPutCachedJwksGoogle, dbPutUser} from "./database";
 import {getAssetFromKV, serveSinglePageApp} from "@cloudflare/kv-asset-handler";
 import {isDevEnvironment, patchDevKv} from "./dev";
 
@@ -199,8 +199,7 @@ class RequestInput {
     if (parseInt(content.exp, 10) <= Math.ceil(Date.now() / 1000)) {
       throw new Error(`JWT expired ${content.exp}`);
     }
-    const userKey = `user:${content.sub}`;
-    const existingUser = await db.get<StoredUser>(userKey, "json");
+    const existingUser = await dbGetUser(content.sub);
     if (existingUser) {
       return existingUser;
     }
@@ -210,7 +209,7 @@ class RequestInput {
       bio: ""
     };
 
-    await db.put(userKey, JSON.stringify(user));
+    await dbPutUser(user);
     return user;
   }
 
@@ -358,7 +357,7 @@ const getPostsFromIds = async (input: RequestInput, ids: string[]): Promise<Retu
     if (post.userdata.type === "animation") {
       post.userdata.attribution = oldVersion(post.userdata.attribution || []);
     }
-    const user = await db.get<StoredUser>(`user:${post.userId}`, "json");
+    const user = await dbGetUser(post.userId);
     return {
       ...post,
       username: user!.username,
@@ -463,7 +462,7 @@ handlers[API_PROFILE_UPDATE] = async (input) => {
   const user = await input.requireAuthedUser();
   user.username = expectStringParam(input, "username", API_PROFILE_MAX_USERNAME_LENGTH);
   user.bio = expectStringParam(input, "bio", API_PROFILE_MAX_BIO_LENGTH);
-  await db.put(`user:${user.id}`, JSON.stringify(user));
+  await dbPutUser(user);
   return {
     response: new Response(
       JSON.stringify(user),
