@@ -314,7 +314,6 @@ const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: 
   const newToOld = sortKeyNewToOld();
   const threadId = await (async () => {
     if (createThread && !replyId) {
-      await db.put(`thread:${newToOld}|${id}`, id);
       return id;
     }
     const replyPost = await getPost(expectUuid("replyId", replyId));

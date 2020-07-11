@@ -8,8 +8,9 @@ export type JWKS = {keys: JWKRSA[]};
 const KEY_AUTH_GOOGLE = "auth:google";
 const dbkeyUser = (userId: UserId) => `user:${userId}`;
 const dbkeyPost = (postId: PostId) => `post:${postId}`;
-const dbkeyThreadPost = (threadId: PostId, postId: PostId, sortKey: SortKey) =>
+const dbkeyThreadPost = (threadId: PostId, sortKey: SortKey, postId: PostId) =>
   `thread/post:${threadId}:${sortKey}|${postId}`;
+const dbkeyThread = (sortKey: SortKey, postId: PostId) => `thread:${sortKey}|${postId}`;
 
 const TRUE_VALUE = "1";
 
@@ -30,7 +31,11 @@ export const dbGetPost = async (postId: PostId): Promise<StoredPost | null> =>
 
 export const dbCreatePost = async (post: StoredPost): Promise<void> => {
   await Promise.all([
-    db.put(dbkeyThreadPost(post.threadId, post.id, post.sortKey), TRUE_VALUE),
+    // If this post is creating a thread...
+    post.threadId === post.id
+      ? db.put(dbkeyThread(post.sortKey, post.id), TRUE_VALUE)
+      : null,
+    db.put(dbkeyThreadPost(post.threadId, post.sortKey, post.id), TRUE_VALUE),
     db.put(dbkeyPost(post.id), JSON.stringify(post))
   ]);
 };
