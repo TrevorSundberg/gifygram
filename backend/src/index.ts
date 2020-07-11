@@ -23,8 +23,7 @@ import {
   PostLike,
   ReturnedPost,
   StoredPost,
-  StoredUser,
-  oldVersion
+  StoredUser
 } from "../../common/common";
 import {
   JWKS,
@@ -32,10 +31,9 @@ import {
   dbCreatePost,
   dbGetCachedJwksGoogle,
   dbGetPost,
-  dbGetPostLiked,
-  dbGetPostLikes,
-  dbGetPostViews,
   dbGetUser,
+  dbListThreadPosts,
+  dbListThreads,
   dbModifyPostLiked,
   dbPutCachedJwksGoogle,
   dbPutUser
@@ -356,32 +354,9 @@ const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: 
 
 handlers[API_POST_CREATE] = async (input) => postCreate(input, false, false, {type: "comment"});
 
-const getBarIds = (list: {keys: { name: string }[]}) =>
-  list.keys.map((key) => key.name.split("|")[1]);
-
-const getPostsFromIds = async (input: RequestInput, ids: string[]): Promise<ReturnedPost[]> => {
-  const authedUser = await input.getAuthedUser();
-  const posts = await Promise.all(ids.map(getPost));
-  return Promise.all(posts.map(async (post) => {
-    if (post.userdata.type === "animation") {
-      post.userdata.attribution = oldVersion(post.userdata.attribution || []);
-    }
-    const user = await dbGetUser(post.userId);
-    return {
-      ...post,
-      username: user!.username,
-      liked: authedUser
-        ? await dbGetPostLiked(authedUser.id, post.id)
-        : false,
-      likes: await dbGetPostLikes(post.id),
-      views: await dbGetPostViews(post.id)
-    };
-  }));
-};
-
 handlers[API_THREAD_LIST] = async (input) => {
-  const list = await db.list({prefix: "thread:"});
-  const threads = await getPostsFromIds(input, getBarIds(list));
+  const authedUser = await input.getAuthedUser();
+  const threads = await dbListThreads(authedUser);
   return {response: new Response(JSON.stringify(threads), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 
@@ -411,8 +386,7 @@ handlers[API_POST_LIST] = async (input) => {
     await db.put(viewsKey, `${prevLikes + 1}`);
   }
 
-  const list = await db.list({prefix: `thread/post:${threadId}:`});
-  const posts = await getPostsFromIds(input, getBarIds(list));
+  const posts = await dbListThreadPosts(authedUser, threadId);
   return {response: new Response(JSON.stringify(posts), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 
