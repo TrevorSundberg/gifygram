@@ -274,7 +274,6 @@ export class Editor {
             <TextField
               fullWidth
               label="Message"
-              multiline={true}
               inputProps={{maxLength: API_POST_CREATE_MAX_MESSAGE_LENGTH}}
               onChange={(e) => {
                 message = e.target.value;
