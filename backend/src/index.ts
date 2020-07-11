@@ -26,7 +26,16 @@ import {
   StoredUser,
   oldVersion
 } from "../../common/common";
-import {JWKS, dbGetCachedJwksGoogle, dbGetUser, dbPutCachedJwksGoogle, dbPutUser} from "./database";
+import {
+  JWKS,
+  PostId,
+  dbCreatePost,
+  dbGetCachedJwksGoogle,
+  dbGetPost,
+  dbGetUser,
+  dbPutCachedJwksGoogle,
+  dbPutUser
+} from "./database";
 import {getAssetFromKV, serveSinglePageApp} from "@cloudflare/kv-asset-handler";
 import {isDevEnvironment, patchDevKv} from "./dev";
 
@@ -292,7 +301,7 @@ interface JwtPayload {
   given_name: string;
 }
 
-const getPost = async (id: string) => expect("post", await db.get<StoredPost>(`post:${id}`, "json"));
+const getPost = async (postId: PostId) => expect("post", await dbGetPost(postId));
 
 const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: boolean, userdata: PostData) => {
   const user = await input.requireAuthedUser();
@@ -324,10 +333,7 @@ const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: 
     sortKey: newToOld
   };
 
-  await Promise.all([
-    db.put(`thread/post:${threadId}:${newToOld}|${id}`, id),
-    db.put(`post:${id}`, JSON.stringify(post))
-  ]);
+  await dbCreatePost(post);
 
   // We return what the post would actually look like if it were listed (for quick display in React).
   const returnedPost: ReturnedPost = {
