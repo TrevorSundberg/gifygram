@@ -475,11 +475,13 @@ handlers[API_PROFILE_UPDATE] = async (input) => {
 };
 
 handlers[API_POST_LIKE] = async (input) => {
-  const user = await input.requireAuthedUser();
   const id = expectUuidParam(input, "id");
   const newValue = expectBooleanParam(input, "value");
-  // Validate that the post exists.
-  await getPost(id);
+  const [user] = await Promise.all([
+    input.requireAuthedUser(),
+    // Validate that the post exists (we don't use the result however).
+    getPost(id)
+  ]);
 
   const likeKey = `post/like:${id}:${user.id}`;
   const oldValue = Boolean(await db.get(likeKey));
@@ -490,13 +492,17 @@ handlers[API_POST_LIKE] = async (input) => {
     if (newValue !== oldValue) {
       if (newValue) {
         const newLikes = prevLikes + 1;
-        await db.put(likeKey, TRUE_VALUE);
-        await db.put(likesKey, `${newLikes}`);
+        await Promise.all([
+          db.put(likeKey, TRUE_VALUE),
+          db.put(likesKey, `${newLikes}`)
+        ]);
         return newLikes;
       }
       const newLikes = prevLikes - 1;
-      await db.delete(likeKey);
-      await db.put(likesKey, `${Math.max(newLikes, 0)}`);
+      await Promise.all([
+        db.delete(likeKey),
+        db.put(likesKey, `${Math.max(newLikes, 0)}`)
+      ]);
       return newLikes;
     }
     return prevLikes;
