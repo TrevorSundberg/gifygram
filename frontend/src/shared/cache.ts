@@ -31,23 +31,25 @@ export interface CacheItem {
 
 type CacheArray = CacheItem[];
 
-const cacheStoreArray = (key: string, array: CacheArray) =>
+const cacheStoreArray = (key: string, array: CacheArray) => {
+  if (array.length === 0) {
+    sessionStorage.removeItem(key);
+    return;
+  }
   sessionStorage.setItem(key, JSON.stringify(array));
+};
 
 export const cacheGetArrayOrNull = <T extends CacheItem>(key: string): T[] | null => {
   const array = JSON.parse(sessionStorage.getItem(key));
   return array;
 };
 
-const cacheEnsureArray = (key: string) => {
+const cacheEnsureArray = (key: string): CacheArray => {
   const array = cacheGetArrayOrNull(key);
   if (array) {
     return array;
   }
-
-  const newArray: CacheArray = [];
-  cacheStoreArray(key, newArray);
-  return newArray;
+  return [];
 };
 
 export const cacheAdd = (key: string, value: CacheItem) => {
