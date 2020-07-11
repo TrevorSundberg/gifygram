@@ -5,20 +5,24 @@ export type PostId = string;
 export type SortKey = string;
 export type JWKS = {keys: JWKRSA[]};
 
-const KEY_AUTH_GOOGLE = "auth:google";
-const dbkeyUser = (userId: UserId) => `user:${userId}`;
-const dbkeyPost = (postId: PostId) => `post:${postId}`;
+const DBKEY_AUTH_GOOGLE =
+  "auth:google";
+const dbkeyUser = (userId: UserId) =>
+  `user:${userId}`;
+const dbkeyPost = (postId: PostId) =>
+  `post:${postId}`;
 const dbkeyThreadPost = (threadId: PostId, sortKey: SortKey, postId: PostId) =>
   `thread/post:${threadId}:${sortKey}|${postId}`;
-const dbkeyThread = (sortKey: SortKey, postId: PostId) => `thread:${sortKey}|${postId}`;
+const dbkeyThread = (sortKey: SortKey, postId: PostId) =>
+  `thread:${sortKey}|${postId}`;
 
 const TRUE_VALUE = "1";
 
 export const dbGetCachedJwksGoogle = async (): Promise<JWKS | null> =>
-  db.get<JWKS>(KEY_AUTH_GOOGLE, "json");
+  db.get<JWKS>(DBKEY_AUTH_GOOGLE, "json");
 
 export const dbPutCachedJwksGoogle = async (jwks: JWKS, expiration: number): Promise<void> =>
-  db.put(KEY_AUTH_GOOGLE, JSON.stringify(jwks), {expiration});
+  db.put(DBKEY_AUTH_GOOGLE, JSON.stringify(jwks), {expiration});
 
 export const dbGetUser = async (userId: UserId): Promise<StoredUser | null> =>
   db.get<StoredUser>(dbkeyUser(userId), "json");
