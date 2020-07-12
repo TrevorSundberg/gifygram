@@ -73,6 +73,7 @@ export const cacheDelete = (key: string, value: CacheItem) => {
   }
 
   deleteInternal(value, array);
+  cacheStoreArray(key, array);
 };
 
 export const cacheMergeIntoArray = (key: string, response: CacheItem[]) => {
