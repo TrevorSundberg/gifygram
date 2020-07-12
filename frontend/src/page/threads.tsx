@@ -1,6 +1,13 @@
-import {API_THREAD_LIST, ReturnedThread} from "../../../common/common";
-import {THREADS_CACHE_KEY, abortableJsonFetch, cancel} from "../shared/shared";
-import {cacheGetArrayOrNull, cacheMergeIntoArray} from "../shared/cache";
+import {
+  API_AMENDED_LIST,
+  API_THREAD_LIST,
+  AmendedPost,
+  AmendedQuery,
+  ClientThread,
+  StoredThread
+} from "../../../common/common";
+import {Auth, THREADS_CACHE_KEY, abortableJsonFetch, cancel} from "../shared/shared";
+import {cacheGetArrayOrNull, cacheMergeIntoArray, intersectAndMergeLists} from "../shared/cache";
 import {LoginUserIdContext} from "./login";
 import {Post} from "./post";
 import React from "react";
@@ -13,23 +20,52 @@ export const Threads: React.FC<ThreadsProps> = (props) => {
   const [
     threads,
     setThreads
-  ] = React.useState<ReturnedThread[]>(cacheGetArrayOrNull<ReturnedThread>(THREADS_CACHE_KEY) || []);
+  ] = React.useState<ClientThread[]>(cacheGetArrayOrNull<ClientThread>(THREADS_CACHE_KEY) || []);
 
-  const loggedInUserId = React.useContext(LoginUserIdContext);
+  const [storedPostArrays, setStoredPostArrays] = React.useState<StoredThread[][]>([]);
 
   React.useEffect(() => {
-    const threadListFetch = abortableJsonFetch<ReturnedThread[]>(API_THREAD_LIST);
+    const threadListFetch = abortableJsonFetch<StoredThread[]>(API_THREAD_LIST);
     threadListFetch.then((threadList) => {
       if (threadList) {
         cacheMergeIntoArray(THREADS_CACHE_KEY, threadList);
-        setThreads(threadList);
+        setThreads(threadList.map((storedPost) => ({
+          ...storedPost,
+          username: "",
+          liked: false,
+          likes: 0,
+          views: 0
+        })));
+        setStoredPostArrays([...storedPostArrays, threadList]);
       }
     });
 
     return () => {
       cancel(threadListFetch);
     };
-  }, [loggedInUserId]);
+  }, []);
+
+  const loggedInUserId = React.useContext(LoginUserIdContext);
+
+  React.useEffect(() => {
+    const fetches = storedPostArrays.map((storedPosts) => {
+      const queries: AmendedQuery[] = storedPosts.map((storedPost) => ({
+        id: storedPost.id,
+        userId: storedPost.userId
+      }));
+      const amendedListFetch = abortableJsonFetch<AmendedPost[]>(API_AMENDED_LIST, Auth.Optional, {queries});
+      amendedListFetch.then((amendedList) => {
+        if (amendedList) {
+          setThreads(intersectAndMergeLists(threads, amendedList));
+        }
+      });
+      return amendedListFetch;
+    });
+
+    return () => {
+      fetches.forEach(cancel);
+    };
+  }, [loggedInUserId, storedPostArrays]);
 
   return (
     <div style={{

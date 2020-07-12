@@ -1,4 +1,4 @@
-import {API_POST_DELETE, ReturnedPost} from "../../../common/common";
+import {API_POST_DELETE, ClientPost} from "../../../common/common";
 import {Auth, THREADS_CACHE_KEY, abortableJsonFetch} from "../shared/shared";
 import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
@@ -6,7 +6,7 @@ import React from "react";
 import {cacheDelete} from "../shared/cache";
 
 interface TrashButtonProps {
-  post: ReturnedPost;
+  post: ClientPost;
   onTrashed: () => void;
 }
 

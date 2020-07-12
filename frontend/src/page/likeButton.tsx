@@ -1,4 +1,4 @@
-import {API_POST_LIKE, PostLike, ReturnedPost} from "../../../common/common";
+import {API_POST_LIKE, ClientPost, PostLike} from "../../../common/common";
 import {Auth, abortableJsonFetch} from "../shared/shared";
 import Badge from "@material-ui/core/Badge";
 import FavoriteIcon from "@material-ui/icons/Favorite";
@@ -6,7 +6,7 @@ import IconButton from "@material-ui/core/IconButton";
 import React from "react";
 
 interface LikeButtonProps {
-  post: ReturnedPost;
+  post: ClientPost;
 }
 
 export const LikeButton: React.FC<LikeButtonProps> = (props) => {

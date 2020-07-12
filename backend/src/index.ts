@@ -1,4 +1,5 @@
 import {
+  API_AMENDED_LIST,
   API_ANIMATION_CREATE,
   API_ANIMATION_JSON,
   API_ANIMATION_VIDEO,
@@ -16,12 +17,13 @@ import {
   API_THREAD_LIST,
   AUTH_GOOGLE_CLIENT_ID,
   AUTH_GOOGLE_ISSUER,
+  AmendedQuery,
   AnimationData,
   AttributedSource,
+  ClientPost,
   MAX_VIDEO_SIZE,
   PostData,
   PostLike,
-  ReturnedPost,
   StoredPost,
   StoredUser
 } from "../../common/common";
@@ -35,6 +37,7 @@ import {
   dbGetAnimationVideo,
   dbGetCachedJwksGoogle,
   dbGetUser,
+  dbListAmendedPosts,
   dbListThreadPosts,
   dbListThreads,
   dbModifyPostLiked,
@@ -335,7 +338,7 @@ const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: 
   await dbCreatePost(post);
 
   // We return what the post would actually look like if it were listed (for quick display in React).
-  const returnedPost: ReturnedPost = {
+  const clientPost: ClientPost = {
     ...post,
     username: user!.username,
     liked: false,
@@ -344,7 +347,7 @@ const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: 
   };
 
   return {
-    response: new Response(JSON.stringify(returnedPost), responseOptions(CONTENT_TYPE_APPLICATION_JSON)),
+    response: new Response(JSON.stringify(clientPost), responseOptions(CONTENT_TYPE_APPLICATION_JSON)),
     threadId,
     id
   };
@@ -352,9 +355,8 @@ const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: 
 
 handlers[API_POST_CREATE] = async (input) => postCreate(input, false, false, {type: "comment"});
 
-handlers[API_THREAD_LIST] = async (input) => {
-  const authedUser = await input.getAuthedUser();
-  const threads = await dbListThreads(authedUser);
+handlers[API_THREAD_LIST] = async () => {
+  const threads = await dbListThreads();
   return {response: new Response(JSON.stringify(threads), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 
@@ -364,9 +366,14 @@ handlers[API_POST_LIST] = async (input) => {
   const ip = expect("ip", input.request.headers.get("cf-connecting-ip"));
   await dbAddView(threadId, ip);
 
-  const authedUser = await input.getAuthedUser();
-  const posts = await dbListThreadPosts(authedUser, threadId);
+  const posts = await dbListThreadPosts(threadId);
   return {response: new Response(JSON.stringify(posts), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
+};
+
+handlers[API_AMENDED_LIST] = async (input) => {
+  const queries: AmendedQuery[] = JSON.parse(expectStringParam(input, "queries", 1024 * 1024));
+  const amendedPosts = await dbListAmendedPosts(await input.getAuthedUser(), queries);
+  return {response: new Response(JSON.stringify(amendedPosts), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 
 handlers[API_ANIMATION_CREATE] = async (input) => {

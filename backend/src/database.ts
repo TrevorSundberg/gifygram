@@ -1,4 +1,4 @@
-import {ReturnedPost, StoredPost, StoredUser} from "../../common/common";
+import {AmendedPost, AmendedQuery, StoredPost, StoredUser} from "../../common/common";
 import {patchDevKv} from "./dev";
 
 patchDevKv(db);
@@ -141,28 +141,29 @@ export const dbAddView = async (threadId: PostId, ip: IP): Promise<void> => {
 const getBarIds = (list: {keys: { name: string }[]}) =>
   list.keys.map((key) => key.name.split("|")[1]);
 
-const getPostsFromIds = async (authedUserOptional: StoredUser | null, ids: string[]): Promise<ReturnedPost[]> => {
-  const posts = await Promise.all(ids.map(dbExpectPost));
-  return Promise.all(posts.map(async (post) => {
-    const user = await dbGetUser(post.userId);
-    return {
-      ...post,
-      username: user!.username,
-      liked: authedUserOptional
-        ? await dbGetPostLiked(authedUserOptional.id, post.id)
-        : false,
-      likes: await dbGetPostLikes(post.id),
-      views: await dbGetPostViews(post.id)
-    };
-  }));
-};
+const getStoredPostsFromIds = async (ids: string[]): Promise<StoredPost[]> =>
+  Promise.all(ids.map(dbExpectPost));
 
-export const dbListThreads = async (authedUserOptional: StoredUser | null): Promise<ReturnedPost[]> =>
-  getPostsFromIds(authedUserOptional, getBarIds(await db.list({prefix: dbprefixThread()})));
+export const dbListThreads = async (): Promise<StoredPost[]> =>
+  getStoredPostsFromIds(getBarIds(await db.list({prefix: dbprefixThread()})));
 
-export const dbListThreadPosts =
-  async (authedUserOptional: StoredUser | null, threadId: PostId): Promise<ReturnedPost[]> =>
-    getPostsFromIds(authedUserOptional, getBarIds(await db.list({prefix: dbprefixThreadPost(threadId)})));
+export const dbListThreadPosts = async (threadId: PostId): Promise<StoredPost[]> =>
+  getStoredPostsFromIds(getBarIds(await db.list({prefix: dbprefixThreadPost(threadId)})));
+
+export const dbListAmendedPosts =
+  async (authedUserOptional: StoredUser | null, queries: AmendedQuery[]): Promise<AmendedPost[]> =>
+    Promise.all(queries.map(async (query) => {
+      const user = await dbGetUser(query.userId);
+      return {
+        id: query.id,
+        username: user ? user.username : "",
+        liked: authedUserOptional
+          ? await dbGetPostLiked(authedUserOptional.id, query.id)
+          : false,
+        likes: await dbGetPostLikes(query.id),
+        views: await dbGetPostViews(query.id)
+      };
+    }));
 
 export const dbPutAnimation = async (postId: PostId, json: string, video: ArrayBuffer): Promise<void> => {
   await Promise.all([

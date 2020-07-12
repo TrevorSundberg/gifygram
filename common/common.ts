@@ -6,6 +6,7 @@ export const API_PROFILE_MAX_BIO_LENGTH = 1000;
 export const API_POST_CREATE = "/api/post/create";
 export const API_THREAD_LIST = "/api/thread/list";
 export const API_POST_LIST = "/api/post/list";
+export const API_AMENDED_LIST = "/api/amended/list";
 export const API_POST_LIKE = "/api/post/like";
 export const API_POST_DELETE = "/api/post/delete";
 export const API_ANIMATION_CREATE = "/api/animation/create";
@@ -52,17 +53,29 @@ export interface StoredPost {
   sortKey: string;
 }
 
-export interface ReturnedPost extends StoredPost {
+export interface ThreadPost {
+  userdata: PostAnimation;
+}
+
+export type StoredThread = StoredPost & ThreadPost;
+
+export interface AmendedQuery {
+  id: string;
+  userId: string;
+}
+
+export interface AmendedPost {
+  id: string;
   username: string;
   liked: boolean;
   likes: number;
   views: number;
+}
+export interface ClientPost extends StoredPost, AmendedPost {
   cached?: true;
 }
 
-export interface ReturnedThread extends ReturnedPost {
-  userdata: PostAnimation;
-}
+export type ClientThread = ClientPost & ThreadPost;
 
 export interface StoredUser {
   id: string;

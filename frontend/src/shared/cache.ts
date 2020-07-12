@@ -90,3 +90,14 @@ export const cacheMergeIntoArray = (key: string, response: CacheItem[]) => {
   }
   cacheStoreArray(key, array);
 };
+
+export const intersectAndMergeLists = <A extends CacheItem, B extends CacheItem>(a: A[], b: B[]): (A & B)[] => {
+  const result: (A & B)[] = [];
+  for (const aItem of a) {
+    const bItem = b.find((bTest) => bTest.id === aItem.id);
+    if (bItem) {
+      result.push({...aItem, ...bItem});
+    }
+  }
+  return result;
+};

@@ -7,12 +7,12 @@ import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import CardHeader from "@material-ui/core/CardHeader";
 import CardMedia from "@material-ui/core/CardMedia";
+import {ClientPost} from "../../../common/common";
 import {LikeButton} from "./likeButton";
 import Link from "@material-ui/core/Link";
 import {LoginUserIdContext} from "./login";
 import MenuItem from "@material-ui/core/MenuItem";
 import React from "react";
-import {ReturnedPost} from "../../../common/common";
 import Select from "@material-ui/core/Select";
 import {ShareButton} from "./shareButton";
 import TimerIcon from "@material-ui/icons/Timer";
@@ -24,7 +24,7 @@ import millify from "millify";
 import pluralize from "pluralize";
 
 interface PostProps {
-  post: ReturnedPost;
+  post: ClientPost;
   preview: boolean;
   cardStyle?: React.CSSProperties;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
