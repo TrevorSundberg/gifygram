@@ -236,7 +236,7 @@ export const API_POST_DELETE = new Api<PostDelete, Empty>(
 );
 export const API_ANIMATION_CREATE = new Api<AnimationCreate, ClientPost>(
   "/api/animation/create",
-  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?&AnimationCreate"))
+  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?AnimationCreate"))
 );
 export const API_ANIMATION_JSON = new Api<SpecificPost, AnimationData>(
   "/api/animation/json",
