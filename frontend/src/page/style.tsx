@@ -6,7 +6,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       flexGrow: 1
     },
     pageWidth: {
-      maxWidth: 1024,
+      maxWidth: 960,
       width: "100%",
       margin: "auto"
     },
