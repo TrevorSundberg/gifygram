@@ -11,7 +11,6 @@ export const API_POST_DELETE = "/api/post/delete";
 export const API_ANIMATION_CREATE = "/api/animation/create";
 export const API_ANIMATION_JSON = "/api/animation/json";
 export const API_ANIMATION_VIDEO = "/api/animation/video";
-export const API_AUTHTEST = "/api/authtest";
 export const API_PROFILE = "/api/profile";
 export const API_PROFILE_UPDATE = "/api/profile/update";
 

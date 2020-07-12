@@ -4,7 +4,6 @@ import {
   API_ANIMATION_CREATE,
   API_ANIMATION_JSON,
   API_ANIMATION_VIDEO,
-  API_AUTHTEST,
   API_POST_CREATE,
   API_POST_CREATE_MAX_MESSAGE_LENGTH,
   API_POST_CREATE_MAX_TITLE_LENGTH,
@@ -470,16 +469,6 @@ handlers[API_POST_DELETE] = async (input) => {
   return {
     response: new Response(
       JSON.stringify({}),
-      responseOptions(CONTENT_TYPE_APPLICATION_JSON)
-    )
-  };
-};
-
-handlers[API_AUTHTEST] = async (input) => {
-  const content = await input.requireAuthedUser();
-  return {
-    response: new Response(
-      JSON.stringify({authorized: true, content}),
       responseOptions(CONTENT_TYPE_APPLICATION_JSON)
     )
   };

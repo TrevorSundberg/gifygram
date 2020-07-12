@@ -19,7 +19,6 @@ import {LoginDialog, LoginUserIdContext, LoginUserIdState} from "./page/login";
 import {theme, useStyles} from "./page/style";
 import {API_ALL_THREADS_ID} from "../../common/common";
 import AppBar from "@material-ui/core/AppBar";
-import {AuthTest} from "./page/authtest";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Drawer from "@material-ui/core/Drawer";
@@ -145,9 +144,6 @@ const App = () => {
                 <Route exact path="/profile"
                   render={() => <Profile/>}
                 />
-                <Route exact path="/authtest">
-                  <AuthTest/>
-                </Route>
               </Switch>
             </div>
           </Route>
