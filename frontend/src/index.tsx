@@ -12,6 +12,7 @@ import {
   LoginEvent,
   RequestLoginEvent,
   getAuthIfSignedIn,
+  signInIfNeeded,
   signInWithGoogle
 } from "./shared/shared";
 import {LoginDialog, LoginUserIdContext, LoginUserIdState} from "./page/login";
@@ -31,6 +32,7 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import MenuIcon from "@material-ui/icons/Menu";
 import {ModalContainer} from "./editor/modal";
+import PersonIcon from "@material-ui/icons/Person";
 import {Profile} from "./page/profile";
 import React from "react";
 import ReactDOM from "react-dom";
@@ -164,6 +166,14 @@ const App = () => {
                 <ListItemText primary={"Create an Animation"} />
               </ListItem>
             </Link>
+            {
+              loggedInUserId
+                ? null
+                : <ListItem button onClick={() => signInIfNeeded()}>
+                  <ListItemIcon><PersonIcon/></ListItemIcon>
+                  <ListItemText primary={"Sign In"} />
+                </ListItem>
+            }
             <ListItem button onClick={() => window.open("https://github.com/TrevorSundberg/madeitforfun")}>
               <ListItemIcon><GitHubIcon/></ListItemIcon>
               <ListItemText primary={"See on GitHub"} />
