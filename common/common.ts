@@ -131,7 +131,7 @@ export interface StoredUser {
 
 export interface PostLikeInput {
   id: string;
-  value: boolean;
+  liked: boolean;
 }
 
 export interface PostLike {

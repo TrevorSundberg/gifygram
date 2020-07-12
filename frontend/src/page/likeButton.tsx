@@ -25,10 +25,10 @@ export const LikeButton: React.FC<LikeButtonProps> = (props) => {
     color={liked ? "secondary" : "default"}
     onClick={async (e) => {
       e.stopPropagation();
-      const value = !liked;
+      const newLiked = !liked;
       const postLike =
-        await abortableJsonFetch(API_POST_LIKE, Auth.Required, {id: props.post.id, value});
-      setLiked(value);
+        await abortableJsonFetch(API_POST_LIKE, Auth.Required, {id: props.post.id, liked: newLiked});
+      setLiked(newLiked);
       setLikes(postLike.likes);
     }}>
     <Badge badgeContent={likes} color="primary">

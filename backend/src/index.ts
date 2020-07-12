@@ -406,7 +406,7 @@ addHandler(API_PROFILE_UPDATE, async (input) => {
 
 addHandler(API_POST_LIKE, async (input) => {
   const postId = input.json.id;
-  const newValue = input.json.value;
+  const newValue = input.json.liked;
   const [user] = await Promise.all([
     input.requireAuthedUser(),
     // Validate that the post exists (we don't use the result however).
