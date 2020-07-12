@@ -82,7 +82,8 @@ export const Thread: React.FC<ThreadProps> = (props) => {
     const fetches = storedPostArrays.map((storedPosts) => {
       const queries: AmendedQuery[] = storedPosts.map((storedPost) => ({
         id: storedPost.id,
-        userId: storedPost.userId
+        userId: storedPost.userId,
+        requestViews: storedPost.id === storedPost.threadId
       }));
       const amendedListFetch = abortableJsonFetch<AmendedPost[]>(API_AMENDED_LIST, Auth.Optional, {queries});
       amendedListFetch.then((amendedList) => {

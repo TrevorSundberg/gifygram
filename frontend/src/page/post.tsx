@@ -35,6 +35,7 @@ interface PostProps {
 
 export const Post: React.FC<PostProps> = (props) => {
   const loggedInUserId = React.useContext(LoginUserIdContext);
+  const isThread = props.post.threadId === props.post.id;
   return <Card
     key={props.post.id}
     id={props.post.id}
@@ -122,14 +123,18 @@ export const Post: React.FC<PostProps> = (props) => {
                 </Button>
                 : null
             }
-            <Box ml={1}>
-              <Typography variant={props.preview ? "caption" : "body2"} color={"textSecondary"} component="p">
-                {props.preview
-                  ? millify(props.post.views, {precision: 1})
-                  : props.post.views.toLocaleString()}
-                {` ${pluralize("view", props.post.views)}`}
-              </Typography>
-            </Box>
+            {
+              isThread
+                ? <Box ml={1}>
+                  <Typography variant={props.preview ? "caption" : "body2"} color={"textSecondary"} component="p">
+                    {props.preview
+                      ? millify(props.post.views, {precision: 1})
+                      : props.post.views.toLocaleString()}
+                    {` ${pluralize("view", props.post.views)}`}
+                  </Typography>
+                </Box>
+                : null
+            }
             <div style={{flexGrow: 1}}></div>
             {
               props.post.userdata.type === "animation" && !props.preview

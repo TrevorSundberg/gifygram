@@ -62,6 +62,7 @@ export type StoredThread = StoredPost & ThreadPost;
 export interface AmendedQuery {
   id: string;
   userId: string;
+  requestViews: boolean;
 }
 
 export interface AmendedPost {
@@ -69,7 +70,7 @@ export interface AmendedPost {
   username: string;
   liked: boolean;
   likes: number;
-  views: number;
+  views: number | null;
 }
 export interface ClientPost extends StoredPost, AmendedPost {
   cached?: true;

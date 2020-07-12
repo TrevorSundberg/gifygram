@@ -29,10 +29,10 @@ const dbkeyPostLiked = (userId: UserId, postId: PostId) =>
   `post/liked:${userId}:${postId}`;
 const dbkeyPostLikes = (postId: PostId) =>
   `post/likes:${postId}`;
-const dbkeyPostViews = (threadId: PostId) =>
-  `post/views:${threadId}`;
-const dbkeyPostView = (threadId: PostId, ip: IP) =>
-  `post/view:${threadId}:${ip}`;
+const dbkeyThreadViews = (threadId: PostId) =>
+  `thread/views:${threadId}`;
+const dbkeyThreadView = (threadId: PostId, ip: IP) =>
+  `thread/view:${threadId}:${ip}`;
 const dbkeyAnimationJson = (postId: PostId) =>
   `animation/json:${postId}`;
 const dbkeyAnimationVideo = (postId: PostId) =>
@@ -80,7 +80,7 @@ export const dbDeletePost = async (post: StoredPost): Promise<void> => {
   await Promise.all([
     db.delete(dbkeyPost(postId)),
     db.delete(dbkeyPostLikes(postId)),
-    db.delete(dbkeyPostViews(postId)),
+    db.delete(dbkeyThreadViews(postId)),
 
     db.delete(dbkeyAnimationJson(postId)),
     db.delete(dbkeyAnimationVideo(postId)),
@@ -124,15 +124,15 @@ export const dbModifyPostLiked = async (userId: UserId, postId: PostId, newValue
   return prevLikes;
 };
 
-export const dbGetPostViews = async (threadId: PostId): Promise<number> =>
-  parseInt(await db.get(dbkeyPostViews(threadId)) || "0", 10);
+export const dbGetThreadViews = async (threadId: PostId): Promise<number> =>
+  parseInt(await db.get(dbkeyThreadViews(threadId)) || "0", 10);
 
 export const dbAddView = async (threadId: PostId, ip: IP): Promise<void> => {
-  const viewKey = dbkeyPostView(threadId, ip);
+  const viewKey = dbkeyThreadView(threadId, ip);
   const hasViewed = Boolean(await db.get(viewKey));
   if (!hasViewed) {
     await db.put(viewKey, TRUE_VALUE);
-    const viewsKey = dbkeyPostViews(threadId);
+    const viewsKey = dbkeyThreadViews(threadId);
     const prevLikes = parseInt(await db.get(viewsKey) || "0", 10);
     await db.put(viewsKey, `${prevLikes + 1}`);
   }
@@ -161,7 +161,9 @@ export const dbListAmendedPosts =
           ? await dbGetPostLiked(authedUserOptional.id, query.id)
           : false,
         likes: await dbGetPostLikes(query.id),
-        views: await dbGetPostViews(query.id)
+        views: query.requestViews
+          ? await dbGetThreadViews(query.id)
+          : null
       };
     }));
 
