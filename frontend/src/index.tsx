@@ -23,6 +23,7 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import Drawer from "@material-ui/core/Drawer";
 import {EditorComponent} from "./editor/editorComponent";
 import GitHubIcon from "@material-ui/icons/GitHub";
+import HomeIcon from "@material-ui/icons/Home";
 import IconButton from "@material-ui/core/IconButton";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -151,6 +152,12 @@ const App = () => {
         </Switch>
         <Drawer anchor={"left"} open={drawerOpen} onClose={closeDrawerCallback}>
           <List style={{minWidth: "250px"}}>
+            <Link to="/" className={classes.link} onClick={closeDrawerCallback}>
+              <ListItem button>
+                <ListItemIcon><HomeIcon/></ListItemIcon>
+                <ListItemText primary={"Home"} />
+              </ListItem>
+            </Link>
             <Link to="/editor" className={classes.link} onClick={closeDrawerCallback}>
               <ListItem button>
                 <ListItemIcon><VideoCallIcon/></ListItemIcon>
