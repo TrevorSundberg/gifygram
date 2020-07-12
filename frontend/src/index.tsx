@@ -136,10 +136,14 @@ const App = () => {
             <div className={classes.pageWidth} id="page">
               <Switch>
                 <Route exact path="/"
-                  render={(prop) => <Thread history={prop.history} threadId={API_ALL_THREADS_ID}/>}
+                  render={(prop) =>
+                    <Thread history={prop.history} key={API_ALL_THREADS_ID} threadId={API_ALL_THREADS_ID}/>}
                 />
                 <Route exact path="/thread"
-                  render={(prop) => <Thread history={prop.history} threadId={getUrlParam(prop, "threadId")}/>}
+                  render={(prop) => {
+                    const threadId = getUrlParam(prop, "threadId");
+                    return <Thread history={prop.history} key={threadId} threadId={threadId}/>;
+                  }}
                 />
                 <Route exact path="/profile"
                   render={() => <Profile/>}
