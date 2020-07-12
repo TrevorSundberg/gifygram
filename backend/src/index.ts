@@ -476,8 +476,8 @@ const handleRequest = async (event: FetchEvent): Promise<Response> => {
       jsonInput[key] = JSON.parse(value);
     });
     const result = handler.api.validator(jsonInput);
-    if (typeof result === "string") {
-      throw new Error(result);
+    if (!result) {
+      throw new Error(JSON.stringify(handler.api.validator.errors));
     }
 
     const input = new RequestInput<any>(event, url, jsonInput);

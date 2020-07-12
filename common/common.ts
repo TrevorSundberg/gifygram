@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+
 // Note: If you change these constants ensure the JSON schemas are also updated.
 export const API_POST_CREATE_MAX_MESSAGE_LENGTH = 1000;
 export const API_POST_CREATE_MAX_TITLE_LENGTH = 26;
@@ -190,25 +191,18 @@ export interface Feedback {
   title: string;
 }
 
-type ValidationFunction = (value: any) => string | null;
-
-const errorsOrNull = (validator: any) => (value: any) => {
-  if (!validator(value)) {
-    return JSON.stringify(validator.errors);
-  }
-  return null;
-};
+type SchemaValidator = ((input: any) => boolean) & {errors: any[]; schema: import("json-schema").JSONSchema7}
 
 export class Api<InputType extends Record<string, any>, OutputType> {
   public readonly pathname: string;
 
-  public readonly validator: ValidationFunction;
+  public readonly validator: SchemaValidator;
 
   private _in: InputType | undefined = undefined;
 
   private _out: OutputType | undefined = undefined;
 
-  public constructor (pathname: string, validator: ValidationFunction) {
+  public constructor (pathname: string, validator: SchemaValidator) {
     this.pathname = pathname;
     this.validator = validator;
   }
@@ -216,45 +210,45 @@ export class Api<InputType extends Record<string, any>, OutputType> {
 
 export const API_POST_CREATE = new Api<PostCreate, ClientPost>(
   "/api/post/create",
-  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?PostCreate"))
+  require("../ts-schema-loader/dist/main.js!./common.ts?PostCreate")
 );
 export const API_POST_LIST = new Api<PostList, StoredPost[]>(
   "/api/post/list",
-  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?PostList"))
+  require("../ts-schema-loader/dist/main.js!./common.ts?PostList")
 );
 export const API_AMENDED_LIST = new Api<AmendedList, AmendedPost[]>(
   "/api/amended/list",
-  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?AmendedList"))
+  require("../ts-schema-loader/dist/main.js!./common.ts?AmendedList")
 );
 export const API_POST_LIKE = new Api<PostLikeInput, PostLike>(
   "/api/post/like",
-  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?PostLikeInput"))
+  require("../ts-schema-loader/dist/main.js!./common.ts?PostLikeInput")
 );
 export const API_POST_DELETE = new Api<PostDelete, Empty>(
   "/api/post/delete",
-  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?PostDelete"))
+  require("../ts-schema-loader/dist/main.js!./common.ts?PostDelete")
 );
 export const API_ANIMATION_CREATE = new Api<AnimationCreate, ClientPost>(
   "/api/animation/create",
-  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?AnimationCreate"))
+  require("../ts-schema-loader/dist/main.js!./common.ts?AnimationCreate")
 );
 export const API_ANIMATION_JSON = new Api<SpecificPost, AnimationData>(
   "/api/animation/json",
-  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?SpecificPost"))
+  require("../ts-schema-loader/dist/main.js!./common.ts?SpecificPost")
 );
 export const API_ANIMATION_VIDEO = new Api<SpecificPost, ArrayBuffer>(
   "/api/animation/video",
-  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?SpecificPost"))
+  require("../ts-schema-loader/dist/main.js!./common.ts?SpecificPost")
 );
 export const API_PROFILE = new Api<Empty, StoredUser>(
   "/api/profile",
-  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?Empty"))
+  require("../ts-schema-loader/dist/main.js!./common.ts?Empty")
 );
 export const API_PROFILE_UPDATE = new Api<ProfileUpdate, StoredUser>(
   "/api/profile/update",
-  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?ProfileUpdate"))
+  require("../ts-schema-loader/dist/main.js!./common.ts?ProfileUpdate")
 );
 export const API_FEEDBACK = new Api<Feedback, Empty>(
   "/api/feedback",
-  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?Feedback"))
+  require("../ts-schema-loader/dist/main.js!./common.ts?Feedback")
 );
