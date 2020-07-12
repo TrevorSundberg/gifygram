@@ -11,7 +11,7 @@ export const Profile: React.FC = () => {
   React.useEffect(() => {
     let profileFetch: AbortablePromise<StoredUser> = null;
     (async () => {
-      profileFetch = abortableJsonFetch<StoredUser>(API_PROFILE, Auth.Required);
+      profileFetch = abortableJsonFetch(API_PROFILE, Auth.Required);
       const profile = await profileFetch;
       if (profile) {
         setUser(profile);
@@ -51,7 +51,7 @@ export const Profile: React.FC = () => {
         type="submit"
         onClick={async (e) => {
           e.preventDefault();
-          const profileUpdateFetchPromise = abortableJsonFetch<StoredUser>(
+          const profileUpdateFetchPromise = abortableJsonFetch(
             API_PROFILE_UPDATE,
             Auth.Required,
             user,

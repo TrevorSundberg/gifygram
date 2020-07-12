@@ -242,16 +242,16 @@ class RequestInput {
   }
 }
 
-interface RequestOutput<ResultType> {
-  result: ResultType;
+interface RequestOutput<OutputType> {
+  result: OutputType;
   contentType?: string;
   immutable?: boolean;
 }
 
-type Handler<ResultType> = (input: RequestInput) => Promise<RequestOutput<ResultType>>;
+type Handler<OutputType> = (input: RequestInput) => Promise<RequestOutput<OutputType>>;
 const handlers: Record<string, Handler<any>> = {};
 
-const addHandler = <ResultType>(api: Api<ResultType>, callback: Handler<ResultType>) => {
+const addHandler = <InputType, OutputType>(api: Api<InputType, OutputType>, callback: Handler<OutputType>) => {
   handlers[api.pathname] = callback;
 };
 

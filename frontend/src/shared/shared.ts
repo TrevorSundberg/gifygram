@@ -162,7 +162,7 @@ const applyPathAndParams = (url: URL, path: string, params?: Record<string, any>
   }
 };
 
-export const makeServerUrl = <T>(api: Api<T>, params?: Record<string, any>) => {
+export const makeServerUrl = (api: Api<any, any>, params?: Record<string, any>) => {
   const url = new URL(window.location.origin);
   if (isDevEnvironment()) {
     url.port = "3000";
@@ -199,11 +199,11 @@ export enum Auth {
   Required,
 }
 
-export const abortableJsonFetch = <T>(
-  api: Api<T>,
+export const abortableJsonFetch = <InputType, OutputType>(
+  api: Api<InputType, OutputType>,
   auth: Auth = Auth.Optional,
-  params?: Record<string, any>,
-  options?: RequestInit): AbortablePromise<T> => {
+  params: InputType = null,
+  options?: RequestInit): AbortablePromise<OutputType> => {
   const controller = new AbortController();
   const promise = (async () => {
     if (auth === Auth.Required) {
@@ -230,7 +230,7 @@ export const abortableJsonFetch = <T>(
       throw err;
     }
   })();
-  const abortable = promise as AbortablePromise<T>;
+  const abortable = promise as AbortablePromise<OutputType>;
   abortable.controller = controller;
   return abortable;
 };

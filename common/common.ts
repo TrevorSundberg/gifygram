@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 export const API_POST_CREATE_MAX_MESSAGE_LENGTH = 1000;
 export const API_POST_CREATE_MAX_TITLE_LENGTH = 26;
 export const API_PROFILE_MAX_USERNAME_LENGTH = 26;
@@ -8,8 +9,12 @@ export const API_ALL_THREADS_ID = "00000000-0000-4000-8000-000000000000";
 export const AUTH_GOOGLE_ISSUER = "accounts.google.com";
 export const AUTH_GOOGLE_CLIENT_ID = "608893334527-510lc0vbk5pd6ag7jdl6aka2hhhp9f69.apps.googleusercontent.com";
 
+export const MAX_VIDEO_SIZE = 720;
+
 /** Mark that we're doing something only to be backwards compatable with the database */
 export const oldVersion = <T>(value: T) => value;
+
+export type Empty = {};
 
 export type PostComment = {
   type: "comment";
@@ -30,6 +35,23 @@ export type PostAnimation = {
 }
 
 export type PostData = PostComment | PostAnimation;
+
+export interface PostCreate {
+  message: string;
+  replyId: string;
+}
+
+export interface AnimationCreate {
+  message: string;
+  replyId: string | null;
+  title: string;
+  width: number;
+  height: number;
+}
+
+export interface PostList {
+  threadId: string;
+}
 
 export interface StoredPost {
   id: string;
@@ -54,6 +76,10 @@ export interface AmendedQuery {
   requestViews: boolean;
 }
 
+export interface AmendedList {
+  queries: AmendedQuery[];
+}
+
 export interface AmendedPost {
   id: string;
   username: string;
@@ -61,6 +87,7 @@ export interface AmendedPost {
   likes: number;
   views: number | null;
 }
+
 export interface ClientPost extends StoredPost, AmendedPost {
   cached?: true;
 }
@@ -73,8 +100,17 @@ export interface StoredUser {
   bio: string;
 }
 
+export interface PostLikeInput {
+  id: string;
+  value: boolean;
+}
+
 export interface PostLike {
   likes: number;
+}
+
+export interface PostDelete {
+  id: string;
 }
 
 export interface WidgetData {
@@ -86,26 +122,80 @@ export interface AnimationData {
   widgets: WidgetData[];
 }
 
-export class Api<ResultType> {
+export interface ProfileUpdate {
+  username: string;
+  bio: string;
+}
+
+export interface Feedback {
+  title: string;
+}
+
+type ValidationFunction = () => string | null;
+
+const errorsOrNull = (validator: any) => () => {
+  if (!validator()) {
+    return validator.errors as string;
+  }
+  return null;
+};
+
+export class Api<InputType, OutputType> {
   public readonly pathname: string;
 
-  private _: ResultType | undefined = undefined;
+  public readonly validator: ValidationFunction | null;
 
-  public constructor (pathname: string) {
+  private _in: InputType | undefined = undefined;
+
+  private _out: OutputType | undefined = undefined;
+
+  public constructor (pathname: string, validator: ValidationFunction | null) {
     this.pathname = pathname;
+    this.validator = validator;
   }
 }
 
-export const API_POST_CREATE = new Api<ClientPost>("/api/post/create");
-export const API_POST_LIST = new Api<StoredPost[]>("/api/post/list");
-export const API_AMENDED_LIST = new Api<AmendedPost[]>("/api/amended/list");
-export const API_POST_LIKE = new Api<PostLike>("/api/post/like");
-export const API_POST_DELETE = new Api<{}>("/api/post/delete");
-export const API_ANIMATION_CREATE = new Api<ClientPost>("/api/animation/create");
-export const API_ANIMATION_JSON = new Api<AnimationData>("/api/animation/json");
-export const API_ANIMATION_VIDEO = new Api<ArrayBuffer>("/api/animation/video");
-export const API_PROFILE = new Api<StoredUser>("/api/profile");
-export const API_PROFILE_UPDATE = new Api<StoredUser>("/api/profile/update");
-export const API_FEEDBACK = new Api<{}>("/api/feedback");
-
-export const MAX_VIDEO_SIZE = 720;
+export const API_POST_CREATE = new Api<PostCreate, ClientPost>(
+  "/api/post/create",
+  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?PostCreate"))
+);
+export const API_POST_LIST = new Api<PostList, StoredPost[]>(
+  "/api/post/list",
+  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?PostList"))
+);
+export const API_AMENDED_LIST = new Api<AmendedList, AmendedPost[]>(
+  "/api/amended/list",
+  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?AmendedList"))
+);
+export const API_POST_LIKE = new Api<PostLikeInput, PostLike>(
+  "/api/post/like",
+  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?PostLikeInput"))
+);
+export const API_POST_DELETE = new Api<PostDelete, Empty>(
+  "/api/post/delete",
+  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?PostDelete"))
+);
+export const API_ANIMATION_CREATE = new Api<AnimationCreate, ClientPost>(
+  "/api/animation/create",
+  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?AnimationCreate"))
+);
+export const API_ANIMATION_JSON = new Api<null, AnimationData>(
+  "/api/animation/json",
+  null
+);
+export const API_ANIMATION_VIDEO = new Api<null, ArrayBuffer>(
+  "/api/animation/video",
+  null
+);
+export const API_PROFILE = new Api<null, StoredUser>(
+  "/api/profile",
+  null
+);
+export const API_PROFILE_UPDATE = new Api<ProfileUpdate, StoredUser>(
+  "/api/profile/update",
+  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?ProfileUpdate"))
+);
+export const API_FEEDBACK = new Api<Feedback, Empty>(
+  "/api/feedback",
+  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?Feedback"))
+);
