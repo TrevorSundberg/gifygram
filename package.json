@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "description": "A stupid website for animating images on top of videos.",
   "scripts": {
+    "installTsSchemaLoader": "cd ts-schema-loader && npm install",
     "installFrontend": "cd frontend && npm install",
     "installBackend": "cd backend && npm install",
-    "installAll": "npm install && npm run installFrontend && npm run installBackend",
+    "installAll": "npm install && npm run installTsSchemaLoader && npm run installFrontend && npm run installBackend",
+    "buildTsSchemaLoader": "cd ts-schema-loader && npm run build",
     "buildFrontend": "cd frontend && npm run build",
     "buildBackend": "cd backend && npm run build",
-    "buildAll": "npm run installAll && npm run lint && npm run buildFrontend && npm run buildBackend",
+    "buildAll": "npm run installAll && npm run lint && npm run buildTsSchemaLoader && npm run buildFrontend && npm run buildBackend",
     "publish": "npm run buildAll && cd backend && npm run publish",
     "lint": "eslint --max-warnings 0 --ext .ts,.tsx .",
     "start": "node dev.js"
@@ -25,6 +27,7 @@
   },
   "homepage": "https://github.com/TrevorSundberg/madeitforfun#readme",
   "dependencies": {
+    "@types/node": "^14.0.14",
     "@typescript-eslint/eslint-plugin": "^2.24.0",
     "@typescript-eslint/parser": "^2.24.0",
     "eslint": "^6.8.0",

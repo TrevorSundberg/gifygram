@@ -1,0 +1,25 @@
+{
+  "name": "typescript-to-ajv-loader",
+  "version": "1.0.0",
+  "description": "Convert TypeScript interfaces into AJV validation functions.",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TrevorSundberg/madeitforfun.git"
+  },
+  "keywords": [],
+  "author": "Trevor Sundberg",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TrevorSundberg/madeitforfun/issues"
+  },
+  "homepage": "https://github.com/TrevorSundberg/madeitforfun#readme",
+  "dependencies": {
+    "@types/webpack": "^4.41.18",
+    "ajv": "^6.12.3",
+    "ajv-pack": "^0.3.1",
+    "typescript-json-schema": "^0.42.0"
+  }
+}

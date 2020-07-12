@@ -4,6 +4,11 @@ const fs = require("fs");
 const path = require("path");
 
 (async () => {
+  await execa("npm", ["run", "buildTsSchemaLoader"], {
+    stdio: "inherit",
+    cwd: __dirname
+  });
+
   // Start the webpack dev for the frontend.
   execa("npm", ["run", "liveWebpackFrontend"], {
     stdio: "inherit",
