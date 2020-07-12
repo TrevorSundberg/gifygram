@@ -27,14 +27,13 @@ import {
 } from "../../common/common";
 import {
   JWKS,
-  PostId,
   dbAddView,
   dbCreatePost,
   dbDeletePost,
+  dbExpectPost,
   dbGetAnimationJson,
   dbGetAnimationVideo,
   dbGetCachedJwksGoogle,
-  dbGetPost,
   dbGetUser,
   dbListThreadPosts,
   dbListThreads,
@@ -304,8 +303,6 @@ interface JwtPayload {
   given_name: string;
 }
 
-const getPost = async (postId: PostId) => expect("post", await dbGetPost(postId));
-
 const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: boolean, userdata: PostData) => {
   const user = await input.requireAuthedUser();
   const title = hasTitle ? expectStringParam(input, "title", API_POST_CREATE_MAX_TITLE_LENGTH) : null;
@@ -319,7 +316,7 @@ const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: 
     if (createThread && !replyId) {
       return id;
     }
-    const replyPost = await getPost(expectUuid("replyId", replyId));
+    const replyPost = await dbExpectPost(expectUuid("replyId", replyId));
     const replyThreadId = replyPost!.id;
     return expectUuid("replyThreadId", replyThreadId);
   })();
@@ -439,7 +436,7 @@ handlers[API_POST_LIKE] = async (input) => {
   const [user] = await Promise.all([
     input.requireAuthedUser(),
     // Validate that the post exists (we don't use the result however).
-    getPost(postId)
+    dbExpectPost(postId)
   ]);
 
   const likes = await dbModifyPostLiked(user.id, postId, newValue);
@@ -459,7 +456,7 @@ handlers[API_POST_DELETE] = async (input) => {
   const user = await input.requireAuthedUser();
   const postId = expectUuidParam(input, "id");
 
-  const post = await getPost(postId);
+  const post = await dbExpectPost(postId);
   if (post.userId !== user.id) {
     throw new Error("Attempting to delete post that did not belong to the user");
   }
