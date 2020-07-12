@@ -1,4 +1,7 @@
 import {ReturnedPost, StoredPost, StoredUser} from "../../common/common";
+import {patchDevKv} from "./dev";
+
+patchDevKv(db);
 
 export type UserId = string;
 export type PostId = string;

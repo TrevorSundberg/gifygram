@@ -44,7 +44,6 @@ import {
   dbPutUser
 } from "./database";
 import {getAssetFromKV, serveSinglePageApp} from "@cloudflare/kv-asset-handler";
-import {isDevEnvironment, patchDevKv} from "./dev";
 
 // eslint-disable-next-line no-var,vars-on-top,init-declarations
 declare var global: any;
@@ -54,9 +53,8 @@ global.window = window;
 import {Jose} from "jose-jwe-jws";
 (Jose as any).crypto = crypto;
 
+import {isDevEnvironment} from "./dev";
 import {uuid} from "uuidv4";
-
-patchDevKv(db);
 
 const CONTENT_TYPE_APPLICATION_JSON = "application/json";
 const CONTENT_TYPE_VIDEO_MP4 = "video/mp4";
