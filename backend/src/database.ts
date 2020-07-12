@@ -2,6 +2,7 @@ import {ReturnedPost, StoredPost, StoredUser} from "../../common/common";
 
 export type UserId = string;
 export type PostId = string;
+export type IP = string;
 export type SortKey = string;
 export type JWKS = {keys: JWKRSA[]};
 
@@ -23,8 +24,10 @@ const dbkeyPostLiked = (userId: UserId, postId: PostId) =>
   `post/liked:${userId}:${postId}`;
 const dbkeyPostLikes = (postId: PostId) =>
   `post/likes:${postId}`;
-const dbkeyPostViews = (postId: PostId) =>
-  `post/views:${postId}`;
+const dbkeyPostViews = (threadId: PostId) =>
+  `post/views:${threadId}`;
+const dbkeyPostView = (threadId: PostId, ip: IP) =>
+  `post/view:${threadId}:${ip}`;
 
 const TRUE_VALUE = "1";
 
@@ -93,8 +96,19 @@ export const dbModifyPostLiked = async (userId: UserId, postId: PostId, newValue
   return prevLikes;
 };
 
-export const dbGetPostViews = async (postId: PostId): Promise<number> =>
-  parseInt(await db.get(dbkeyPostViews(postId)) || "0", 10);
+export const dbGetPostViews = async (threadId: PostId): Promise<number> =>
+  parseInt(await db.get(dbkeyPostViews(threadId)) || "0", 10);
+
+export const dbAddView = async (threadId: PostId, ip: IP): Promise<void> => {
+  const viewKey = dbkeyPostView(threadId, ip);
+  const hasViewed = Boolean(await db.get(viewKey));
+  if (!hasViewed) {
+    await db.put(viewKey, TRUE_VALUE);
+    const viewsKey = dbkeyPostViews(threadId);
+    const prevLikes = parseInt(await db.get(viewsKey) || "0", 10);
+    await db.put(viewsKey, `${prevLikes + 1}`);
+  }
+};
 
 const getBarIds = (list: {keys: { name: string }[]}) =>
   list.keys.map((key) => key.name.split("|")[1]);

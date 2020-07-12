@@ -28,6 +28,7 @@ import {
 import {
   JWKS,
   PostId,
+  dbAddView,
   dbCreatePost,
   dbGetCachedJwksGoogle,
   dbGetPost,
@@ -360,32 +361,13 @@ handlers[API_THREAD_LIST] = async (input) => {
   return {response: new Response(JSON.stringify(threads), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 
-const addView = async (type: "authed" | "ip", viewId: string, threadId: string) => {
-  const viewKey = `post/view/${type}:${threadId}:${viewId}`;
-  const hasViewed = Boolean(await db.get(viewKey));
-  if (!hasViewed) {
-    await db.put(viewKey, TRUE_VALUE);
-  }
-  return hasViewed;
-};
-
 handlers[API_POST_LIST] = async (input) => {
   const threadId = expectUuidParam(input, "threadId");
 
-  const authedUser = await input.getAuthedUser();
-  const authedHasViewed = authedUser
-    ? await addView("authed", authedUser.id, threadId)
-    : false;
-
   const ip = expect("ip", input.request.headers.get("cf-connecting-ip"));
-  const ipHasViewed = await addView("ip", ip, threadId);
+  await dbAddView(threadId, ip);
 
-  if (authedUser && !authedHasViewed || !authedUser && !ipHasViewed) {
-    const viewsKey = `post/views:${threadId}`;
-    const prevLikes = parseInt(await db.get(viewsKey) || "0", 10);
-    await db.put(viewsKey, `${prevLikes + 1}`);
-  }
-
+  const authedUser = await input.getAuthedUser();
   const posts = await dbListThreadPosts(authedUser, threadId);
   return {response: new Response(JSON.stringify(posts), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
