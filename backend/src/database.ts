@@ -5,8 +5,8 @@ export type PostId = string;
 export type SortKey = string;
 export type JWKS = {keys: JWKRSA[]};
 
-const DBKEY_AUTH_GOOGLE =
-  "auth:google";
+const dbkeyCachedJwksGoogle = () =>
+  "jwks:google";
 const dbkeyUser = (userId: UserId) =>
   `user:${userId}`;
 const dbkeyPost = (postId: PostId) =>
@@ -15,7 +15,8 @@ const dbprefixThreadPost = (threadId: PostId) =>
   `thread/post:${threadId}:`;
 const dbkeyThreadPost = (threadId: PostId, sortKey: SortKey, postId: PostId) =>
   `thread/post:${threadId}:${sortKey}|${postId}`;
-const DBPREFIX_THREAD = "thread:";
+const dbprefixThread = () =>
+  "thread:";
 const dbkeyThread = (sortKey: SortKey, postId: PostId) =>
   `thread:${sortKey}|${postId}`;
 const dbkeyPostLiked = (userId: UserId, postId: PostId) =>
@@ -28,10 +29,10 @@ const dbkeyPostViews = (postId: PostId) =>
 const TRUE_VALUE = "1";
 
 export const dbGetCachedJwksGoogle = async (): Promise<JWKS | null> =>
-  db.get<JWKS>(DBKEY_AUTH_GOOGLE, "json");
+  db.get<JWKS>(dbkeyCachedJwksGoogle(), "json");
 
 export const dbPutCachedJwksGoogle = async (jwks: JWKS, expiration: number): Promise<void> =>
-  db.put(DBKEY_AUTH_GOOGLE, JSON.stringify(jwks), {expiration});
+  db.put(dbkeyCachedJwksGoogle(), JSON.stringify(jwks), {expiration});
 
 export const dbGetUser = async (userId: UserId): Promise<StoredUser | null> =>
   db.get<StoredUser>(dbkeyUser(userId), "json");
@@ -115,7 +116,7 @@ const getPostsFromIds = async (authedUserOptional: StoredUser | null, ids: strin
 };
 
 export const dbListThreads = async (authedUserOptional: StoredUser | null): Promise<ReturnedPost[]> =>
-  getPostsFromIds(authedUserOptional, getBarIds(await db.list({prefix: DBPREFIX_THREAD})));
+  getPostsFromIds(authedUserOptional, getBarIds(await db.list({prefix: dbprefixThread()})));
 
 export const dbListThreadPosts =
   async (authedUserOptional: StoredUser | null, threadId: PostId): Promise<ReturnedPost[]> =>
