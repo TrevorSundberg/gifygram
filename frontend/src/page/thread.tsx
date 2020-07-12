@@ -4,7 +4,6 @@ import {
   API_POST_CREATE,
   API_POST_CREATE_MAX_MESSAGE_LENGTH,
   API_POST_LIST,
-  AmendedPost,
   AmendedQuery,
   ClientPost,
   StoredPost
@@ -64,7 +63,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
   const [storedPostArrays, setStoredPostArrays] = React.useState<StoredPost[][]>([]);
 
   React.useEffect(() => {
-    const postListFetch = abortableJsonFetch<StoredPost[]>(API_POST_LIST, Auth.Optional, {threadId: props.threadId});
+    const postListFetch = abortableJsonFetch(API_POST_LIST, Auth.Optional, {threadId: props.threadId});
     postListFetch.then((postList) => {
       if (postList) {
         cacheMergeIntoArray(props.threadId, postList);
@@ -96,7 +95,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
         userId: storedPost.userId,
         requestViews: storedPost.id === storedPost.threadId
       }));
-      const amendedListFetch = abortableJsonFetch<AmendedPost[]>(API_AMENDED_LIST, Auth.Optional, {queries});
+      const amendedListFetch = abortableJsonFetch(API_AMENDED_LIST, Auth.Optional, {queries});
       amendedListFetch.then((amendedList) => {
         if (amendedList) {
           setPosts(intersectAndMergeLists(posts, amendedList));
@@ -194,7 +193,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
                   color="primary"
                   disabled={Boolean(postCreateFetch)}
                   onClick={async () => {
-                    const postCreateFetchPromise = abortableJsonFetch<ClientPost>(API_POST_CREATE, Auth.Required, {
+                    const postCreateFetchPromise = abortableJsonFetch(API_POST_CREATE, Auth.Required, {
                       message: postMessage,
                       replyId: props.threadId
                     });

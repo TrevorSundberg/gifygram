@@ -1,4 +1,4 @@
-import {API_POST_LIKE, ClientPost, PostLike} from "../../../common/common";
+import {API_POST_LIKE, ClientPost} from "../../../common/common";
 import {Auth, abortableJsonFetch} from "../shared/shared";
 import Badge from "@material-ui/core/Badge";
 import FavoriteIcon from "@material-ui/icons/Favorite";
@@ -27,7 +27,7 @@ export const LikeButton: React.FC<LikeButtonProps> = (props) => {
       e.stopPropagation();
       const value = !liked;
       const postLike =
-        await abortableJsonFetch<PostLike>(API_POST_LIKE, Auth.Required, {id: props.post.id, value});
+        await abortableJsonFetch(API_POST_LIKE, Auth.Required, {id: props.post.id, value});
       setLiked(value);
       setLikes(postLike.likes);
     }}>

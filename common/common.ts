@@ -3,17 +3,6 @@ export const API_POST_CREATE_MAX_TITLE_LENGTH = 26;
 export const API_PROFILE_MAX_USERNAME_LENGTH = 26;
 export const API_PROFILE_MAX_BIO_LENGTH = 1000;
 
-export const API_POST_CREATE = "/api/post/create";
-export const API_POST_LIST = "/api/post/list";
-export const API_AMENDED_LIST = "/api/amended/list";
-export const API_POST_LIKE = "/api/post/like";
-export const API_POST_DELETE = "/api/post/delete";
-export const API_ANIMATION_CREATE = "/api/animation/create";
-export const API_ANIMATION_JSON = "/api/animation/json";
-export const API_ANIMATION_VIDEO = "/api/animation/video";
-export const API_PROFILE = "/api/profile";
-export const API_PROFILE_UPDATE = "/api/profile/update";
-
 export const API_ALL_THREADS_ID = "00000000-0000-4000-8000-000000000000";
 
 export const AUTH_GOOGLE_ISSUER = "accounts.google.com";
@@ -96,5 +85,26 @@ export interface AnimationData {
   videoAttributedSource: AttributedSource;
   widgets: WidgetData[];
 }
+
+export class Api<ResultType> {
+  public readonly pathname: string;
+
+  private _: ResultType | undefined = undefined;
+
+  public constructor (pathname: string) {
+    this.pathname = pathname;
+  }
+}
+
+export const API_POST_CREATE = new Api<ClientPost>("/api/post/create");
+export const API_POST_LIST = new Api<StoredPost[]>("/api/post/list");
+export const API_AMENDED_LIST = new Api<AmendedPost[]>("/api/amended/list");
+export const API_POST_LIKE = new Api<PostLike>("/api/post/like");
+export const API_POST_DELETE = new Api<{}>("/api/post/delete");
+export const API_ANIMATION_CREATE = new Api<ClientPost>("/api/animation/create");
+export const API_ANIMATION_JSON = new Api<AnimationData>("/api/animation/json");
+export const API_ANIMATION_VIDEO = new Api<ArrayBuffer>("/api/animation/video");
+export const API_PROFILE = new Api<StoredUser>("/api/profile");
+export const API_PROFILE_UPDATE = new Api<StoredUser>("/api/profile/update");
 
 export const MAX_VIDEO_SIZE = 720;

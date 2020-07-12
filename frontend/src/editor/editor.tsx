@@ -7,8 +7,7 @@ import {
   API_ANIMATION_CREATE,
   API_ANIMATION_JSON,
   API_POST_CREATE_MAX_MESSAGE_LENGTH,
-  API_POST_CREATE_MAX_TITLE_LENGTH,
-  ClientPost
+  API_POST_CREATE_MAX_TITLE_LENGTH
 } from "../../../common/common";
 import {Auth, Deferred, NeverAsync, abortableJsonFetch} from "../shared/shared";
 import {MODALS_CHANGED, Modal} from "./modal";
@@ -78,8 +77,8 @@ export class Editor {
       manager.loadFromBase64(urlData);
     } else if (remixId) {
       (async () => {
-        const animation = await abortableJsonFetch<SerializedData>(API_ANIMATION_JSON, Auth.Optional, {id: remixId});
-        manager.load(animation);
+        const animation = await abortableJsonFetch(API_ANIMATION_JSON, Auth.Optional, {id: remixId});
+        manager.load(animation as SerializedData);
       })();
     } else {
       player.setAttributedSrc({
@@ -216,7 +215,7 @@ export class Editor {
           makeLengthBuffer(videoBuffer.byteLength),
           videoBuffer
         ]);
-        const post = await abortableJsonFetch<ClientPost>(
+        const post = await abortableJsonFetch(
           API_ANIMATION_CREATE,
           Auth.Required,
           {

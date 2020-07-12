@@ -18,11 +18,11 @@ import {
   AUTH_GOOGLE_ISSUER,
   AmendedQuery,
   AnimationData,
+  Api,
   AttributedSource,
   ClientPost,
   MAX_VIDEO_SIZE,
   PostData,
-  PostLike,
   StoredPost,
   StoredUser
 } from "../../common/common";
@@ -241,11 +241,18 @@ class RequestInput {
   }
 }
 
-interface RequestOutput {
-  response: Response;
+interface RequestOutput<ResultType> {
+  result: ResultType;
+  contentType?: string;
+  immutable?: boolean;
 }
 
-const handlers: Record<string, (input: RequestInput) => Promise<RequestOutput>> = {};
+type Handler<ResultType> = (input: RequestInput) => Promise<RequestOutput<ResultType>>;
+const handlers: Record<string, Handler<any>> = {};
+
+const addHandler = <ResultType>(api: Api<ResultType>, callback: Handler<ResultType>) => {
+  handlers[api.pathname] = callback;
+};
 
 const expectUuidParam = (input: RequestInput, name: string) =>
   expectUuid(name, input.url.searchParams.get(name));
@@ -336,7 +343,7 @@ const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: 
   await dbCreatePost(post);
 
   // We return what the post would actually look like if it were listed (for quick display in React).
-  const clientPost: ClientPost = {
+  const result: ClientPost = {
     ...post,
     username: user!.username,
     liked: false,
@@ -345,15 +352,15 @@ const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: 
   };
 
   return {
-    response: new Response(JSON.stringify(clientPost), responseOptions(CONTENT_TYPE_APPLICATION_JSON)),
+    result,
     threadId,
     id
   };
 };
 
-handlers[API_POST_CREATE] = async (input) => postCreate(input, false, false, {type: "comment"});
+addHandler(API_POST_CREATE, async (input) => postCreate(input, false, false, {type: "comment"}));
 
-handlers[API_POST_LIST] = async (input) => {
+addHandler(API_POST_LIST, async (input) => {
   const threadId = expectUuidParam(input, "threadId");
 
   // If this is a specific thread, then track views for it.
@@ -362,17 +369,17 @@ handlers[API_POST_LIST] = async (input) => {
     await dbAddView(threadId, ip);
   }
 
-  const posts = await dbListPosts(threadId);
-  return {response: new Response(JSON.stringify(posts), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
-};
+  const result = await dbListPosts(threadId);
+  return {result};
+});
 
-handlers[API_AMENDED_LIST] = async (input) => {
+addHandler(API_AMENDED_LIST, async (input) => {
   const queries: AmendedQuery[] = JSON.parse(expectStringParam(input, "queries", 1024 * 1024));
-  const amendedPosts = await dbListAmendedPosts(await input.getAuthedUser(), queries);
-  return {response: new Response(JSON.stringify(amendedPosts), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
-};
+  const result = await dbListAmendedPosts(await input.getAuthedUser(), queries);
+  return {result};
+});
 
-handlers[API_ANIMATION_CREATE] = async (input) => {
+addHandler(API_ANIMATION_CREATE, async (input) => {
   const [
     jsonBinary,
     video
@@ -398,42 +405,39 @@ handlers[API_ANIMATION_CREATE] = async (input) => {
   const {id} = output;
   await dbPutAnimation(id, json, video);
   return output;
-};
+});
 
-handlers[API_ANIMATION_JSON] = async (input) => {
-  const result = await dbGetAnimationJson(expectUuidParam(input, "id"));
-  return {response: new Response(result, responseOptions(CONTENT_TYPE_APPLICATION_JSON, true))};
-};
+addHandler(API_ANIMATION_JSON, async (input) => {
+  const result: AnimationData = JSON.parse(expect(
+    "animationJson",
+    await dbGetAnimationJson(expectUuidParam(input, "id"))
+  ));
+  return {result, immutable: true};
+});
 
-handlers[API_ANIMATION_VIDEO] = async (input) => {
+addHandler(API_ANIMATION_VIDEO, async (input) => {
   const result = await dbGetAnimationVideo(expectUuidParam(input, "id"));
-  return {response: new Response(result, responseOptions(CONTENT_TYPE_VIDEO_MP4, true))};
-};
-
-handlers[API_PROFILE] = async (input) => {
-  const user = await input.requireAuthedUser();
   return {
-    response: new Response(
-      JSON.stringify(user),
-      responseOptions(CONTENT_TYPE_APPLICATION_JSON)
-    )
+    result,
+    immutable: true,
+    contentType: CONTENT_TYPE_VIDEO_MP4
   };
-};
+});
 
-handlers[API_PROFILE_UPDATE] = async (input) => {
+addHandler(API_PROFILE, async (input) => {
+  const user = await input.requireAuthedUser();
+  return {result: user};
+});
+
+addHandler(API_PROFILE_UPDATE, async (input) => {
   const user = await input.requireAuthedUser();
   user.username = expectStringParam(input, "username", API_PROFILE_MAX_USERNAME_LENGTH);
   user.bio = expectStringParam(input, "bio", API_PROFILE_MAX_BIO_LENGTH);
   await dbPutUser(user);
-  return {
-    response: new Response(
-      JSON.stringify(user),
-      responseOptions(CONTENT_TYPE_APPLICATION_JSON)
-    )
-  };
-};
+  return {result: user};
+});
 
-handlers[API_POST_LIKE] = async (input) => {
+addHandler(API_POST_LIKE, async (input) => {
   const postId = expectUuidParam(input, "id");
   const newValue = expectBooleanParam(input, "value");
   const [user] = await Promise.all([
@@ -443,19 +447,10 @@ handlers[API_POST_LIKE] = async (input) => {
   ]);
 
   const likes = await dbModifyPostLiked(user.id, postId, newValue);
+  return {result: {likes}};
+});
 
-  const result: PostLike = {
-    likes
-  };
-  return {
-    response: new Response(
-      JSON.stringify(result),
-      responseOptions(CONTENT_TYPE_APPLICATION_JSON)
-    )
-  };
-};
-
-handlers[API_POST_DELETE] = async (input) => {
+addHandler(API_POST_DELETE, async (input) => {
   const user = await input.requireAuthedUser();
   const postId = expectUuidParam(input, "id");
 
@@ -465,14 +460,8 @@ handlers[API_POST_DELETE] = async (input) => {
   }
 
   await dbDeletePost(post);
-
-  return {
-    response: new Response(
-      JSON.stringify({}),
-      responseOptions(CONTENT_TYPE_APPLICATION_JSON)
-    )
-  };
-};
+  return {result: {}};
+});
 
 const handleOptions = (request: Request) => {
   if (
@@ -498,7 +487,13 @@ const handleRequest = async (event: FetchEvent): Promise<Response> => {
   const input = new RequestInput(event);
   const handler = handlers[input.url.pathname];
   if (handler) {
-    return (await handler(input)).response;
+    const output = await handler(input);
+    return new Response(
+      output.result instanceof ArrayBuffer
+        ? output.result
+        : JSON.stringify(output.result),
+      responseOptions(output.contentType || CONTENT_TYPE_APPLICATION_JSON, output.immutable)
+    );
   }
 
   let isHtml = false;

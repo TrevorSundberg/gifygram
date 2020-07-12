@@ -1,4 +1,4 @@
-import {AUTH_GOOGLE_CLIENT_ID} from "../../../common/common";
+import {AUTH_GOOGLE_CLIENT_ID, Api} from "../../../common/common";
 
 export const EVENT_LOGGED_IN = "loggedIn";
 export const EVENT_REQUEST_LOGIN = "requestLogin";
@@ -162,12 +162,12 @@ const applyPathAndParams = (url: URL, path: string, params?: Record<string, any>
   }
 };
 
-export const makeServerUrl = (path: string, params?: Record<string, any>) => {
+export const makeServerUrl = <T>(api: Api<T>, params?: Record<string, any>) => {
   const url = new URL(window.location.origin);
   if (isDevEnvironment()) {
     url.port = "3000";
   }
-  applyPathAndParams(url, path, params);
+  applyPathAndParams(url, api.pathname, params);
   return url.href;
 };
 
@@ -200,7 +200,7 @@ export enum Auth {
 }
 
 export const abortableJsonFetch = <T>(
-  path: string,
+  api: Api<T>,
   auth: Auth = Auth.Optional,
   params?: Record<string, any>,
   options?: RequestInit): AbortablePromise<T> => {
@@ -214,7 +214,7 @@ export const abortableJsonFetch = <T>(
       ? {Authorization: authUser.jwt}
       : null;
     try {
-      const response = await fetch(makeServerUrl(path, params), {
+      const response = await fetch(makeServerUrl(api, params), {
         signal: controller.signal,
         ...options,
         headers: {
