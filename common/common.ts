@@ -2,7 +2,7 @@
 // Note: If you change these constants ensure the JSON schemas are also updated.
 export const API_POST_CREATE_MAX_MESSAGE_LENGTH = 1000;
 export const API_POST_CREATE_MAX_TITLE_LENGTH = 26;
-export const API_PROFILE_MAX_USERNAME_LENGTH = 26;
+export const API_PROFILE_MAX_USERNAME_LENGTH = 50;
 export const API_PROFILE_MAX_BIO_LENGTH = 1000;
 export const MAX_VIDEO_SIZE = 720;
 
@@ -172,7 +172,17 @@ export interface SpecificPost {
 }
 
 export interface ProfileUpdate {
+
+  /**
+   * API_PROFILE_MAX_USERNAME_LENGTH
+   * @maxLength 50
+   */
   username: string;
+
+  /**
+   * API_PROFILE_MAX_BIO_LENGTH
+   * @maxLength 1000
+   */
   bio: string;
 }
 
