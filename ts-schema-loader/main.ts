@@ -6,9 +6,10 @@ const ajv = new Ajv({sourceCode: true});
 
 const settings: TJS.PartialArgs = {
   excludePrivate: true,
-  ignoreErrors: true,
   ref: false,
-  required: true
+  required: true,
+  strictNullChecks: true,
+  noExtraProps: true
 };
 
 export default function (this: import("webpack").loader.LoaderContext) {
@@ -19,7 +20,7 @@ export default function (this: import("webpack").loader.LoaderContext) {
     throw Error("The format is require('ts-schema-loader!./your-file.ts?YourType')'");
   }
 
-  const program = TJS.getProgramFromFiles([result.groups.tsFile]);
+  const program = TJS.getProgramFromFiles([result.groups.tsFile], {strictNullChecks: true});
   const schema = TJS.generateSchema(program, result.groups.type, settings);
 
   if (result.groups.debug) {
