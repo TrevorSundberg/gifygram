@@ -4,6 +4,7 @@ import {
   API_ANIMATION_CREATE,
   API_ANIMATION_JSON,
   API_ANIMATION_VIDEO,
+  API_FEEDBACK,
   API_POST_CREATE,
   API_POST_CREATE_MAX_MESSAGE_LENGTH,
   API_POST_CREATE_MAX_TITLE_LENGTH,
@@ -448,6 +449,22 @@ addHandler(API_POST_LIKE, async (input) => {
 
   const likes = await dbModifyPostLiked(user.id, postId, newValue);
   return {result: {likes}};
+});
+
+addHandler(API_FEEDBACK, async (input) => {
+  if (!isDevEnvironment()) {
+    const title = expectStringParam(input, "title", 2048);
+    const response = await fetch("https://api.github.com/repos/TrevorSundberg/madeitforfun/issues", {
+      method: "POST",
+      body: JSON.stringify({title}),
+      headers: {
+        accept: "application/vnd.github.v3+json",
+        authorization: `token ${GITHUB_TOKEN}`
+      }
+    });
+    await response.json();
+  }
+  return {result: {}};
 });
 
 addHandler(API_POST_DELETE, async (input) => {

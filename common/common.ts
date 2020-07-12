@@ -106,5 +106,6 @@ export const API_ANIMATION_JSON = new Api<AnimationData>("/api/animation/json");
 export const API_ANIMATION_VIDEO = new Api<ArrayBuffer>("/api/animation/video");
 export const API_PROFILE = new Api<StoredUser>("/api/profile");
 export const API_PROFILE_UPDATE = new Api<StoredUser>("/api/profile/update");
+export const API_FEEDBACK = new Api<{}>("/api/feedback");
 
 export const MAX_VIDEO_SIZE = 720;
