@@ -54,6 +54,11 @@ export interface AnimationCreate {
    */
   message: string;
   replyId: string | null;
+
+  /**
+   * API_POST_CREATE_MAX_TITLE_LENGTH
+   * @maxLength 26
+   */
   title: string;
 
   /**
