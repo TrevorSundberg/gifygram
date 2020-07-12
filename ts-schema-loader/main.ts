@@ -12,7 +12,7 @@ const settings: TJS.PartialArgs = {
 };
 
 export default function (this: import("webpack").loader.LoaderContext) {
-  const schemaRegex = /(?<tsFile>.*)\?(?<type>.*)/gu;
+  const schemaRegex = /(?<tsFile>.*)\?(?<debug>&)?(?<type>.*)/gu;
   // eslint-disable-next-line no-invalid-this
   const result = schemaRegex.exec(this.resource);
   if (!result) {
@@ -21,6 +21,10 @@ export default function (this: import("webpack").loader.LoaderContext) {
 
   const program = TJS.getProgramFromFiles([result.groups.tsFile]);
   const schema = TJS.generateSchema(program, result.groups.type, settings);
+
+  if (result.groups.debug) {
+    console.log(schema);
+  }
 
   const validationFunction = ajv.compile(schema);
   const moduleCode: string = ajvPack(ajv, validationFunction);
