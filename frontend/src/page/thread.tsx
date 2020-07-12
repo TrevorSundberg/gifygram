@@ -8,7 +8,7 @@ import {
   ClientPost,
   StoredPost
 } from "../../../common/common";
-import {AbortablePromise, Auth, abortableJsonFetch, cancel} from "../shared/shared";
+import {AbortablePromise, Auth, abortableJsonFetch, cancel, makeLocalUrl} from "../shared/shared";
 import {
   cacheAdd,
   cacheGetArrayOrDefault,
@@ -157,14 +157,14 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       onClick={
         isAllThreads
           ? () => {
-            props.history.push(`/thread?threadId=${post.id}`);
+            props.history.push(makeLocalUrl("/thread", {threadId: post.id}));
           }
           : null}
       history={props.history}
       onTrashed={() => {
         if (post.id === post.threadId) {
           // Deleting the entire thread, so go back to home/root and don't keep this entry in history.
-          props.history.replace("/");
+          props.history.replace(makeLocalUrl("/"));
         } else {
           // Remove the post from the list.
           setPosts((previous) => {

@@ -1,27 +1,17 @@
-import {AnimationData, WidgetData} from "../../../common/common";
+import {AnimationData, Track, WidgetInit} from "../../../common/common";
 import {Gif, Image, StaticImage} from "./image";
 import {RELATIVE_WIDGET_SIZE, Size, Utility, getAspect, resizeMinimumKeepAspect} from "./utility";
-import {Timeline, Track, Tracks} from "./timeline";
 import {Background} from "./background";
 import {Compress} from "./compression";
 import {Gizmo} from "./gizmo";
 import {Renderer} from "./renderer";
 import {Spinner} from "./spinner";
+import {Timeline} from "./timeline";
 import {VideoPlayer} from "./videoPlayer";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const uuidv4: typeof import("uuid/v4") = require("uuid/v4");
 
 export type ElementFactory = (id: string) => Promise<HTMLElement>;
-
-export interface WidgetInit extends WidgetData {
-  id?: string;
-  type: "gif" | "svg";
-}
-
-export interface SerializedData extends AnimationData {
-  tracks: Tracks;
-  widgets: WidgetInit[];
-}
 
 export class Widget {
   public readonly element: HTMLElement;
@@ -167,7 +157,7 @@ export class Manager {
     this.spinner.hide();
   }
 
-  private save (): SerializedData {
+  public save (): AnimationData {
     this.hasUnsavedChanges = false;
     return {
       tracks: JSON.parse(JSON.stringify(this.timeline.tracks)),
@@ -183,7 +173,7 @@ export class Manager {
     ].filter((value) => Boolean(value));
   }
 
-  public async load (data: SerializedData) {
+  public async load (data: AnimationData) {
     this.spinner.show();
     this.videoPlayer.setAttributedSrc(data.videoAttributedSource);
     this.clearWidgets();

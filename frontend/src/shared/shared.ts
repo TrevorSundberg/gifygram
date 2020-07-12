@@ -154,10 +154,7 @@ const applyPathAndParams = (url: URL, path: string, params?: Record<string, any>
   if (params) {
     for (const key of Object.keys(params)) {
       const value = params[key];
-      const stringValue = typeof value === "object"
-        ? JSON.stringify(value)
-        : `${value}`;
-      url.searchParams.set(key, stringValue);
+      url.searchParams.set(key, JSON.stringify(value));
     }
   }
 };
@@ -177,7 +174,8 @@ export const makeLocalUrl = (path: string, params?: Record<string, any>, hash?: 
   if (hash) {
     url.hash = hash;
   }
-  return url.href;
+  // Always return a rooted url without the origin: /something
+  return url.href.substr(url.origin.length);
 };
 
 export interface ResponseJson {
@@ -203,7 +201,7 @@ export const abortableJsonFetch = <InputType, OutputType>(
   api: Api<InputType, OutputType>,
   auth: Auth = Auth.Optional,
   params: InputType = null,
-  options?: RequestInit): AbortablePromise<OutputType> => {
+  body: BodyInit = null): AbortablePromise<OutputType> => {
   const controller = new AbortController();
   const promise = (async () => {
     if (auth === Auth.Required) {
@@ -216,9 +214,9 @@ export const abortableJsonFetch = <InputType, OutputType>(
     try {
       const response = await fetch(makeServerUrl(api, params), {
         signal: controller.signal,
-        ...options,
+        method: "POST",
+        body,
         headers: {
-          ...options?.headers,
           ...authHeaders
         }
       });

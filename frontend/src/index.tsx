@@ -69,7 +69,7 @@ if (url.hash) {
 }
 
 const getUrlParam = (props: { location: import("history").Location }, name: string) =>
-  new URLSearchParams(props.location.search).get(name);
+  JSON.parse(new URLSearchParams(props.location.search).get(name));
 
 const App = () => {
   const [showLoginDeferred, setShowLoginDeferred] = React.useState<Deferred<void> | null>(null);

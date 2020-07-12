@@ -6,23 +6,17 @@ import {
   API_ANIMATION_VIDEO,
   API_FEEDBACK,
   API_POST_CREATE,
-  API_POST_CREATE_MAX_MESSAGE_LENGTH,
-  API_POST_CREATE_MAX_TITLE_LENGTH,
   API_POST_DELETE,
   API_POST_LIKE,
   API_POST_LIST,
   API_PROFILE,
-  API_PROFILE_MAX_BIO_LENGTH,
-  API_PROFILE_MAX_USERNAME_LENGTH,
   API_PROFILE_UPDATE,
   AUTH_GOOGLE_CLIENT_ID,
   AUTH_GOOGLE_ISSUER,
-  AmendedQuery,
   AnimationData,
   Api,
   AttributedSource,
   ClientPost,
-  MAX_VIDEO_SIZE,
   PostData,
   StoredPost,
   StoredUser
@@ -105,66 +99,26 @@ const expect = <T>(name: string, value: T | null | undefined) => {
   return value;
 };
 
-const expectUuid = (name: string, id: string | null | undefined) => {
-  if (!id || !(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u).test(id)) {
-    throw new Error(`Invalid uuid ${name}, got ${id}`);
-  }
-  return id;
-};
-
-const expectString = (name: string, value: string | null | undefined, maxLength: number): string => {
-  if (typeof value !== "string") {
-    throw new Error(`Expected ${name} to be a string but got ${value}`);
-  }
-  if (value.length > maxLength) {
-    throw new Error(`String ${name} was longer than ${maxLength}: ${JSON.stringify(value)}`);
-  }
-  return value;
-};
-
-const expectInteger = (
-  name: string,
-  value: string | null | undefined,
-  minInclusive: number,
-  maxInclusive: number
-): number => {
-  if (typeof value !== "string") {
-    throw new Error(`Expected ${name} to be a string representation of a number but got ${value}`);
-  }
-  const number = parseInt(value, 10);
-  if (number < minInclusive || number > maxInclusive) {
-    throw new Error(`Number ${name} was outside range [${minInclusive},${maxInclusive}]: ${value}`);
-  }
-  if (!isFinite(number)) {
-    throw new Error(`Number ${name} was not finite: ${value}`);
-  }
-  return number;
-};
-
-const expectBoolean = (name: string, value: string | null | undefined): boolean => {
-  if (value !== "true" && value !== "false") {
-    throw new Error(`Expected ${name} to be a string of 'true' or 'false' but got ${value}`);
-  }
-  return value === "true";
-};
-
-class RequestInput {
+class RequestInput<T> {
   public readonly request: Request;
 
   public readonly url: URL;
 
   public readonly event: FetchEvent;
 
+  public readonly json: T;
+
   private authedUser?: StoredUser = undefined;
 
-  public constructor (event: FetchEvent) {
+  public constructor (event: FetchEvent, url: URL, json: T) {
     this.request = event.request;
-    this.url = new URL(decodeURI(event.request.url));
+    this.url = url;
     this.event = event;
+    this.json = json;
   }
 
   private async validateJwtAndGetUser (): Promise<StoredUser> {
-    const token = expectString("authorization", this.request.headers.get("authorization"), 4096);
+    const token = expect("authorization", this.request.headers.get("authorization"));
 
     const content = await (async (): Promise<JwtPayload> => {
       if (isDevEnvironment()) {
@@ -248,24 +202,23 @@ interface RequestOutput<OutputType> {
   immutable?: boolean;
 }
 
-type Handler<OutputType> = (input: RequestInput) => Promise<RequestOutput<OutputType>>;
-const handlers: Record<string, Handler<any>> = {};
+type HandlerCallback<InputType, OutputType> = (input: RequestInput<InputType>) =>
+Promise<RequestOutput<OutputType>>;
 
-const addHandler = <InputType, OutputType>(api: Api<InputType, OutputType>, callback: Handler<OutputType>) => {
-  handlers[api.pathname] = callback;
+interface Handler {
+  api: Api<any, any>;
+  callback: HandlerCallback<any, any>;
+}
+const handlers: Record<string, Handler> = {};
+
+const addHandler = <InputType, OutputType>(
+  api: Api<InputType, OutputType>,
+  callback: HandlerCallback<InputType, OutputType>) => {
+  handlers[api.pathname] = {
+    api,
+    callback
+  };
 };
-
-const expectUuidParam = (input: RequestInput, name: string) =>
-  expectUuid(name, input.url.searchParams.get(name));
-
-const expectStringParam = (input: RequestInput, name: string, maxLength: number) =>
-  expectString(name, input.url.searchParams.get(name), maxLength);
-
-const expectIntegerParam = (input: RequestInput, name: string, minInclusive: number, maxInclusive: number) =>
-  expectInteger(name, input.url.searchParams.get(name), minInclusive, maxInclusive);
-
-const expectBooleanParam = (input: RequestInput, name: string) =>
-  expectBoolean(name, input.url.searchParams.get(name));
 
 const videoMp4Header = new Uint8Array([
   0x00,
@@ -312,22 +265,30 @@ interface JwtPayload {
   given_name: string;
 }
 
-const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: boolean, userdata: PostData) => {
-  const user = await input.requireAuthedUser();
-  const title = hasTitle ? expectStringParam(input, "title", API_POST_CREATE_MAX_TITLE_LENGTH) : null;
-  const message = expectStringParam(input, "message", API_POST_CREATE_MAX_MESSAGE_LENGTH);
-  const id = uuid();
+interface PostCreateGeneric {
+  message: string;
+  title?: string;
+  replyId: string | null;
+}
 
-  const replyId = input.url.searchParams.has("replyId") ? expectUuidParam(input, "replyId") : null;
+const postCreate = async (
+  input: RequestInput<PostCreateGeneric>,
+  createThread: boolean,
+  hasTitle: boolean,
+  userdata: PostData) => {
+  const user = await input.requireAuthedUser();
+
+  const title = hasTitle ? input.json.title || null : null;
+  const {message, replyId} = input.json;
+  const id = uuid();
 
   const newToOld = sortKeyNewToOld();
   const threadId = await (async () => {
     if (createThread && !replyId) {
       return id;
     }
-    const replyPost = await dbExpectPost(expectUuid("replyId", replyId));
-    const replyThreadId = replyPost!.id;
-    return expectUuid("replyThreadId", replyThreadId);
+    const replyPost = await dbExpectPost(expect("replyId", replyId));
+    return replyPost.id;
   })();
 
   const post: StoredPost = {
@@ -362,7 +323,7 @@ const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: 
 addHandler(API_POST_CREATE, async (input) => postCreate(input, false, false, {type: "comment"}));
 
 addHandler(API_POST_LIST, async (input) => {
-  const threadId = expectUuidParam(input, "threadId");
+  const {threadId} = input.json;
 
   // If this is a specific thread, then track views for it.
   if (threadId !== API_ALL_THREADS_ID) {
@@ -375,8 +336,7 @@ addHandler(API_POST_LIST, async (input) => {
 });
 
 addHandler(API_AMENDED_LIST, async (input) => {
-  const queries: AmendedQuery[] = JSON.parse(expectStringParam(input, "queries", 1024 * 1024));
-  const result = await dbListAmendedPosts(await input.getAuthedUser(), queries);
+  const result = await dbListAmendedPosts(await input.getAuthedUser(), input.json.queries);
   return {result};
 });
 
@@ -387,8 +347,14 @@ addHandler(API_ANIMATION_CREATE, async (input) => {
   ] = parseBinaryChunks(await input.request.arrayBuffer());
 
   const json: string = new TextDecoder().decode(jsonBinary);
-  // TODO(trevor): Use ajv to validate, for now it just checks that it's json.
   const animationData: AnimationData = JSON.parse(json);
+
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const validator = require("../../ts-schema-loader/dist/main.js!../../common/common.ts?AnimationData");
+  if (!validator(animationData)) {
+    throw new Error(`AnimationData was invalid:\n${JSON.stringify(validator.errors)}`);
+  }
+
   const attribution: AttributedSource[] = [
     animationData.videoAttributedSource,
     ...animationData.widgets.map((widget) => widget.attributedSource)
@@ -399,25 +365,25 @@ addHandler(API_ANIMATION_CREATE, async (input) => {
   const output = await postCreate(input, true, true, {
     type: "animation",
     attribution: attribution.filter((attribute) => Boolean(attribute.originUrl)),
-    width: expectIntegerParam(input, "width", 1, MAX_VIDEO_SIZE),
-    height: expectIntegerParam(input, "height", 1, MAX_VIDEO_SIZE)
+    width: input.json.width,
+    height: input.json.height
   });
 
   const {id} = output;
-  await dbPutAnimation(id, json, video);
+  await dbPutAnimation(id, JSON.stringify(animationData), video);
   return output;
 });
 
 addHandler(API_ANIMATION_JSON, async (input) => {
   const result: AnimationData = JSON.parse(expect(
     "animationJson",
-    await dbGetAnimationJson(expectUuidParam(input, "id"))
+    await dbGetAnimationJson(input.json.id)
   ));
   return {result, immutable: true};
 });
 
 addHandler(API_ANIMATION_VIDEO, async (input) => {
-  const result = await dbGetAnimationVideo(expectUuidParam(input, "id"));
+  const result = await dbGetAnimationVideo(input.json.id);
   return {
     result,
     immutable: true,
@@ -432,15 +398,15 @@ addHandler(API_PROFILE, async (input) => {
 
 addHandler(API_PROFILE_UPDATE, async (input) => {
   const user = await input.requireAuthedUser();
-  user.username = expectStringParam(input, "username", API_PROFILE_MAX_USERNAME_LENGTH);
-  user.bio = expectStringParam(input, "bio", API_PROFILE_MAX_BIO_LENGTH);
+  user.username = input.json.username;
+  user.bio = input.json.bio;
   await dbPutUser(user);
   return {result: user};
 });
 
 addHandler(API_POST_LIKE, async (input) => {
-  const postId = expectUuidParam(input, "id");
-  const newValue = expectBooleanParam(input, "value");
+  const postId = input.json.id;
+  const newValue = input.json.value;
   const [user] = await Promise.all([
     input.requireAuthedUser(),
     // Validate that the post exists (we don't use the result however).
@@ -453,7 +419,7 @@ addHandler(API_POST_LIKE, async (input) => {
 
 addHandler(API_FEEDBACK, async (input) => {
   if (!isDevEnvironment()) {
-    const title = expectStringParam(input, "title", 2048);
+    const {title} = input.json;
     const response = await fetch("https://api.github.com/repos/TrevorSundberg/madeitforfun/issues", {
       method: "POST",
       body: JSON.stringify({title}),
@@ -469,7 +435,7 @@ addHandler(API_FEEDBACK, async (input) => {
 
 addHandler(API_POST_DELETE, async (input) => {
   const user = await input.requireAuthedUser();
-  const postId = expectUuidParam(input, "id");
+  const postId = input.json.id;
 
   const post = await dbExpectPost(postId);
   if (post.userId !== user.id) {
@@ -501,10 +467,21 @@ const handleRequest = async (event: FetchEvent): Promise<Response> => {
   if (event.request.method === "OPTIONS") {
     return handleOptions(event.request);
   }
-  const input = new RequestInput(event);
-  const handler = handlers[input.url.pathname];
+  const url = new URL(decodeURI(event.request.url));
+  const handler = handlers[url.pathname];
   if (handler) {
-    const output = await handler(input);
+    // Convert the url parameters back to json so we can validate it.
+    const jsonInput: Record<string, any> = {};
+    url.searchParams.forEach((value, key) => {
+      jsonInput[key] = JSON.parse(value);
+    });
+    const result = handler.api.validator(jsonInput);
+    if (typeof result === "string") {
+      throw new Error(result);
+    }
+
+    const input = new RequestInput<any>(event, url, jsonInput);
+    const output = await handler.callback(input);
     return new Response(
       output.result instanceof ArrayBuffer
         ? output.result

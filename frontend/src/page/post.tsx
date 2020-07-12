@@ -117,7 +117,7 @@ export const Post: React.FC<PostProps> = (props) => {
                   color="primary"
                   onClick={(e) => {
                     e.stopPropagation();
-                    props.history.push(`/editor?remixId=${props.post.id}`);
+                    props.history.push(makeLocalUrl("/editor", {remixId: props.post.id}));
                   }}>
                   Remix
                 </Button>

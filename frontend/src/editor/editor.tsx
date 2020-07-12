@@ -9,12 +9,12 @@ import {
   API_POST_CREATE_MAX_MESSAGE_LENGTH,
   API_POST_CREATE_MAX_TITLE_LENGTH
 } from "../../../common/common";
-import {Auth, Deferred, NeverAsync, abortableJsonFetch} from "../shared/shared";
+import {Auth, Deferred, NeverAsync, abortableJsonFetch, makeLocalUrl} from "../shared/shared";
 import {MODALS_CHANGED, Modal} from "./modal";
-import {Manager, SerializedData} from "./manager";
 import {RenderFrameEvent, Renderer} from "./renderer";
 import $ from "jquery";
 import {Background} from "./background";
+import {Manager} from "./manager";
 import {ModalProgress} from "./modalProgress";
 import React from "react";
 import {StickerSearch} from "./stickerSearch";
@@ -78,7 +78,7 @@ export class Editor {
     } else if (remixId) {
       (async () => {
         const animation = await abortableJsonFetch(API_ANIMATION_JSON, Auth.Optional, {id: remixId});
-        manager.load(animation as SerializedData);
+        manager.load(animation);
       })();
     } else {
       player.setAttributedSrc({
@@ -223,25 +223,22 @@ export class Editor {
             message,
             width: result.width,
             height: result.height,
-            ...remixId ? {replyId: remixId} : {}
+            replyId: remixId
           },
-          {
-            body: blob,
-            method: "POST"
-          }
+          blob
         );
 
         // Since this is creating both a post inside a thread (may be itself), cache it within that thread.
         cacheAdd(post.threadId, post);
 
         // If the user goes back to the editor in history, they'll be editing a remix of their post.
-        history.replace(`/editor?remixId=${post.id}`);
+        history.replace(makeLocalUrl("/editor", {remixId: post.id}));
         if (post.id === post.threadId) {
           // Since this is creating a thread, also add it to the thread cache.
           cacheAdd(API_ALL_THREADS_ID, post);
-          history.push(`/thread?threadId=${post.threadId}`);
+          history.push(makeLocalUrl("/thread", {threadId: post.threadId}));
         } else {
-          history.push(`/thread?threadId=${post.threadId}#${post.id}`);
+          history.push(makeLocalUrl("/thread", {threadId: post.threadId}, post.id));
         }
       }
     };

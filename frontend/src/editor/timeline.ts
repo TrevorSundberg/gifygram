@@ -1,18 +1,6 @@
 import Scene, {Frame} from "scenejs";
 import {TimeRange} from "./utility";
-
-export interface Keyframe {
-  clip?: string;
-  transform?: string;
-}
-
-export interface Track {
-  [time: number]: Keyframe;
-}
-
-export interface Tracks {
-  [selector: string]: Track;
-}
+import {Tracks} from "../../../common/common";
 
 export class TimelineEvent extends Event {
   public readonly frame: Frame;

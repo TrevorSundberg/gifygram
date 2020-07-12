@@ -3,13 +3,12 @@ export const API_POST_CREATE_MAX_MESSAGE_LENGTH = 1000;
 export const API_POST_CREATE_MAX_TITLE_LENGTH = 26;
 export const API_PROFILE_MAX_USERNAME_LENGTH = 26;
 export const API_PROFILE_MAX_BIO_LENGTH = 1000;
+export const MAX_VIDEO_SIZE = 720;
 
 export const API_ALL_THREADS_ID = "00000000-0000-4000-8000-000000000000";
 
 export const AUTH_GOOGLE_ISSUER = "accounts.google.com";
 export const AUTH_GOOGLE_CLIENT_ID = "608893334527-510lc0vbk5pd6ag7jdl6aka2hhhp9f69.apps.googleusercontent.com";
-
-export const MAX_VIDEO_SIZE = 720;
 
 /** Mark that we're doing something only to be backwards compatable with the database */
 export const oldVersion = <T>(value: T) => value;
@@ -113,13 +112,33 @@ export interface PostDelete {
   id: string;
 }
 
-export interface WidgetData {
+export interface Keyframe {
+  clip?: string;
+  transform?: string;
+}
+
+export interface Track {
+  [time: number]: Keyframe;
+}
+
+export interface Tracks {
+  [selector: string]: Track;
+}
+
+export interface WidgetInit {
   attributedSource: AttributedSource;
+  id?: string;
+  type: "gif" | "svg";
 }
 
 export interface AnimationData {
   videoAttributedSource: AttributedSource;
-  widgets: WidgetData[];
+  tracks: Tracks;
+  widgets: WidgetInit[];
+}
+
+export interface SpecificPost {
+  id: string;
 }
 
 export interface ProfileUpdate {
@@ -131,11 +150,11 @@ export interface Feedback {
   title: string;
 }
 
-type ValidationFunction = () => string | null;
+type ValidationFunction = (value: any) => string | null;
 
-const errorsOrNull = (validator: any) => () => {
-  if (!validator()) {
-    return validator.errors as string;
+const errorsOrNull = (validator: any) => (value: any) => {
+  if (!validator(value)) {
+    return JSON.stringify(validator.errors);
   }
   return null;
 };
@@ -143,13 +162,13 @@ const errorsOrNull = (validator: any) => () => {
 export class Api<InputType, OutputType> {
   public readonly pathname: string;
 
-  public readonly validator: ValidationFunction | null;
+  public readonly validator: ValidationFunction;
 
   private _in: InputType | undefined = undefined;
 
   private _out: OutputType | undefined = undefined;
 
-  public constructor (pathname: string, validator: ValidationFunction | null) {
+  public constructor (pathname: string, validator: ValidationFunction) {
     this.pathname = pathname;
     this.validator = validator;
   }
@@ -177,19 +196,19 @@ export const API_POST_DELETE = new Api<PostDelete, Empty>(
 );
 export const API_ANIMATION_CREATE = new Api<AnimationCreate, ClientPost>(
   "/api/animation/create",
-  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?AnimationCreate"))
+  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?&AnimationCreate"))
 );
-export const API_ANIMATION_JSON = new Api<null, AnimationData>(
+export const API_ANIMATION_JSON = new Api<SpecificPost, AnimationData>(
   "/api/animation/json",
-  null
+  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?SpecificPost"))
 );
-export const API_ANIMATION_VIDEO = new Api<null, ArrayBuffer>(
+export const API_ANIMATION_VIDEO = new Api<SpecificPost, ArrayBuffer>(
   "/api/animation/video",
-  null
+  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?SpecificPost"))
 );
-export const API_PROFILE = new Api<null, StoredUser>(
+export const API_PROFILE = new Api<Empty, StoredUser>(
   "/api/profile",
-  null
+  errorsOrNull(require("../ts-schema-loader/dist/main.js!./common.ts?Empty"))
 );
 export const API_PROFILE_UPDATE = new Api<ProfileUpdate, StoredUser>(
   "/api/profile/update",
