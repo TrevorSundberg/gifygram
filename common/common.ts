@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-export const API_POST_CREATE_MAX_MESSAGE_LENGTH = 1000;
 export const API_POST_CREATE_MAX_TITLE_LENGTH = 26;
 export const API_PROFILE_MAX_USERNAME_LENGTH = 26;
 export const API_PROFILE_MAX_BIO_LENGTH = 1000;
@@ -34,13 +33,24 @@ export type PostAnimation = {
 
 export type PostData = PostComment | PostAnimation;
 
+export const API_POST_CREATE_MAX_MESSAGE_LENGTH = 1000;
 export interface PostCreate {
+
+  /**
+   * API_POST_CREATE_MAX_MESSAGE_LENGTH
+   * @maxLength 1000
+   */
   message: string;
   replyId: string;
 }
 
 export const MAX_VIDEO_SIZE = 720;
 export interface AnimationCreate {
+
+  /**
+   * API_POST_CREATE_MAX_MESSAGE_LENGTH
+   * @maxLength 1000
+   */
   message: string;
   replyId: string | null;
   title: string;
