@@ -30,6 +30,7 @@ import {
   PostId,
   dbAddView,
   dbCreatePost,
+  dbDeletePost,
   dbGetAnimationJson,
   dbGetAnimationVideo,
   dbGetCachedJwksGoogle,
@@ -66,8 +67,6 @@ const CACHE_CONTROL_IMMUTABLE = "public,max-age=31536000,immutable";
 
 // `${Number.MAX_SAFE_INTEGER}`.length;
 const MAX_NUMBER_LENGTH_BASE_10 = 16;
-
-const TRUE_VALUE = "1";
 
 const sortKeyNewToOld = () => (Number.MAX_SAFE_INTEGER - Date.now()).toString().
   padStart(MAX_NUMBER_LENGTH_BASE_10, "0");
@@ -467,20 +466,7 @@ handlers[API_POST_DELETE] = async (input) => {
     throw new Error("Attempting to delete post that did not belong to the user");
   }
 
-  // We don't delete the individual views or likes, just the counts (unbounded operation).
-  await Promise.all([
-    db.delete(`post:${postId}`),
-    db.delete(`post/likes:${postId}`),
-    db.delete(`post/views:${postId}`),
-
-    db.delete(`animation/json:${postId}`),
-    db.delete(`animation/video:${postId}`),
-
-    db.delete(`thread:${post.sortKey}|${postId}`),
-    db.delete(`thread/post:${post.threadId}:${post.sortKey}|${postId}`),
-
-    db.put(`post/delete:${postId}`, TRUE_VALUE)
-  ]);
+  await dbDeletePost(post);
 
   return {
     response: new Response(

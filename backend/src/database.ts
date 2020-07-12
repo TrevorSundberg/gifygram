@@ -12,6 +12,8 @@ const dbkeyUser = (userId: UserId) =>
   `user:${userId}`;
 const dbkeyPost = (postId: PostId) =>
   `post:${postId}`;
+const dbkeyPostDeleted = (postId: PostId) =>
+  `post/deleted:${postId}`;
 const dbprefixThreadPost = (threadId: PostId) =>
   `thread/post:${threadId}:`;
 const dbkeyThreadPost = (threadId: PostId, sortKey: SortKey, postId: PostId) =>
@@ -66,6 +68,25 @@ export const dbCreatePost = async (post: StoredPost): Promise<void> => {
       : null,
     db.put(dbkeyThreadPost(post.threadId, post.sortKey, post.id), TRUE_VALUE),
     db.put(dbkeyPost(post.id), JSON.stringify(post))
+  ]);
+};
+
+export const dbDeletePost = async (post: StoredPost): Promise<void> => {
+  // We don't delete the individual views/likes/replies, just the counts (unbounded operations).
+  const postId = post.id;
+  await Promise.all([
+    db.delete(dbkeyPost(postId)),
+    db.delete(dbkeyPostLikes(postId)),
+    db.delete(dbkeyPostViews(postId)),
+
+    db.delete(dbkeyAnimationJson(postId)),
+    db.delete(dbkeyAnimationVideo(postId)),
+
+    db.delete(dbkeyThread(post.sortKey, postId)),
+    db.delete(dbkeyThreadPost(post.threadId, post.sortKey, postId)),
+
+    // In case we want to cleanup views/likes/replies in the future, put a key in that says we deleted this.
+    db.put(dbkeyPostDeleted(postId), TRUE_VALUE)
   ]);
 };
 
