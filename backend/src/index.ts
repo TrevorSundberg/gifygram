@@ -1,4 +1,5 @@
 import {
+  API_ALL_THREADS_ID,
   API_AMENDED_LIST,
   API_ANIMATION_CREATE,
   API_ANIMATION_JSON,
@@ -14,7 +15,6 @@ import {
   API_PROFILE_MAX_BIO_LENGTH,
   API_PROFILE_MAX_USERNAME_LENGTH,
   API_PROFILE_UPDATE,
-  API_THREAD_LIST,
   AUTH_GOOGLE_CLIENT_ID,
   AUTH_GOOGLE_ISSUER,
   AmendedQuery,
@@ -38,8 +38,7 @@ import {
   dbGetCachedJwksGoogle,
   dbGetUser,
   dbListAmendedPosts,
-  dbListThreadPosts,
-  dbListThreads,
+  dbListPosts,
   dbModifyPostLiked,
   dbPutAnimation,
   dbPutCachedJwksGoogle,
@@ -355,18 +354,16 @@ const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: 
 
 handlers[API_POST_CREATE] = async (input) => postCreate(input, false, false, {type: "comment"});
 
-handlers[API_THREAD_LIST] = async () => {
-  const threads = await dbListThreads();
-  return {response: new Response(JSON.stringify(threads), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
-};
-
 handlers[API_POST_LIST] = async (input) => {
   const threadId = expectUuidParam(input, "threadId");
 
-  const ip = expect("ip", input.request.headers.get("cf-connecting-ip"));
-  await dbAddView(threadId, ip);
+  // If this is a specific thread, then track views for it.
+  if (threadId !== API_ALL_THREADS_ID) {
+    const ip = expect("ip", input.request.headers.get("cf-connecting-ip"));
+    await dbAddView(threadId, ip);
+  }
 
-  const posts = await dbListThreadPosts(threadId);
+  const posts = await dbListPosts(threadId);
   return {response: new Response(JSON.stringify(posts), responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 

@@ -3,8 +3,6 @@ import {AUTH_GOOGLE_CLIENT_ID} from "../../../common/common";
 export const EVENT_LOGGED_IN = "loggedIn";
 export const EVENT_REQUEST_LOGIN = "requestLogin";
 
-export const THREADS_CACHE_KEY = "threads";
-
 export type NeverAsync<T = void> = T;
 
 export class Deferred<T> implements Promise<T> {

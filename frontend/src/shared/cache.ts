@@ -44,8 +44,8 @@ export const cacheGetArrayOrNull = <T extends CacheItem>(key: string): T[] | nul
   return array;
 };
 
-const cacheEnsureArray = (key: string): CacheArray => {
-  const array = cacheGetArrayOrNull(key);
+export const cacheGetArrayOrDefault = <T extends CacheItem>(key: string): T[] => {
+  const array = cacheGetArrayOrNull<T>(key);
   if (array) {
     return array;
   }
@@ -53,7 +53,7 @@ const cacheEnsureArray = (key: string): CacheArray => {
 };
 
 export const cacheAdd = (key: string, value: CacheItem) => {
-  const array = cacheEnsureArray(key);
+  const array = cacheGetArrayOrDefault(key);
   value.cached = true;
   array.push(value);
   cacheStoreArray(key, array);

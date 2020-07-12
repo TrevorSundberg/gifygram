@@ -1,4 +1,4 @@
-import {AmendedPost, AmendedQuery, StoredPost, StoredUser} from "../../common/common";
+import {API_ALL_THREADS_ID, AmendedPost, AmendedQuery, StoredPost, StoredUser} from "../../common/common";
 import {patchDevKv} from "./dev";
 
 patchDevKv(db);
@@ -21,10 +21,6 @@ const dbprefixThreadPost = (threadId: PostId) =>
   `thread/post:${threadId}:`;
 const dbkeyThreadPost = (threadId: PostId, sortKey: SortKey, postId: PostId) =>
   `thread/post:${threadId}:${sortKey}|${postId}`;
-const dbprefixThread = () =>
-  "thread:";
-const dbkeyThread = (sortKey: SortKey, postId: PostId) =>
-  `thread:${sortKey}|${postId}`;
 const dbkeyPostLiked = (userId: UserId, postId: PostId) =>
   `post/liked:${userId}:${postId}`;
 const dbkeyPostLikes = (postId: PostId) =>
@@ -67,7 +63,7 @@ export const dbCreatePost = async (post: StoredPost): Promise<void> => {
   await Promise.all([
     // If this post is creating a thread...
     post.threadId === post.id
-      ? db.put(dbkeyThread(post.sortKey, post.id), TRUE_VALUE)
+      ? db.put(dbkeyThreadPost(API_ALL_THREADS_ID, post.sortKey, post.id), TRUE_VALUE)
       : null,
     db.put(dbkeyThreadPost(post.threadId, post.sortKey, post.id), TRUE_VALUE),
     db.put(dbkeyPost(post.id), JSON.stringify(post))
@@ -85,7 +81,7 @@ export const dbDeletePost = async (post: StoredPost): Promise<void> => {
     db.delete(dbkeyAnimationJson(postId)),
     db.delete(dbkeyAnimationVideo(postId)),
 
-    db.delete(dbkeyThread(post.sortKey, postId)),
+    db.delete(dbkeyThreadPost(API_ALL_THREADS_ID, post.sortKey, postId)),
     db.delete(dbkeyThreadPost(post.threadId, post.sortKey, postId)),
 
     // In case we want to cleanup views/likes/replies in the future, put a key in that says we deleted this.
@@ -144,10 +140,7 @@ const getBarIds = (list: {keys: { name: string }[]}) =>
 const getStoredPostsFromIds = async (ids: string[]): Promise<StoredPost[]> =>
   Promise.all(ids.map(dbExpectPost));
 
-export const dbListThreads = async (): Promise<StoredPost[]> =>
-  getStoredPostsFromIds(getBarIds(await db.list({prefix: dbprefixThread()})));
-
-export const dbListThreadPosts = async (threadId: PostId): Promise<StoredPost[]> =>
+export const dbListPosts = async (threadId: PostId): Promise<StoredPost[]> =>
   getStoredPostsFromIds(getBarIds(await db.list({prefix: dbprefixThreadPost(threadId)})));
 
 export const dbListAmendedPosts =

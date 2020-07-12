@@ -17,6 +17,7 @@ import {
 } from "./shared/shared";
 import {LoginDialog, LoginUserIdContext, LoginUserIdState} from "./page/login";
 import {theme, useStyles} from "./page/style";
+import {API_ALL_THREADS_ID} from "../../common/common";
 import AppBar from "@material-ui/core/AppBar";
 import {AuthTest} from "./page/authtest";
 import Button from "@material-ui/core/Button";
@@ -38,7 +39,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 import {ThemeProvider} from "@material-ui/core/styles";
 import {Thread} from "./page/thread";
-import {Threads} from "./page/threads";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import VideoCallIcon from "@material-ui/icons/VideoCall";
@@ -137,10 +137,10 @@ const App = () => {
             <div className={classes.pageWidth} id="page">
               <Switch>
                 <Route exact path="/"
-                  render={(prop) => <Threads history={prop.history}/>}
+                  render={(prop) => <Thread history={prop.history} threadId={API_ALL_THREADS_ID}/>}
                 />
                 <Route exact path="/thread"
-                  render={(prop) => <Thread history={prop.history} id={getUrlParam(prop, "threadId")}/>}
+                  render={(prop) => <Thread history={prop.history} threadId={getUrlParam(prop, "threadId")}/>}
                 />
                 <Route exact path="/profile"
                   render={() => <Profile/>}

@@ -3,13 +3,14 @@ import "@fortawesome/fontawesome-free/css/solid.css";
 import "@fortawesome/fontawesome-free/css/brands.css";
 import "./editor.css";
 import {
+  API_ALL_THREADS_ID,
   API_ANIMATION_CREATE,
   API_ANIMATION_JSON,
   API_POST_CREATE_MAX_MESSAGE_LENGTH,
   API_POST_CREATE_MAX_TITLE_LENGTH,
   ClientPost
 } from "../../../common/common";
-import {Auth, Deferred, NeverAsync, THREADS_CACHE_KEY, abortableJsonFetch} from "../shared/shared";
+import {Auth, Deferred, NeverAsync, abortableJsonFetch} from "../shared/shared";
 import {MODALS_CHANGED, Modal} from "./modal";
 import {Manager, SerializedData} from "./manager";
 import {RenderFrameEvent, Renderer} from "./renderer";
@@ -238,7 +239,7 @@ export class Editor {
         history.replace(`/editor?remixId=${post.id}`);
         if (post.id === post.threadId) {
           // Since this is creating a thread, also add it to the thread cache.
-          cacheAdd(THREADS_CACHE_KEY, post);
+          cacheAdd(API_ALL_THREADS_ID, post);
           history.push(`/thread?threadId=${post.threadId}`);
         } else {
           history.push(`/thread?threadId=${post.threadId}#${post.id}`);
