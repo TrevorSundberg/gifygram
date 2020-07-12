@@ -10,9 +10,9 @@ const path = require("path");
     cwd: path.join(__dirname, "frontend")
   });
 
-  // Start the webpack dev for the server.
+  // Start the webpack dev for the backend.
   const backendDir = path.join(__dirname, "backend");
-  execa("npm", ["run", "liveWebpackServer"], {
+  execa("npm", ["run", "liveWebpackBackend"], {
     stdio: "inherit",
     cwd: backendDir
   });
