@@ -159,7 +159,7 @@ const errorsOrNull = (validator: any) => (value: any) => {
   return null;
 };
 
-export class Api<InputType, OutputType> {
+export class Api<InputType extends Record<string, any>, OutputType> {
   public readonly pathname: string;
 
   public readonly validator: ValidationFunction;
