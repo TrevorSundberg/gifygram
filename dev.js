@@ -17,19 +17,9 @@ const path = require("path");
     cwd: backendDir
   });
 
-  // Cloudworker will fail if dist/worker.development.js does not exist, so wait for it.
+  // Cloudworker will fail if dist/worker.development.js does not exist, so write an empty file.
   const workerJsPath = path.join(backendDir, "dist", "worker.development.js");
-  await new Promise((resolve) => {
-    const interval = setInterval(() => {
-      if (fs.existsSync(workerJsPath)) {
-        clearInterval(interval);
-        resolve();
-        console.log(`Worker '${workerJsPath}' exists!`);
-      } else {
-        console.log(`Waiting for '${workerJsPath}' to exist...`);
-      }
-    }, 500);
-  });
+  await fs.promises.writeFile(workerJsPath, "0");
 
   // Start the Cloudflare Worker emulation (cloudworker).
   execa("npm", ["run", "liveCloudWorker"], {
