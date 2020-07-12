@@ -4,8 +4,8 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import {ModalProps} from "@material-ui/core/Modal";
 import React from "react";
 
-export type LoginUserIdState = string | null;
-export const LoginUserIdContext = React.createContext<LoginUserIdState>(null);
+export type LoginUserIdState = undefined | string | null;
+export const LoginUserIdContext = React.createContext<LoginUserIdState>(undefined);
 
 export interface LoginDialogProps {
   open: boolean;

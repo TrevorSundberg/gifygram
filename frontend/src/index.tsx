@@ -73,19 +73,17 @@ const getUrlParam = (props: { location: import("history").Location }, name: stri
 
 const App = () => {
   const [showLoginDeferred, setShowLoginDeferred] = React.useState<Deferred<void> | null>(null);
-  const [loggedInUserId, setLoggedInUserId] = React.useState<LoginUserIdState>(null);
+  const [loggedInUserId, setLoggedInUserId] = React.useState<LoginUserIdState>(undefined);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   const closeDrawerCallback = () => setDrawerOpen(false);
 
   React.useEffect(() => {
-    const onLoggedIn = (event: LoginEvent) => {
-      setLoggedInUserId(event.userId);
-    };
-
     getAuthIfSignedIn().then((authUser) => {
       if (authUser) {
-        onLoggedIn(new LoginEvent(authUser.id));
+        setLoggedInUserId(authUser.id);
+      } else {
+        setLoggedInUserId(null);
       }
     });
 
@@ -93,6 +91,9 @@ const App = () => {
       setShowLoginDeferred(event.deferredLoginPicked);
     };
 
+    const onLoggedIn = (event: LoginEvent) => {
+      setLoggedInUserId(event.userId);
+    };
     window.addEventListener(EVENT_LOGGED_IN, onLoggedIn);
     window.addEventListener(EVENT_REQUEST_LOGIN, onRequestLogin);
     return () => {

@@ -89,6 +89,9 @@ export const Thread: React.FC<ThreadProps> = (props) => {
   const loggedInUserId = React.useContext(LoginUserIdContext);
 
   React.useEffect(() => {
+    if (typeof loggedInUserId === "undefined" || storedPostArrays.length === 0) {
+      return () => 0;
+    }
     const fetches = storedPostArrays.map((storedPosts) => {
       const queries: AmendedQuery[] = storedPosts.map((storedPost) => ({
         id: storedPost.id,
