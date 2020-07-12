@@ -3,7 +3,6 @@ export const API_POST_CREATE_MAX_MESSAGE_LENGTH = 1000;
 export const API_POST_CREATE_MAX_TITLE_LENGTH = 26;
 export const API_PROFILE_MAX_USERNAME_LENGTH = 26;
 export const API_PROFILE_MAX_BIO_LENGTH = 1000;
-export const MAX_VIDEO_SIZE = 720;
 
 export const API_ALL_THREADS_ID = "00000000-0000-4000-8000-000000000000";
 
@@ -40,11 +39,26 @@ export interface PostCreate {
   replyId: string;
 }
 
+export const MAX_VIDEO_SIZE = 720;
 export interface AnimationCreate {
   message: string;
   replyId: string | null;
   title: string;
+
+  /**
+   * MAX_VIDEO_SIZE
+   * @minimum 1
+   * @maximum 720
+   * @type integer
+   */
   width: number;
+
+  /**
+   * MAX_VIDEO_SIZE
+   * @minimum 1
+   * @maximum 720
+   * @type integer
+   */
   height: number;
 }
 
