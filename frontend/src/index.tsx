@@ -38,6 +38,7 @@ import {Thread} from "./page/thread";
 import {Threads} from "./page/threads";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
+import VideoCallIcon from "@material-ui/icons/VideoCall";
 
 const url = new URL(window.location.href);
 
@@ -72,6 +73,8 @@ const App = () => {
   const [showLoginDeferred, setShowLoginDeferred] = React.useState<Deferred<void> | null>(null);
   const [loggedInUserId, setLoggedInUserId] = React.useState<LoginUserIdState>(null);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+
+  const closeDrawerCallback = () => setDrawerOpen(false);
 
   React.useEffect(() => {
     const onLoggedIn = (event: LoginEvent) => {
@@ -146,16 +149,22 @@ const App = () => {
             </div>
           </Route>
         </Switch>
+        <Drawer anchor={"left"} open={drawerOpen} onClose={closeDrawerCallback}>
+          <List style={{minWidth: "250px"}}>
+            <Link to="/editor" className={classes.link} onClick={closeDrawerCallback}>
+              <ListItem button>
+                <ListItemIcon><VideoCallIcon/></ListItemIcon>
+                <ListItemText primary={"Create an Animation"} />
+              </ListItem>
+            </Link>
+            <ListItem button onClick={() => window.open("https://github.com/TrevorSundberg/madeitforfun")}>
+              <ListItemIcon><GitHubIcon/></ListItemIcon>
+              <ListItemText primary={"See on GitHub"} />
+            </ListItem>
+          </List>
+        </Drawer>
       </BrowserRouter>
       <ModalContainer/>
-      <Drawer anchor={"left"} open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-        <List style={{minWidth: "250px"}}>
-          <ListItem button onClick={() => window.open("https://github.com/TrevorSundberg/madeitforfun")}>
-            <ListItemIcon><GitHubIcon/></ListItemIcon>
-            <ListItemText primary={"See On GitHub"} />
-          </ListItem>
-        </List>
-      </Drawer>
       <LoginDialog
         open={Boolean(showLoginDeferred)}
         onClose={() => {
