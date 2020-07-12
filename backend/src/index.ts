@@ -30,12 +30,15 @@ import {
   PostId,
   dbAddView,
   dbCreatePost,
+  dbGetAnimationJson,
+  dbGetAnimationVideo,
   dbGetCachedJwksGoogle,
   dbGetPost,
   dbGetUser,
   dbListThreadPosts,
   dbListThreads,
   dbModifyPostLiked,
+  dbPutAnimation,
   dbPutCachedJwksGoogle,
   dbPutUser
 } from "./database";
@@ -396,20 +399,17 @@ handlers[API_ANIMATION_CREATE] = async (input) => {
   });
 
   const {id} = output;
-  await Promise.all([
-    db.put(`animation/json:${id}`, json),
-    db.put(`animation/video:${id}`, video)
-  ]);
+  await dbPutAnimation(id, json, video);
   return output;
 };
 
 handlers[API_ANIMATION_JSON] = async (input) => {
-  const result = await db.get(`animation/json:${expectUuidParam(input, "id")}`, "text");
+  const result = await dbGetAnimationJson(expectUuidParam(input, "id"));
   return {response: new Response(result, responseOptions(CONTENT_TYPE_APPLICATION_JSON, true))};
 };
 
 handlers[API_ANIMATION_VIDEO] = async (input) => {
-  const result = await db.get(`animation/video:${expectUuidParam(input, "id")}`, "arrayBuffer");
+  const result = await dbGetAnimationVideo(expectUuidParam(input, "id"));
   return {response: new Response(result, responseOptions(CONTENT_TYPE_VIDEO_MP4, true))};
 };
 

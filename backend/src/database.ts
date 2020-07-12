@@ -28,6 +28,10 @@ const dbkeyPostViews = (threadId: PostId) =>
   `post/views:${threadId}`;
 const dbkeyPostView = (threadId: PostId, ip: IP) =>
   `post/view:${threadId}:${ip}`;
+const dbkeyAnimationJson = (postId: PostId) =>
+  `animation/json:${postId}`;
+const dbkeyAnimationVideo = (postId: PostId) =>
+  `animation/video:${postId}`;
 
 const TRUE_VALUE = "1";
 
@@ -135,3 +139,16 @@ export const dbListThreads = async (authedUserOptional: StoredUser | null): Prom
 export const dbListThreadPosts =
   async (authedUserOptional: StoredUser | null, threadId: PostId): Promise<ReturnedPost[]> =>
     getPostsFromIds(authedUserOptional, getBarIds(await db.list({prefix: dbprefixThreadPost(threadId)})));
+
+export const dbPutAnimation = async (postId: PostId, json: string, video: ArrayBuffer): Promise<void> => {
+  await Promise.all([
+    db.put(dbkeyAnimationJson(postId), json),
+    db.put(dbkeyAnimationVideo(postId), video)
+  ]);
+};
+
+export const dbGetAnimationJson = async (postId: PostId): Promise<string | null> =>
+  db.get(dbkeyAnimationJson(postId), "text");
+
+export const dbGetAnimationVideo = async (postId: PostId): Promise<ArrayBuffer | null> =>
+  db.get(dbkeyAnimationVideo(postId), "arrayBuffer");
