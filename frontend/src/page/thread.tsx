@@ -1,6 +1,7 @@
 import {API_POST_CREATE, API_POST_CREATE_MAX_MESSAGE_LENGTH, API_POST_LIST, ReturnedPost} from "../../../common/common";
 import {AbortablePromise, Auth, abortableJsonFetch, cancel} from "../shared/shared";
 import {cacheAdd, cacheGetArrayOrNull, cacheMergeIntoArray} from "../shared/cache";
+import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
@@ -87,7 +88,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       }}/>)}
     <Card>
       <CardContent>
-        <form>
+        <form style={{display: "flex", flexDirection: "row", alignItems: "flex-end"}}>
           <TextField
             fullWidth
             disabled={Boolean(postCreateFetch)}
@@ -97,31 +98,34 @@ export const Thread: React.FC<ThreadProps> = (props) => {
             onChange={(e) => {
               setPostMessage(e.target.value);
             }}/>
-          <Button
-            type="submit"
-            style={{display: "none"}}
-            disabled={Boolean(postCreateFetch)}
-            onClick={async () => {
-              const postCreateFetchPromise = abortableJsonFetch<ReturnedPost>(API_POST_CREATE, Auth.Required, {
-                message: postMessage,
-                replyId: props.id
-              });
-              setPostCreateFetch(postCreateFetchPromise);
+          <Box mt={1} ml={1}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              disabled={Boolean(postCreateFetch)}
+              onClick={async () => {
+                const postCreateFetchPromise = abortableJsonFetch<ReturnedPost>(API_POST_CREATE, Auth.Required, {
+                  message: postMessage,
+                  replyId: props.id
+                });
+                setPostCreateFetch(postCreateFetchPromise);
 
-              const newPost = await postCreateFetchPromise;
-              if (newPost) {
-                cacheAdd(newPost.threadId, newPost);
-                // Append our post to the end.
-                setPosts((previous) => [
-                  ...previous,
-                  newPost
-                ]);
-              }
-              setPostCreateFetch(null);
-              setPostMessage("");
-            }}>
+                const newPost = await postCreateFetchPromise;
+                if (newPost) {
+                  cacheAdd(newPost.threadId, newPost);
+                  // Append our post to the end.
+                  setPosts((previous) => [
+                    ...previous,
+                    newPost
+                  ]);
+                }
+                setPostCreateFetch(null);
+                setPostMessage("");
+              }}>
             Post
-          </Button>
+            </Button>
+          </Box>
         </form>
       </CardContent>
     </Card>
