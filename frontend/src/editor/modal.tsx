@@ -79,7 +79,10 @@ export const ModalComponent: React.FC<ModalProps> = (props) => {
             if (button.callback) {
               button.callback(button);
             }
-            removeModalInternal(props.id);
+            // Delay by one frame to avoid the <form> not attached warning.
+            setTimeout(() => {
+              removeModalInternal(props.id);
+            });
           }}
           color="primary"
           type={button.submitOnEnter ? "submit" : "button"}>
@@ -113,7 +116,7 @@ export const ModalComponent: React.FC<ModalProps> = (props) => {
     </DialogTitle>
     {
       hasSubmitButton
-        ? <form>{content}</form>
+        ? <form onSubmit={(e) => e.preventDefault()}>{content}</form>
         : content
     }
   </Dialog>;
