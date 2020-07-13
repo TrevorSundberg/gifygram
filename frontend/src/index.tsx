@@ -1,5 +1,6 @@
 import "./page/fonts.css";
 import "./page/hashScroll";
+import {API_ALL_THREADS_ID, API_TRENDING_THREADS_ID} from "../../common/common";
 import {
   BrowserRouter,
   Link,
@@ -18,7 +19,6 @@ import {
 } from "./shared/shared";
 import {LoginDialog, LoginUserIdContext, LoginUserIdState} from "./page/login";
 import {theme, useStyles} from "./page/style";
-import {API_ALL_THREADS_ID} from "../../common/common";
 import AccountBoxIcon from "@material-ui/icons/AccountBox";
 import AppBar from "@material-ui/core/AppBar";
 import Button from "@material-ui/core/Button";
@@ -114,7 +114,16 @@ const App = () => {
               <Switch>
                 <Route exact path="/"
                   render={(prop) =>
-                    <Thread history={prop.history} key={API_ALL_THREADS_ID} threadId={API_ALL_THREADS_ID}/>}
+                    <div>
+                      <Typography variant="h4" align="left">
+                        <b>TRENDING</b> Posts
+                      </Typography>
+                      <Thread history={prop.history} key={API_TRENDING_THREADS_ID} threadId={API_TRENDING_THREADS_ID}/>
+                      <Typography variant="h4" align="left">
+                        <b>NEWEST</b> Posts
+                      </Typography>
+                      <Thread history={prop.history} key={API_ALL_THREADS_ID} threadId={API_ALL_THREADS_ID}/>
+                    </div>}
                 />
                 <Route exact path="/thread"
                   render={(prop) => {

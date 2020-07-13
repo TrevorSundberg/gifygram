@@ -2,6 +2,7 @@
 export const MAX_VIDEO_SIZE = 720;
 
 export const API_ALL_THREADS_ID = "00000000-0000-4000-8000-000000000000";
+export const API_TRENDING_THREADS_ID = "10000000-0000-4000-8000-000000000000";
 
 export const AUTH_GOOGLE_ISSUER = "accounts.google.com";
 export const AUTH_GOOGLE_CLIENT_ID = "608893334527-510lc0vbk5pd6ag7jdl6aka2hhhp9f69.apps.googleusercontent.com";

@@ -3,6 +3,7 @@ import {
   API_AMENDED_LIST,
   API_POST_CREATE,
   API_POST_LIST,
+  API_TRENDING_THREADS_ID,
   AmendedQuery,
   ClientPost,
   StoredPost
@@ -32,8 +33,8 @@ interface ThreadProps {
 export const Thread: React.FC<ThreadProps> = (props) => {
   // Try to load the posts from the cache.
   const cachedPosts = cacheGetArrayOrDefault<ClientPost>(props.threadId);
-  const isAllThreads = props.threadId === API_ALL_THREADS_ID;
-  const isSpecificThread = !isAllThreads;
+  const isThreadList = props.threadId === API_ALL_THREADS_ID || props.threadId === API_TRENDING_THREADS_ID;
+  const isSpecificThread = !isThreadList;
   // If we're on a specific thread, create a psuedo post for the first post that includes the video (loads quicker).
   if (isSpecificThread && !cachedPosts.find((post) => post.id === props.threadId)) {
     cachedPosts.push({
@@ -119,7 +120,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
   }, []);
 
   return <div style={
-    isAllThreads
+    isThreadList
       ? {
         columnCount: 4,
         columnWidth: "175px",
@@ -127,11 +128,11 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       }
       : null}>
     {posts.map((post) => <Post
-      preview={isAllThreads}
+      preview={isThreadList}
       key={post.id}
       post={post}
       cardStyle={
-        isAllThreads
+        isThreadList
           ? {
             breakInside: "avoid",
             position: "relative",
@@ -140,7 +141,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
           }
           : {marginBottom: 4}}
       videoProps={
-        isAllThreads
+        isThreadList
           ? {
             tabIndex: 0,
             onMouseEnter: (event) => (event.target as HTMLVideoElement).play().catch(() => 0),
@@ -154,7 +155,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
           }
           : {autoPlay: true}}
       onClick={
-        isAllThreads
+        isThreadList
           ? () => {
             props.history.push(makeLocalUrl("/thread", {threadId: post.id}));
           }

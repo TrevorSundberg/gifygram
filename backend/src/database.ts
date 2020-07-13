@@ -1,4 +1,12 @@
-import {API_ALL_THREADS_ID, AmendedPost, AmendedQuery, StoredPost, StoredUser} from "../../common/common";
+import {
+  API_ALL_THREADS_ID,
+  API_TRENDING_THREADS_ID,
+  AmendedPost,
+  AmendedQuery,
+  StoredPost,
+  StoredUser,
+  padInteger
+} from "../../common/common";
 import {patchDevKv} from "./dev";
 
 patchDevKv(db);
@@ -35,6 +43,7 @@ const dbkeyAnimationVideo = (postId: PostId) =>
   `animation/video:${postId}`;
 
 const TRUE_VALUE = "1";
+const SECONDS_PER_DAY = 86400;
 
 export const dbGetCachedJwksGoogle = async (): Promise<JWKS | null> =>
   db.get<JWKS>(dbkeyCachedJwksGoogle(), "json");
@@ -89,35 +98,82 @@ export const dbDeletePost = async (post: StoredPost): Promise<void> => {
   ]);
 };
 
+// We use a custom epoch to avoid massive floating point numbers, especially when averaging.
+const BIRTH_MS = 1593820800000;
+
+interface LikesInfo {
+  likes: number;
+  secondsFromBirthAverage: number;
+}
+
+interface UserLikedInfo {
+  secondsFromBirth: number;
+}
+
 export const dbGetPostLiked = async (userId: UserId, postId: PostId): Promise<boolean> =>
   await db.get(dbkeyPostLiked(userId, postId)) !== null;
 
-export const dbGetPostLikes = async (postId: PostId): Promise<number> =>
-  parseInt(await db.get(dbkeyPostLikes(postId)) || "0", 10);
+export const dbGetPostLikes = async (postId: PostId): Promise<number> => {
+  const likesInfo = await db.get<LikesInfo>(dbkeyPostLikes(postId), "json");
+  return likesInfo ? likesInfo.likes : 0;
+};
+
+const map0To1Asymptote = (x: number) => -1 / (Math.max(x, 0) + 1) ** 2 + 1;
+
+const computeTrendingScore = (likesInfo: LikesInfo) => {
+  const secondsAddedPerLike = 100;
+  const likeSeconds = likesInfo.likes * secondsAddedPerLike;
+  const addedSeconds = map0To1Asymptote(likeSeconds / SECONDS_PER_DAY) * SECONDS_PER_DAY;
+  // The || 0 is to protect against NaN for any reason
+  return likesInfo.secondsFromBirthAverage + addedSeconds || 0;
+};
+
+const computeTrendingSortKey = (likesInfo: LikesInfo) =>
+  padInteger(Number.MAX_SAFE_INTEGER - computeTrendingScore(likesInfo));
 
 export const dbModifyPostLiked = async (userId: UserId, postId: PostId, newValue: boolean): Promise<number> => {
   const likedKey = dbkeyPostLiked(userId, postId);
-  const oldValue = Boolean(await db.get(likedKey));
+  const userLikedInfo = await db.get<UserLikedInfo>(likedKey, "json");
+  const oldValue = Boolean(userLikedInfo);
 
   const likesKey = dbkeyPostLikes(postId);
-  const prevLikes = parseInt(await db.get(likesKey) || "0", 10);
+  const likesInfo: LikesInfo =
+    await db.get<LikesInfo>(likesKey, "json") ||
+    {likes: 0, secondsFromBirthAverage: 0};
   if (newValue !== oldValue) {
     if (newValue) {
-      const newLikes = prevLikes + 1;
+      const secondsFromBirth = (Date.now() - BIRTH_MS) / 1000;
+      const newUserLikedInfo = {secondsFromBirth};
+      likesInfo.secondsFromBirthAverage =
+        (likesInfo.secondsFromBirthAverage * likesInfo.likes + secondsFromBirth) / (likesInfo.likes + 1);
+      ++likesInfo.likes;
+      const trendingSortKey = computeTrendingSortKey(likesInfo);
       await Promise.all([
-        db.put(likedKey, TRUE_VALUE),
-        db.put(likesKey, `${newLikes}`)
+        db.put(likedKey, JSON.stringify(newUserLikedInfo)),
+        db.put(likesKey, JSON.stringify(likesInfo)),
+        db.put(
+          dbkeyThreadPost(API_TRENDING_THREADS_ID, trendingSortKey, postId),
+          TRUE_VALUE,
+          {expirationTtl: SECONDS_PER_DAY}
+        )
       ]);
-      return newLikes;
+    } else {
+      likesInfo.likes = Math.max(0, likesInfo.likes - 1);
+      if (likesInfo.likes === 0) {
+        likesInfo.secondsFromBirthAverage = 0;
+      } else {
+        const secondsFromBirthAverageNew =
+          (likesInfo.secondsFromBirthAverage * (likesInfo.likes + 1) - userLikedInfo!.secondsFromBirth) /
+           likesInfo.likes;
+        likesInfo.secondsFromBirthAverage = Math.max(0, secondsFromBirthAverageNew);
+      }
+      await Promise.all([
+        db.delete(likedKey),
+        db.put(likesKey, JSON.stringify(likesInfo))
+      ]);
     }
-    const newLikes = prevLikes - 1;
-    await Promise.all([
-      db.delete(likedKey),
-      db.put(likesKey, `${Math.max(newLikes, 0)}`)
-    ]);
-    return newLikes;
   }
-  return prevLikes;
+  return likesInfo.likes;
 };
 
 export const dbGetThreadViews = async (threadId: PostId): Promise<number> =>
@@ -134,8 +190,18 @@ export const dbAddView = async (threadId: PostId, ip: IP): Promise<void> => {
   }
 };
 
-const getBarIds = (list: {keys: { name: string }[]}) =>
-  list.keys.map((key) => key.name.split("|")[1]);
+const getBarIds = (list: {keys: { name: string }[]}) => {
+  const ids = list.keys.map((key) => key.name.split("|")[1]);
+  // Prevent duplicate ids.
+  const seenIds: Record<string, boolean> = {};
+  return ids.filter((id) => {
+    if (seenIds[id]) {
+      return false;
+    }
+    seenIds[id] = true;
+    return true;
+  });
+};
 
 const getStoredPostsFromIds = async (ids: string[]): Promise<StoredPost[]> =>
   Promise.all(ids.map(dbExpectPost));
