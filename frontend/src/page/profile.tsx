@@ -36,6 +36,7 @@ export const Profile: React.FC = () => {
       <TextField
         fullWidth
         label="Username"
+        inputProps={{maxLength: API_PROFILE_UPDATE.props.username.maxLength}}
         value={user.username}
         onChange={(e) => {
           setUser({...user, username: e.target.value});
@@ -43,6 +44,7 @@ export const Profile: React.FC = () => {
       <TextField
         fullWidth
         label="Bio"
+        inputProps={{maxLength: API_PROFILE_UPDATE.props.bio.maxLength}}
         value={user.bio}
         onChange={(e) => {
           setUser({...user, bio: e.target.value});

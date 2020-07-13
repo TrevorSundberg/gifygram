@@ -1,7 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-
-export const API_PROFILE_MAX_USERNAME_LENGTH = 50;
-export const API_PROFILE_MAX_BIO_LENGTH = 1000;
 export const MAX_VIDEO_SIZE = 720;
 
 export const API_ALL_THREADS_ID = "00000000-0000-4000-8000-000000000000";
