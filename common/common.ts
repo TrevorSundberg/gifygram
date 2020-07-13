@@ -9,6 +9,12 @@ export const AUTH_GOOGLE_CLIENT_ID = "608893334527-510lc0vbk5pd6ag7jdl6aka2hhhp9
 /** Mark that we're doing something only to be backwards compatable with the database */
 export const oldVersion = <T>(value: T) => value;
 
+// `${Number.MAX_SAFE_INTEGER}`.length;
+const MAX_NUMBER_LENGTH_BASE_10 = 16;
+
+export const padInteger = (number: number) => Math.floor(number).toString().
+  padStart(MAX_NUMBER_LENGTH_BASE_10, "0");
+
 export type Empty = {};
 
 export type PostComment = {

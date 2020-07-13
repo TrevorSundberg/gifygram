@@ -19,7 +19,8 @@ import {
   ClientPost,
   PostData,
   StoredPost,
-  StoredUser
+  StoredUser,
+  padInteger
 } from "../../common/common";
 import {
   JWKS,
@@ -58,11 +59,7 @@ const AUTHORIZATION_HEADER = "authorization";
 
 const CACHE_CONTROL_IMMUTABLE = "public,max-age=31536000,immutable";
 
-// `${Number.MAX_SAFE_INTEGER}`.length;
-const MAX_NUMBER_LENGTH_BASE_10 = 16;
-
-const sortKeyNewToOld = () => (Number.MAX_SAFE_INTEGER - Date.now()).toString().
-  padStart(MAX_NUMBER_LENGTH_BASE_10, "0");
+const sortKeyNewToOld = () => padInteger(Number.MAX_SAFE_INTEGER - Date.now());
 
 const parseBinaryChunks = (buffer: ArrayBuffer) => {
   const view = new DataView(buffer);
