@@ -33,6 +33,7 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import MenuIcon from "@material-ui/icons/Menu";
 import {ModalContainer} from "./editor/modal";
+import MovieIcon from "@material-ui/icons/Movie";
 import PersonIcon from "@material-ui/icons/Person";
 import {Profile} from "./page/profile";
 import React from "react";
@@ -41,7 +42,6 @@ import {ThemeProvider} from "@material-ui/core/styles";
 import {Thread} from "./page/thread";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import VideoCallIcon from "@material-ui/icons/VideoCall";
 
 const url = new URL(window.location.href);
 
@@ -164,8 +164,8 @@ const App = () => {
             </Link>
             <Link to="/editor" className={classes.link} onClick={closeDrawerCallback}>
               <ListItem button>
-                <ListItemIcon><VideoCallIcon/></ListItemIcon>
-                <ListItemText primary={"Create an Animation"} />
+                <ListItemIcon><MovieIcon/></ListItemIcon>
+                <ListItemText primary={"Create Animation"} />
               </ListItem>
             </Link>
             {
@@ -183,7 +183,7 @@ const App = () => {
             }
             <ListItem button onClick={() => window.open("https://github.com/TrevorSundberg/madeitforfun")}>
               <ListItemIcon><GitHubIcon/></ListItemIcon>
-              <ListItemText primary={"See on GitHub"} />
+              <ListItemText primary={"Visit GitHub"} />
             </ListItem>
           </List>
         </Drawer>
