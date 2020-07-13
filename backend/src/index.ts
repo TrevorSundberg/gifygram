@@ -288,7 +288,7 @@ const postCreate = async (
       return id;
     }
     const replyPost = await dbExpectPost(expect("replyId", replyId));
-    return replyPost.id;
+    return replyPost.threadId;
   })();
 
   const post: StoredPost = {
