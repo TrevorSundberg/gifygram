@@ -18,6 +18,7 @@ import {
 import {LoginDialog, LoginUserIdContext, LoginUserIdState} from "./page/login";
 import {theme, useStyles} from "./page/style";
 import {API_ALL_THREADS_ID} from "../../common/common";
+import AccountBoxIcon from "@material-ui/icons/AccountBox";
 import AppBar from "@material-ui/core/AppBar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -169,7 +170,12 @@ const App = () => {
             </Link>
             {
               loggedInUserId
-                ? null
+                ? <Link to="/profile" className={classes.link} onClick={closeDrawerCallback}>
+                  <ListItem button>
+                    <ListItemIcon><AccountBoxIcon/></ListItemIcon>
+                    <ListItemText primary={"Edit Profile"} />
+                  </ListItem>
+                </Link>
                 : <ListItem button onClick={() => signInIfNeeded()}>
                   <ListItemIcon><PersonIcon/></ListItemIcon>
                   <ListItemText primary={"Sign In"} />
