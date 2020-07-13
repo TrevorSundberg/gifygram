@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-export const API_POST_CREATE_MAX_TITLE_LENGTH = 26;
 export const API_PROFILE_MAX_USERNAME_LENGTH = 50;
 export const API_PROFILE_MAX_BIO_LENGTH = 1000;
 export const MAX_VIDEO_SIZE = 720;

@@ -5,8 +5,7 @@ import "./editor.css";
 import {
   API_ALL_THREADS_ID,
   API_ANIMATION_CREATE,
-  API_ANIMATION_JSON,
-  API_POST_CREATE_MAX_TITLE_LENGTH
+  API_ANIMATION_JSON
 } from "../../../common/common";
 import {Auth, Deferred, NeverAsync, abortableJsonFetch, makeLocalUrl} from "../shared/shared";
 import {MODALS_CHANGED, Modal} from "./modal";
@@ -260,7 +259,7 @@ export class Editor {
             <TextField
               fullWidth
               label="Title"
-              inputProps={{maxLength: API_POST_CREATE_MAX_TITLE_LENGTH}}
+              inputProps={{maxLength: API_ANIMATION_CREATE.props.title.maxLength}}
               autoFocus={true}
               onChange={(e) => {
                 title = e.target.value;
