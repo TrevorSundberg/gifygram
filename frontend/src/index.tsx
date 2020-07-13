@@ -1,4 +1,5 @@
 import "./page/fonts.css";
+import "./page/hashScroll";
 import {
   BrowserRouter,
   Link,
@@ -42,32 +43,6 @@ import {ThemeProvider} from "@material-ui/core/styles";
 import {Thread} from "./page/thread";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-
-const url = new URL(window.location.href);
-
-if (url.hash) {
-  const id = url.hash.slice(1);
-  if (!document.getElementById(id)) {
-    const observer = new MutationObserver(() => {
-      const element = document.getElementById(id);
-      if (element) {
-        observer.disconnect();
-        console.log("Begin scrolling to dynamic element", id);
-        setTimeout(() => {
-          if (location.hash.slice(1) === id) {
-            location.hash = "";
-            location.hash = id;
-          }
-          console.log("End scrolling to dynamic element", id);
-        }, 500);
-      }
-    });
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-  }
-}
 
 const getUrlParam = (props: { location: import("history").Location }, name: string) =>
   JSON.parse(new URLSearchParams(props.location.search).get(name));
