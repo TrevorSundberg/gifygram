@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-// Note: If you change these constants ensure the JSON schemas are also updated.
-export const API_POST_CREATE_MAX_MESSAGE_LENGTH = 1000;
 export const API_POST_CREATE_MAX_TITLE_LENGTH = 26;
 export const API_PROFILE_MAX_USERNAME_LENGTH = 50;
 export const API_PROFILE_MAX_BIO_LENGTH = 1000;
@@ -40,7 +38,6 @@ export type PostData = PostComment | PostAnimation;
 export interface PostCreate {
 
   /**
-   * API_POST_CREATE_MAX_MESSAGE_LENGTH
    * @maxLength 1000
    */
   message: string;
@@ -50,14 +47,12 @@ export interface PostCreate {
 export interface AnimationCreate {
 
   /**
-   * API_POST_CREATE_MAX_MESSAGE_LENGTH
    * @maxLength 1000
    */
   message: string;
   replyId: string | null;
 
   /**
-   * API_POST_CREATE_MAX_TITLE_LENGTH
    * @maxLength 26
    */
   title: string;
@@ -175,13 +170,11 @@ export interface SpecificPost {
 export interface ProfileUpdate {
 
   /**
-   * API_PROFILE_MAX_USERNAME_LENGTH
    * @maxLength 50
    */
   username: string;
 
   /**
-   * API_PROFILE_MAX_BIO_LENGTH
    * @maxLength 1000
    */
   bio: string;
@@ -191,12 +184,15 @@ export interface Feedback {
   title: string;
 }
 
-type SchemaValidator = ((input: any) => boolean) & {errors: any[]; schema: import("json-schema").JSONSchema7}
+type JSONSchema7 = import("json-schema").JSONSchema7;
+type SchemaValidator = ((input: any) => boolean) & {errors: any[]; schema: JSONSchema7}
 
 export class Api<InputType extends Record<string, any>, OutputType> {
   public readonly pathname: string;
 
   public readonly validator: SchemaValidator;
+
+  public readonly props: Record<keyof InputType, JSONSchema7> = {} as any;
 
   private _in: InputType | undefined = undefined;
 
@@ -205,6 +201,17 @@ export class Api<InputType extends Record<string, any>, OutputType> {
   public constructor (pathname: string, validator: SchemaValidator) {
     this.pathname = pathname;
     this.validator = validator;
+
+    // This is just a shortcut to access schema properties at the root level.
+    const {properties} = validator.schema;
+    if (properties) {
+      for (const key of Object.keys(properties)) {
+        const value = properties[key];
+        if (typeof value === "object") {
+          (this.props as Record<string, JSONSchema7>)[key] = value;
+        }
+      }
+    }
   }
 }
 

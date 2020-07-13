@@ -2,7 +2,6 @@ import {
   API_ALL_THREADS_ID,
   API_AMENDED_LIST,
   API_POST_CREATE,
-  API_POST_CREATE_MAX_MESSAGE_LENGTH,
   API_POST_LIST,
   AmendedQuery,
   ClientPost,
@@ -184,7 +183,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
                 fullWidth
                 disabled={Boolean(postCreateFetch)}
                 label="Comment"
-                inputProps={{maxLength: API_POST_CREATE_MAX_MESSAGE_LENGTH}}
+                inputProps={{maxLength: API_POST_CREATE.props.message.maxLength}}
                 value={postMessage}
                 onChange={(e) => {
                   setPostMessage(e.target.value);

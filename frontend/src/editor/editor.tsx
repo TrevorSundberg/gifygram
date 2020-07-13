@@ -6,7 +6,6 @@ import {
   API_ALL_THREADS_ID,
   API_ANIMATION_CREATE,
   API_ANIMATION_JSON,
-  API_POST_CREATE_MAX_MESSAGE_LENGTH,
   API_POST_CREATE_MAX_TITLE_LENGTH
 } from "../../../common/common";
 import {Auth, Deferred, NeverAsync, abortableJsonFetch, makeLocalUrl} from "../shared/shared";
@@ -271,7 +270,7 @@ export class Editor {
             <TextField
               fullWidth
               label="Message"
-              inputProps={{maxLength: API_POST_CREATE_MAX_MESSAGE_LENGTH}}
+              inputProps={{maxLength: API_ANIMATION_CREATE.props.message.maxLength}}
               onChange={(e) => {
                 message = e.target.value;
               }}/>
