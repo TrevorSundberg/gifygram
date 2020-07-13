@@ -43,5 +43,5 @@ export default function (this: import("webpack").loader.LoaderContext) {
 
   const validationFunction = ajv.compile(schema);
   const moduleCode: string = ajvPack(ajv, validationFunction);
-  return moduleCode;
+  return `${moduleCode}\nmodule.exports.schema = ${JSON.stringify(schema, null, 2)};`;
 }
