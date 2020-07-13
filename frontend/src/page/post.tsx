@@ -1,3 +1,4 @@
+import {makeFullLocalUrl, makeLocalUrl} from "../shared/shared";
 import {AnimationVideo} from "./animationVideo";
 import Avatar from "@material-ui/core/Avatar";
 import Box from "@material-ui/core/Box";
@@ -19,7 +20,6 @@ import TimerIcon from "@material-ui/icons/Timer";
 import Tooltip from "@material-ui/core/Tooltip";
 import {TrashButton} from "./trashButton";
 import Typography from "@material-ui/core/Typography";
-import {makeLocalUrl} from "../shared/shared";
 import millify from "millify";
 import pluralize from "pluralize";
 
@@ -170,7 +170,7 @@ export const Post: React.FC<PostProps> = (props) => {
             }
             <ShareButton
               title={props.post.title}
-              url={makeLocalUrl(
+              url={makeFullLocalUrl(
                 "/thread",
                 {threadId: props.post.threadId},
                 props.post.id === props.post.threadId ? null : props.post.id

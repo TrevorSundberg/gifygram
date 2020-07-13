@@ -168,13 +168,18 @@ export const makeServerUrl = (api: Api<any, any>, params?: Record<string, any>) 
   return url.href;
 };
 
-export const makeLocalUrl = (path: string, params?: Record<string, any>, hash?: string) => {
+export const makeFullLocalUrl = (path: string, params?: Record<string, any>, hash?: string) => {
   const url = new URL(window.location.origin);
   applyPathAndParams(url, path, params);
   if (hash) {
     url.hash = hash;
   }
+  return url.href;
+};
+
+export const makeLocalUrl = (path: string, params?: Record<string, any>, hash?: string) => {
   // Always return a rooted url without the origin: /something
+  const url = new URL(makeFullLocalUrl(path, params, hash));
   return url.href.substr(url.origin.length);
 };
 
