@@ -154,7 +154,9 @@ const applyPathAndParams = (url: URL, path: string, params?: Record<string, any>
   if (params) {
     for (const key of Object.keys(params)) {
       const value = params[key];
-      url.searchParams.set(key, JSON.stringify(value));
+      if (typeof value !== "undefined") {
+        url.searchParams.set(key, JSON.stringify(value));
+      }
     }
   }
 };
