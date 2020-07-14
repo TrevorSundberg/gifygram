@@ -2,6 +2,7 @@ import {API_PROFILE_AVATAR, StoredUser} from "../../../common/common";
 import Avatar from "@material-ui/core/Avatar";
 import React from "react";
 import {makeServerUrl} from "../shared/shared";
+import "./userAvatar.css"
 
 interface UserAvatarProps {
   user: StoredUser;
@@ -12,6 +13,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = (props) => {
   if (user.avatarId) {
     return (
       <img
+        className="customAvatar"
         width="300"
         src={makeServerUrl(API_PROFILE_AVATAR, {id: user.avatarId, userId: user.id})}
       />
