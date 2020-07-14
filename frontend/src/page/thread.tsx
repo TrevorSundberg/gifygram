@@ -31,6 +31,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       replyId: null,
       userId: "",
       username: "",
+      avatarId: null,
       liked: false,
       likes: 0,
       views: 0,

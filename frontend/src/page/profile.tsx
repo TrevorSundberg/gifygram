@@ -91,7 +91,9 @@ export const Profile: React.FC = () => {
         </Button>
       </label>
       <UserAvatar
-        user={user}
+        username={user.username}
+        userId={user.id}
+        avatarId={user.avatarId}
       />
       <Button
         type="submit"

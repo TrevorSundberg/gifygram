@@ -56,6 +56,7 @@ export interface StoredPost {
 
 export interface ReturnedPost extends StoredPost {
   username: string;
+  avatarId: string | null;
   liked: boolean;
   likes: number;
   views: number;

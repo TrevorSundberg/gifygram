@@ -339,6 +339,7 @@ const postCreate = async (input: RequestInput, createThread: boolean, hasTitle: 
   const returnedPost: ReturnedPost = {
     ...post,
     username: user!.username,
+    avatarId: user!.avatarId,
     liked: false,
     likes: 0,
     views: 0
@@ -367,6 +368,7 @@ const getPostsFromIds = async (input: RequestInput, ids: string[]): Promise<Retu
     return {
       ...post,
       username: user!.username,
+      avatarId: user!.avatarId,
       liked: authedUser
         ? await db.get(`post/like:${authedUser.id}:${post.id}`) !== null
         : false,
