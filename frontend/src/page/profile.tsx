@@ -1,4 +1,10 @@
-import {API_PROFILE, API_PROFILE_UPDATE, API_PROFILE_AVATAR_CREATE, StoredUser, StoredUserAvatar} from "../../../common/common";
+import {
+  API_PROFILE,
+  API_PROFILE_AVATAR_CREATE,
+  API_PROFILE_UPDATE,
+  StoredUser,
+  StoredUserAvatar
+} from "../../../common/common";
 import {AbortablePromise, Auth, abortableJsonFetch, cancel} from "../shared/shared";
 import Button from "@material-ui/core/Button";
 import React from "react";
@@ -31,7 +37,7 @@ export const Profile: React.FC = () => {
 
   React.useEffect(() => {
     if (userAvatar) {
-      const avatarCreatePromise = abortableJsonFetch<StoredUserAvatar>(
+      const avatarCreatePromise = abortableJsonFetch<StoredUser>(
         API_PROFILE_AVATAR_CREATE,
         Auth.Required,
         {},
@@ -41,7 +47,8 @@ export const Profile: React.FC = () => {
         }
       );
       (async () => {
-        await avatarCreatePromise;
+        const updatedUser = await avatarCreatePromise;
+        setUser({...user, avatarId: updatedUser.id});
       })();
     }
   }, [userAvatar]);
@@ -67,7 +74,7 @@ export const Profile: React.FC = () => {
         }}/>
       <input
         accept="image/*"
-        style={{display: 'none'}}
+        style={{display: "none"}}
         id="raised-button-file"
         multiple
         type="file"

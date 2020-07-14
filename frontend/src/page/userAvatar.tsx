@@ -9,11 +9,11 @@ interface UserAvatarProps {
 
 export const UserAvatar: React.FC<UserAvatarProps> = (props) => {
   const {user} = props;
-  if (user.id) {
+  if (user.avatarId) {
     return (
       <img
         width="300"
-        src={makeServerUrl(API_PROFILE_AVATAR, {id: user.id})}
+        src={makeServerUrl(API_PROFILE_AVATAR, {id: user.avatarId, userId: user.id})}
       />
     );
   }

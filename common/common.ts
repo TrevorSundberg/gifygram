@@ -70,6 +70,7 @@ export interface StoredUser {
   id: string;
   username: string;
   bio: string;
+  avatarId: string;
 }
 
 export interface StoredUserAvatar {
