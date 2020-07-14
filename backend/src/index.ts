@@ -467,7 +467,9 @@ handlers[API_PROFILE_AVATAR_CREATE] = async (input) => {
   const userId = user.id;
   const id = uuid();
   await db.put(`user/avatar:${userId}:${id}`, imageData);
-  const resJson = JSON.stringify({id});
+  user.avatarId = id;
+  await db.put(`user:${user.id}`, JSON.stringify(user));
+  const resJson = JSON.stringify(user);
   return {response: new Response(resJson, responseOptions(CONTENT_TYPE_APPLICATION_JSON))};
 };
 
