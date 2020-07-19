@@ -22,6 +22,7 @@ import {LoginDialog, LoginUserIdContext, LoginUserIdState} from "./page/login";
 import {theme, useStyles} from "./page/style";
 import AccountBoxIcon from "@material-ui/icons/AccountBox";
 import AppBar from "@material-ui/core/AppBar";
+import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Drawer from "@material-ui/core/Drawer";
@@ -102,6 +103,15 @@ const App = () => {
                     onClick={() => setMenuOpen(true)}>
                     <MenuIcon />
                   </IconButton>
+                  <Link to="/" className={classes.link}>
+                    <Box mr={1}>
+                      <img
+                        style={{verticalAlign: "middle"}}
+                        src={require("./public/icon.png").default}
+                        width="54px"
+                        height="54px"/>
+                    </Box>
+                  </Link>
                   <Typography noWrap variant="h6" className={classes.title}>
                     <Link to="/" className={classes.link}>
                       {require("../title")}
