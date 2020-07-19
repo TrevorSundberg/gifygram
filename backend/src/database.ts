@@ -12,6 +12,7 @@ import {patchDevKv} from "./dev";
 
 patchDevKv(db);
 
+export type AvatarId = string;
 export type UserId = string;
 export type PostId = string;
 export type IP = string;
@@ -42,6 +43,8 @@ const dbkeyAnimationJson = (postId: PostId) =>
   `animation/json:${postId}`;
 const dbkeyAnimationVideo = (postId: PostId) =>
   `animation/video:${postId}`;
+const dbkeyAvatar = (avatarId: UserId) =>
+  `avatar:${avatarId}`;
 
 const TRUE_VALUE = "1";
 const SECONDS_PER_DAY = 86400;
@@ -227,6 +230,7 @@ export const dbListAmendedPosts =
       return {
         id: query.id,
         username: user ? user.username : "",
+        avatarId: user ? user.avatarId : null,
         liked: authedUserOptional
           ? await dbGetPostLiked(authedUserOptional.id, query.id)
           : false,
@@ -244,6 +248,15 @@ export const dbPutAnimation = async (postId: PostId, json: string, video: ArrayB
     db.put(dbkeyAnimationVideo(postId), video)
   ]);
 };
+
+export const dbGetAvatar = async (avatarId: AvatarId): Promise<ArrayBuffer | null> =>
+  db.get(dbkeyAvatar(avatarId), "arrayBuffer");
+
+export const dbPutAvatar = async (avatarId: AvatarId, avatar: ArrayBuffer): Promise<void> =>
+  db.put(dbkeyAvatar(avatarId), avatar);
+
+export const dbDeleteAvatar = async (avatarId: AvatarId): Promise<void> =>
+  db.delete(dbkeyAvatar(avatarId));
 
 export const dbGetAnimationJson = async (postId: PostId): Promise<string | null> =>
   db.get(dbkeyAnimationJson(postId), "text");

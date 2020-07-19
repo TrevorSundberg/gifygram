@@ -11,6 +11,8 @@ import {
   API_POST_LIKE,
   API_POST_LIST,
   API_PROFILE,
+  API_PROFILE_AVATAR,
+  API_PROFILE_AVATAR_UPDATE,
   API_PROFILE_UPDATE,
   AUTH_GOOGLE_CLIENT_ID,
   AUTH_GOOGLE_ISSUER,
@@ -27,16 +29,19 @@ import {
   JWKS,
   dbAddView,
   dbCreatePost,
+  dbDeleteAvatar,
   dbDeletePost,
   dbExpectPost,
   dbGetAnimationJson,
   dbGetAnimationVideo,
+  dbGetAvatar,
   dbGetCachedJwksGoogle,
   dbGetUser,
   dbListAmendedPosts,
   dbListPosts,
   dbModifyPostLiked,
   dbPutAnimation,
+  dbPutAvatar,
   dbPutCachedJwksGoogle,
   dbPutUser,
   dbUserHasPermission
@@ -56,6 +61,7 @@ import {uuid} from "uuidv4";
 
 const CONTENT_TYPE_APPLICATION_JSON = "application/json";
 const CONTENT_TYPE_VIDEO_MP4 = "video/mp4";
+const CONTENT_TYPE_IMAGE_JPEG = "image/jpeg";
 
 const AUTHORIZATION_HEADER = "authorization";
 
@@ -171,6 +177,7 @@ class RequestInput<T> {
     }
     const user: StoredUser = {
       id: content.sub,
+      avatarId: null,
       username: content.given_name,
       bio: "",
       role: isDevEnvironment() && content.sub === "admin"
@@ -310,6 +317,7 @@ const postCreate = async (
   const result: ClientPost = {
     ...post,
     username: user!.username,
+    avatarId: user!.avatarId,
     liked: false,
     likes: 0,
     views: 0,
@@ -403,6 +411,27 @@ addHandler(API_PROFILE_UPDATE, async (input) => {
   const user = await input.requireAuthedUser();
   user.username = input.json.username;
   user.bio = input.json.bio;
+  await dbPutUser(user);
+  return {result: user};
+});
+
+addHandler(API_PROFILE_AVATAR, async (input) => {
+  const result = await dbGetAvatar(input.json.avatarId);
+  return {
+    result,
+    immutable: true,
+    contentType: CONTENT_TYPE_IMAGE_JPEG
+  };
+});
+
+addHandler(API_PROFILE_AVATAR_UPDATE, async (input) => {
+  const user = await input.requireAuthedUser();
+  if (user.avatarId) {
+    await dbDeleteAvatar(user.avatarId);
+  }
+  user.avatarId = uuid();
+  const imageData = await input.request.arrayBuffer();
+  await dbPutAvatar(user.avatarId, imageData);
   await dbPutUser(user);
   return {result: user};
 });

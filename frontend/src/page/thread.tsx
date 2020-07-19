@@ -52,6 +52,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       replyId: null,
       sortKey: "",
       username: "",
+      avatarId: null,
       liked: false,
       likes: 0,
       views: 0,
@@ -76,6 +77,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
         setPosts(postList.map((storedPost) => ({
           ...storedPost,
           username: "",
+          avatarId: null,
           liked: false,
           likes: 0,
           views: 0,

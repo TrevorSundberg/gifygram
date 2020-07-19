@@ -1,6 +1,5 @@
 import {makeFullLocalUrl, makeLocalUrl} from "../shared/shared";
 import {AnimationVideo} from "./animationVideo";
-import Avatar from "@material-ui/core/Avatar";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
@@ -19,6 +18,7 @@ import TimerIcon from "@material-ui/icons/Timer";
 import Tooltip from "@material-ui/core/Tooltip";
 import {TrashButton} from "./trashButton";
 import Typography from "@material-ui/core/Typography";
+import {UserAvatar} from "./userAvatar";
 import millify from "millify";
 import pluralize from "pluralize";
 
@@ -54,9 +54,10 @@ export const Post: React.FC<PostProps> = (props) => {
     }}>
     <CardHeader
       avatar={
-        <Avatar>
-          {props.post.username.slice(0, 1).toUpperCase()}
-        </Avatar>
+        <UserAvatar
+          username={props.post.username}
+          avatarId={props.post.avatarId}
+        />
       }
       action={
         <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>

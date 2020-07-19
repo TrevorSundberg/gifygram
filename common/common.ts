@@ -111,6 +111,7 @@ export interface AmendedList {
 export interface AmendedPost {
   id: string;
   username: string;
+  avatarId: string | null;
   liked: boolean;
   likes: number;
   views: number | null;
@@ -125,9 +126,14 @@ export type ClientThread = ClientPost & ThreadPost;
 
 export interface StoredUser {
   id: string;
+  avatarId: string | null;
   username: string;
   bio: string;
   role: "user" | "admin";
+}
+
+export interface AvatarInput {
+  avatarId: string;
 }
 
 export interface PostLikeInput {
@@ -259,6 +265,14 @@ export const API_PROFILE = new Api<Empty, StoredUser>(
 export const API_PROFILE_UPDATE = new Api<ProfileUpdate, StoredUser>(
   "/api/profile/update",
   require("../ts-schema-loader/dist/main.js!./common.ts?ProfileUpdate")
+);
+export const API_PROFILE_AVATAR = new Api<AvatarInput, ArrayBuffer>(
+  "/api/profile/avatar",
+  require("../ts-schema-loader/dist/main.js!./common.ts?AvatarInput")
+);
+export const API_PROFILE_AVATAR_UPDATE = new Api<Empty, StoredUser>(
+  "/api/profile/avatar/update",
+  require("../ts-schema-loader/dist/main.js!./common.ts?Empty")
 );
 export const API_FEEDBACK = new Api<Feedback, Empty>(
   "/api/feedback",
