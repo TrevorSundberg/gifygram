@@ -118,7 +118,11 @@ const App = () => {
                       <Typography variant="h4" align="left">
                         <b>TRENDING</b> Posts
                       </Typography>
-                      <Thread history={prop.history} key={API_TRENDING_THREADS_ID} threadId={API_TRENDING_THREADS_ID}/>
+                      <Thread
+                        history={prop.history}
+                        limit={4}
+                        key={API_TRENDING_THREADS_ID}
+                        threadId={API_TRENDING_THREADS_ID}/>
                       <Typography variant="h4" align="left">
                         <b>NEWEST</b> Posts
                       </Typography>

@@ -3,6 +3,7 @@ import {
   API_TRENDING_THREADS_ID,
   AmendedPost,
   AmendedQuery,
+  PostList,
   StoredPost,
   StoredUser,
   padInteger
@@ -206,8 +207,10 @@ const getBarIds = (list: {keys: { name: string }[]}) => {
 const getStoredPostsFromIds = async (ids: string[]): Promise<StoredPost[]> =>
   Promise.all(ids.map(dbExpectPost));
 
-export const dbListPosts = async (threadId: PostId): Promise<StoredPost[]> =>
-  getStoredPostsFromIds(getBarIds(await db.list({prefix: dbprefixThreadPost(threadId)})));
+export const dbListPosts = async (postList: PostList): Promise<StoredPost[]> =>
+  getStoredPostsFromIds(getBarIds(await db.list({
+    prefix: dbprefixThreadPost(postList.threadId)
+  })).slice(0, postList.limit));
 
 export const dbListAmendedPosts =
   async (authedUserOptional: StoredUser | null, queries: AmendedQuery[]): Promise<AmendedPost[]> =>

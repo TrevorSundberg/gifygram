@@ -328,7 +328,7 @@ addHandler(API_POST_LIST, async (input) => {
     await dbAddView(threadId, ip);
   }
 
-  const result = await dbListPosts(threadId);
+  const result = await dbListPosts(input.json);
   return {result};
 });
 
