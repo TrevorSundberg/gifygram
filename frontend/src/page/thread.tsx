@@ -125,7 +125,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
     isThreadList
       ? {
         columnCount: 4,
-        columnWidth: "175px",
+        columnWidth: "220px",
         columnGap: "10px"
       }
       : null}>
