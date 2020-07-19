@@ -204,8 +204,10 @@ const getBarIds = (list: {keys: { name: string }[]}) => {
   });
 };
 
-const getStoredPostsFromIds = async (ids: string[]): Promise<StoredPost[]> =>
-  Promise.all(ids.map(dbExpectPost));
+const getStoredPostsFromIds = async (ids: string[]): Promise<StoredPost[]> => {
+  const posts = await Promise.all(ids.map(dbGetPost));
+  return posts.filter((post): post is StoredPost => Boolean(post));
+};
 
 export const dbListPosts = async (postList: PostList): Promise<StoredPost[]> =>
   getStoredPostsFromIds(getBarIds(await db.list({
