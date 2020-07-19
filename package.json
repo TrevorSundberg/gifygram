@@ -11,7 +11,7 @@
     "buildFrontend": "cd frontend && npm run build",
     "buildBackend": "cd backend && npm run build",
     "buildAll": "npm run installAll && npm run lint && npm run buildTsSchemaLoader && npm run buildFrontend && npm run buildBackend",
-    "publish": "npm run buildAll && cd backend && npm run publish",
+    "deploy": "npm run buildAll && cd backend && npm run deploy",
     "lint": "eslint --max-warnings 0 --ext .ts,.tsx .",
     "start": "node dev.js"
   },
