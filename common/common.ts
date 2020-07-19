@@ -148,7 +148,7 @@ export interface Keyframe {
 }
 
 export interface Track {
-  [time: number]: Keyframe;
+  [time: string]: Keyframe;
 }
 
 export interface Tracks {
