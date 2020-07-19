@@ -264,3 +264,7 @@ export const API_FEEDBACK = new Api<Feedback, Empty>(
   "/api/feedback",
   require("../ts-schema-loader/dist/main.js!./common.ts?Feedback")
 );
+export const API_HEALTH = new Api<Empty, Empty>(
+  "/api/health",
+  require("../ts-schema-loader/dist/main.js!./common.ts?Empty")
+);

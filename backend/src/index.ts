@@ -5,6 +5,7 @@ import {
   API_ANIMATION_JSON,
   API_ANIMATION_VIDEO,
   API_FEEDBACK,
+  API_HEALTH,
   API_POST_CREATE,
   API_POST_DELETE,
   API_POST_LIKE,
@@ -434,6 +435,8 @@ addHandler(API_FEEDBACK, async (input) => {
   }
   return {result: {}};
 });
+
+addHandler(API_HEALTH, async () => ({result: {}}));
 
 addHandler(API_POST_DELETE, async (input) => {
   const user = await input.requireAuthedUser();
