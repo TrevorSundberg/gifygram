@@ -55,6 +55,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       liked: false,
       likes: 0,
       views: 0,
+      canDelete: false,
       cached: true
     });
   }
@@ -77,7 +78,8 @@ export const Thread: React.FC<ThreadProps> = (props) => {
           username: "",
           liked: false,
           likes: 0,
-          views: 0
+          views: 0,
+          canDelete: false
         })));
         setStoredPostArrays([...storedPostArrays, postList]);
       }

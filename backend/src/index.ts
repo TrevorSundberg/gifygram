@@ -37,7 +37,8 @@ import {
   dbModifyPostLiked,
   dbPutAnimation,
   dbPutCachedJwksGoogle,
-  dbPutUser
+  dbPutUser,
+  dbUserHasPermission
 } from "./database";
 import {getAssetFromKV, serveSinglePageApp} from "@cloudflare/kv-asset-handler";
 
@@ -170,7 +171,10 @@ class RequestInput<T> {
     const user: StoredUser = {
       id: content.sub,
       username: content.given_name,
-      bio: ""
+      bio: "",
+      role: isDevEnvironment() && content.sub === "admin"
+        ? "admin"
+        : "user"
     };
 
     await dbPutUser(user);
@@ -307,7 +311,8 @@ const postCreate = async (
     username: user!.username,
     liked: false,
     likes: 0,
-    views: 0
+    views: 0,
+    canDelete: true
   };
 
   return {
@@ -435,7 +440,7 @@ addHandler(API_POST_DELETE, async (input) => {
   const postId = input.json.id;
 
   const post = await dbExpectPost(postId);
-  if (post.userId !== user.id) {
+  if (!dbUserHasPermission(user, post.userId)) {
     throw new Error("Attempting to delete post that did not belong to the user");
   }
 

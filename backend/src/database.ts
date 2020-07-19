@@ -46,6 +46,11 @@ const dbkeyAnimationVideo = (postId: PostId) =>
 const TRUE_VALUE = "1";
 const SECONDS_PER_DAY = 86400;
 
+export const dbUserHasPermission = (actingUser: StoredUser | null, owningUserId: string) =>
+  actingUser
+    ? owningUserId === actingUser.id || actingUser.role === "admin"
+    : false;
+
 export const dbGetCachedJwksGoogle = async (): Promise<JWKS | null> =>
   db.get<JWKS>(dbkeyCachedJwksGoogle(), "json");
 
@@ -228,7 +233,8 @@ export const dbListAmendedPosts =
         likes: await dbGetPostLikes(query.id),
         views: query.requestViews
           ? await dbGetThreadViews(query.id)
-          : null
+          : null,
+        canDelete: dbUserHasPermission(authedUserOptional, query.userId)
       };
     }));
 

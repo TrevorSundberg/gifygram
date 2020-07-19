@@ -114,6 +114,7 @@ export interface AmendedPost {
   liked: boolean;
   likes: number;
   views: number | null;
+  canDelete: boolean;
 }
 
 export interface ClientPost extends StoredPost, AmendedPost {
@@ -126,6 +127,7 @@ export interface StoredUser {
   id: string;
   username: string;
   bio: string;
+  role: "user" | "admin";
 }
 
 export interface PostLikeInput {

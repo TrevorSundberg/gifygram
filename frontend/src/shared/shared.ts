@@ -135,7 +135,7 @@ export const signInIfNeeded = async () => {
 export const signInWithGoogle = (): NeverAsync<Promise<void> | null> => {
   if (isDevEnvironment()) {
     // eslint-disable-next-line no-alert
-    const username = prompt("Pick a unique dev username");
+    const username = prompt("Pick a unique dev username or use 'admin'");
     if (!username) {
       throw new Error("Dev username was empty");
     }

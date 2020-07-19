@@ -11,7 +11,6 @@ import CardMedia from "@material-ui/core/CardMedia";
 import {ClientPost} from "../../../common/common";
 import {LikeButton} from "./likeButton";
 import Link from "@material-ui/core/Link";
-import {LoginUserIdContext} from "./login";
 import MenuItem from "@material-ui/core/MenuItem";
 import React from "react";
 import Select from "@material-ui/core/Select";
@@ -34,7 +33,6 @@ interface PostProps {
 }
 
 export const Post: React.FC<PostProps> = (props) => {
-  const loggedInUserId = React.useContext(LoginUserIdContext);
   const isThread = props.post.threadId === props.post.id;
   return <Card
     key={props.post.id}
@@ -70,7 +68,7 @@ export const Post: React.FC<PostProps> = (props) => {
             </Box>
             : null}
           {
-            !props.preview && props.post.userId === loggedInUserId
+            !props.preview && props.post.canDelete
               ? <Box mr={1}>
                 <TrashButton post={props.post} onTrashed={props.onTrashed}/>
               </Box>
