@@ -1,22 +1,23 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const execa = require("execa");
-const fs = require("fs");
-const path = require("path");
+import execa from "execa";
+import fs from "fs";
+import path from "path";
+
+const rootDir = path.join(__dirname, "..", "..");
 
 (async () => {
   await execa("npm", ["run", "buildTsSchemaLoader"], {
     stdio: "inherit",
-    cwd: __dirname
+    cwd: rootDir
   });
 
   // Start the webpack dev for the frontend.
   execa("npm", ["run", "liveWebpackFrontend"], {
     stdio: "inherit",
-    cwd: path.join(__dirname, "frontend")
+    cwd: path.join(rootDir, "frontend")
   });
 
   // Start the webpack dev for the backend.
-  const backendDir = path.join(__dirname, "backend");
+  const backendDir = path.join(rootDir, "backend");
   execa("npm", ["run", "liveWebpackBackend"], {
     stdio: "inherit",
     cwd: backendDir
