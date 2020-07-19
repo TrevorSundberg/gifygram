@@ -474,9 +474,16 @@ const handleRequest = async (event: FetchEvent): Promise<Response> => {
   if (handler) {
     // Convert the url parameters back to json so we can validate it.
     const jsonInput: Record<string, any> = {};
-    url.searchParams.forEach((value, key) => {
-      jsonInput[key] = JSON.parse(value);
-    });
+    const decodeUriValue = (input: string) => decodeURIComponent(input.replace(/\+/gu, "%20"));
+    const searchParamsRegex = /(?:\?|&|;)([^=]+)=([^&|;]+)/gu;
+    for (;;) {
+      // Unfortunately CF workers does not have url.searchParams.forEach
+      const result = searchParamsRegex.exec(url.search);
+      if (!result) {
+        break;
+      }
+      jsonInput[decodeUriValue(result[1])] = JSON.parse(decodeUriValue(result[2]));
+    }
     const result = handler.api.validator(jsonInput);
     if (!result) {
       throw new Error(JSON.stringify(handler.api.validator.errors));
