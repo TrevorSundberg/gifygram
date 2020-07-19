@@ -4,6 +4,10 @@
     "build": "tsc"
   },
   "dependencies": {
-    "execa": "^4.0.3"
+    "@types/node-fetch": "^2.5.7",
+    "@types/puppeteer": "^3.0.1",
+    "execa": "^4.0.3",
+    "node-fetch": "^2.6.0",
+    "puppeteer": "^5.1.0"
   }
 }

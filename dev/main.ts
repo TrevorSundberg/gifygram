@@ -1,6 +1,7 @@
 import execa from "execa";
 import fs from "fs";
 import path from "path";
+import {test} from "./test";
 
 const rootDir = path.join(__dirname, "..", "..");
 
@@ -36,4 +37,6 @@ const rootDir = path.join(__dirname, "..", "..");
     cwd: backendDir,
     killSignal: "SIGKILL"
   });
+
+  await test();
 })();
