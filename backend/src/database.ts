@@ -209,8 +209,9 @@ const getStoredPostsFromIds = async (ids: string[]): Promise<StoredPost[]> =>
 
 export const dbListPosts = async (postList: PostList): Promise<StoredPost[]> =>
   getStoredPostsFromIds(getBarIds(await db.list({
-    prefix: dbprefixThreadPost(postList.threadId)
-  })).slice(0, postList.limit));
+    prefix: dbprefixThreadPost(postList.threadId),
+    limit: postList.threadId === API_ALL_THREADS_ID ? 20 : undefined
+  })).slice(0, postList.threadId === API_TRENDING_THREADS_ID ? 4 : undefined));
 
 export const dbListAmendedPosts =
   async (authedUserOptional: StoredUser | null, queries: AmendedQuery[]): Promise<AmendedPost[]> =>

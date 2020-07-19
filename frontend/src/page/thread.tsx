@@ -27,7 +27,6 @@ import TextField from "@material-ui/core/TextField";
 interface ThreadProps {
   // If this is set to API_ALL_THREADS_ID then it means we're listing all threads.
   threadId: string;
-  limit?: number;
   history: import("history").History;
 }
 
@@ -65,8 +64,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
 
   React.useEffect(() => {
     const postListFetch = abortableJsonFetch(API_POST_LIST, Auth.Optional, {
-      threadId: props.threadId,
-      limit: props.limit
+      threadId: props.threadId
     });
     postListFetch.then((postList) => {
       if (postList) {

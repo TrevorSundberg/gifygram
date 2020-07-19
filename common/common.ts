@@ -79,7 +79,6 @@ export interface AnimationCreate {
 
 export interface PostList {
   threadId: string;
-  limit?: number;
 }
 
 export interface StoredPost {
