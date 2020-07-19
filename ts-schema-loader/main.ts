@@ -3,6 +3,7 @@ import Ajv from "ajv";
 import ajvPack from "ajv-pack";
 import crypto from "crypto";
 import fs from "fs";
+import util from "util";
 
 const ajv = new Ajv({sourceCode: true});
 
@@ -38,7 +39,7 @@ export default function (this: import("webpack").loader.LoaderContext) {
   const schema = generator.getSchemaForSymbol(result.groups.type);
 
   if (result.groups.debug) {
-    console.log(schema);
+    console.log(util.inspect(schema, false, null, true));
   }
 
   const validationFunction = ajv.compile(schema);
