@@ -6,8 +6,6 @@
     "moduleResolution": "Node",
     "target": "ES6",
     "removeComments": false,
-    "allowSyntheticDefaultImports": true,
-    "allowJs": true,
     "esModuleInterop": true,
     "outDir": "dist"
   },
