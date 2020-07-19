@@ -10,6 +10,7 @@ import {
 import {
   Deferred,
   EVENT_LOGGED_IN,
+  EVENT_MENU_OPEN,
   EVENT_REQUEST_LOGIN,
   LoginEvent,
   RequestLoginEvent,
@@ -50,9 +51,11 @@ const getUrlParam = (props: { location: import("history").Location }, name: stri
 const App = () => {
   const [showLoginDeferred, setShowLoginDeferred] = React.useState<Deferred<void> | null>(null);
   const [loggedInUserId, setLoggedInUserId] = React.useState<LoginUserIdState>(undefined);
-  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [menuOpen, setMenuOpen] = React.useState(false);
 
-  const closeDrawerCallback = () => setDrawerOpen(false);
+  window.addEventListener(EVENT_MENU_OPEN, () => setMenuOpen(true));
+
+  const closeMenuCallback = () => setMenuOpen(false);
 
   React.useEffect(() => {
     getAuthIfSignedIn().then((authUser) => {
@@ -96,7 +99,7 @@ const App = () => {
                     className={classes.menuButton}
                     color="inherit"
                     aria-label="menu"
-                    onClick={() => setDrawerOpen(true)}>
+                    onClick={() => setMenuOpen(true)}>
                     <MenuIcon />
                   </IconButton>
                   <Typography noWrap variant="h6" className={classes.title}>
@@ -142,15 +145,15 @@ const App = () => {
             </div>
           </Route>
         </Switch>
-        <Drawer anchor={"left"} open={drawerOpen} onClose={closeDrawerCallback}>
+        <Drawer anchor={"left"} open={menuOpen} onClose={closeMenuCallback}>
           <List style={{minWidth: "250px"}}>
-            <Link to="/" className={classes.link} onClick={closeDrawerCallback}>
+            <Link to="/" className={classes.link} onClick={closeMenuCallback}>
               <ListItem button>
                 <ListItemIcon><HomeIcon/></ListItemIcon>
                 <ListItemText primary={"Home"} />
               </ListItem>
             </Link>
-            <Link to="/editor" className={classes.link} onClick={closeDrawerCallback}>
+            <Link to="/editor" className={classes.link} onClick={closeMenuCallback}>
               <ListItem button>
                 <ListItemIcon><MovieIcon/></ListItemIcon>
                 <ListItemText primary={"Create Animation"} />
@@ -158,7 +161,7 @@ const App = () => {
             </Link>
             {
               loggedInUserId
-                ? <Link to="/profile" className={classes.link} onClick={closeDrawerCallback}>
+                ? <Link to="/profile" className={classes.link} onClick={closeMenuCallback}>
                   <ListItem button>
                     <ListItemIcon><AccountBoxIcon/></ListItemIcon>
                     <ListItemText primary={"Edit Profile"} />

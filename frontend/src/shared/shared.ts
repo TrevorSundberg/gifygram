@@ -2,6 +2,7 @@ import {AUTH_GOOGLE_CLIENT_ID, Api} from "../../../common/common";
 
 export const EVENT_LOGGED_IN = "loggedIn";
 export const EVENT_REQUEST_LOGIN = "requestLogin";
+export const EVENT_MENU_OPEN = "menuOpen";
 
 export type NeverAsync<T = void> = T;
 

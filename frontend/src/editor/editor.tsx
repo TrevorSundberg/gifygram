@@ -7,7 +7,7 @@ import {
   API_ANIMATION_CREATE,
   API_ANIMATION_JSON
 } from "../../../common/common";
-import {Auth, Deferred, NeverAsync, abortableJsonFetch, makeLocalUrl} from "../shared/shared";
+import {Auth, Deferred, EVENT_MENU_OPEN, NeverAsync, abortableJsonFetch, makeLocalUrl} from "../shared/shared";
 import {MODALS_CHANGED, Modal} from "./modal";
 import {RenderFrameEvent, Renderer} from "./renderer";
 import $ from "jquery";
@@ -87,9 +87,9 @@ export class Editor {
       });
     }
 
-    getElement("github").addEventListener(
+    getElement("menu").addEventListener(
       "click",
-      () => window.open("https://github.com/TrevorSundberg/madeitforfun")
+      () => window.dispatchEvent(new Event(EVENT_MENU_OPEN))
     );
 
     getElement("sticker").addEventListener("click", async () => {
