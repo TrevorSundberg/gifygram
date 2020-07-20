@@ -86,7 +86,7 @@ export const Post: React.FC<PostProps> = (props) => {
           href={`#${props.post.replyId}`}>replying to...</Link></span>
           : null}
       </div>}
-      subheader={typeof props.post.title === "string" ? props.post.title : props.post.message}
+      subheader={props.post.userdata.type === "animation" ? props.post.title : props.post.message}
     />
     {
       props.post.userdata.type === "animation"
@@ -101,7 +101,7 @@ export const Post: React.FC<PostProps> = (props) => {
         : null
     }
     {
-      typeof props.post.title === "string"
+      props.post.userdata.type === "animation"
         ? <div>
           <CardContent style={{paddingBottom: 0}}>
             <Typography noWrap={props.preview} variant="body2" color="textSecondary" component="p">
@@ -109,19 +109,15 @@ export const Post: React.FC<PostProps> = (props) => {
             </Typography>
           </CardContent>
           <CardActions disableSpacing style={{justifyContent: "space-between"}}>
-            {
-              props.post.userdata.type === "animation"
-                ? <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    props.history.push(makeLocalUrl("/editor", {remixId: props.post.id}));
-                  }}>
-                  Remix
-                </Button>
-                : null
-            }
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                props.history.push(makeLocalUrl("/editor", {remixId: props.post.id}));
+              }}>
+              Remix
+            </Button>
             {
               isThread
                 ? <Box ml={1}>
@@ -136,8 +132,9 @@ export const Post: React.FC<PostProps> = (props) => {
             }
             <div style={{flexGrow: 1}}></div>
             {
-              props.post.userdata.type === "animation" && !props.preview
-                ? <Box mr={1}>
+              props.preview
+                ? null
+                : <Box mr={1}>
                   <Select
                     value="placeholder"
                     MenuProps={{
@@ -165,7 +162,6 @@ export const Post: React.FC<PostProps> = (props) => {
                     }
                   </Select>
                 </Box>
-                : null
             }
             <ShareButton
               title={props.post.title}
