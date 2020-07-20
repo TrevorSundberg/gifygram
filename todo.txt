@@ -137,24 +137,45 @@ DONE - Make a system where we store changes in a local cache and append them unt
 DONE - Need to attribute original gifs (attributions button that does a popup with a scroll list, show gif or image in list)
 DONE - Last touched video continues playing (don't require touch down)
 DONE - Ability to delete if you made a post
+DONE - Move all database operations into its own file
+DONE - Bug: warning: Form submission canceled because the form is not connected (on posting animation)
+DONE - Separate out the likes / views path to speed up how quickly we can show pages
+DONE - Make the site slightly less wide so that tall videos show up on desktop
+DONE - Make API routes type safe
+DONE - Rename post/view* to thread/view and make views only show on threads (also don't query views if threadId !== id)
+DONE - Make LoginUserIdContext be a three state login so we know when it's not known yet
+DONE - Redo validation to use JSON schemas (always POST JSON)
+DONE - Make sure extra data in JSON is considered invalid
+DONE - Validate that profile fails (extra parameter)
+DONE - Change the API so that all inputs and outputs are objects (not arrays, etc)
+DONE - Enforce all the constraints (max min, etc)
+DONE - Optimize the ts loader to only process a file once and extract all classes into an array (or separate files)
+DONE - Change 'value' to 'liked' in API_POST_LIKE
+DONE - Remove constants and just have a way to output the schemas
+DONE - Make a page where you can edit your profile
+DONE - Bug: Remixes of remixes aren't going to the right thread
+DONE - Trending
+DONE - Global admin role (and ability to assign other roles from editing database)
+DONE - Admin can delete posts
+DONE - Track views / popularity (approximate, non-atomic and underestimate + actual view by user)
+DONE - Add a test that we can run in development mode
 
- - Global admin role (and ability to assign other roles from command line)
- - Make a page where you can edit your profile
  - Make basic profile page
+ - Agree privacy / etc
  - Link user ids in thread/threads to profile page (/user/someone)
  - Tags/keywords
  - Infinite scrolling using CSS grid
- - Track views / popularity (approximate, non-atomic and underestimate + actual view by user)
  - Flag post or comment (approximate, non-atomic and underestimate + actual flag by user)
- - Admin can delete posts
- - Sort by highest votes (utilize lexographic sort)
- - Sort by highest views (utilize lexographic sort)
  - Admin view only flagged posts
  - Search by single tag (up to 1000) + multiple tags is a reduce operation
  - View a user profile
  - Points for user profile
  - Show posts on a user profile
  - Admin can ban/unban user on profile
+ - Reply button on the comments like Scratch
+ - Replies are tabbed in (just one level)
+ - Ability to type @someone in comments
+ - Timestamp or "minutes ago" on comments / animation posts
 
  - Relaunch cloudworker if it dies (until we exit)
  - Get a staging environment
