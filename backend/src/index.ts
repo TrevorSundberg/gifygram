@@ -431,6 +431,10 @@ addHandler(API_PROFILE_AVATAR_UPDATE, async (input) => {
   }
   user.avatarId = uuid();
   const imageData = await input.request.arrayBuffer();
+  const avatarMaxSizeKB = 256;
+  if (imageData.byteLength > avatarMaxSizeKB * 1024) {
+    throw new Error(`The size of the avatar must not be larger than ${avatarMaxSizeKB}KB`);
+  }
   await dbPutAvatar(user.avatarId, imageData);
   await dbPutUser(user);
   return {result: user};
