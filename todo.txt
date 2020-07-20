@@ -159,7 +159,11 @@ DONE - Global admin role (and ability to assign other roles from editing databas
 DONE - Admin can delete posts
 DONE - Track views / popularity (approximate, non-atomic and underestimate + actual view by user)
 DONE - Add a test that we can run in development mode
+DONE - Remove content jquery from modal and remove the share button
 
+ - Make sure usernames are unique since we can pick them at the moment
+ - Integrate google analytics to get stats tracking
+ - Hook up the gifygram.com domain to point at it (buy a new service?)
  - Make basic profile page
  - Agree privacy / etc
  - Link user ids in thread/threads to profile page (/user/someone)
