@@ -8,29 +8,25 @@ import readline from "readline";
     input: process.stdin,
     output: process.stdout
   });
-  // eslint-disable-next-line no-process-exit
-  read.on("close", () => process.exit(0));
+  read.on("close", () => console.log("\nPress Ctrl+C again to exit..."));
 
   const rootDir = path.join(__dirname, "..", "..");
   await execa("npm", ["run", "buildTsSchemaLoader"], {
     stdio: "inherit",
-    cwd: rootDir,
-    killSignal: "SIGKILL"
+    cwd: rootDir
   });
 
   // Start the webpack dev for the frontend.
   execa("npm", ["run", "liveWebpackFrontend"], {
     stdio: "inherit",
-    cwd: path.join(rootDir, "frontend"),
-    killSignal: "SIGKILL"
+    cwd: path.join(rootDir, "frontend")
   });
 
   // Start the webpack dev for the backend.
   const backendDir = path.join(rootDir, "backend");
   execa("npm", ["run", "liveWebpackBackend"], {
     stdio: "inherit",
-    cwd: backendDir,
-    killSignal: "SIGKILL"
+    cwd: backendDir
   });
 
   // Cloudworker will fail if dist/worker.development.js does not exist, so write an empty file.
@@ -40,8 +36,7 @@ import readline from "readline";
   // Start the Cloudflare Worker emulation (cloudworker).
   execa("npm", ["run", "liveCloudWorker"], {
     stdio: "inherit",
-    cwd: backendDir,
-    killSignal: "SIGKILL"
+    cwd: backendDir
   });
 
 
@@ -49,8 +44,7 @@ import readline from "readline";
   const testDir = path.join(rootDir, "test");
   execa("npm", ["run", "liveWebpackTest"], {
     stdio: "inherit",
-    cwd: testDir,
-    killSignal: "SIGKILL"
+    cwd: testDir
   });
 
   const testJsPath = path.join(testDir, "dist", "main.js");
