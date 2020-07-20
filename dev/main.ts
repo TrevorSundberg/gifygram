@@ -8,7 +8,7 @@ import readline from "readline";
     input: process.stdin,
     output: process.stdout
   });
-  read.on("close", () => console.log("\nPress Ctrl+C again to exit..."));
+  read.on("close", () => console.log("Press Ctrl+C again to exit..."));
 
   const rootDir = path.join(__dirname, "..", "..");
   await execa("npm", ["run", "buildTsSchemaLoader"], {
@@ -62,7 +62,7 @@ import readline from "readline";
   require("module").Module._initPaths();
 
   for (;;) {
-    await new Promise((resolve) => read.question("Press enter to run the test...", resolve));
+    await new Promise((resolve) => read.question("Press enter to run the test...\n", resolve));
 
     // eslint-disable-next-line no-eval
     eval(await fs.promises.readFile(testJsPath, "utf8"));
