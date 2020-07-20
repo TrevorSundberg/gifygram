@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "scripts": {
+    "liveWebpackTest": "NODE_ENV=development webpack"
+  },
+  "dependencies": {
+    "@types/node-fetch": "^2.5.7",
+    "@types/puppeteer": "^3.0.1",
+    "node-fetch": "^2.6.0",
+    "puppeteer": "^5.1.0",
+    "ts-loader": "^8.0.0",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-node-externals": "^2.5.0"
+  }
+}

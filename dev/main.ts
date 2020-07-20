@@ -1,11 +1,17 @@
 import execa from "execa";
 import fs from "fs";
 import path from "path";
-import {test} from "./test";
-
-const rootDir = path.join(__dirname, "..", "..");
+import readline from "readline";
 
 (async () => {
+  const read = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  // eslint-disable-next-line no-process-exit
+  read.on("close", () => process.exit(0));
+
+  const rootDir = path.join(__dirname, "..", "..");
   await execa("npm", ["run", "buildTsSchemaLoader"], {
     stdio: "inherit",
     cwd: rootDir,
@@ -38,5 +44,33 @@ const rootDir = path.join(__dirname, "..", "..");
     killSignal: "SIGKILL"
   });
 
-  await test();
+
+  // Start the webpack dev for the tests.
+  const testDir = path.join(rootDir, "test");
+  execa("npm", ["run", "liveWebpackTest"], {
+    stdio: "inherit",
+    cwd: testDir,
+    killSignal: "SIGKILL"
+  });
+
+  const testJsPath = path.join(testDir, "dist", "main.js");
+
+  // Wait until webpack compiles the tests.
+  for (;;) {
+    if (fs.existsSync(testJsPath)) {
+      break;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  process.env.NODE_PATH = path.join(testDir, "node_modules");
+  // eslint-disable-next-line no-underscore-dangle
+  require("module").Module._initPaths();
+
+  for (;;) {
+    await new Promise((resolve) => read.question("Press enter to run the test...", resolve));
+
+    // eslint-disable-next-line no-eval
+    eval(await fs.promises.readFile(testJsPath, "utf8"));
+  }
 })();

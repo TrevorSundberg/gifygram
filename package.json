@@ -4,9 +4,11 @@
   "description": "A stupid website for animating images on top of videos.",
   "scripts": {
     "installTsSchemaLoader": "cd ts-schema-loader && npm install",
+    "installDev": "cd dev && npm install",
+    "installTest": "cd test && npm install",
     "installFrontend": "cd frontend && npm install",
     "installBackend": "cd backend && npm install",
-    "installAll": "npm install && npm run installTsSchemaLoader && npm run installFrontend && npm run installBackend",
+    "installAll": "npm install && npm run installTsSchemaLoader && npm run installDev && npm run installTest && npm run installFrontend && npm run installBackend",
     "buildTsSchemaLoader": "cd ts-schema-loader && npm run build",
     "buildFrontend": "cd frontend && npm run build",
     "buildBackend": "cd backend && npm run build",
