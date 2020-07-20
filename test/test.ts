@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import puppeteer from "puppeteer";
 
-const API_HEALTH_URL = "http://0.0.0.0:3000/api/health";
+const API_HEALTH_URL = "http://0.0.0.0:8000/api/health";
 const MAIN_URL = "http://0.0.0.0:8080/";
 
 const waitForHealth = async (url: string) => {

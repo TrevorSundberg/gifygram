@@ -165,7 +165,7 @@ const applyPathAndParams = (url: URL, path: string, params?: Record<string, any>
 export const makeServerUrl = <InputType>(api: Api<InputType, any>, params: InputType = null) => {
   const url = new URL(window.location.origin);
   if (isDevEnvironment()) {
-    url.port = "3000";
+    url.port = "8000";
   }
   applyPathAndParams(url, api.pathname, params);
   return url.href;
