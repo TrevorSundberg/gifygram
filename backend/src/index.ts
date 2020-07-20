@@ -222,7 +222,8 @@ const handlers: Record<string, Handler> = {};
 
 const addHandler = <InputType, OutputType>(
   api: Api<InputType, OutputType>,
-  callback: HandlerCallback<InputType, OutputType>) => {
+  // It's bizarre that we use Omit here, however we're forcing the template inference to only work on Api.
+  callback: HandlerCallback<Omit<InputType, "">, Omit<OutputType, "">>) => {
   handlers[api.pathname] = {
     api,
     callback
@@ -411,7 +412,7 @@ addHandler(API_ANIMATION_JSON, async (input) => {
 });
 
 addHandler(API_ANIMATION_VIDEO, async (input) => {
-  const result = await dbGetAnimationVideo(input.json.id);
+  const result = expect("video", await dbGetAnimationVideo(input.json.id));
   return {
     result,
     immutable: true,
@@ -433,7 +434,7 @@ addHandler(API_PROFILE_UPDATE, async (input) => {
 });
 
 addHandler(API_PROFILE_AVATAR, async (input) => {
-  const result = await dbGetAvatar(input.json.avatarId);
+  const result = expect("avatar", await dbGetAvatar(input.json.avatarId));
   return {
     result,
     immutable: true,
