@@ -35,7 +35,6 @@ export class VideoPlayer extends EventTarget {
     videoParent.appendChild(this.video);
     this.video.className = "videoPlayer";
     this.video.crossOrigin = "anonymous";
-    this.video.loop = true;
     this.video.muted = true;
     this.video.preload = "auto";
 
@@ -58,10 +57,12 @@ export class VideoPlayer extends EventTarget {
     this.video.addEventListener("play", () => {
       this.playPauseButton.classList.remove("fa-play");
       this.playPauseButton.classList.add("fa-pause");
+      this.video.loop = true;
     });
     this.video.addEventListener("pause", () => {
       this.playPauseButton.classList.remove("fa-pause");
       this.playPauseButton.classList.add("fa-play");
+      this.video.loop = false;
     });
     this.playPauseButton.addEventListener("click", () => {
       if (this.video.paused) {
