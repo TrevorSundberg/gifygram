@@ -7,6 +7,7 @@ import {
 import {AbortablePromise, Auth, abortableJsonFetch, cancel} from "../shared/shared";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import Divider from "@material-ui/core/Divider";
 import React from "react";
 import {SubmitButton} from "./submitButton";
@@ -56,7 +57,9 @@ export const Profile: React.FC = () => {
   }, [userAvatar]);
 
   if (!user) {
-    return <div>Loading</div>;
+    return <Box display="flex" justifyContent="center">
+      <CircularProgress />
+    </Box>;
   }
   return (
     <div>
