@@ -132,6 +132,10 @@ export interface StoredUser {
   role: "user" | "admin";
 }
 
+export interface ProfileUser extends StoredUser {
+  ownsUsername: boolean;
+}
+
 export interface AvatarInput {
   avatarId: string;
 }
@@ -258,11 +262,11 @@ export const API_ANIMATION_VIDEO = new Api<SpecificPost, ArrayBuffer>(
   "/api/animation/video",
   require("../ts-schema-loader/dist/main.js!./common.ts?SpecificPost")
 );
-export const API_PROFILE = new Api<Empty, StoredUser>(
+export const API_PROFILE = new Api<Empty, ProfileUser>(
   "/api/profile",
   require("../ts-schema-loader/dist/main.js!./common.ts?Empty")
 );
-export const API_PROFILE_UPDATE = new Api<ProfileUpdate, StoredUser>(
+export const API_PROFILE_UPDATE = new Api<ProfileUpdate, ProfileUser>(
   "/api/profile/update",
   require("../ts-schema-loader/dist/main.js!./common.ts?ProfileUpdate")
 );
@@ -270,7 +274,7 @@ export const API_PROFILE_AVATAR = new Api<AvatarInput, ArrayBuffer>(
   "/api/profile/avatar",
   require("../ts-schema-loader/dist/main.js!./common.ts?AvatarInput")
 );
-export const API_PROFILE_AVATAR_UPDATE = new Api<Empty, StoredUser>(
+export const API_PROFILE_AVATAR_UPDATE = new Api<Empty, ProfileUser>(
   "/api/profile/avatar/update",
   require("../ts-schema-loader/dist/main.js!./common.ts?Empty")
 );

@@ -2,7 +2,7 @@ import {
   API_PROFILE,
   API_PROFILE_AVATAR_UPDATE,
   API_PROFILE_UPDATE,
-  StoredUser
+  ProfileUser
 } from "../../../common/common";
 import {AbortablePromise, Auth, abortableJsonFetch, cancel} from "../shared/shared";
 import Box from "@material-ui/core/Box";
@@ -14,14 +14,13 @@ import TextField from "@material-ui/core/TextField";
 import {UserAvatar} from "./userAvatar";
 
 export const Profile: React.FC = () => {
-  const [user, setUser] = React.useState<StoredUser>(null);
-  const [profileUpdateFetch, setProfileUpdateFetch] = React.useState<AbortablePromise<StoredUser>>(null);
+  const [user, setUser] = React.useState<ProfileUser>(null);
+  const [profileUpdateFetch, setProfileUpdateFetch] = React.useState<AbortablePromise<ProfileUser>>(null);
   const [userAvatar, setUserAvatar] = React.useState<File>(null);
 
   React.useEffect(() => {
-    let profileFetch: AbortablePromise<StoredUser> = null;
+    const profileFetch = abortableJsonFetch(API_PROFILE, Auth.Required);
     (async () => {
-      profileFetch = abortableJsonFetch(API_PROFILE, Auth.Required);
       const profile = await profileFetch;
       if (profile) {
         setUser(profile);
@@ -107,6 +106,10 @@ export const Profile: React.FC = () => {
           <TextField
             fullWidth
             label="Username"
+            error={!user.ownsUsername}
+            helperText={user.ownsUsername ? null
+              : "Another user owns this username. You may use it, but you won't be " +
+                "able to give out links to your profile until you pick a unique username."}
             disabled={Boolean(profileUpdateFetch)}
             inputProps={{maxLength: API_PROFILE_UPDATE.props.username.maxLength}}
             value={user.username}

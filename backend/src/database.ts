@@ -4,6 +4,7 @@ import {
   AmendedPost,
   AmendedQuery,
   PostList,
+  ProfileUser,
   StoredPost,
   StoredUser,
   padInteger
@@ -23,6 +24,8 @@ const dbkeyCachedJwksGoogle = () =>
   "jwks:google";
 const dbkeyUser = (userId: UserId) =>
   `user:${userId}`;
+const dbkeyUsernameToUserId = (username: string) =>
+  `username:${username}`;
 const dbkeyPost = (postId: PostId) =>
   `post:${postId}`;
 const dbkeyPostDeleted = (postId: PostId) =>
@@ -60,11 +63,32 @@ export const dbGetCachedJwksGoogle = async (): Promise<JWKS | null> =>
 export const dbPutCachedJwksGoogle = async (jwks: JWKS, expiration: number): Promise<void> =>
   db.put(dbkeyCachedJwksGoogle(), JSON.stringify(jwks), {expiration});
 
+export const dbGetUsernameToUserId = async (username: string): Promise<string | null> =>
+  db.get<string>(dbkeyUsernameToUserId(username), "json");
+
 export const dbGetUser = async (userId: UserId): Promise<StoredUser | null> =>
   db.get<StoredUser>(dbkeyUser(userId), "json");
 
-export const dbPutUser = async (user: StoredUser): Promise<void> =>
-  db.put(dbkeyUser(user.id), JSON.stringify(user));
+export const dbPutUser = async (user: StoredUser): Promise<ProfileUser> => {
+  const oldUser = await dbGetUser(user.id);
+  await db.put(dbkeyUser(user.id), JSON.stringify(user));
+
+  // If we already had a user in the database, and we're changing usernames...
+  if (oldUser && oldUser.username !== user.username) {
+    // If we owned the old username then remove its ownership.
+    const oldUsernameOwnerUserId = await dbGetUsernameToUserId(oldUser.username);
+    if (oldUsernameOwnerUserId === oldUser.id) {
+      await db.delete(dbkeyUsernameToUserId(oldUser.username));
+    }
+  }
+
+  const usernameOwnerUserId = await dbGetUsernameToUserId(user.username);
+  if (!usernameOwnerUserId) {
+    await db.put(dbkeyUsernameToUserId(user.username), JSON.stringify(user.id));
+    return {...user, ownsUsername: true};
+  }
+  return {...user, ownsUsername: usernameOwnerUserId === user.id};
+};
 
 export const dbGetPost = async (postId: PostId): Promise<StoredPost | null> =>
   db.get<StoredPost>(dbkeyPost(postId), "json");

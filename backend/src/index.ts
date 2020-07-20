@@ -21,6 +21,7 @@ import {
   AttributedSource,
   ClientPost,
   PostData,
+  ProfileUser,
   StoredPost,
   StoredUser,
   padInteger
@@ -37,6 +38,7 @@ import {
   dbGetAvatar,
   dbGetCachedJwksGoogle,
   dbGetUser,
+  dbGetUsernameToUserId,
   dbListAmendedPosts,
   dbListPosts,
   dbModifyPostLiked,
@@ -420,8 +422,16 @@ addHandler(API_ANIMATION_VIDEO, async (input) => {
   };
 });
 
-addHandler(API_PROFILE, async (input) => {
+const getProfileUser = async (input: RequestInput<any>): Promise<ProfileUser> => {
   const user = await input.requireAuthedUser();
+  return {
+    ...user,
+    ownsUsername: await dbGetUsernameToUserId(user.username) === user.id
+  };
+};
+
+addHandler(API_PROFILE, async (input) => {
+  const user = await getProfileUser(input);
   return {result: user};
 });
 
@@ -429,8 +439,8 @@ addHandler(API_PROFILE_UPDATE, async (input) => {
   const user = await input.requireAuthedUser();
   user.username = input.json.username;
   user.bio = input.json.bio;
-  await dbPutUser(user);
-  return {result: user};
+  const profileUser = await dbPutUser(user);
+  return {result: profileUser};
 });
 
 addHandler(API_PROFILE_AVATAR, async (input) => {
@@ -455,8 +465,8 @@ addHandler(API_PROFILE_AVATAR_UPDATE, async (input) => {
   }
   expectFileHeader("avatar", "gif, jpeg, png", imageData, [imageGifHeader, imageJpegHeader, imagePngHeader]);
   await dbPutAvatar(user.avatarId, imageData);
-  await dbPutUser(user);
-  return {result: user};
+  const profileUser = await dbPutUser(user);
+  return {result: profileUser};
 });
 
 addHandler(API_POST_LIKE, async (input) => {
