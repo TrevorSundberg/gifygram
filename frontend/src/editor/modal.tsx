@@ -1,4 +1,5 @@
 import "./modal.css";
+import $ from "jquery";
 import Button from "@material-ui/core/Button";
 import CloseIcon from "@material-ui/icons/Close";
 import {Deferred} from "../shared/shared";
@@ -95,6 +96,7 @@ export const ModalComponent: React.FC<ModalProps> = (props) => {
 
   return <Dialog
     open={true}
+    fullWidth={true}
     disableBackdropClick={!props.dismissable}
     disableEscapeKeyDown={!props.dismissable}
     onClose={() => removeModalInternal(props.id)}
@@ -173,3 +175,26 @@ export class Modal {
     });
   }
 }
+
+const displayError = (error: any) => {
+  // Only show the error if we're not already showing another modal.
+  if (allModals.length === 0) {
+    const message = (() => {
+      if (error instanceof Error) {
+        return error.message;
+      }
+      if (error instanceof PromiseRejectionEvent) {
+        if (error.reason instanceof Error) {
+          return error.reason.message;
+        }
+        return `${error.reason}`;
+      }
+      return `${error}`;
+    })();
+
+    Modal.messageBox("Error", message);
+  }
+};
+
+window.onunhandledrejection = (error) => displayError(error);
+window.onerror = (message, source, lineno, colno, error) => displayError(error);

@@ -188,12 +188,15 @@ export const makeLocalUrl = (path: string, params?: Record<string, any>, hash?: 
 
 export interface ResponseJson {
   err?: string;
+  stack?: string;
 }
 
 export const checkResponseJson = <T extends ResponseJson>(json: T) => {
   if (json.err) {
     console.warn(json);
-    throw new Error(json.err);
+    const error = new Error(json.err);
+    error.stack = json.stack;
+    throw error;
   }
   return json;
 };

@@ -554,11 +554,12 @@ const handleErrors = async (event: FetchEvent): Promise<Response> => {
   try {
     return await handleRanges(event);
   } catch (err) {
-    const fullError = err && err.stack || err;
-    console.error(fullError);
+    const stack = err && err.stack || err;
+    console.error(stack);
     return new Response(
       JSON.stringify({
-        err: `${fullError}`,
+        err: `${err && err.message || err}`,
+        stack,
         url: event.request.url,
         headers: event.request.headers
       }),
