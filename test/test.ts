@@ -41,7 +41,7 @@ interface Point {
   y: number;
 }
 
-const getRect = async (page: puppeteer.Page, selector: string): Rect => {
+const getRect = async (page: puppeteer.Page, selector: string): Promise<Rect> => {
   const elementHandle = await page.waitForSelector(selector);
   return page.evaluate((element) => {
     const {top, left, bottom, right} = element.getBoundingClientRect();
