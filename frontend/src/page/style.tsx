@@ -7,6 +7,8 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     pageWidth: {
       maxWidth: 960,
+      paddingLeft: theme.spacing(),
+      paddingRight: theme.spacing(),
       width: "100%",
       margin: "auto"
     },
