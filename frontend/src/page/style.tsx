@@ -13,9 +13,6 @@ export const useStyles = makeStyles((theme: Theme) =>
       margin: "auto"
     },
     toolbar: theme.mixins.toolbar,
-    menuButton: {
-      marginRight: theme.spacing(2)
-    },
     title: {
       flexGrow: 1,
       fontFamily: "'Arvo', serif"
