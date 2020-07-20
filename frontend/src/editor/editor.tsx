@@ -7,7 +7,15 @@ import {
   API_ANIMATION_CREATE,
   API_ANIMATION_JSON
 } from "../../../common/common";
-import {Auth, Deferred, EVENT_MENU_OPEN, NeverAsync, abortableJsonFetch, isDevEnvironment, makeLocalUrl} from "../shared/shared";
+import {
+  Auth,
+  Deferred,
+  EVENT_MENU_OPEN,
+  NeverAsync,
+  abortableJsonFetch,
+  isDevEnvironment,
+  makeLocalUrl
+} from "../shared/shared";
 import {MODALS_CHANGED, Modal} from "./modal";
 import {RenderFrameEvent, Renderer} from "./renderer";
 import $ from "jquery";
