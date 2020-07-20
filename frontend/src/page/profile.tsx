@@ -105,6 +105,7 @@ export const Profile: React.FC = () => {
           <TextField
             fullWidth
             label="Username"
+            disabled={Boolean(profileUpdateFetch)}
             inputProps={{maxLength: API_PROFILE_UPDATE.props.username.maxLength}}
             value={user.username}
             onChange={(e) => {
@@ -113,6 +114,7 @@ export const Profile: React.FC = () => {
           <TextField
             fullWidth
             label="Bio"
+            disabled={Boolean(profileUpdateFetch)}
             inputProps={{maxLength: API_PROFILE_UPDATE.props.bio.maxLength}}
             value={user.bio}
             onChange={(e) => {
