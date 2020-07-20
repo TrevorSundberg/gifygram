@@ -25,7 +25,7 @@ const dbkeyCachedJwksGoogle = () =>
 const dbkeyUser = (userId: UserId) =>
   `user:${userId}`;
 const dbkeyUsernameToUserId = (username: string) =>
-  `username:${username}`;
+  `username:${username.toLowerCase()}`;
 const dbkeyPost = (postId: PostId) =>
   `post:${postId}`;
 const dbkeyPostDeleted = (postId: PostId) =>
