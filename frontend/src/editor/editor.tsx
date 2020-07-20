@@ -327,22 +327,6 @@ export class Editor {
       modal.hide();
     });
 
-    const download = (url: string, filename: string) => {
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = filename || "download";
-      anchor.click();
-    };
-
-    getElement("render").addEventListener("click", async () => {
-      const filename = `MadeItForFun-${new Date().toISOString().
-        replace(/[^a-zA-Z0-9-]/ug, "-")}`;
-      const result = await render();
-      if (result) {
-        download(URL.createObjectURL(result.videoBlob), filename);
-      }
-    });
-
     getElement("visibility").addEventListener("click", async () => {
       manager.attemptToggleVisibility();
     });
