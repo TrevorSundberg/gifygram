@@ -76,12 +76,7 @@ export class Editor {
     };
     window.onbeforeunload = this.unloadCallback;
 
-    const urlDataParameter = "data";
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlData = urlParams.get(urlDataParameter);
-    if (urlData) {
-      manager.loadFromBase64(urlData);
-    } else if (remixId) {
+    if (remixId) {
       (async () => {
         const animation = await abortableJsonFetch(API_ANIMATION_JSON, Auth.Optional, {id: remixId});
         manager.load(animation);
@@ -214,7 +209,7 @@ export class Editor {
     const makePost = async (title: string, message: string) => {
       const result = await render();
       if (result) {
-        const jsonBuffer = new TextEncoder().encode(manager.saveToJson());
+        const jsonBuffer = new TextEncoder().encode(JSON.stringify(manager.save()));
         const videoBuffer = await result.videoBlob.arrayBuffer();
 
         const blob = new Blob([
@@ -289,36 +284,6 @@ export class Editor {
         </div>,
         dismissable: true,
         title: "Post"
-      });
-    });
-
-    getElement("share").addEventListener("click", (): NeverAsync => {
-      const base64 = manager.saveToBase64();
-      const url = new URL(window.location.href);
-      url.searchParams.set(urlDataParameter, base64);
-
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(url.href);
-      }
-
-      const textArea = $("<textarea class='md-textarea form-control' autofocus></textarea>");
-      textArea.val(url.href);
-      const copySuccess = "Link was copied to the clipboard.";
-      const copyFail = "Copy the link below:";
-      const div = $(`<div>${navigator.clipboard ? copySuccess : copyFail}</div>`);
-      div.append(textArea);
-      div.append("<br>Be sure to attribute the following links/users:<br>");
-
-      const textAreaAttribution = $("<textarea class='md-textarea form-control'></textarea>");
-      textAreaAttribution.val(manager.getAttributionList().join("\n"));
-      div.append(textAreaAttribution);
-
-      const modal = new Modal();
-      modal.open({
-        buttons: [{dismiss: true, name: "OK"}],
-        content: div,
-        dismissable: true,
-        title: "Share"
       });
     });
 

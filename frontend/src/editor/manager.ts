@@ -2,7 +2,6 @@ import {AnimationData, Track, WidgetInit} from "../../../common/common";
 import {Gif, Image, StaticImage} from "./image";
 import {RELATIVE_WIDGET_SIZE, Size, Utility, getAspect, resizeMinimumKeepAspect} from "./utility";
 import {Background} from "./background";
-import {Compress} from "./compression";
 import {Gizmo} from "./gizmo";
 import {Renderer} from "./renderer";
 import {Spinner} from "./spinner";
@@ -142,21 +141,6 @@ export class Manager {
     this.hasUnsavedChanges = true;
   }
 
-  public saveToBase64 () {
-    return Compress.compress(this.saveToJson());
-  }
-
-  public saveToJson () {
-    return JSON.stringify(this.save());
-  }
-
-  public async loadFromBase64 (base64: string) {
-    this.spinner.show();
-    const json = await Compress.decompress(base64);
-    await this.load(JSON.parse(json));
-    this.spinner.hide();
-  }
-
   public save (): AnimationData {
     this.hasUnsavedChanges = false;
     return {
@@ -164,13 +148,6 @@ export class Manager {
       videoAttributedSource: this.videoPlayer.getAttributedSrc(),
       widgets: this.widgets.map((widget) => JSON.parse(JSON.stringify(widget.init)))
     };
-  }
-
-  public getAttributionList (): string[] {
-    return [
-      this.videoPlayer.getAttributedSrc().originUrl,
-      ...this.widgets.map((widget) => widget.init.attributedSource.originUrl)
-    ].filter((value) => Boolean(value));
   }
 
   public async load (data: AnimationData) {
