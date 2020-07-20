@@ -5,8 +5,11 @@ import {
   StoredUser
 } from "../../../common/common";
 import {AbortablePromise, Auth, abortableJsonFetch, cancel} from "../shared/shared";
+import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
+import Divider from "@material-ui/core/Divider";
 import React from "react";
+import {SubmitButton} from "./submitButton";
 import TextField from "@material-ui/core/TextField";
 import {UserAvatar} from "./userAvatar";
 
@@ -55,61 +58,70 @@ export const Profile: React.FC = () => {
     return <div>Loading</div>;
   }
   return (
-    <form>
-      <UserAvatar
-        username={user.username}
-        avatarId={user.avatarId}
-      />
-      <Button component="label">
-        Upload Avatar
-        <input
-          accept="image/*"
-          style={{display: "none"}}
-          type="file"
-          onChange={async (e) => {
-            const [file] = e.target.files;
-            if (file) {
-              setUserAvatar(file);
-            }
-          }}
-        />
-      </Button>
-      <TextField
-        fullWidth
-        label="Username"
-        inputProps={{maxLength: API_PROFILE_UPDATE.props.username.maxLength}}
-        value={user.username}
-        onChange={(e) => {
-          setUser({...user, username: e.target.value});
-        }}/>
-      <TextField
-        fullWidth
-        label="Bio"
-        inputProps={{maxLength: API_PROFILE_UPDATE.props.bio.maxLength}}
-        value={user.bio}
-        onChange={(e) => {
-          setUser({...user, bio: e.target.value});
-        }}/>
-      <Button
-        type="submit"
-        onClick={async (e) => {
-          e.preventDefault();
-          const profileUpdateFetchPromise = abortableJsonFetch(
-            API_PROFILE_UPDATE,
-            Auth.Required,
-            {
-              bio: user.bio,
-              username: user.username
-            }
-          );
-          setProfileUpdateFetch(profileUpdateFetchPromise);
+    <div>
+      <Box display="flex" mb={1}>
+        <Box mr={1}>
+          <UserAvatar
+            username={user.username}
+            avatarId={user.avatarId}
+          />
+        </Box>
+        <Button component="label" variant="contained" color="primary">
+          Upload Avatar
+          <input
+            accept="image/*"
+            style={{display: "none"}}
+            type="file"
+            onChange={async (e) => {
+              const [file] = e.target.files;
+              if (file) {
+                setUserAvatar(file);
+              }
+            }}
+          />
+        </Button>
+      </Box>
+      <Divider variant="fullWidth" />
+      <Box mt={1}>
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const profileUpdateFetchPromise = abortableJsonFetch(
+              API_PROFILE_UPDATE,
+              Auth.Required,
+              {
+                bio: user.bio,
+                username: user.username
+              }
+            );
+            setProfileUpdateFetch(profileUpdateFetchPromise);
 
-          const updatedUser = await profileUpdateFetchPromise;
-          if (updatedUser) {
-            setUser(updatedUser);
-          }
-        }}>
-        Update
-      </Button>
-    </form>);
+            const updatedUser = await profileUpdateFetchPromise;
+            if (updatedUser) {
+              setUser(updatedUser);
+            }
+            setProfileUpdateFetch(null);
+          }}>
+          <TextField
+            fullWidth
+            label="Username"
+            inputProps={{maxLength: API_PROFILE_UPDATE.props.username.maxLength}}
+            value={user.username}
+            onChange={(e) => {
+              setUser({...user, username: e.target.value});
+            }}/>
+          <TextField
+            fullWidth
+            label="Bio"
+            inputProps={{maxLength: API_PROFILE_UPDATE.props.bio.maxLength}}
+            value={user.bio}
+            onChange={(e) => {
+              setUser({...user, bio: e.target.value});
+            }}/>
+          <SubmitButton submitting={Boolean(profileUpdateFetch)}>
+            Update Profile
+          </SubmitButton>
+        </form>
+      </Box>
+    </div>);
 };
