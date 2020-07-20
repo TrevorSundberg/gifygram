@@ -44,7 +44,7 @@ module.exports = {
         ]
       },
       {
-        test: /\.(png|mp4)$/u,
+        test: /\.(png|mp4|webm)$/u,
         use: [
           {
             loader: "url-loader",
