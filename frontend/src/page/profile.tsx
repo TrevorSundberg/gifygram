@@ -51,7 +51,9 @@ export const Profile: React.FC = () => {
           setUser(updatedUser);
         }
       })();
+      return () => cancel(avatarCreatePromise);
     }
+    return () => 0;
   }, [userAvatar]);
 
   if (!user) {
