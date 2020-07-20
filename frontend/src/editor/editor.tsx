@@ -45,8 +45,6 @@ export class Editor {
 
   private manager: Manager;
 
-  private tooltips: JQuery<HTMLElement>;
-
   public constructor (parent: HTMLElement, history: import("history").History, remixId?: string) {
     document.documentElement.style.overflow = "hidden";
     this.root = $(require("./editor.html").default).appendTo(parent);
