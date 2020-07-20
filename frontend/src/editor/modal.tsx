@@ -1,5 +1,4 @@
 import "./modal.css";
-import $ from "jquery";
 import Button from "@material-ui/core/Button";
 import CloseIcon from "@material-ui/icons/Close";
 import {Deferred} from "../shared/shared";
@@ -9,6 +8,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import IconButton from "@material-ui/core/IconButton";
 import React from "react";
+import {Typography} from "@material-ui/core";
 import {useStyles} from "../page/style";
 
 export const MODALS_CHANGED = "modalsChanged";
@@ -169,7 +169,7 @@ export class Modal {
           name: "Close"
         }
       ],
-      content: $("<p/>").text(text),
+      render: () => <Typography>{text}</Typography>,
       dismissable: true,
       title
     });
