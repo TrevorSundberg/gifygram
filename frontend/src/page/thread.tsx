@@ -16,12 +16,12 @@ import {
   intersectAndMergeLists
 } from "../shared/cache";
 import Box from "@material-ui/core/Box";
-import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import {LoginUserIdContext} from "./login";
 import {Post} from "./post";
 import React from "react";
+import {SubmitButton} from "./submitButton";
 import TextField from "@material-ui/core/TextField";
 
 interface ThreadProps {
@@ -185,7 +185,27 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       isSpecificThread
         ? <Card>
           <CardContent>
-            <form style={{display: "flex", flexDirection: "row", alignItems: "flex-end"}}>
+            <form style={{display: "flex", flexDirection: "row", alignItems: "flex-end"}}
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const postCreateFetchPromise = abortableJsonFetch(API_POST_CREATE, Auth.Required, {
+                  message: postMessage,
+                  replyId: props.threadId
+                });
+                setPostCreateFetch(postCreateFetchPromise);
+
+                const newPost = await postCreateFetchPromise;
+                if (newPost) {
+                  cacheAdd(newPost.threadId, newPost);
+                  // Append our post to the end.
+                  setPosts((previous) => [
+                    ...previous,
+                    newPost
+                  ]);
+                }
+                setPostCreateFetch(null);
+                setPostMessage("");
+              }}>
               <TextField
                 fullWidth
                 disabled={Boolean(postCreateFetch)}
@@ -196,32 +216,10 @@ export const Thread: React.FC<ThreadProps> = (props) => {
                   setPostMessage(e.target.value);
                 }}/>
               <Box mt={1} ml={1}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  disabled={Boolean(postCreateFetch)}
-                  onClick={async () => {
-                    const postCreateFetchPromise = abortableJsonFetch(API_POST_CREATE, Auth.Required, {
-                      message: postMessage,
-                      replyId: props.threadId
-                    });
-                    setPostCreateFetch(postCreateFetchPromise);
-
-                    const newPost = await postCreateFetchPromise;
-                    if (newPost) {
-                      cacheAdd(newPost.threadId, newPost);
-                      // Append our post to the end.
-                      setPosts((previous) => [
-                        ...previous,
-                        newPost
-                      ]);
-                    }
-                    setPostCreateFetch(null);
-                    setPostMessage("");
-                  }}>
-            Post
-                </Button>
+                <SubmitButton
+                  submitting={Boolean(postCreateFetch)}>
+                  Post
+                </SubmitButton>
               </Box>
             </form>
           </CardContent>
