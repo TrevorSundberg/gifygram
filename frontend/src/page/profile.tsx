@@ -71,7 +71,7 @@ export const Profile: React.FC = () => {
         <Button component="label" variant="contained" color="primary">
           Upload Avatar
           <input
-            accept="image/*"
+            accept="image/gif, image/jpeg, image/png"
             style={{display: "none"}}
             type="file"
             onChange={async (e) => {

@@ -256,13 +256,30 @@ const videoMp4Header = new Uint8Array([
   0x6d
 ]);
 
-const expectFileHeader = async (name: string, buffer: ArrayBuffer, expectedHeader: Uint8Array) => {
+const imageGifHeader = new Uint8Array([0x47, 0x49, 0x46, 0x38]);
+const imageJpegHeader = new Uint8Array([0xFF, 0xD8]);
+const imagePngHeader = new Uint8Array([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+
+const startsWithBytes = (buffer: ArrayBuffer, startsWith: Uint8Array) => {
+  if (buffer.byteLength < startsWith.byteLength) {
+    return false;
+  }
   const bytes = new Uint8Array(buffer);
-  for (let i = 0; i < expectedHeader.length; ++i) {
-    if (bytes[i] !== expectedHeader[i]) {
-      throw new Error(`File ${name} was not the correct type`);
+  for (let i = 0; i < startsWith.length; ++i) {
+    if (bytes[i] !== startsWith[i]) {
+      return false;
     }
   }
+  return true;
+};
+
+const expectFileHeader = (name: string, types: string, buffer: ArrayBuffer, possibleHeaders: Uint8Array[]) => {
+  for (const possibleHeader of possibleHeaders) {
+    if (startsWithBytes(buffer, possibleHeader)) {
+      return;
+    }
+  }
+  throw new Error(`File ${name} was not the correct type. Expected ${types}`);
 };
 
 interface JwtPayload {
@@ -371,7 +388,7 @@ addHandler(API_ANIMATION_CREATE, async (input) => {
     ...animationData.widgets.map((widget) => widget.attributedSource)
   ];
 
-  await expectFileHeader("video:video/mp4", video, videoMp4Header);
+  expectFileHeader("video", "mp4", video, [videoMp4Header]);
 
   const output = await postCreate(input, true, true, {
     type: "animation",
@@ -435,6 +452,7 @@ addHandler(API_PROFILE_AVATAR_UPDATE, async (input) => {
   if (imageData.byteLength > avatarMaxSizeKB * 1024) {
     throw new Error(`The size of the avatar must not be larger than ${avatarMaxSizeKB}KB`);
   }
+  expectFileHeader("avatar", "gif, jpeg, png", imageData, [imageGifHeader, imageJpegHeader, imagePngHeader]);
   await dbPutAvatar(user.avatarId, imageData);
   await dbPutUser(user);
   return {result: user};
