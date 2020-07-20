@@ -17,5 +17,11 @@ export const LoginDialog: React.FC<LoginDialogProps> = (props) => <Dialog
   onClose={props.onClose}
   open={props.open}>
   <DialogTitle>Login or create an account to continue...</DialogTitle>
-  <Button onClick={props.onSignInWithGoogle} variant="contained" color="primary">Login with Google</Button>
+  <Button
+    id="login-google"
+    onClick={props.onSignInWithGoogle}
+    variant="contained"
+    color="primary">
+    Login with Google
+  </Button>
 </Dialog>;

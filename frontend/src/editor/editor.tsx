@@ -117,7 +117,7 @@ export class Editor {
       let text = "";
       const button = await modal.open({
         buttons: [{dismiss: true, name: "OK", submitOnEnter: true}],
-        render: () => <TextField autoFocus={true} onChange={(e) => {
+        render: () => <TextField id="text-input" autoFocus={true} onChange={(e) => {
           text = e.target.value;
         }}/>,
         dismissable: true,
@@ -259,6 +259,7 @@ export class Editor {
         render: () => <div>
           <div>
             <TextField
+              id="post-title"
               fullWidth
               label="Title"
               inputProps={{maxLength: API_ANIMATION_CREATE.props.title.maxLength}}
@@ -269,6 +270,7 @@ export class Editor {
           </div>
           <div>
             <TextField
+              id="post-message"
               fullWidth
               label="Message"
               inputProps={{maxLength: API_ANIMATION_CREATE.props.message.maxLength}}

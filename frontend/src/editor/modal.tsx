@@ -72,6 +72,7 @@ export const ModalComponent: React.FC<ModalProps> = (props) => {
       {
         (props.buttons || []).map((button) => <Button
           key={button.name}
+          id={`button-${button.name}`}
           onClick={() => {
             if (props.defer) {
               props.defer.resolve(button);
