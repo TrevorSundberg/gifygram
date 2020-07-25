@@ -61,6 +61,7 @@ export const Profile: React.FC = () => {
       <CircularProgress />
     </Box>;
   }
+  const {minLength, maxLength} = API_PROFILE_UPDATE.props.username;
   return (
     <div>
       <Box display="flex" mb={1}>
@@ -110,11 +111,16 @@ export const Profile: React.FC = () => {
             fullWidth
             label="Username"
             error={!user.ownsUsername}
-            helperText={user.ownsUsername ? null
+            helperText={user.ownsUsername
+              ? `Between ${minLength} and ${maxLength} letters, numbers, and dots '.'`
               : "Another user owns this username. You may use it, but you won't be " +
                 "able to give out links to your profile until you pick a unique username."}
             disabled={Boolean(profileUpdateFetch)}
-            inputProps={{maxLength: API_PROFILE_UPDATE.props.username.maxLength}}
+            inputProps={{
+              minLength,
+              maxLength,
+              pattern: API_PROFILE_UPDATE.props.username.pattern
+            }}
             value={user.username}
             onChange={(e) => {
               setUser({...user, username: e.target.value});

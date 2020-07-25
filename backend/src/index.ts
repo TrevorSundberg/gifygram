@@ -106,6 +106,30 @@ const expect = <T>(name: string, value: T | null | undefined) => {
   return value;
 };
 
+const sanitizeOrGenerateUsername = (unsantizedUsername: string) => {
+  // The output of this must be valid according to the regex in API_PROFILE_UPDATE.
+  const invalidReplaceCharacter = ".";
+
+  // Replace all invalid characters with "." and don't allow multiple in a row.
+  const sanitizedUsername = unsantizedUsername.
+    replace(/[^a-zA-Z0-9.]/gu, invalidReplaceCharacter).
+    replace(/\.+/gu, invalidReplaceCharacter);
+
+  // If the username is empty or just the invalid character then pick a generic name.
+  const pickedUsername = !sanitizedUsername || sanitizedUsername === invalidReplaceCharacter
+    ? "user"
+    : sanitizedUsername;
+
+  // If the username is too short, append random digits;
+  const usernameMinLength = expect("username.minLength", API_PROFILE_UPDATE.props.username.minLength);
+  const usernameMaxLength = expect("username.maxLength", API_PROFILE_UPDATE.props.username.maxLength);
+  const username = pickedUsername.length < usernameMinLength
+    ? `${pickedUsername}${Math.floor(Math.random() * 90000) + 10000}`
+    : pickedUsername;
+
+  return username.slice(0, usernameMaxLength);
+};
+
 class RequestInput<T> {
   public readonly request: Request;
 
@@ -180,7 +204,7 @@ class RequestInput<T> {
     const user: StoredUser = {
       id: content.sub,
       avatarId: null,
-      username: content.given_name,
+      username: sanitizeOrGenerateUsername(content.given_name),
       bio: "",
       role: isDevEnvironment() && content.sub === "admin"
         ? "admin"

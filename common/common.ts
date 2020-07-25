@@ -185,7 +185,9 @@ export interface SpecificPost {
 export interface ProfileUpdate {
 
   /**
-   * @maxLength 50
+   * @minLength 5
+   * @maxLength 20
+   * @pattern ^[a-zA-Z0-9.]+$
    */
   username: string;
 
