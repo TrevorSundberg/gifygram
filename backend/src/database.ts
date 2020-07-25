@@ -57,23 +57,23 @@ const dbkeyUsernameToUserId = (username: string) =>
 const dbkeyPost = (postId: PostId) =>
   `post:${postId}`;
 const dbkeyPostDeleted = (postId: PostId) =>
-  `post/deleted:${postId}`;
+  `post.deleted:${postId}`;
 const dbprefixThreadPost = (threadId: PostId) =>
-  `thread/post:${threadId}:`;
+  `thread.post:${threadId}:`;
 const dbkeyThreadPost = (threadId: PostId, sortKey: SortKey, postId: PostId) =>
-  `thread/post:${threadId}:${sortKey}|${postId}`;
+  `thread.post:${threadId}:${sortKey}|${postId}`;
 const dbkeyPostLiked = (userId: UserId, postId: PostId) =>
-  `post/liked:${userId}:${postId}`;
+  `post.liked:${userId}:${postId}`;
 const dbkeyPostLikes = (postId: PostId) =>
-  `post/likes:${postId}`;
+  `post.likes:${postId}`;
 const dbkeyThreadViews = (threadId: PostId) =>
-  `thread/views:${threadId}`;
+  `thread.views:${threadId}`;
 const dbkeyThreadView = (threadId: PostId, ip: IP) =>
-  `thread/view:${threadId}:${ip}`;
+  `thread.view:${threadId}:${ip}`;
 const dbkeyAnimationJson = (postId: PostId) =>
-  `animation/json:${postId}`;
+  `animation.json:${postId}`;
 const dbkeyAnimationVideo = (postId: PostId) =>
-  `animation/video:${postId}`;
+  `animation.video:${postId}`;
 const dbkeyAvatar = (avatarId: UserId) =>
   `avatar:${avatarId}`;
 
