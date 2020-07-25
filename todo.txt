@@ -160,11 +160,17 @@ DONE - Admin can delete posts
 DONE - Track views / popularity (approximate, non-atomic and underestimate + actual view by user)
 DONE - Add a test that we can run in development mode
 DONE - Remove content jquery from modal and remove the share button
+DONE - The makeServerUrl function should type enforce parameters
+DONE - Add a loading spinner to profile
+DONE - Add padding to the main screen so mobile doesn't look so bad
+DONE - Make sure usernames are unique since we can pick them at the moment
+DONE - Add username sanitization and checking
+DONE - Integrate google analytics to get stats tracking
+DONE - Loading screen for picking background video
+DONE - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)
 
- - Make sure usernames are unique since we can pick them at the moment
- - Integrate google analytics to get stats tracking
+ - Refactor handlers to be independent of Workers
  - Hook up the gifygram.com domain to point at it (buy a new service?)
- - Make basic profile page
  - Agree privacy / etc
  - Link user ids in thread/threads to profile page (/user/someone)
  - Tags/keywords
@@ -188,10 +194,8 @@ DONE - Remove content jquery from modal and remove the share button
  - Get tests running on CI builds (docker/puppeteer)
 
  - Bug: Motion tracked object gets deselected on occasion
- - Bug: Video was too wide (black background to the right)
  - Bug: Motion track first/last frame is offset (almost like it's wrapping first/last)
  - Bug: Widgets after encoding does not always match current video frame (widgets in wrong position)
- - Loading screen for picking background video
  - Visiblity toggle kinda sucks in animator, we should just make it a timeline thing
  - Custom dialog for listing stickers / videos
  - Import main video from youtube (clip the video)
@@ -199,7 +203,6 @@ DONE - Remove content jquery from modal and remove the share button
  - Export dialog (gif, mp4, webm), fps, max size / keep aspect, etc...
  - Customize text styles (font, color, outline, etc)
 
- - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)
  - Scenejs Keyframe bug where it doesn't seek correctly: min repro and report it
 
  - Import main video from disk
