@@ -60,10 +60,10 @@ export const ShareButton: React.FC<ShareButtonProps> = (props) => {
         <CardContent style={{paddingBottom: 0}}>
           <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
             <TextField
+              fullWidth
               onFocus={(e) => e.target.setSelectionRange(0, Number.MAX_SAFE_INTEGER)}
               size="small"
               label="Link"
-              fullWidth={true}
               defaultValue={props.url}
               InputProps={{
                 readOnly: true
