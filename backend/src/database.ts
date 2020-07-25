@@ -10,10 +10,12 @@ import {
   padInteger
 } from "../../common/common";
 
+type KeyValue<Value> = Promise<Value | null>
+
 export interface KeyValueStore {
-  get(key: string): KVValue<string>;
-  get<ExpectedValue = unknown>(key: string, type: "json"): KVValue<ExpectedValue>;
-  get(key: string, type: "arrayBuffer"): KVValue<ArrayBuffer>;
+  get(key: string): KeyValue<string>;
+  get<ExpectedValue = unknown>(key: string, type: "json"): KeyValue<ExpectedValue>;
+  get(key: string, type: "arrayBuffer"): KeyValue<ArrayBuffer>;
 
   put(
     key: string,
