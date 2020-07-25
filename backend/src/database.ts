@@ -12,14 +12,12 @@ import {
 
 export interface KeyValueStore {
   get(key: string): KVValue<string>;
-  get(key: string, type: "text"): KVValue<string>;
   get<ExpectedValue = unknown>(key: string, type: "json"): KVValue<ExpectedValue>;
   get(key: string, type: "arrayBuffer"): KVValue<ArrayBuffer>;
-  get(key: string, type: "stream"): KVValue<ReadableStream>;
 
   put(
     key: string,
-    value: string | ReadableStream | ArrayBuffer | FormData,
+    value: string | ArrayBuffer,
     options?: {
       expiration?: string | number;
       expirationTtl?: string | number;
@@ -31,11 +29,8 @@ export interface KeyValueStore {
   list(options: {
     prefix?: string;
     limit?: number;
-    cursor?: string;
   }): Promise<{
     keys: { name: string; expiration?: number }[];
-    list_complete: boolean;
-    cursor: string;
   }>;
 }
 
@@ -314,7 +309,7 @@ export const dbDeleteAvatar = async (avatarId: AvatarId): Promise<void> =>
   db.delete(dbkeyAvatar(avatarId));
 
 export const dbGetAnimationJson = async (postId: PostId): Promise<string | null> =>
-  db.get(dbkeyAnimationJson(postId), "text");
+  db.get(dbkeyAnimationJson(postId));
 
 export const dbGetAnimationVideo = async (postId: PostId): Promise<ArrayBuffer | null> =>
   db.get(dbkeyAnimationVideo(postId), "arrayBuffer");
