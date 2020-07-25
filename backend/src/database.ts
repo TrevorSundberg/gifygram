@@ -9,9 +9,40 @@ import {
   StoredUser,
   padInteger
 } from "../../common/common";
-import {patchDevKv} from "./dev";
 
-patchDevKv(db);
+export interface KeyValueStore {
+  get(key: string): KVValue<string>;
+  get(key: string, type: "text"): KVValue<string>;
+  get<ExpectedValue = unknown>(key: string, type: "json"): KVValue<ExpectedValue>;
+  get(key: string, type: "arrayBuffer"): KVValue<ArrayBuffer>;
+  get(key: string, type: "stream"): KVValue<ReadableStream>;
+
+  put(
+    key: string,
+    value: string | ReadableStream | ArrayBuffer | FormData,
+    options?: {
+      expiration?: string | number;
+      expirationTtl?: string | number;
+    },
+  ): Promise<void>;
+
+  delete(key: string): Promise<void>;
+
+  list(options: {
+    prefix?: string;
+    limit?: number;
+    cursor?: string;
+  }): Promise<{
+    keys: { name: string; expiration?: number }[];
+    list_complete: boolean;
+    cursor: string;
+  }>;
+}
+
+let db: KeyValueStore = undefined as any;
+export const setKeyValueStore = (kvStore: KeyValueStore) => {
+  db = kvStore;
+};
 
 export type AvatarId = string;
 export type UserId = string;

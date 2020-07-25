@@ -56,9 +56,9 @@ var window: any = {};
 global.window = window;
 import {Jose} from "jose-jwe-jws";
 (Jose as any).crypto = crypto;
-
-import {isDevEnvironment} from "./dev";
 import {uuid} from "uuidv4";
+
+export const isDevEnvironment = () => typeof production === "undefined" || !production;
 
 const CONTENT_TYPE_APPLICATION_JSON = "application/json";
 const CONTENT_TYPE_APPLICATION_OCTET_STREAM = "application/octet-stream";
