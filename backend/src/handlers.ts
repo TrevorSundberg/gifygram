@@ -48,7 +48,6 @@ import {
   dbPutUser,
   dbUserHasPermission
 } from "./database";
-import {getAssetFromKV, serveSinglePageApp} from "@cloudflare/kv-asset-handler";
 
 // eslint-disable-next-line no-var,vars-on-top,init-declarations
 declare var global: any;
@@ -62,10 +61,9 @@ import {isDevEnvironment} from "./dev";
 import {uuid} from "uuidv4";
 
 const CONTENT_TYPE_APPLICATION_JSON = "application/json";
+const CONTENT_TYPE_APPLICATION_OCTET_STREAM = "application/octet-stream";
 const CONTENT_TYPE_VIDEO_MP4 = "video/mp4";
 const CONTENT_TYPE_IMAGE_JPEG = "image/jpeg";
-
-const AUTHORIZATION_HEADER = "authorization";
 
 const CACHE_CONTROL_IMMUTABLE = "public,max-age=31536000,immutable";
 
@@ -84,20 +82,22 @@ const parseBinaryChunks = (buffer: ArrayBuffer) => {
   return result;
 };
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, HEAD, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization"
-};
+export interface RawRequest {
+  // All methods are uppercase.
+  method: string;
 
-// TODO(trevor): Remove this once it's all hosted in the same place.
-const createHeaders = (mimeType: string, immutable = false) => new Headers({
-  ...corsHeaders,
-  "content-type": mimeType || "application/octet-stream",
-  ...immutable ? {"cache-control": CACHE_CONTROL_IMMUTABLE} : {}
-});
-const responseOptions = (mimeType: string, immutable = false) =>
-  ({headers: createHeaders(mimeType, immutable)});
+  url: URL;
+
+  ip: string;
+
+  authorization: string | null;
+
+  range: string | null;
+
+  body: ArrayBuffer;
+
+  onHandlerNotFound: () => Promise<RequestOutput<any>>;
+}
 
 const expect = <T>(name: string, value: T | null | undefined) => {
   if (!value) {
@@ -131,25 +131,22 @@ const sanitizeOrGenerateUsername = (unsantizedUsername: string) => {
 };
 
 class RequestInput<T> {
-  public readonly request: Request;
+  public readonly request: RawRequest;
 
   public readonly url: URL;
-
-  public readonly event: FetchEvent;
 
   public readonly json: T;
 
   private authedUser?: StoredUser = undefined;
 
-  public constructor (event: FetchEvent, url: URL, json: T) {
-    this.request = event.request;
-    this.url = url;
-    this.event = event;
+  public constructor (request: RawRequest, json: T) {
+    this.request = request;
+    this.url = request.url;
     this.json = json;
   }
 
   private async validateJwtAndGetUser (): Promise<StoredUser> {
-    const token = expect("authorization", this.request.headers.get("authorization"));
+    const token = expect("authorization", this.request.authorization);
 
     const content = await (async (): Promise<JwtPayload> => {
       if (isDevEnvironment()) {
@@ -219,7 +216,7 @@ class RequestInput<T> {
     if (this.authedUser) {
       return this.authedUser;
     }
-    if (this.request.headers.has(AUTHORIZATION_HEADER)) {
+    if (this.request.authorization) {
       this.authedUser = await this.validateJwtAndGetUser();
       return this.authedUser;
     }
@@ -235,6 +232,10 @@ interface RequestOutput<OutputType> {
   result: OutputType;
   contentType?: string;
   immutable?: boolean;
+  headers?: Record<string, string>;
+
+  // Any RequestOutput is assumed to be 200 or this status value (null means 404, and throw is 500).
+  status?: number;
 }
 
 type HandlerCallback<InputType, OutputType> = (input: RequestInput<InputType>) =>
@@ -383,8 +384,7 @@ addHandler(API_POST_LIST, async (input) => {
 
   // If this is a specific thread, then track views for it.
   if (threadId !== API_ALL_THREADS_ID) {
-    const ip = expect("ip", input.request.headers.get("cf-connecting-ip"));
-    await dbAddView(threadId, ip);
+    await dbAddView(threadId, input.request.ip);
   }
 
   const result = await dbListPosts(input.json);
@@ -400,7 +400,7 @@ addHandler(API_ANIMATION_CREATE, async (input) => {
   const [
     jsonBinary,
     video
-  ] = parseBinaryChunks(await input.request.arrayBuffer());
+  ] = parseBinaryChunks(input.request.body);
 
   const json: string = new TextDecoder().decode(jsonBinary);
   const animationData: AnimationData = JSON.parse(json);
@@ -483,7 +483,7 @@ addHandler(API_PROFILE_AVATAR_UPDATE, async (input) => {
     await dbDeleteAvatar(user.avatarId);
   }
   user.avatarId = uuid();
-  const imageData = await input.request.arrayBuffer();
+  const imageData = input.request.body;
   const avatarMaxSizeKB = 256;
   if (imageData.byteLength > avatarMaxSizeKB * 1024) {
     throw new Error(`The size of the avatar must not be larger than ${avatarMaxSizeKB}KB`);
@@ -538,28 +538,17 @@ addHandler(API_POST_DELETE, async (input) => {
   return {result: {}};
 });
 
-const handleOptions = (request: Request) => {
-  if (
-    request.headers.get("Origin") !== null &&
-    request.headers.get("Access-Control-Request-Method") !== null &&
-    request.headers.get("Access-Control-Request-Headers") !== null) {
-    return new Response(null, {
-      headers: corsHeaders
-    });
+const handleRequest = async (request: RawRequest): Promise<RequestOutput<any>> => {
+  if (request.method === "OPTIONS") {
+    return {
+      result: undefined,
+      headers: {
+        allow: "GET, HEAD, POST, OPTIONS"
+      }
+    };
   }
 
-  return new Response(null, {
-    headers: {
-      Allow: "GET, HEAD, POST, OPTIONS"
-    }
-  });
-};
-
-const handleRequest = async (event: FetchEvent): Promise<Response> => {
-  if (event.request.method === "OPTIONS") {
-    return handleOptions(event.request);
-  }
-  const url = new URL(decodeURI(event.request.url));
+  const {url} = request;
   const handler = handlers[url.pathname];
   if (handler) {
     // Convert the url parameters back to json so we can validate it.
@@ -579,85 +568,77 @@ const handleRequest = async (event: FetchEvent): Promise<Response> => {
       throw new Error(JSON.stringify(handler.api.validator.errors));
     }
 
-    const input = new RequestInput<any>(event, url, jsonInput);
+    const input = new RequestInput<any>(request, jsonInput);
     const output = await handler.callback(input);
-    return new Response(
-      output.result instanceof ArrayBuffer
-        ? output.result
-        : JSON.stringify(output.result),
-      responseOptions(output.contentType || CONTENT_TYPE_APPLICATION_JSON, output.immutable)
-    );
+    return output;
   }
+  return request.onHandlerNotFound();
+};
 
-  let isHtml = false;
-  const response = await getAssetFromKV(event, {
-    mapRequestToAsset: (request: Request): Request => {
-      const spaRequest = serveSinglePageApp(request);
-      if (new URL(spaRequest.url).pathname.endsWith(".html")) {
-        isHtml = true;
+const handleRanges = async (request: RawRequest): Promise<RequestOutput<any>> => {
+  const response = await handleRequest(request);
+  if (response.result instanceof ArrayBuffer) {
+    response.headers = response.headers || {};
+    response.headers["accept-ranges"] = "bytes";
+
+    const rangeHeader = request.range;
+
+    const canHandleRangeRequest =
+      !isDevEnvironment() &&
+      request.method === "GET";
+
+    if (canHandleRangeRequest && rangeHeader) {
+      const rangeResults = (/bytes=([0-9]+)-([0-9]+)?/u).exec(rangeHeader);
+      if (!rangeResults) {
+        throw new Error(`Invalid range header: ${rangeHeader}`);
       }
-      return spaRequest;
+      const buffer = response.result;
+      const begin = parseInt(rangeResults[1], 10);
+      const end = parseInt(rangeResults[2], 10) || buffer.byteLength - 1;
+      response.result = buffer.slice(begin, end + 1);
+      response.headers["content-range"] = `bytes ${begin}-${end}/${buffer.byteLength}`;
+      response.status = 206;
+      return response;
     }
-  });
-
-  // We use content based hashes with webpack, but index.html (or any other .html) is not hashed.
-  if (!isHtml) {
-    response.headers.set("cache-control", CACHE_CONTROL_IMMUTABLE);
   }
   return response;
 };
 
-const handleRanges = async (event: FetchEvent): Promise<Response> => {
-  const response = await handleRequest(event);
-  response.headers.append("accept-ranges", "bytes");
-
-  const rangeHeader = event.request.headers.get("range");
-
-  const canHandleRangeRequest =
-    !isDevEnvironment() &&
-    event.request.method === "GET" &&
-    response.status === 200 &&
-    response.body;
-
-  if (canHandleRangeRequest && rangeHeader) {
-    const rangeResults = (/bytes=([0-9]+)-([0-9]+)?/u).exec(rangeHeader);
-    if (!rangeResults) {
-      throw new Error(`Invalid range header: ${rangeHeader}`);
-    }
-    const buffer = await response.arrayBuffer();
-    const begin = parseInt(rangeResults[1], 10);
-    const end = parseInt(rangeResults[2], 10) || buffer.byteLength - 1;
-    const slice = buffer.slice(begin, end + 1);
-    response.headers.append("content-range", `bytes ${begin}-${end}/${buffer.byteLength}`);
-    return new Response(slice, {
-      status: 206,
-      headers: response.headers
-    });
-  }
-  return response;
-};
-
-const handleErrors = async (event: FetchEvent): Promise<Response> => {
+const handleErrors = async (request: RawRequest): Promise<RequestOutput<any>> => {
   try {
-    return await handleRanges(event);
+    return await handleRanges(request);
   } catch (err) {
     const stack = err && err.stack || err;
     console.error(stack);
-    return new Response(
-      JSON.stringify({
+    return {
+      result: {
         err: `${err && err.message || err}`,
         stack,
-        url: event.request.url,
-        headers: event.request.headers
-      }),
-      {
-        headers: createHeaders(CONTENT_TYPE_APPLICATION_JSON),
-        status: 500
-      }
-    );
+        url: request.url.href
+      },
+      status: 500
+    };
   }
 };
 
-addEventListener("fetch", (event) => {
-  event.respondWith(handleErrors(event));
-});
+export const handle = async (request: RawRequest): Promise<RequestOutput<any>> => {
+  const output = await handleErrors(request);
+  output.headers = output.headers || {};
+
+  if (output.result instanceof ArrayBuffer) {
+    output.contentType = output.contentType || CONTENT_TYPE_APPLICATION_OCTET_STREAM;
+  } else {
+    output.contentType = output.contentType || CONTENT_TYPE_APPLICATION_JSON;
+    output.result = JSON.stringify(output.result);
+  }
+
+  output.headers = {
+    ...output.headers,
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": "GET, HEAD, POST, OPTIONS",
+    "access-control-allow-headers": "content-type, authorization",
+    "content-type": output.contentType || CONTENT_TYPE_APPLICATION_JSON,
+    ...output.immutable ? {"cache-control": CACHE_CONTROL_IMMUTABLE} : {}
+  };
+  return output;
+};
