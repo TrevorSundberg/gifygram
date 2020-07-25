@@ -90,6 +90,7 @@ export interface StoredPost {
   userId: string;
   replyId: string | null;
   sortKey: string;
+  dateMsSinceEpoch: number;
 }
 
 export interface ThreadPost {

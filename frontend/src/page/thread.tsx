@@ -51,6 +51,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       userId: "",
       replyId: null,
       sortKey: "",
+      dateMsSinceEpoch: Date.now(),
       username: "",
       avatarId: null,
       liked: false,

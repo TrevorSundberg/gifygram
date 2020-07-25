@@ -352,7 +352,8 @@ const postCreate = async (
     userdata,
     userId: user.id,
     replyId,
-    sortKey: newToOld
+    sortKey: newToOld,
+    dateMsSinceEpoch: Date.now()
   };
 
   await dbCreatePost(post);
