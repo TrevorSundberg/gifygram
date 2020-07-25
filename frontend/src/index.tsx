@@ -175,7 +175,7 @@ const App = () => {
                     <ListItemText primary={"Edit Profile"} />
                   </ListItem>
                 </Link>
-                : <ListItem button onClick={() => signInIfNeeded()}>
+                : <ListItem button onClick={() => signInIfNeeded().catch(() => 0)}>
                   <ListItemIcon><PersonIcon/></ListItemIcon>
                   <ListItemText primary={"Sign In"} />
                 </ListItem>
