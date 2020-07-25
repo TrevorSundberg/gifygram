@@ -59,7 +59,12 @@ export const isDevEnvironment = () => window.location.protocol === "http:";
 
 type GoogleAuth = Omit<gapi.auth2.GoogleAuth, "then">;
 
-const auth2Promise = new Promise<GoogleAuth>((resolve, reject) => {
+interface GoogleError {
+  error: string;
+  details: string;
+}
+
+const auth2Promise = new Promise<GoogleAuth | GoogleError>((resolve) => {
   if (isDevEnvironment()) {
     resolve(null);
     return;
@@ -72,7 +77,9 @@ const auth2Promise = new Promise<GoogleAuth>((resolve, reject) => {
       }).then((auth2) => {
         delete auth2.then;
         resolve(auth2);
-      }, reject);
+      }, (error) => {
+        resolve(error);
+      });
     });
   };
   script.src = "https://apis.google.com/js/api.js";
@@ -80,9 +87,9 @@ const auth2Promise = new Promise<GoogleAuth>((resolve, reject) => {
   script.defer = true;
   document.body.appendChild(script);
 });
-let googleAuth2: GoogleAuth = null;
+let googleAuth2: gapi.auth2.GoogleAuth | GoogleError = null;
 auth2Promise.then((auth2) => {
-  googleAuth2 = auth2;
+  googleAuth2 = auth2 as gapi.auth2.GoogleAuth | GoogleError;
 });
 
 const LOCAL_STORAGE_KEY_DEV_USER = "devUser";
@@ -101,9 +108,12 @@ export const getAuthIfSignedIn = async (): Promise<AuthUser | null> => {
     return null;
   }
   const auth2 = await auth2Promise;
-  if (auth2.isSignedIn.get()) {
-    const userGoogle = auth2.currentUser.get();
-    return {jwt: userGoogle.getAuthResponse().id_token, id: userGoogle.getId()};
+
+  if (auth2 instanceof gapi.auth2.GoogleAuth) {
+    if (auth2.isSignedIn.get()) {
+      const userGoogle = auth2.currentUser.get();
+      return {jwt: userGoogle.getAuthResponse().id_token, id: userGoogle.getId()};
+    }
   }
   return null;
 };
@@ -145,9 +155,12 @@ export const signInWithGoogle = (): NeverAsync<Promise<void> | null> => {
   }
 
   // We know googleAuth2 is not null because getAuthIfSignedIn should have been called before this.
-  return googleAuth2.signIn().then((userGoogle) => {
-    triggerLoggedIn(userGoogle.getId());
-  });
+  if (googleAuth2 instanceof gapi.auth2.GoogleAuth) {
+    return googleAuth2.signIn().then((userGoogle) => {
+      triggerLoggedIn(userGoogle.getId());
+    });
+  }
+  throw new Error(googleAuth2.details);
 };
 
 const applyPathAndParams = (url: URL, path: string, params?: Record<string, any>) => {
