@@ -6,7 +6,11 @@ const html = require("./spinner.html").default;
 export class Spinner {
   private root: JQuery;
 
+  private complete: JQuery = $();
+
   private count = 0;
+
+  private id = 0;
 
   public constructor () {
     this.root = $(html);
@@ -14,6 +18,7 @@ export class Spinner {
 
   public show () {
     if (this.count === 0) {
+      this.complete.remove();
       $(document.body).append(this.root);
     }
     ++this.count;
@@ -22,6 +27,8 @@ export class Spinner {
   public hide () {
     if (this.count === 1) {
       this.root.remove();
+      this.complete = $(`<div id='spinner-complete-${this.id++}'>`);
+      $(document.body).append(this.complete);
     }
     --this.count;
   }

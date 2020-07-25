@@ -20,12 +20,12 @@ const waitForHealth = async (url: string) => {
 };
 
 const click = async (page: puppeteer.Page, selector: string) => {
-  await page.waitForSelector(selector);
+  await page.waitForSelector(selector, {visible: true});
   await page.click(selector);
 };
 
 const type = async (page: puppeteer.Page, selector: string, text: string) => {
-  await page.waitForSelector(selector);
+  await page.waitForSelector(selector, {visible: true});
   await page.type(selector, text);
 };
 
@@ -71,6 +71,8 @@ const getCenter = (rect: Rect): Point => ({
 
     // Start creating a new animation.
     await click(page, "#create");
+
+    await page.waitForSelector("#spinner-complete-0", {visible: true});
 
     // Add text to the animation.
     await click(page, "#text");
