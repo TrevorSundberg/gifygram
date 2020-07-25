@@ -61,7 +61,7 @@ const getCenter = (rect: Rect): Point => ({
 
     // Handle the dev login (username is test).
     page.on("dialog", async (dialog) => {
-      await dialog.accept("test");
+      await dialog.accept("test.user");
     });
 
     await waitForHealth(API_HEALTH_URL);
