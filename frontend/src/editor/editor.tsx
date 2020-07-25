@@ -74,21 +74,23 @@ export class Editor {
     };
     window.onbeforeunload = this.unloadCallback;
 
-    if (remixId) {
-      (async () => {
+    (async () => {
+      manager.spinner.show();
+      if (remixId) {
         const animation = await abortableJsonFetch(API_ANIMATION_JSON, Auth.Optional, {id: remixId});
         manager.load(animation);
-      })();
-    } else {
-      player.setAttributedSrc({
-        originUrl: "",
-        title: "",
-        previewGifUrl: "",
-        src: isDevEnvironment()
-          ? require("../public/sample.webm").default as string
-          : require("../public/sample.mp4").default as string
-      });
-    }
+      } else {
+        await player.setAttributedSrc({
+          originUrl: "",
+          title: "",
+          previewGifUrl: "",
+          src: isDevEnvironment()
+            ? require("../public/sample.webm").default as string
+            : require("../public/sample.mp4").default as string
+        });
+      }
+      manager.spinner.hide();
+    })();
 
     getElement("menu").addEventListener(
       "click",
@@ -149,7 +151,9 @@ export class Editor {
     getElement("video").addEventListener("click", async () => {
       const attributedSource = await StickerSearch.searchForStickerUrl("video");
       if (attributedSource) {
+        manager.spinner.show();
         await player.setAttributedSrc(attributedSource);
+        manager.spinner.hide();
       }
     });
 

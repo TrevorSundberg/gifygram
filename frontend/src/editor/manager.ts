@@ -39,7 +39,7 @@ export class Manager {
 
   public updateExternally = false;
 
-  private spinner = new Spinner();
+  public readonly spinner = new Spinner();
 
   public hasUnsavedChanges = false;
 
@@ -151,7 +151,6 @@ export class Manager {
   }
 
   public async load (data: AnimationData) {
-    this.spinner.show();
     this.videoPlayer.setAttributedSrc(data.videoAttributedSource);
     this.clearWidgets();
     for (const init of data.widgets) {
@@ -165,7 +164,6 @@ export class Manager {
     this.videoPlayer.video.currentTime = 0;
     this.hasUnsavedChanges = false;
     await this.videoPlayer.loadPromise;
-    this.spinner.hide();
   }
 
   private update () {
