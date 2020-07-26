@@ -13,6 +13,7 @@
   },
   "main": "dist/main.js",
   "dependencies": {
+    "ajv": "^6.12.3",
     "atob": "^2.1.2",
     "btoa": "^1.2.1",
     "firebase-admin": "^8.10.0",
