@@ -212,11 +212,15 @@ export class Api<InputType extends Record<string, any>, OutputType> {
 
   public readonly props: Record<keyof InputType, JSONSchema7> = {} as any;
 
-  private _in: InputType | undefined = undefined;
+  private in: InputType | undefined = undefined;
 
-  private _out: OutputType | undefined = undefined;
+  private out: OutputType | undefined = undefined;
 
   public constructor (pathname: string, validator: SchemaValidator) {
+    // eslint-disable-next-line no-void
+    void this.in;
+    // eslint-disable-next-line no-void
+    void this.out;
     this.pathname = pathname;
     this.validator = validator;
 
