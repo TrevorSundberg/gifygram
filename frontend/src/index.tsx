@@ -3,8 +3,8 @@ import "./page/hashScroll";
 import {API_ALL_THREADS_ID, API_TRENDING_THREADS_ID} from "../../common/common";
 import {
   BrowserRouter,
-  Link,
   Route,
+  Link as RouterLink,
   Switch
 } from "react-router-dom";
 import {
@@ -26,6 +26,7 @@ import {EditorComponent} from "./editor/editorComponent";
 import GitHubIcon from "@material-ui/icons/GitHub";
 import HomeIcon from "@material-ui/icons/Home";
 import IconButton from "@material-ui/core/IconButton";
+import Link from "@material-ui/core/Link";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
@@ -99,7 +100,7 @@ const App = () => {
                     onClick={() => setMenuOpen(true)}>
                     <MenuIcon />
                   </IconButton>
-                  <Link to="/" className={classes.link}>
+                  <RouterLink to="/" className={classes.link}>
                     <Box mr={1}>
                       <img
                         style={{verticalAlign: "middle"}}
@@ -107,15 +108,15 @@ const App = () => {
                         width="54px"
                         height="54px"/>
                     </Box>
-                  </Link>
+                  </RouterLink>
                   <Typography noWrap variant="h6" className={classes.title}>
-                    <Link to="/" className={classes.link}>
+                    <RouterLink to="/" className={classes.link}>
                       {require("../title")}
-                    </Link>
+                    </RouterLink>
                   </Typography>
-                  <Link to="/editor" className={classes.link}>
+                  <RouterLink to="/editor" className={classes.link}>
                     <Button id="create" variant="contained" color="secondary">Create</Button>
-                  </Link>
+                  </RouterLink>
                 </Toolbar>
               </AppBar>
             </div>
@@ -152,35 +153,42 @@ const App = () => {
         </Switch>
         <Drawer anchor={"left"} open={menuOpen} onClose={closeMenuCallback}>
           <List style={{minWidth: "250px"}}>
-            <Link to="/" className={classes.link} onClick={closeMenuCallback}>
+            <RouterLink to="/" className={classes.link} onClick={closeMenuCallback}>
               <ListItem button>
                 <ListItemIcon><HomeIcon/></ListItemIcon>
                 <ListItemText primary={"Home"} />
               </ListItem>
-            </Link>
-            <Link to="/editor" className={classes.link} onClick={closeMenuCallback}>
+            </RouterLink>
+            <RouterLink to="/editor" className={classes.link} onClick={closeMenuCallback}>
               <ListItem button>
                 <ListItemIcon><MovieIcon/></ListItemIcon>
                 <ListItemText primary={"Create Animation"} />
               </ListItem>
-            </Link>
+            </RouterLink>
             {
               loggedInUserId
-                ? <Link to="/profile" className={classes.link} onClick={closeMenuCallback}>
+                ? <RouterLink to="/profile" className={classes.link} onClick={closeMenuCallback}>
                   <ListItem button>
                     <ListItemIcon><AccountBoxIcon/></ListItemIcon>
                     <ListItemText primary={"Edit Profile"} />
                   </ListItem>
-                </Link>
+                </RouterLink>
                 : <ListItem button onClick={() => signInIfNeeded().catch(() => 0)}>
                   <ListItemIcon><PersonIcon/></ListItemIcon>
                   <ListItemText primary={"Sign In"} />
                 </ListItem>
             }
-            <ListItem button onClick={() => window.open("https://github.com/TrevorSundberg/madeitforfun")}>
-              <ListItemIcon><GitHubIcon/></ListItemIcon>
-              <ListItemText primary={"Visit GitHub"} />
-            </ListItem>
+            <Link
+              href="https://github.com/TrevorSundberg/madeitforfun"
+              target="_blank"
+              rel="noopener"
+              className={classes.link}
+              onClick={closeMenuCallback}>
+              <ListItem button>
+                <ListItemIcon><GitHubIcon/></ListItemIcon>
+                <ListItemText primary={"Visit GitHub"} />
+              </ListItem>
+            </Link>
           </List>
         </Drawer>
       </BrowserRouter>
