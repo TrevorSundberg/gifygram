@@ -1,8 +1,12 @@
 import fetch from "node-fetch";
 import puppeteer from "puppeteer";
 
-const API_HEALTH_URL = "http://0.0.0.0:8000/api/health";
-const MAIN_URL = "http://0.0.0.0:8080/";
+const MAIN_URL = "http://localhost:5000/";
+const API_HEALTH_URL = `${MAIN_URL}requests/api/health`;
+
+if (!process.env.TEST_EMAIL || !process.env.TEST_PASSWORD) {
+  throw new Error("Environment variables TEST_EMAIL and TEST_PASSWORD are requried to run the tests");
+}
 
 const waitForHealth = async (url: string) => {
   const timeoutMs = 500;
@@ -59,11 +63,6 @@ const getCenter = (rect: Rect): Point => ({
   try {
     const page = await browser.newPage();
 
-    // Handle the dev login (username is test).
-    page.on("dialog", async (dialog) => {
-      await dialog.accept("test.user");
-    });
-
     await waitForHealth(API_HEALTH_URL);
     await waitForHealth(MAIN_URL);
 
@@ -103,10 +102,14 @@ const getCenter = (rect: Rect): Point => ({
     await type(page, "#post-message", "This is a test of then word wrapping or truncation features.");
     await click(page, "#button-Post");
 
-    // When the login prompt appears click login with Google (in dev this prompts).
-    await click(page, "#login-google");
-  } catch (err) {
+    // When the login prompt appears click login with Email.
+    await click(page, ".firebaseui-idp-password");
+    await type(page, "#ui-sign-in-email-input", process.env.TEST_EMAIL);
+    await click(page, ".firebaseui-id-submit");
+    await type(page, "#ui-sign-in-password-input", process.env.TEST_PASSWORD);
+    await click(page, ".firebaseui-id-submit");
+    await page.waitForSelector("video[autoplay]");
+  } finally {
     await browser.close();
-    throw err;
   }
 })();
