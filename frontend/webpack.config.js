@@ -3,6 +3,7 @@ const path = require("path");
 const uuidv4 = require("uuid/v4");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 
 module.exports = {
   devServer: {
@@ -82,6 +83,7 @@ module.exports = {
     )
   },
   plugins: [
+    new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: "./src/index.htm",
       title: require("./title")
