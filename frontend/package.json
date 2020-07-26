@@ -52,9 +52,9 @@
     "typescript": "^3.9.3",
     "url-loader": "^3.0.0",
     "uuid": "^3.4.0",
-    "webpack": "^4.42.0",
-    "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.10.3",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0",
     "whammy": "0.0.1"
   }
 }
