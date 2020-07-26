@@ -52,6 +52,13 @@ import "firebase/firestore";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 firebase.initializeApp(require("../firebaseOptions"));
 
+if (isDevEnvironment()) {
+  firebase.firestore().settings({
+    host: "localhost:5003",
+    ssl: false
+  });
+}
+
 const getUrlParam = (props: { location: import("history").Location }, name: string) =>
   JSON.parse(new URLSearchParams(props.location.search).get(name));
 
