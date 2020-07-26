@@ -49,7 +49,7 @@ setKeyValueStore({
 export const requests = functions.https.onRequest(async (request, response) => {
   const apiIndex = request.originalUrl.indexOf("/api/");
   const output = await handle({
-    ip: request.ip,
+    ip: request.ip || "127.0.0.1",
     authorization: request.headers.authorization || null,
     body: request.rawBody
       ? request.rawBody.slice().buffer
