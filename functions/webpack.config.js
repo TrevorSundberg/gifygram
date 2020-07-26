@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
+const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 
 const mode = process.env.NODE_ENV || "production";
 
@@ -31,6 +32,7 @@ module.exports = {
     filename: "[name].js",
     path: path.join(__dirname, "dist")
   },
+  plugins: [new CleanWebpackPlugin()],
   resolve: {
     extensions: [
       ".ts",

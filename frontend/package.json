@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build": "rm -rf ./dist && webpack --mode production",
+    "build": "webpack --mode production",
     "liveWebpackFrontend": "webpack-dev-server --mode development --open --hot"
   },
   "keywords": [],

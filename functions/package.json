@@ -1,12 +1,9 @@
 {
   "name": "functions",
   "scripts": {
-    "build": "webpack",
-    "serve": "NODE_ENV=development npm run build && firebase emulators:start",
-    "shell": "NODE_ENV=development npm run build && firebase functions:shell",
-    "start": "npm run shell",
-    "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "build": "webpack --mode production",
+    "liveWebpackFunctions": "webpack --mode development --watch",
+    "liveFirebaseEmulator": "firebase emulators:start"
   },
   "engines": {
     "node": "10"
@@ -22,6 +19,7 @@
     "uuidv4": "^6.2.0"
   },
   "devDependencies": {
+    "clean-webpack-plugin": "^3.0.0",
     "file-loader": "^6.0.0",
     "firebase-functions-test": "^0.2.0",
     "source-map-loader": "^1.0.1",

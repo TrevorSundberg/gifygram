@@ -4,8 +4,8 @@
 
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
-import {handle} from "../../../backend/src/handlers";
-import {setKeyValueStore} from "../../../backend/src/database";
+import {handle} from "./handlers";
+import {setKeyValueStore} from "./database";
 
 admin.initializeApp(functions.config().firebase);
 const firestore = admin.firestore();

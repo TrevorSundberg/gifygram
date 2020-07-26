@@ -169,6 +169,7 @@ DONE - Integrate google analytics to get stats tracking
 DONE - Loading screen for picking background video
 DONE - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)
 
+ - Remove cache.ts since it's not needed
  - Refactor handlers to be independent of Workers
  - Hook up the gifygram.com domain to point at it (buy a new service?)
  - Agree privacy / etc
@@ -187,7 +188,6 @@ DONE - Usage ajv and typescript schemas or something similar to validate searial
  - Ability to type @someone in comments
  - Timestamp or "minutes ago" on comments / animation posts
 
- - Relaunch cloudworker if it dies (until we exit)
  - Get a staging environment
  - Get individual dev environments for testing (copy of database?)
  - Get publish to production using CI and npm version ...

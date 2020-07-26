@@ -22,21 +22,21 @@ import readline from "readline";
     cwd: path.join(rootDir, "frontend")
   });
 
-  // Start the webpack dev for the backend.
-  const backendDir = path.join(rootDir, "backend");
-  execa("npm", ["run", "liveWebpackBackend"], {
+  // Start the webpack dev for the functions.
+  const functionsDir = path.join(rootDir, "functions");
+  execa("npm", ["run", "liveWebpackFunctions"], {
     stdio: "inherit",
-    cwd: backendDir
+    cwd: functionsDir
   });
 
-  // Cloudworker will fail if dist/worker.development.js does not exist, so write an empty file.
-  const workerJsPath = path.join(backendDir, "dist", "worker.development.js");
+  // Firebase emulator will fail if dist/main.js does not exist, so write an empty file.
+  const workerJsPath = path.join(functionsDir, "dist", "main.js");
   await fs.promises.writeFile(workerJsPath, "0");
 
-  // Start the Cloudflare Worker emulation (cloudworker).
-  execa("npm", ["run", "liveCloudWorker"], {
+  // Start the Firebase emulation.
+  execa("npm", ["run", "liveFirebaseEmulator"], {
     stdio: "inherit",
-    cwd: backendDir
+    cwd: functionsDir
   });
 
 
