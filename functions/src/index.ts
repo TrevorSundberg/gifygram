@@ -1,7 +1,3 @@
-(global as any).atob = require("atob");
-(global as any).btoa = require("btoa");
-(global as any).crypto = require("crypto");
-
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 import {handle} from "./handlers";

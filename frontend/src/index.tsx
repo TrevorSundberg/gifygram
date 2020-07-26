@@ -9,14 +9,10 @@ import {
 } from "react-router-dom";
 import {
   Deferred,
-  EVENT_LOGGED_IN,
   EVENT_MENU_OPEN,
   EVENT_REQUEST_LOGIN,
-  LoginEvent,
   RequestLoginEvent,
-  getAuthIfSignedIn,
-  signInIfNeeded,
-  signInWithGoogle
+  signInIfNeeded
 } from "./shared/shared";
 import {LoginDialog, LoginUserIdContext, LoginUserIdState} from "./page/login";
 import {theme, useStyles} from "./page/style";
@@ -45,6 +41,13 @@ import {ThemeProvider} from "@material-ui/core/styles";
 import {Thread} from "./page/thread";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
+import firebase from "firebase/app";
+// eslint-disable-next-line sort-imports
+import "firebase/auth";
+import "firebase/firestore";
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+firebase.initializeApp(require("../firebaseOptions"));
 
 const getUrlParam = (props: { location: import("history").Location }, name: string) =>
   JSON.parse(new URLSearchParams(props.location.search).get(name));
@@ -59,9 +62,9 @@ const App = () => {
   const closeMenuCallback = () => setMenuOpen(false);
 
   React.useEffect(() => {
-    getAuthIfSignedIn().then((authUser) => {
-      if (authUser) {
-        setLoggedInUserId(authUser.id);
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        setLoggedInUserId(user.uid);
       } else {
         setLoggedInUserId(null);
       }
@@ -70,14 +73,8 @@ const App = () => {
     const onRequestLogin = (event: RequestLoginEvent) => {
       setShowLoginDeferred(event.deferredLoginPicked);
     };
-
-    const onLoggedIn = (event: LoginEvent) => {
-      setLoggedInUserId(event.userId);
-    };
-    window.addEventListener(EVENT_LOGGED_IN, onLoggedIn);
     window.addEventListener(EVENT_REQUEST_LOGIN, onRequestLogin);
     return () => {
-      window.removeEventListener(EVENT_LOGGED_IN, onLoggedIn);
       window.removeEventListener(EVENT_REQUEST_LOGIN, onRequestLogin);
     };
   }, []);
@@ -194,8 +191,12 @@ const App = () => {
           showLoginDeferred.reject(new Error("The login was cancelled"));
           setShowLoginDeferred(null);
         }}
-        onSignInWithGoogle={async () => {
-          await signInWithGoogle();
+        onSignInFailure={(message) => {
+          showLoginDeferred.reject(new Error(message));
+          setShowLoginDeferred(null);
+        }}
+        onSignInSuccess={(uid: string) => {
+          setLoggedInUserId(uid);
           showLoginDeferred.resolve();
           setShowLoginDeferred(null);
         }}/>

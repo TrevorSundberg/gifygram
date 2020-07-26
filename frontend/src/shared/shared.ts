@@ -1,6 +1,6 @@
-import {AUTH_GOOGLE_CLIENT_ID, Api} from "../../../common/common";
+import {Api} from "../../../common/common";
+import firebase from "firebase/app";
 
-export const EVENT_LOGGED_IN = "loggedIn";
 export const EVENT_REQUEST_LOGIN = "requestLogin";
 export const EVENT_MENU_OPEN = "menuOpen";
 
@@ -57,81 +57,13 @@ export class RequestLoginEvent extends Event {
 // Assume we're in dev if the protocol is http: (not https:)
 export const isDevEnvironment = () => window.location.protocol === "http:";
 
-type GoogleAuth = Omit<gapi.auth2.GoogleAuth, "then">;
-
-interface GoogleError {
-  error: string;
-  details: string;
-}
-
-const auth2Promise = new Promise<GoogleAuth | GoogleError>((resolve) => {
-  if (isDevEnvironment()) {
-    resolve(null);
-    return;
-  }
-  const script = document.createElement("script");
-  script.onload = () => {
-    window.gapi.load("auth2", () => {
-      gapi.auth2.init({
-        client_id: AUTH_GOOGLE_CLIENT_ID
-      }).then((auth2) => {
-        delete auth2.then;
-        resolve(auth2);
-      }, (error) => {
-        resolve(error);
-      });
-    });
-  };
-  script.src = "https://apis.google.com/js/api.js";
-  script.async = true;
-  script.defer = true;
-  document.body.appendChild(script);
-});
-let googleAuth2: gapi.auth2.GoogleAuth | GoogleError = null;
-auth2Promise.then((auth2) => {
-  googleAuth2 = auth2 as gapi.auth2.GoogleAuth | GoogleError;
-});
-
-const LOCAL_STORAGE_KEY_DEV_USER = "devUser";
-
 export interface AuthUser {
   jwt: string;
   id: string;
 }
 
-export const getAuthIfSignedIn = async (): Promise<AuthUser | null> => {
-  if (isDevEnvironment()) {
-    const user = localStorage.getItem(LOCAL_STORAGE_KEY_DEV_USER);
-    if (user) {
-      return {jwt: user, id: user};
-    }
-    return null;
-  }
-  const auth2 = await auth2Promise;
-
-  if (auth2 instanceof gapi.auth2.GoogleAuth) {
-    if (auth2.isSignedIn.get()) {
-      const userGoogle = auth2.currentUser.get();
-      return {jwt: userGoogle.getAuthResponse().id_token, id: userGoogle.getId()};
-    }
-  }
-  return null;
-};
-
-export class LoginEvent extends Event {
-  public userId: string;
-
-  public constructor (userId: string) {
-    super(EVENT_LOGGED_IN);
-    this.userId = userId;
-  }
-}
-
-const triggerLoggedIn = (userId: string) => window.dispatchEvent(new LoginEvent(userId));
-
 export const signInIfNeeded = async () => {
-  const auth = await getAuthIfSignedIn();
-  if (auth) {
+  if (firebase.auth().currentUser) {
     return;
   }
 
@@ -139,28 +71,6 @@ export const signInIfNeeded = async () => {
   window.dispatchEvent(requestLogin);
 
   await requestLogin.deferredLoginPicked;
-};
-
-// Don't await before here because this creates a popup (needs synchronous trusted click event)
-export const signInWithGoogle = (): NeverAsync<Promise<void> | null> => {
-  if (isDevEnvironment()) {
-    // eslint-disable-next-line no-alert
-    const username = prompt("Pick a unique dev username or use 'admin'");
-    if (!username) {
-      throw new Error("Dev username was empty");
-    }
-    localStorage.setItem(LOCAL_STORAGE_KEY_DEV_USER, username);
-    triggerLoggedIn(username);
-    return null;
-  }
-
-  // We know googleAuth2 is not null because getAuthIfSignedIn should have been called before this.
-  if (googleAuth2 instanceof gapi.auth2.GoogleAuth) {
-    return googleAuth2.signIn().then((userGoogle) => {
-      triggerLoggedIn(userGoogle.getId());
-    });
-  }
-  throw new Error(googleAuth2.details);
 };
 
 const applyPathAndParams = (url: URL, path: string, params?: Record<string, any>) => {
@@ -235,9 +145,8 @@ export const abortableJsonFetch = <InputType, OutputType>(
     if (auth === Auth.Required) {
       await signInIfNeeded();
     }
-    const authUser = await getAuthIfSignedIn();
-    const authHeaders = authUser
-      ? {Authorization: authUser.jwt}
+    const authHeaders = firebase.auth().currentUser
+      ? {Authorization: await firebase.auth().currentUser.getIdToken()}
       : null;
     try {
       const response = await fetch(makeServerUrl(api, params), {

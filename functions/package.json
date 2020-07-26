@@ -10,12 +10,11 @@
   },
   "main": "dist/main.js",
   "dependencies": {
+    "@types/node-fetch": "^2.5.7",
     "ajv": "^6.12.3",
-    "atob": "^2.1.2",
-    "btoa": "^1.2.1",
     "firebase-admin": "^8.10.0",
     "firebase-functions": "^3.6.1",
-    "jose-jwe-jws": "^0.2.2",
+    "node-fetch": "^2.6.0",
     "uuidv4": "^6.2.0"
   },
   "devDependencies": {

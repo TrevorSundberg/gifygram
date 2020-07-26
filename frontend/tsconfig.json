@@ -16,8 +16,6 @@
     "types": [
       "node",
       "dom-mediacapture-record",
-      "gapi",
-      "gapi.auth2",
       "css-font-loading-module"
     ]
   },

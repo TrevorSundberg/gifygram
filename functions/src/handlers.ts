@@ -1,3 +1,4 @@
+import * as admin from "firebase-admin";
 import {
   API_ALL_THREADS_ID,
   API_AMENDED_LIST,
@@ -14,8 +15,6 @@ import {
   API_PROFILE_AVATAR,
   API_PROFILE_AVATAR_UPDATE,
   API_PROFILE_UPDATE,
-  AUTH_GOOGLE_CLIENT_ID,
-  AUTH_GOOGLE_ISSUER,
   AnimationData,
   Api,
   AttributedSource,
@@ -27,7 +26,6 @@ import {
   padInteger
 } from "../../common/common";
 import {
-  JWKS,
   dbAddView,
   dbCreatePost,
   dbDeleteAvatar,
@@ -36,7 +34,6 @@ import {
   dbGetAnimationJson,
   dbGetAnimationVideo,
   dbGetAvatar,
-  dbGetCachedJwksGoogle,
   dbGetUser,
   dbGetUsernameToUserId,
   dbListAmendedPosts,
@@ -44,19 +41,12 @@ import {
   dbModifyPostLiked,
   dbPutAnimation,
   dbPutAvatar,
-  dbPutCachedJwksGoogle,
   dbPutUser,
   dbUserHasPermission
 } from "./database";
 
-// eslint-disable-next-line no-var,vars-on-top,init-declarations
-declare var global: any;
-// eslint-disable-next-line no-var,vars-on-top,init-declarations
-var window: any = {};
-global.window = window;
-import {Jose} from "jose-jwe-jws";
 import {TextDecoder} from "util";
-(Jose as any).crypto = crypto;
+import fetch from "node-fetch";
 import {uuid} from "uuidv4";
 
 // eslint-disable-next-line init-declarations,no-var,vars-on-top
@@ -152,66 +142,24 @@ class RequestInput<T> {
   }
 
   private async validateJwtAndGetUser (): Promise<StoredUser> {
-    const token = expect("authorization", this.request.authorization);
+    const idToken = expect("authorization", this.request.authorization);
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
 
-    const content = await (async (): Promise<JwtPayload> => {
-      if (isDevEnvironment()) {
-        return {
-          iss: AUTH_GOOGLE_ISSUER,
-          aud: AUTH_GOOGLE_CLIENT_ID,
-          exp: `${Number.MAX_SAFE_INTEGER}`,
-          sub: token,
-          given_name: token
-        };
-      }
-
-      const jwks = await (async () => {
-        const cachedJwks = await dbGetCachedJwksGoogle();
-        if (cachedJwks) {
-          return cachedJwks;
-        }
-        const response = await fetch("https://www.googleapis.com/oauth2/v3/certs");
-        const newJwks: JWKS = await response.json();
-
-        const expiration = Math.floor(Date.parse(expect("expires", response.headers.get("expires"))) / 1000);
-        await dbPutCachedJwksGoogle(newJwks, expiration);
-        return newJwks;
-      })();
-
-      const cryptographer = new Jose.WebCryptographer();
-      const verifier = new Jose.JoseJWS.Verifier(cryptographer, token);
-
-      await Promise.all([jwks.keys.map((key) => verifier.addRecipient(key, key.kid, key.alg as SignAlgorithm))]);
-
-      const results = await verifier.verify();
-      const verified = results.filter((result) => result.verified);
-      if (verified.length === 0) {
-        throw new Error("JWT was not verified with any key");
-      }
-      return JSON.parse(verified[0].payload as string) as JwtPayload;
-    })();
-
-    if (content.iss !== AUTH_GOOGLE_ISSUER) {
-      throw new Error(`Invalid issuer ${content.iss}`);
-    }
-    if (content.aud !== AUTH_GOOGLE_CLIENT_ID) {
-      throw new Error(`Invalid audience ${content.aud}`);
-    }
-    if (parseInt(content.exp, 10) <= Math.ceil(Date.now() / 1000)) {
-      throw new Error(`JWT expired ${content.exp}`);
-    }
-    const existingUser = await dbGetUser(content.sub);
+    const existingUser = await dbGetUser(decodedToken.uid);
     if (existingUser) {
       return existingUser;
     }
+
+    const unsanitizedName = decodedToken.email
+      ? decodedToken.email.split("@")[0]
+      : decodedToken.given_name || decodedToken.name || "";
+
     const user: StoredUser = {
-      id: content.sub,
+      id: decodedToken.uid,
       avatarId: null,
-      username: sanitizeOrGenerateUsername(content.given_name),
+      username: sanitizeOrGenerateUsername(unsanitizedName),
       bio: "",
-      role: isDevEnvironment() && content.sub === "admin"
-        ? "admin"
-        : "user"
+      role: "user"
     };
 
     await dbPutUser(user);
@@ -315,15 +263,6 @@ const expectFileHeader = (name: string, types: string, buffer: ArrayBuffer, poss
   }
   throw new Error(`File ${name} was not the correct type. Expected ${types}`);
 };
-
-interface JwtPayload {
-  iss: string;
-  aud: string;
-  exp: string;
-
-  sub: string;
-  given_name: string;
-}
 
 interface PostCreateGeneric {
   message: string;
@@ -514,7 +453,7 @@ addHandler(API_POST_LIKE, async (input) => {
 });
 
 addHandler(API_FEEDBACK, async (input) => {
-  if (!isDevEnvironment()) {
+  if (typeof GITHUB_TOKEN === "string") {
     const {title} = input.json;
     const response = await fetch("https://api.github.com/repos/TrevorSundberg/madeitforfun/issues", {
       method: "POST",

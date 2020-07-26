@@ -46,10 +46,7 @@ export type UserId = string;
 export type PostId = string;
 export type IP = string;
 export type SortKey = string;
-export type JWKS = {keys: JWKRSA[]};
 
-const dbkeyCachedJwksGoogle = () =>
-  "jwks:google";
 const dbkeyUser = (userId: UserId) =>
   `user:${userId}`;
 const dbkeyUsernameToUserId = (username: string) =>
@@ -84,12 +81,6 @@ export const dbUserHasPermission = (actingUser: StoredUser | null, owningUserId:
   actingUser
     ? owningUserId === actingUser.id || actingUser.role === "admin"
     : false;
-
-export const dbGetCachedJwksGoogle = async (): Promise<JWKS | null> =>
-  db.get<JWKS>(dbkeyCachedJwksGoogle(), "json");
-
-export const dbPutCachedJwksGoogle = async (jwks: JWKS, expiration: number): Promise<void> =>
-  db.put(dbkeyCachedJwksGoogle(), JSON.stringify(jwks), {expiration});
 
 export const dbGetUsernameToUserId = async (username: string): Promise<string | null> =>
   db.get<string>(dbkeyUsernameToUserId(username), "json");
