@@ -528,11 +528,7 @@ const handleRanges = async (request: RawRequest): Promise<RequestOutput<any>> =>
 
     const rangeHeader = request.range;
 
-    const canHandleRangeRequest =
-      !isDevEnvironment() &&
-      request.method === "GET";
-
-    if (canHandleRangeRequest && rangeHeader) {
+    if (request.method === "GET" && rangeHeader) {
       const rangeResults = (/bytes=([0-9]+)-([0-9]+)?/u).exec(rangeHeader);
       if (!rangeResults) {
         throw new Error(`Invalid range header: ${rangeHeader}`);
