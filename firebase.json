@@ -14,14 +14,14 @@
   },
   "emulators": {
     "firestore": {
-      "port": 8081
+      "port": 5003
     },
     "functions": {
-      "port": 8082
+      "port": 5002
     },
     "ui": {
       "enabled": true,
-      "port": 8083
+      "port": 5001
     },
     "hosting": {
       "port": 5000

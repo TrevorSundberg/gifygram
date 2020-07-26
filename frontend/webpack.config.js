@@ -7,6 +7,7 @@ const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 
 module.exports = {
   devServer: {
+    port: 5004,
     hot: false,
     open: true,
     openPage: "http://localhost:5000/",
