@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 
+const mode = process.env.NODE_ENV || "production";
+
 module.exports = {
   devtool: "source-map",
   entry: "./src/index.ts",
@@ -11,6 +13,7 @@ module.exports = {
     }
     return callback(null, `commonjs ${request}`);
   },
+  mode,
   module: {
     rules: [
       {

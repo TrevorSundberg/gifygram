@@ -2,8 +2,8 @@
   "name": "functions",
   "scripts": {
     "build": "webpack",
-    "serve": "npm run build && firebase emulators:start",
-    "shell": "npm run build && firebase functions:shell",
+    "serve": "NODE_ENV=development npm run build && firebase emulators:start",
+    "shell": "NODE_ENV=development npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log"
