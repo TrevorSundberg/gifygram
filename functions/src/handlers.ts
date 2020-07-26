@@ -484,15 +484,6 @@ addHandler(API_POST_DELETE, async (input) => {
 });
 
 const handleRequest = async (request: RawRequest): Promise<RequestOutput<any>> => {
-  if (request.method === "OPTIONS") {
-    return {
-      result: undefined,
-      headers: {
-        allow: "GET, HEAD, POST, OPTIONS"
-      }
-    };
-  }
-
   const {url} = request;
   const handler = handlers[url.pathname];
   if (handler) {
@@ -575,9 +566,6 @@ export const handle = async (request: RawRequest): Promise<RequestOutput<any>> =
 
   output.headers = {
     ...output.headers,
-    "access-control-allow-origin": "*",
-    "access-control-allow-methods": "GET, HEAD, POST, OPTIONS",
-    "access-control-allow-headers": "content-type, authorization",
     "content-type": output.contentType || CONTENT_TYPE_APPLICATION_JSON,
     ...output.immutable ? {"cache-control": CACHE_CONTROL_IMMUTABLE} : {}
   };
