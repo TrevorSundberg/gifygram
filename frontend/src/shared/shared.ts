@@ -241,7 +241,8 @@ export const abortableJsonFetch = <InputType, OutputType>(
         method: "POST",
         body,
         headers: {
-          ...authHeaders
+          ...authHeaders,
+          "content-type": "application/octet-stream"
         }
       });
       return checkResponseJson(await response.json());
