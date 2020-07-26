@@ -50,11 +50,7 @@ import fetch from "node-fetch";
 import {uuid} from "uuidv4";
 
 // eslint-disable-next-line init-declarations,no-var,vars-on-top
-declare var production: boolean | undefined;
-// eslint-disable-next-line init-declarations,no-var,vars-on-top
 declare var GITHUB_TOKEN: string;
-
-export const isDevEnvironment = () => typeof production === "undefined" || !production;
 
 const CONTENT_TYPE_APPLICATION_JSON = "application/json";
 const CONTENT_TYPE_APPLICATION_OCTET_STREAM = "application/octet-stream";
