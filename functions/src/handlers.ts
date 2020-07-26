@@ -49,9 +49,6 @@ import {TextDecoder} from "util";
 import fetch from "node-fetch";
 import {uuid} from "uuidv4";
 
-// eslint-disable-next-line init-declarations,no-var,vars-on-top
-declare var GITHUB_TOKEN: string;
-
 const CONTENT_TYPE_APPLICATION_JSON = "application/json";
 const CONTENT_TYPE_APPLICATION_OCTET_STREAM = "application/octet-stream";
 const CONTENT_TYPE_VIDEO_MP4 = "video/mp4";
@@ -449,18 +446,16 @@ addHandler(API_POST_LIKE, async (input) => {
 });
 
 addHandler(API_FEEDBACK, async (input) => {
-  if (typeof GITHUB_TOKEN === "string") {
-    const {title} = input.json;
-    const response = await fetch("https://api.github.com/repos/TrevorSundberg/madeitforfun/issues", {
-      method: "POST",
-      body: JSON.stringify({title}),
-      headers: {
-        accept: "application/vnd.github.v3+json",
-        authorization: `token ${GITHUB_TOKEN}`
-      }
-    });
-    await response.json();
-  }
+  const {title} = input.json;
+  const response = await fetch("https://api.github.com/repos/TrevorSundberg/madeitforfun/issues", {
+    method: "POST",
+    body: JSON.stringify({title}),
+    headers: {
+      accept: "application/vnd.github.v3+json",
+      authorization: `token ${process.env.GITHUB_TOKEN}`
+    }
+  });
+  await response.json();
   return {result: {}};
 });
 
