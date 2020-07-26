@@ -9,6 +9,7 @@ import {
   StoredUser,
   padInteger
 } from "../../common/common";
+import {firestore} from "./firebase";
 
 type KeyValue<Value> = Promise<Value | null>
 
@@ -47,8 +48,8 @@ export type PostId = string;
 export type IP = string;
 export type SortKey = string;
 
-const dbkeyUser = (userId: UserId) =>
-  `user:${userId}`;
+const COLLECTION_USERS = "users";
+const docUser = (userId: UserId) => firestore.collection(COLLECTION_USERS).doc(userId);
 const dbkeyUsernameToUserId = (username: string) =>
   `username:${username.toLowerCase()}`;
 const dbkeyPost = (postId: PostId) =>
@@ -85,12 +86,14 @@ export const dbUserHasPermission = (actingUser: StoredUser | null, owningUserId:
 export const dbGetUsernameToUserId = async (username: string): Promise<string | null> =>
   db.get<string>(dbkeyUsernameToUserId(username), "json");
 
-export const dbGetUser = async (userId: UserId): Promise<StoredUser | null> =>
-  db.get<StoredUser>(dbkeyUser(userId), "json");
+export const dbGetUser = async (userId: UserId): Promise<StoredUser | null> => {
+  const userDoc = await docUser(userId).get();
+  return userDoc.data() as StoredUser;
+};
 
 export const dbPutUser = async (user: StoredUser): Promise<ProfileUser> => {
   const oldUser = await dbGetUser(user.id);
-  await db.put(dbkeyUser(user.id), JSON.stringify(user));
+  await docUser(user.id).set(user);
 
   // If we already had a user in the database, and we're changing usernames...
   if (oldUser && oldUser.username !== user.username) {

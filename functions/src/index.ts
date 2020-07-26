@@ -1,10 +1,7 @@
-import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
+import {firestore} from "./firebase";
 import {handle} from "./handlers";
 import {setKeyValueStore} from "./database";
-
-admin.initializeApp(functions.config().firebase);
-const firestore = admin.firestore();
 
 // See firebase/functions/node_modules/@google-cloud/firestore/build/src/v1/firestore_client.js isBrowser checks
 delete (global as any).window;

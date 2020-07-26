@@ -77,7 +77,8 @@ module.exports = {
     "react/prop-types": "off",
     "react/display-name": "off",
     "array-element-newline": "off",
-    "default-param-last": "off"
+    "default-param-last": "off",
+    "newline-per-chained-call": "off"
   },
   settings: {
     react: {
