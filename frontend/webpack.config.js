@@ -79,7 +79,7 @@ module.exports = {
     filename: "[name]-[hash].js",
     path: path.join(
       __dirname,
-      "../backend/static"
+      "../firebase/public"
     )
   },
   plugins: [

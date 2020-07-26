@@ -175,17 +175,14 @@ const applyPathAndParams = (url: URL, path: string, params?: Record<string, any>
   }
 };
 
-const isFirebase = false;
-
 export const makeServerUrl = <InputType>(api: Api<InputType, any>, params: InputType = null) => {
   const url = new URL(window.location.origin);
   let {pathname} = api;
   if (isDevEnvironment()) {
-    url.port = "8000";
-    if (isFirebase) {
-      url.port = "8082";
-      pathname = `/gifygram-site/us-central1/requests${api.pathname}`;
-    }
+    url.port = "8082";
+    pathname = `/gifygram-site/us-central1/requests${api.pathname}`;
+  } else {
+    pathname = `/requests${api.pathname}`;
   }
   applyPathAndParams(url, pathname, params);
   return url.href;

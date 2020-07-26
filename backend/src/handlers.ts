@@ -55,6 +55,7 @@ declare var global: any;
 var window: any = {};
 global.window = window;
 import {Jose} from "jose-jwe-jws";
+import {TextDecoder} from "util";
 (Jose as any).crypto = crypto;
 import {uuid} from "uuidv4";
 
