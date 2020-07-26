@@ -1,12 +1,9 @@
+import {TEST_EMAIL, TEST_PASSWORD} from "../common/test";
 import fetch from "node-fetch";
 import puppeteer from "puppeteer";
 
 const MAIN_URL = "http://localhost:5000/";
 const API_HEALTH_URL = `${MAIN_URL}requests/api/health`;
-
-if (!process.env.TEST_EMAIL || !process.env.TEST_PASSWORD) {
-  throw new Error("Environment variables TEST_EMAIL and TEST_PASSWORD are requried to run the tests");
-}
 
 const waitForHealth = async (url: string) => {
   const timeoutMs = 500;
@@ -104,9 +101,9 @@ const getCenter = (rect: Rect): Point => ({
 
     // When the login prompt appears click login with Email.
     await click(page, ".firebaseui-idp-password");
-    await type(page, "#ui-sign-in-email-input", process.env.TEST_EMAIL);
+    await type(page, "#ui-sign-in-email-input", TEST_EMAIL);
     await click(page, ".firebaseui-id-submit");
-    await type(page, "#ui-sign-in-password-input", process.env.TEST_PASSWORD);
+    await type(page, "#ui-sign-in-password-input", TEST_PASSWORD);
     await click(page, ".firebaseui-id-submit");
     await page.waitForSelector("video[autoplay]");
   } finally {

@@ -45,9 +45,12 @@ import {
   dbUserHasPermission
 } from "./database";
 
+import {TEST_EMAIL} from "../../common/test";
 import {TextDecoder} from "util";
 import fetch from "node-fetch";
 import {uuid} from "uuidv4";
+
+export const isDevEnvironment = () => process.env.FUNCTIONS_EMULATOR === "true";
 
 const CONTENT_TYPE_APPLICATION_JSON = "application/json";
 const CONTENT_TYPE_APPLICATION_OCTET_STREAM = "application/octet-stream";
@@ -137,6 +140,9 @@ class RequestInput<T> {
   private async validateJwtAndGetUser (): Promise<StoredUser> {
     const idToken = expect("authorization", this.request.authorization);
     const decodedToken = await admin.auth().verifyIdToken(idToken);
+    if (!isDevEnvironment() && decodedToken.email === TEST_EMAIL) {
+      throw new Error("Attempting to login as test user in production");
+    }
 
     const existingUser = await dbGetUser(decodedToken.uid);
     if (existingUser) {
