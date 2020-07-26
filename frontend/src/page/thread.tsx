@@ -129,8 +129,8 @@ export const Thread: React.FC<ThreadProps> = (props) => {
   return <div style={
     isThreadList
       ? {
-        columnCount: 4,
-        columnWidth: "220px",
+        columnCount: 3,
+        columnWidth: "240px",
         columnGap: "10px"
       }
       : null}>

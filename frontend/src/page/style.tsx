@@ -33,6 +33,9 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     shareSocialButton: {
       flex: 1
+    },
+    cardHeader: {
+      display: "grid"
     }
   }), {index: 1});
 

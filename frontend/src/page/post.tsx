@@ -21,6 +21,7 @@ import Typography from "@material-ui/core/Typography";
 import {UserAvatar} from "./userAvatar";
 import millify from "millify";
 import pluralize from "pluralize";
+import {useStyles} from "./style";
 
 interface PostProps {
   post: ClientPost;
@@ -34,6 +35,7 @@ interface PostProps {
 
 export const Post: React.FC<PostProps> = (props) => {
   const isThread = props.post.threadId === props.post.id;
+  const classes = useStyles();
   return <Card
     key={props.post.id}
     id={props.post.id}
@@ -53,6 +55,7 @@ export const Post: React.FC<PostProps> = (props) => {
       }
     }}>
     <CardHeader
+      classes={{content: classes.cardHeader}}
       avatar={
         <UserAvatar
           username={props.post.username}
@@ -78,14 +81,14 @@ export const Post: React.FC<PostProps> = (props) => {
           <LikeButton post={props.post}/>
         </div>
       }
-      title={<div>
+      title={<Typography variant="subtitle1" noWrap>
         {props.post.username}
         {props.post.replyId ? <span> <Link
           variant="overline"
           color="secondary"
           href={`#${props.post.replyId}`}>replying to...</Link></span>
           : null}
-      </div>}
+      </Typography>}
       subheader={props.post.userdata.type === "animation" ? props.post.title : props.post.message}
     />
     {
