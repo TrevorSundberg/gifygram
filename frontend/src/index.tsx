@@ -12,6 +12,7 @@ import {
   EVENT_MENU_OPEN,
   EVENT_REQUEST_LOGIN,
   RequestLoginEvent,
+  isDevEnvironment,
   signInIfNeeded
 } from "./shared/shared";
 import {LoginDialog, LoginUserIdContext, LoginUserIdState} from "./page/login";
@@ -38,6 +39,7 @@ import PersonIcon from "@material-ui/icons/Person";
 import {Profile} from "./page/profile";
 import React from "react";
 import ReactDOM from "react-dom";
+import StorageIcon from "@material-ui/icons/Storage";
 import {ThemeProvider} from "@material-ui/core/styles";
 import {Thread} from "./page/thread";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -189,6 +191,21 @@ const App = () => {
                 <ListItemText primary={"Visit GitHub"} />
               </ListItem>
             </Link>
+            {
+              isDevEnvironment()
+                ? <Link
+                  href="http://localhost:5001"
+                  target="_blank"
+                  rel="noopener"
+                  className={classes.link}
+                  onClick={closeMenuCallback}>
+                  <ListItem button>
+                    <ListItemIcon><StorageIcon/></ListItemIcon>
+                    <ListItemText primary={"Open Emulator UI"} />
+                  </ListItem>
+                </Link>
+                : null
+            }
           </List>
         </Drawer>
       </BrowserRouter>
