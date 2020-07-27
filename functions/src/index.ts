@@ -82,7 +82,6 @@ type PostId = string;
 type IP = string;
 type SortKey = string;
 
-const docUser = (userId: UserId) => store.collection(COLLECTION_USERS).doc(userId);
 const dbkeyPost = (postId: PostId) =>
   `post:${postId}`;
 const dbprefixThreadPost = (threadId: PostId) =>
@@ -106,6 +105,7 @@ const dbUserHasPermission = (actingUser: StoredUser | null, owningUserId: string
     ? owningUserId === actingUser.id || actingUser.role === "admin"
     : false;
 
+const docUser = (userId: UserId) => store.collection(COLLECTION_USERS).doc(userId);
 const dbGetUser = async (userId: UserId): Promise<StoredUser | null> => {
   const userDoc = await docUser(userId).get();
   return userDoc.data() as StoredUser;
