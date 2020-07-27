@@ -49,7 +49,7 @@ const expect = <T>(name: string, value: T | null | undefined | false) => {
 
 type KeyValue<Value> = Promise<Value | null>
 
-export interface KeyValueStore {
+interface KeyValueStore {
   get(key: string): KeyValue<string>;
   get<ExpectedValue = unknown>(key: string, type: "json"): KeyValue<ExpectedValue>;
 
@@ -73,17 +73,16 @@ export interface KeyValueStore {
 }
 
 let db: KeyValueStore = undefined as any;
-export const setKeyValueStore = (kvStore: KeyValueStore) => {
+const setKeyValueStore = (kvStore: KeyValueStore) => {
   db = kvStore;
 };
 
-export type AvatarId = string;
-export type UserId = string;
-export type PostId = string;
-export type IP = string;
-export type SortKey = string;
+type UserId = string;
+type PostId = string;
+type IP = string;
+type SortKey = string;
 
-export const docUser = (userId: UserId) => store.collection(COLLECTION_USERS).doc(userId);
+const docUser = (userId: UserId) => store.collection(COLLECTION_USERS).doc(userId);
 const dbkeyPost = (postId: PostId) =>
   `post:${postId}`;
 const dbprefixThreadPost = (threadId: PostId) =>
@@ -102,12 +101,12 @@ const dbkeyThreadView = (threadId: PostId, ip: IP) =>
 const TRUE_VALUE = "1";
 const SECONDS_PER_DAY = 86400;
 
-export const dbUserHasPermission = (actingUser: StoredUser | null, owningUserId: string) =>
+const dbUserHasPermission = (actingUser: StoredUser | null, owningUserId: string) =>
   actingUser
     ? owningUserId === actingUser.id || actingUser.role === "admin"
     : false;
 
-export const dbGetUser = async (userId: UserId): Promise<StoredUser | null> => {
+const dbGetUser = async (userId: UserId): Promise<StoredUser | null> => {
   const userDoc = await docUser(userId).get();
   return userDoc.data() as StoredUser;
 };
@@ -138,7 +137,7 @@ const sanitizeOrGenerateUsername = (unsantizedUsername: string) => {
   return username.slice(0, usernameMaxLength);
 };
 
-export const dbPutUser = async (user: StoredUser, allowNameNumbers: boolean): Promise<void> => {
+const dbPutUser = async (user: StoredUser, allowNameNumbers: boolean): Promise<void> => {
   await store.runTransaction(async (transaction) => {
     for (;;) {
       const result = await transaction.get(store.collection(COLLECTION_USERS).where("username", "==", user.username));
@@ -164,10 +163,10 @@ export const dbPutUser = async (user: StoredUser, allowNameNumbers: boolean): Pr
   });
 };
 
-export const dbGetPost = async (postId: PostId): Promise<StoredPost | null> =>
+const dbGetPost = async (postId: PostId): Promise<StoredPost | null> =>
   db.get<StoredPost>(dbkeyPost(postId), "json");
 
-export const dbExpectPost = async (postId: PostId): Promise<StoredPost> => {
+const dbExpectPost = async (postId: PostId): Promise<StoredPost> => {
   const post = await dbGetPost(postId);
   if (!post) {
     throw new Error(`Attempting to get a post by id ${postId} returned null`);
@@ -175,7 +174,7 @@ export const dbExpectPost = async (postId: PostId): Promise<StoredPost> => {
   return post;
 };
 
-export const dbCreatePost = async (post: StoredPost): Promise<void> => {
+const dbCreatePost = async (post: StoredPost): Promise<void> => {
   await Promise.all([
     // If this post is creating a thread...
     post.threadId === post.id
@@ -189,10 +188,10 @@ export const dbCreatePost = async (post: StoredPost): Promise<void> => {
 interface StoredVideo {
   buffer: Buffer;
 }
-export const docVideo = (postId: PostId) => store.collection(COLLECTION_VIDEOS).doc(postId);
-export const docAnimation = (postId: PostId) => store.collection(COLLECTION_ANIMATIONS).doc(postId);
+const docVideo = (postId: PostId) => store.collection(COLLECTION_VIDEOS).doc(postId);
+const docAnimation = (postId: PostId) => store.collection(COLLECTION_ANIMATIONS).doc(postId);
 
-export const dbDeletePost = async (post: StoredPost): Promise<void> => {
+const dbDeletePost = async (post: StoredPost): Promise<void> => {
   // We don't delete the individual views/likes/replies, just the counts (unbounded operations).
   const postId = post.id;
   await Promise.all([
@@ -220,10 +219,10 @@ interface UserLikedInfo {
   secondsFromBirth: number;
 }
 
-export const dbGetPostLiked = async (userId: UserId, postId: PostId): Promise<boolean> =>
+const dbGetPostLiked = async (userId: UserId, postId: PostId): Promise<boolean> =>
   await db.get(dbkeyPostLiked(userId, postId)) !== null;
 
-export const dbGetPostLikes = async (postId: PostId): Promise<number> => {
+const dbGetPostLikes = async (postId: PostId): Promise<number> => {
   const likesInfo = await db.get<LikesInfo>(dbkeyPostLikes(postId), "json");
   return likesInfo ? likesInfo.likes : 0;
 };
@@ -241,7 +240,7 @@ const computeTrendingScore = (likesInfo: LikesInfo) => {
 const computeTrendingSortKey = (likesInfo: LikesInfo) =>
   padInteger(Number.MAX_SAFE_INTEGER - computeTrendingScore(likesInfo));
 
-export const dbModifyPostLiked = async (userId: UserId, postId: PostId, newValue: boolean): Promise<number> => {
+const dbModifyPostLiked = async (userId: UserId, postId: PostId, newValue: boolean): Promise<number> => {
   const likedKey = dbkeyPostLiked(userId, postId);
   const userLikedInfo = await db.get<UserLikedInfo>(likedKey, "json");
   const oldValue = Boolean(userLikedInfo);
@@ -286,10 +285,10 @@ export const dbModifyPostLiked = async (userId: UserId, postId: PostId, newValue
   return likesInfo.likes;
 };
 
-export const dbGetThreadViews = async (threadId: PostId): Promise<number> =>
+const dbGetThreadViews = async (threadId: PostId): Promise<number> =>
   parseInt(await db.get(dbkeyThreadViews(threadId)) || "0", 10);
 
-export const dbAddView = async (threadId: PostId, ip: IP): Promise<void> => {
+const dbAddView = async (threadId: PostId, ip: IP): Promise<void> => {
   const viewKey = dbkeyThreadView(threadId, ip);
   const hasViewed = Boolean(await db.get(viewKey));
   if (!hasViewed) {
@@ -318,13 +317,13 @@ const getStoredPostsFromIds = async (ids: string[]): Promise<StoredPost[]> => {
   return posts.filter((post): post is StoredPost => Boolean(post));
 };
 
-export const dbListPosts = async (postList: PostList): Promise<StoredPost[]> =>
+const dbListPosts = async (postList: PostList): Promise<StoredPost[]> =>
   getStoredPostsFromIds(getBarIds(await db.list({
     prefix: dbprefixThreadPost(postList.threadId),
     limit: postList.threadId === API_ALL_THREADS_ID ? 20 : undefined
   })).slice(0, postList.threadId === API_TRENDING_THREADS_ID ? 4 : undefined));
 
-export const dbListAmendedPosts =
+const dbListAmendedPosts =
   async (authedUserOptional: StoredUser | null, queries: AmendedQuery[]): Promise<AmendedPost[]> =>
     Promise.all(queries.map(async (query) => {
       const user = await dbGetUser(query.userId);
@@ -343,7 +342,7 @@ export const dbListAmendedPosts =
       };
     }));
 
-export const isDevEnvironment = () => process.env.FUNCTIONS_EMULATOR === "true";
+const isDevEnvironment = () => process.env.FUNCTIONS_EMULATOR === "true";
 
 const CONTENT_TYPE_APPLICATION_JSON = "application/json";
 const CONTENT_TYPE_APPLICATION_OCTET_STREAM = "application/octet-stream";
@@ -366,7 +365,7 @@ const parseBinaryChunks = (buffer: Buffer) => {
   return result;
 };
 
-export interface RawRequest {
+interface RawRequest {
   // All methods are uppercase.
   method: string;
 
@@ -806,7 +805,7 @@ const handleErrors = async (request: RawRequest): Promise<RequestOutput<any>> =>
   }
 };
 
-export const handle = async (request: RawRequest): Promise<RequestOutput<any>> => {
+const handle = async (request: RawRequest): Promise<RequestOutput<any>> => {
   const output = await handleErrors(request);
   output.headers = output.headers || {};
 
