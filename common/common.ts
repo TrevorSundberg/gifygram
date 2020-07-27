@@ -6,6 +6,8 @@ export const API_TRENDING_THREADS_ID = "10000000-0000-4000-8000-000000000000";
 
 export const COLLECTION_USERS = "users";
 export const COLLECTION_AVATARS = "avatars";
+export const COLLECTION_VIDEOS = "videos";
+export const COLLECTION_ANIMATIONS = "animations";
 
 /** Mark that we're doing something only to be backwards compatable with the database */
 export const oldVersion = <T>(value: T) => value;

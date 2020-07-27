@@ -21,8 +21,10 @@ import {
   AnimationData,
   Api,
   AttributedSource,
+  COLLECTION_ANIMATIONS,
   COLLECTION_AVATARS,
   COLLECTION_USERS,
+  COLLECTION_VIDEOS,
   ClientPost,
   PostData,
   PostList,
@@ -50,11 +52,10 @@ type KeyValue<Value> = Promise<Value | null>
 export interface KeyValueStore {
   get(key: string): KeyValue<string>;
   get<ExpectedValue = unknown>(key: string, type: "json"): KeyValue<ExpectedValue>;
-  get(key: string, type: "arrayBuffer"): KeyValue<ArrayBuffer>;
 
   put(
     key: string,
-    value: string | ArrayBuffer,
+    value: string,
     options?: {
       expiration?: string | number;
       expirationTtl?: string | number;
@@ -99,10 +100,6 @@ const dbkeyThreadViews = (threadId: PostId) =>
   `thread.views:${threadId}`;
 const dbkeyThreadView = (threadId: PostId, ip: IP) =>
   `thread.view:${threadId}:${ip}`;
-const dbkeyAnimationJson = (postId: PostId) =>
-  `animation.json:${postId}`;
-const dbkeyAnimationVideo = (postId: PostId) =>
-  `animation.video:${postId}`;
 
 const TRUE_VALUE = "1";
 const SECONDS_PER_DAY = 86400;
@@ -191,6 +188,12 @@ export const dbCreatePost = async (post: StoredPost): Promise<void> => {
   ]);
 };
 
+interface StoredVideo {
+  buffer: Buffer;
+}
+export const docVideo = (postId: PostId) => store.collection(COLLECTION_VIDEOS).doc(postId);
+export const docAnimation = (postId: PostId) => store.collection(COLLECTION_ANIMATIONS).doc(postId);
+
 export const dbDeletePost = async (post: StoredPost): Promise<void> => {
   // We don't delete the individual views/likes/replies, just the counts (unbounded operations).
   const postId = post.id;
@@ -199,8 +202,8 @@ export const dbDeletePost = async (post: StoredPost): Promise<void> => {
     db.delete(dbkeyPostLikes(postId)),
     db.delete(dbkeyThreadViews(postId)),
 
-    db.delete(dbkeyAnimationJson(postId)),
-    db.delete(dbkeyAnimationVideo(postId)),
+    docAnimation(postId).delete(),
+    docVideo(postId).delete(),
 
     db.delete(dbkeyThreadPost(API_ALL_THREADS_ID, post.sortKey, postId)),
     db.delete(dbkeyThreadPost(post.threadId, post.sortKey, postId)),
@@ -344,19 +347,6 @@ export const dbListAmendedPosts =
         canDelete: dbUserHasPermission(authedUserOptional, query.userId)
       };
     }));
-
-export const dbPutAnimation = async (postId: PostId, json: string, video: ArrayBuffer): Promise<void> => {
-  await Promise.all([
-    db.put(dbkeyAnimationJson(postId), json),
-    db.put(dbkeyAnimationVideo(postId), video)
-  ]);
-};
-
-export const dbGetAnimationJson = async (postId: PostId): Promise<string | null> =>
-  db.get(dbkeyAnimationJson(postId));
-
-export const dbGetAnimationVideo = async (postId: PostId): Promise<ArrayBuffer | null> =>
-  db.get(dbkeyAnimationVideo(postId), "arrayBuffer");
 
 export const isDevEnvironment = () => process.env.FUNCTIONS_EMULATOR === "true";
 
@@ -646,20 +636,28 @@ addHandler(API_ANIMATION_CREATE, async (input) => {
   });
 
   const {id} = output;
-  await dbPutAnimation(id, JSON.stringify(animationData), video);
+
+  const storedVideo: StoredVideo = {
+    buffer: Buffer.from(video)
+  };
+
+  await Promise.all([
+    docVideo(id).create(storedVideo),
+    docAnimation(id).create(animationData)
+  ]);
   return output;
 });
 
 addHandler(API_ANIMATION_JSON, async (input) => {
-  const result: AnimationData = JSON.parse(expect(
-    "animationJson",
-    await dbGetAnimationJson(input.json.id)
-  ));
+  const animationDoc = await docAnimation(input.json.id).get();
+  const result = animationDoc.data() as AnimationData;
   return {result, immutable: true};
 });
 
 addHandler(API_ANIMATION_VIDEO, async (input) => {
-  const result = expect("video", await dbGetAnimationVideo(input.json.id));
+  const videoDoc = await docVideo(input.json.id).get();
+  const storedVideo = videoDoc.data() as StoredVideo;
+  const result = storedVideo.buffer;
   return {
     result,
     immutable: true,
