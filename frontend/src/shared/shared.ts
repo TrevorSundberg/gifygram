@@ -143,6 +143,8 @@ export const abortable = <T>(promise: Promise<T>, abortController?: AbortControl
   return abortablePromise;
 };
 
+let fetchQueue: Promise<any> = Promise.resolve();
+
 export const abortableJsonFetch = <InputType, OutputType>(
   api: Api<InputType, OutputType>,
   auth: Auth = Auth.Optional,
@@ -150,6 +152,10 @@ export const abortableJsonFetch = <InputType, OutputType>(
   body: BodyInit = null): AbortablePromise<OutputType> => {
   const controller = new AbortController();
   const promise = (async () => {
+    if (isDevEnvironment()) {
+      // Serialize fetch in dev because Firestore transactions fail if more than one is going on the emulator.
+      await fetchQueue;
+    }
     if (auth === Auth.Required) {
       await signInIfNeeded();
     }
@@ -174,6 +180,7 @@ export const abortableJsonFetch = <InputType, OutputType>(
       throw err;
     }
   })();
+  fetchQueue = promise;
   return abortable(promise, controller);
 };
 
