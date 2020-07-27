@@ -86,8 +86,6 @@ export type SortKey = string;
 export const docUser = (userId: UserId) => store.collection(COLLECTION_USERS).doc(userId);
 const dbkeyPost = (postId: PostId) =>
   `post:${postId}`;
-const dbkeyPostDeleted = (postId: PostId) =>
-  `post.deleted:${postId}`;
 const dbprefixThreadPost = (threadId: PostId) =>
   `thread.post:${threadId}:`;
 const dbkeyThreadPost = (threadId: PostId, sortKey: SortKey, postId: PostId) =>
@@ -206,10 +204,7 @@ export const dbDeletePost = async (post: StoredPost): Promise<void> => {
     docVideo(postId).delete(),
 
     db.delete(dbkeyThreadPost(API_ALL_THREADS_ID, post.sortKey, postId)),
-    db.delete(dbkeyThreadPost(post.threadId, post.sortKey, postId)),
-
-    // In case we want to cleanup views/likes/replies in the future, put a key in that says we deleted this.
-    db.put(dbkeyPostDeleted(postId), TRUE_VALUE)
+    db.delete(dbkeyThreadPost(post.threadId, post.sortKey, postId))
   ]);
 };
 
