@@ -771,7 +771,7 @@ const handleRequest = async (request: RawRequest): Promise<RequestOutput<any>> =
 
 const handleRanges = async (request: RawRequest): Promise<RequestOutput<any>> => {
   const response = await handleRequest(request);
-  if (response.result instanceof ArrayBuffer) {
+  if (response.result instanceof Buffer) {
     response.headers = response.headers || {};
     response.headers["accept-ranges"] = "bytes";
 
@@ -815,7 +815,7 @@ export const handle = async (request: RawRequest): Promise<RequestOutput<any>> =
   const output = await handleErrors(request);
   output.headers = output.headers || {};
 
-  if (output.result instanceof ArrayBuffer || output.result instanceof Buffer) {
+  if (output.result instanceof Buffer) {
     output.contentType = output.contentType || CONTENT_TYPE_APPLICATION_OCTET_STREAM;
   } else {
     output.contentType = output.contentType || CONTENT_TYPE_APPLICATION_JSON;
@@ -835,7 +835,7 @@ delete (global as any).window;
 
 setKeyValueStore({
   delete: (() => 0) as any,
-  get: async (key: string, type?: "json" | "arrayBuffer"): Promise<string | null | ArrayBuffer | any> => {
+  get: async (key: string, type?: "json"): Promise<string | null | any> => {
     const document = await store.collection("collection").doc(key).
       get();
     const data = document.data() as {buffer: Buffer} | undefined;
@@ -843,9 +843,6 @@ setKeyValueStore({
       return null;
     }
     const {buffer} = data;
-    if (type === "arrayBuffer") {
-      return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
-    }
     const string = buffer.toString();
     if (type === "json") {
       return JSON.parse(string);
@@ -889,7 +886,5 @@ export const requests = functions.https.onRequest(async (request, response) => {
     }
   }
   response.status(output.status || 200);
-  response.send(output.result instanceof ArrayBuffer
-    ? Buffer.from(output.result)
-    : output.result);
+  response.send(output.result);
 });
