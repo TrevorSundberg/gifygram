@@ -9,9 +9,6 @@ module.exports = {
     rules: [
       {
         loader: "ts-loader",
-        options: {
-          transpileOnly: true
-        },
         test: /\.tsx?$/u
       }
     ]
