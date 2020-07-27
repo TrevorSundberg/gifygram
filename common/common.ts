@@ -8,6 +8,7 @@ export const COLLECTION_USERS = "users";
 export const COLLECTION_AVATARS = "avatars";
 export const COLLECTION_VIDEOS = "videos";
 export const COLLECTION_ANIMATIONS = "animations";
+export const COLLECTION_POSTS = "posts";
 
 /** Mark that we're doing something only to be backwards compatable with the database */
 export const oldVersion = <T>(value: T) => value;

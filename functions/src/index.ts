@@ -23,6 +23,7 @@ import {
   AttributedSource,
   COLLECTION_ANIMATIONS,
   COLLECTION_AVATARS,
+  COLLECTION_POSTS,
   COLLECTION_USERS,
   COLLECTION_VIDEOS,
   ClientPost,
@@ -82,8 +83,6 @@ type PostId = string;
 type IP = string;
 type SortKey = string;
 
-const dbkeyPost = (postId: PostId) =>
-  `post:${postId}`;
 const dbprefixThreadPost = (threadId: PostId) =>
   `thread.post:${threadId}:`;
 const dbkeyThreadPost = (threadId: PostId, sortKey: SortKey, postId: PostId) =>
@@ -163,8 +162,11 @@ const dbPutUser = async (user: StoredUser, allowNameNumbers: boolean): Promise<v
   });
 };
 
-const dbGetPost = async (postId: PostId): Promise<StoredPost | null> =>
-  db.get<StoredPost>(dbkeyPost(postId), "json");
+const docPost = (postId: PostId) => store.collection(COLLECTION_POSTS).doc(postId);
+const dbGetPost = async (postId: PostId): Promise<StoredPost | undefined> => {
+  const postDoc = await docPost(postId).get();
+  return postDoc.data() as StoredPost | undefined;
+};
 
 const dbExpectPost = async (postId: PostId): Promise<StoredPost> => {
   const post = await dbGetPost(postId);
@@ -172,17 +174,6 @@ const dbExpectPost = async (postId: PostId): Promise<StoredPost> => {
     throw new Error(`Attempting to get a post by id ${postId} returned null`);
   }
   return post;
-};
-
-const dbCreatePost = async (post: StoredPost): Promise<void> => {
-  await Promise.all([
-    // If this post is creating a thread...
-    post.threadId === post.id
-      ? db.put(dbkeyThreadPost(API_ALL_THREADS_ID, post.sortKey, post.id), TRUE_VALUE)
-      : null,
-    db.put(dbkeyThreadPost(post.threadId, post.sortKey, post.id), TRUE_VALUE),
-    db.put(dbkeyPost(post.id), JSON.stringify(post))
-  ]);
 };
 
 interface StoredVideo {
@@ -195,7 +186,7 @@ const dbDeletePost = async (post: StoredPost): Promise<void> => {
   // We don't delete the individual views/likes/replies, just the counts (unbounded operations).
   const postId = post.id;
   await Promise.all([
-    db.delete(dbkeyPost(postId)),
+    docPost(postId).delete(),
     db.delete(dbkeyPostLikes(postId)),
     db.delete(dbkeyThreadViews(postId)),
 
@@ -546,7 +537,14 @@ const postCreate = async (
     dateMsSinceEpoch: Date.now()
   };
 
-  await dbCreatePost(post);
+  await Promise.all([
+    // If this post is creating a thread...
+    post.threadId === post.id
+      ? db.put(dbkeyThreadPost(API_ALL_THREADS_ID, post.sortKey, post.id), TRUE_VALUE)
+      : null,
+    db.put(dbkeyThreadPost(post.threadId, post.sortKey, post.id), TRUE_VALUE),
+    docPost(post.id).create(post)
+  ]);
 
   // We return what the post would actually look like if it were listed (for quick display in React).
   const result: ClientPost = {
