@@ -4,6 +4,8 @@ export const MAX_VIDEO_SIZE = 720;
 export const API_ALL_THREADS_ID = "00000000-0000-4000-8000-000000000000";
 export const API_TRENDING_THREADS_ID = "10000000-0000-4000-8000-000000000000";
 
+export const COLLECTION_USERS = "users";
+
 /** Mark that we're doing something only to be backwards compatable with the database */
 export const oldVersion = <T>(value: T) => value;
 
@@ -128,10 +130,6 @@ export interface StoredUser {
   username: string;
   bio: string;
   role: "user" | "admin";
-}
-
-export interface ProfileUser extends StoredUser {
-  ownsUsername: boolean;
 }
 
 export interface AvatarInput {
@@ -266,11 +264,7 @@ export const API_ANIMATION_VIDEO = new Api<SpecificPost, ArrayBuffer>(
   "/api/animation/video",
   require("../ts-schema-loader/dist/main.js!./common.ts?SpecificPost")
 );
-export const API_PROFILE = new Api<Empty, ProfileUser>(
-  "/api/profile",
-  require("../ts-schema-loader/dist/main.js!./common.ts?Empty")
-);
-export const API_PROFILE_UPDATE = new Api<ProfileUpdate, ProfileUser>(
+export const API_PROFILE_UPDATE = new Api<ProfileUpdate, StoredUser>(
   "/api/profile/update",
   require("../ts-schema-loader/dist/main.js!./common.ts?ProfileUpdate")
 );
@@ -278,7 +272,7 @@ export const API_PROFILE_AVATAR = new Api<AvatarInput, ArrayBuffer>(
   "/api/profile/avatar",
   require("../ts-schema-loader/dist/main.js!./common.ts?AvatarInput")
 );
-export const API_PROFILE_AVATAR_UPDATE = new Api<Empty, ProfileUser>(
+export const API_PROFILE_AVATAR_UPDATE = new Api<Empty, StoredUser>(
   "/api/profile/avatar/update",
   require("../ts-schema-loader/dist/main.js!./common.ts?Empty")
 );

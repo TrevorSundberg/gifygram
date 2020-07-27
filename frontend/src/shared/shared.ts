@@ -128,6 +128,21 @@ export enum Auth {
   Required,
 }
 
+export const abortable = <T>(promise: Promise<T>, abortController?: AbortController): AbortablePromise<T> => {
+  const controller = abortController || new AbortController();
+  const abortablePromise = new Promise((resolve, reject) => {
+    promise.then((value) => {
+      if (controller.signal.aborted) {
+        resolve(null);
+      } else {
+        resolve(value);
+      }
+    }, reject);
+  }) as AbortablePromise<T>;
+  abortablePromise.controller = controller;
+  return abortablePromise;
+};
+
 export const abortableJsonFetch = <InputType, OutputType>(
   api: Api<InputType, OutputType>,
   auth: Auth = Auth.Optional,
@@ -159,9 +174,7 @@ export const abortableJsonFetch = <InputType, OutputType>(
       throw err;
     }
   })();
-  const abortable = promise as AbortablePromise<OutputType>;
-  abortable.controller = controller;
-  return abortable;
+  return abortable(promise, controller);
 };
 
-export const cancel = <T>(abortable: AbortablePromise<T>) => abortable && abortable.controller.abort();
+export const cancel = <T>(promise: AbortablePromise<T>) => promise && promise.controller.abort();

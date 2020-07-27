@@ -3,13 +3,13 @@ import {
   API_TRENDING_THREADS_ID,
   AmendedPost,
   AmendedQuery,
+  COLLECTION_USERS,
   PostList,
-  ProfileUser,
   StoredPost,
   StoredUser,
   padInteger
 } from "../../common/common";
-import {firestore} from "./firebase";
+import {store} from "./firebase";
 
 type KeyValue<Value> = Promise<Value | null>
 
@@ -48,8 +48,7 @@ export type PostId = string;
 export type IP = string;
 export type SortKey = string;
 
-const COLLECTION_USERS = "users";
-const docUser = (userId: UserId) => firestore.collection(COLLECTION_USERS).doc(userId);
+const docUser = (userId: UserId) => store.collection(COLLECTION_USERS).doc(userId);
 const dbkeyUsernameToUserId = (username: string) =>
   `username:${username.toLowerCase()}`;
 const dbkeyPost = (postId: PostId) =>
@@ -91,7 +90,7 @@ export const dbGetUser = async (userId: UserId): Promise<StoredUser | null> => {
   return userDoc.data() as StoredUser;
 };
 
-export const dbPutUser = async (user: StoredUser): Promise<ProfileUser> => {
+export const dbPutUser = async (user: StoredUser): Promise<StoredUser> => {
   const oldUser = await dbGetUser(user.id);
   await docUser(user.id).set(user);
 
@@ -107,9 +106,9 @@ export const dbPutUser = async (user: StoredUser): Promise<ProfileUser> => {
   const usernameOwnerUserId = await dbGetUsernameToUserId(user.username);
   if (!usernameOwnerUserId) {
     await db.put(dbkeyUsernameToUserId(user.username), JSON.stringify(user.id));
-    return {...user, ownsUsername: true};
+    return user;
   }
-  return {...user, ownsUsername: usernameOwnerUserId === user.id};
+  return user;
 };
 
 export const dbGetPost = async (postId: PostId): Promise<StoredPost | null> =>

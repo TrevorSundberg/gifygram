@@ -11,7 +11,6 @@ import {
   API_POST_DELETE,
   API_POST_LIKE,
   API_POST_LIST,
-  API_PROFILE,
   API_PROFILE_AVATAR,
   API_PROFILE_AVATAR_UPDATE,
   API_PROFILE_UPDATE,
@@ -20,7 +19,6 @@ import {
   AttributedSource,
   ClientPost,
   PostData,
-  ProfileUser,
   StoredPost,
   StoredUser,
   padInteger
@@ -35,7 +33,6 @@ import {
   dbGetAnimationVideo,
   dbGetAvatar,
   dbGetUser,
-  dbGetUsernameToUserId,
   dbListAmendedPosts,
   dbListPosts,
   dbModifyPostLiked,
@@ -389,19 +386,6 @@ addHandler(API_ANIMATION_VIDEO, async (input) => {
     immutable: true,
     contentType: CONTENT_TYPE_VIDEO_MP4
   };
-});
-
-const getProfileUser = async (input: RequestInput<any>): Promise<ProfileUser> => {
-  const user = await input.requireAuthedUser();
-  return {
-    ...user,
-    ownsUsername: await dbGetUsernameToUserId(user.username) === user.id
-  };
-};
-
-addHandler(API_PROFILE, async (input) => {
-  const user = await getProfileUser(input);
-  return {result: user};
 });
 
 addHandler(API_PROFILE_UPDATE, async (input) => {

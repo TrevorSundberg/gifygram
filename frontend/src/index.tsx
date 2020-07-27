@@ -1,3 +1,4 @@
+import "./shared/firebase";
 import "./page/fonts.css";
 import "./page/hashScroll";
 import {API_ALL_THREADS_ID, API_TRENDING_THREADS_ID} from "../../common/common";
@@ -45,19 +46,6 @@ import {Thread} from "./page/thread";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import firebase from "firebase/app";
-// eslint-disable-next-line sort-imports
-import "firebase/auth";
-import "firebase/firestore";
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-firebase.initializeApp(require("../firebaseOptions"));
-
-if (isDevEnvironment()) {
-  firebase.firestore().settings({
-    host: "localhost:5003",
-    ssl: false
-  });
-}
 
 const getUrlParam = (props: { location: import("history").Location }, name: string) =>
   JSON.parse(new URLSearchParams(props.location.search).get(name));

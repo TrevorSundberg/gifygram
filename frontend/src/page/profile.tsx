@@ -1,37 +1,42 @@
 import {
-  API_PROFILE,
   API_PROFILE_AVATAR_UPDATE,
   API_PROFILE_UPDATE,
-  ProfileUser
+  COLLECTION_USERS,
+  StoredUser
 } from "../../../common/common";
-import {AbortablePromise, Auth, abortableJsonFetch, cancel} from "../shared/shared";
+import {AbortablePromise, Auth, abortable, abortableJsonFetch, cancel} from "../shared/shared";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Divider from "@material-ui/core/Divider";
+import {LoginUserIdContext} from "./login";
 import React from "react";
 import {SubmitButton} from "./submitButton";
 import TextField from "@material-ui/core/TextField";
 import {UserAvatar} from "./userAvatar";
+import {store} from "../shared/firebase";
 
 export const Profile: React.FC = () => {
-  const [user, setUser] = React.useState<ProfileUser>(null);
-  const [profileUpdateFetch, setProfileUpdateFetch] = React.useState<AbortablePromise<ProfileUser>>(null);
+  const [user, setUser] = React.useState<StoredUser>(null);
+  const [profileUpdateFetch, setProfileUpdateFetch] = React.useState<AbortablePromise<StoredUser>>(null);
   const [userAvatar, setUserAvatar] = React.useState<File>(null);
 
+  const loggedInUserId = React.useContext(LoginUserIdContext);
   React.useEffect(() => {
-    const profileFetch = abortableJsonFetch(API_PROFILE, Auth.Required);
-    (async () => {
-      const profile = await profileFetch;
-      if (profile) {
-        setUser(profile);
-      }
-    })();
-
-    return () => {
-      cancel(profileFetch);
-    };
-  }, []);
+    if (loggedInUserId) {
+      const profilePromise = abortable(store.collection(COLLECTION_USERS).doc(loggedInUserId).get());
+      (async () => {
+        const profileDoc = await profilePromise;
+        if (profileDoc) {
+          setUser(profileDoc.data() as StoredUser);
+        }
+      })();
+      return () => {
+        cancel(profilePromise);
+      };
+    }
+    return () => 0;
+  }, [loggedInUserId]);
 
   React.useEffect(() => () => {
     cancel(profileUpdateFetch);
@@ -110,11 +115,7 @@ export const Profile: React.FC = () => {
           <TextField
             fullWidth
             label="Username"
-            error={!user.ownsUsername}
-            helperText={user.ownsUsername
-              ? `Between ${minLength} and ${maxLength} letters, numbers, and dots '.'`
-              : "Another user owns this username. You may use it, but you won't be " +
-                "able to give out links to your profile until you pick a unique username."}
+            helperText={`Between ${minLength} and ${maxLength} letters, numbers, and dots '.'`}
             disabled={Boolean(profileUpdateFetch)}
             inputProps={{
               minLength,

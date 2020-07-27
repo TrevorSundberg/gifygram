@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
-import {firestore} from "./firebase";
 import {handle} from "./handlers";
 import {setKeyValueStore} from "./database";
+import {store} from "./firebase";
 
 // See firebase/functions/node_modules/@google-cloud/firestore/build/src/v1/firestore_client.js isBrowser checks
 delete (global as any).window;
@@ -9,7 +9,7 @@ delete (global as any).window;
 setKeyValueStore({
   delete: (() => 0) as any,
   get: async (key: string, type?: "json" | "arrayBuffer"): Promise<string | null | ArrayBuffer | any> => {
-    const document = await firestore.collection("collection").doc(key).
+    const document = await store.collection("collection").doc(key).
       get();
     const data = document.data() as {buffer: Buffer} | undefined;
     if (!data) {
@@ -29,7 +29,7 @@ setKeyValueStore({
   Promise<{keys: { name: string; expiration?: number }[]}> => {
     const prefix = options && options.prefix || "";
     const limit = options && options.limit || 1000;
-    const documents = await firestore.collection("collection").listDocuments();
+    const documents = await store.collection("collection").listDocuments();
     return {
       keys: documents.map((document) => ({
         name: document.id
@@ -38,7 +38,7 @@ setKeyValueStore({
     };
   },
   put: async (key, value) => {
-    await firestore.collection("collection").doc(key).
+    await store.collection("collection").doc(key).
       set({buffer: Buffer.from(value)});
   }
 });
