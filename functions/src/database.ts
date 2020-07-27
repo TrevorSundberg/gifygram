@@ -48,7 +48,7 @@ export type PostId = string;
 export type IP = string;
 export type SortKey = string;
 
-const docUser = (userId: UserId) => store.collection(COLLECTION_USERS).doc(userId);
+export const docUser = (userId: UserId) => store.collection(COLLECTION_USERS).doc(userId);
 const dbkeyUsernameToUserId = (username: string) =>
   `username:${username.toLowerCase()}`;
 const dbkeyPost = (postId: PostId) =>
@@ -71,8 +71,6 @@ const dbkeyAnimationJson = (postId: PostId) =>
   `animation.json:${postId}`;
 const dbkeyAnimationVideo = (postId: PostId) =>
   `animation.video:${postId}`;
-const dbkeyAvatar = (avatarId: UserId) =>
-  `avatar:${avatarId}`;
 
 const TRUE_VALUE = "1";
 const SECONDS_PER_DAY = 86400;
@@ -293,15 +291,6 @@ export const dbPutAnimation = async (postId: PostId, json: string, video: ArrayB
     db.put(dbkeyAnimationVideo(postId), video)
   ]);
 };
-
-export const dbGetAvatar = async (avatarId: AvatarId): Promise<ArrayBuffer | null> =>
-  db.get(dbkeyAvatar(avatarId), "arrayBuffer");
-
-export const dbPutAvatar = async (avatarId: AvatarId, avatar: ArrayBuffer): Promise<void> =>
-  db.put(dbkeyAvatar(avatarId), avatar);
-
-export const dbDeleteAvatar = async (avatarId: AvatarId): Promise<void> =>
-  db.delete(dbkeyAvatar(avatarId));
 
 export const dbGetAnimationJson = async (postId: PostId): Promise<string | null> =>
   db.get(dbkeyAnimationJson(postId));

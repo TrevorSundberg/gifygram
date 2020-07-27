@@ -17,6 +17,7 @@ import {
   AnimationData,
   Api,
   AttributedSource,
+  COLLECTION_AVATARS,
   ClientPost,
   PostData,
   StoredPost,
@@ -26,25 +27,24 @@ import {
 import {
   dbAddView,
   dbCreatePost,
-  dbDeleteAvatar,
   dbDeletePost,
   dbExpectPost,
   dbGetAnimationJson,
   dbGetAnimationVideo,
-  dbGetAvatar,
   dbGetUser,
   dbListAmendedPosts,
   dbListPosts,
   dbModifyPostLiked,
   dbPutAnimation,
-  dbPutAvatar,
   dbPutUser,
-  dbUserHasPermission
+  dbUserHasPermission,
+  docUser
 } from "./database";
 
 import {TEST_EMAIL} from "../../common/test";
 import {TextDecoder} from "util";
 import fetch from "node-fetch";
+import {store} from "./firebase";
 import {uuid} from "uuidv4";
 
 export const isDevEnvironment = () => process.env.FUNCTIONS_EMULATOR === "true";
@@ -396,30 +396,45 @@ addHandler(API_PROFILE_UPDATE, async (input) => {
   return {result: profileUser};
 });
 
+interface StoredAvatar {
+  buffer: Buffer;
+}
+const docAvatar = (avatarId: string) => store.collection(COLLECTION_AVATARS).doc(avatarId);
+
 addHandler(API_PROFILE_AVATAR, async (input) => {
-  const result = expect("avatar", await dbGetAvatar(input.json.avatarId));
+  const avatarDoc = await docAvatar(input.json.avatarId).get();
+  const avatarData = expect("avatar", avatarDoc.data()) as StoredAvatar;
   return {
-    result,
+    result: avatarData.buffer,
     immutable: true,
     contentType: CONTENT_TYPE_IMAGE_JPEG
   };
 });
 
 addHandler(API_PROFILE_AVATAR_UPDATE, async (input) => {
-  const user = await input.requireAuthedUser();
-  if (user.avatarId) {
-    await dbDeleteAvatar(user.avatarId);
-  }
-  user.avatarId = uuid();
   const imageData = input.request.body;
   const avatarMaxSizeKB = 256;
   if (imageData.byteLength > avatarMaxSizeKB * 1024) {
     throw new Error(`The size of the avatar must not be larger than ${avatarMaxSizeKB}KB`);
   }
   expectFileHeader("avatar", "gif, jpeg, png", imageData, [imageGifHeader, imageJpegHeader, imagePngHeader]);
-  await dbPutAvatar(user.avatarId, imageData);
-  const profileUser = await dbPutUser(user);
-  return {result: profileUser};
+
+  const user = await input.requireAuthedUser();
+  const avatarId = await store.runTransaction(async (transaction) => {
+    const userRef = docUser(user.id);
+    const userDoc = await transaction.get(userRef);
+    const storedUser = userDoc.data() as StoredUser;
+    if (storedUser.avatarId) {
+      await transaction.delete(docAvatar(storedUser.avatarId));
+    }
+    const newAvatar = store.collection(COLLECTION_AVATARS).doc();
+    await transaction.create(newAvatar, {
+      buffer: Buffer.from(imageData)
+    });
+    await transaction.update(userRef, {avatarId: newAvatar.id});
+    return newAvatar.id;
+  });
+  return {result: {...user, avatarId}};
 });
 
 addHandler(API_POST_LIKE, async (input) => {
@@ -538,7 +553,7 @@ export const handle = async (request: RawRequest): Promise<RequestOutput<any>> =
   const output = await handleErrors(request);
   output.headers = output.headers || {};
 
-  if (output.result instanceof ArrayBuffer) {
+  if (output.result instanceof ArrayBuffer || output.result instanceof Buffer) {
     output.contentType = output.contentType || CONTENT_TYPE_APPLICATION_OCTET_STREAM;
   } else {
     output.contentType = output.contentType || CONTENT_TYPE_APPLICATION_JSON;
