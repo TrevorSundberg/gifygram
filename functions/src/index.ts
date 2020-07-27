@@ -359,11 +359,10 @@ const CACHE_CONTROL_IMMUTABLE = "public,max-age=31536000,immutable";
 
 const sortKeyNewToOld = () => padInteger(Number.MAX_SAFE_INTEGER - Date.now());
 
-const parseBinaryChunks = (buffer: ArrayBuffer) => {
-  const view = new DataView(buffer);
-  const result: ArrayBuffer[] = [];
-  for (let index = 0; index < view.byteLength;) {
-    const size = view.getUint32(index, true);
+const parseBinaryChunks = (buffer: Buffer) => {
+  const result: Buffer[] = [];
+  for (let index = 0; index < buffer.byteLength;) {
+    const size = buffer.readUInt32LE(index);
     const start = index + 4;
     const data = buffer.slice(start, start + size);
     result.push(data);
@@ -384,7 +383,7 @@ export interface RawRequest {
 
   range: string | null;
 
-  body: ArrayBuffer;
+  body: Buffer;
 
   onHandlerNotFound: () => Promise<RequestOutput<any>>;
 }
@@ -476,7 +475,7 @@ const addHandler = <InputType, OutputType>(
   };
 };
 
-const videoMp4Header = new Uint8Array([
+const videoMp4Header = Buffer.from([
   0x00,
   0x00,
   0x00,
@@ -502,27 +501,13 @@ const videoMp4Header = new Uint8Array([
   0x6f,
   0x6d
 ]);
+const imageGifHeader = Buffer.from([0x47, 0x49, 0x46, 0x38]);
+const imageJpegHeader = Buffer.from([0xFF, 0xD8]);
+const imagePngHeader = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
 
-const imageGifHeader = new Uint8Array([0x47, 0x49, 0x46, 0x38]);
-const imageJpegHeader = new Uint8Array([0xFF, 0xD8]);
-const imagePngHeader = new Uint8Array([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
-
-const startsWithBytes = (buffer: ArrayBuffer, startsWith: Uint8Array) => {
-  if (buffer.byteLength < startsWith.byteLength) {
-    return false;
-  }
-  const bytes = new Uint8Array(buffer);
-  for (let i = 0; i < startsWith.length; ++i) {
-    if (bytes[i] !== startsWith[i]) {
-      return false;
-    }
-  }
-  return true;
-};
-
-const expectFileHeader = (name: string, types: string, buffer: ArrayBuffer, possibleHeaders: Uint8Array[]) => {
+const expectFileHeader = (name: string, types: string, buffer: Buffer, possibleHeaders: Buffer[]) => {
   for (const possibleHeader of possibleHeaders) {
-    if (startsWithBytes(buffer, possibleHeader)) {
+    if (buffer.compare(possibleHeader, 0, possibleHeader.byteLength, 0, possibleHeader.byteLength) === 0) {
       return;
     }
   }
@@ -890,9 +875,7 @@ export const requests = functions.https.onRequest(async (request, response) => {
   const output = await handle({
     ip: request.ip || "127.0.0.1",
     authorization: request.headers.authorization || null,
-    body: request.rawBody
-      ? request.rawBody.slice().buffer
-      : new ArrayBuffer(0),
+    body: request.rawBody || Buffer.alloc(0),
     method: request.method,
     range: (request.headers.range as string | undefined) || null,
     url: new URL(`${request.protocol}://${request.get("host")}${request.originalUrl.substr(apiIndex)}`),

@@ -263,7 +263,7 @@ export const API_ANIMATION_JSON = new Api<SpecificPost, AnimationData>(
   "/api/animation/json",
   require("../ts-schema-loader/dist/main.js!./common.ts?SpecificPost")
 );
-export const API_ANIMATION_VIDEO = new Api<SpecificPost, ArrayBuffer>(
+export const API_ANIMATION_VIDEO = new Api<SpecificPost, Buffer>(
   "/api/animation/video",
   require("../ts-schema-loader/dist/main.js!./common.ts?SpecificPost")
 );
@@ -271,7 +271,7 @@ export const API_PROFILE_UPDATE = new Api<ProfileUpdate, StoredUser>(
   "/api/profile/update",
   require("../ts-schema-loader/dist/main.js!./common.ts?ProfileUpdate")
 );
-export const API_PROFILE_AVATAR = new Api<AvatarInput, ArrayBuffer>(
+export const API_PROFILE_AVATAR = new Api<AvatarInput, Buffer>(
   "/api/profile/avatar",
   require("../ts-schema-loader/dist/main.js!./common.ts?AvatarInput")
 );
