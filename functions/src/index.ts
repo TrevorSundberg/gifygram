@@ -438,18 +438,21 @@ addHandler(API_POST_LIST, async (input) => {
       case API_ALL_THREADS_ID:
         return postCollection.
           where("isThread", "==", true).
+          orderBy("dateMsSinceEpoch", "desc").
           limit(20);
       case API_TRENDING_THREADS_ID:
         return postCollection.
           where("isThread", "==", true).
+          orderBy("dateMsSinceEpoch", "desc").
           limit(3);
       default:
         return postCollection.
-          where("threadId", "==", input.json.threadId);
+          where("threadId", "==", input.json.threadId).
+          orderBy("dateMsSinceEpoch", "desc");
     }
   })();
 
-  const postDocs = await postQueries.orderBy("dateMsSinceEpoch", "desc").get();
+  const postDocs = await postQueries.get();
   const result = postDocs.docs.map((snapshot) => snapshot.data()) as StoredPost[];
   return {result};
 });
