@@ -730,7 +730,8 @@ delete (global as any).window;
 export const requests = functions.https.onRequest(async (request, response) => {
   const apiIndex = request.originalUrl.indexOf("/api/");
   const ipHasher = crypto.createHash("sha256");
-  ipHasher.update(request.ip || request.header("host") || request.header("origin") || "");
+  const ipOrHost = request.ip || request.header("x-forwarded-host") || "";
+  ipHasher.update(ipOrHost);
   const output = await handle({
     ipHash: ipHasher.digest("hex"),
     authorization: request.headers.authorization || null,
