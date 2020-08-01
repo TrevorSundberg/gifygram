@@ -9,7 +9,7 @@ firebase.initializeApp(require("../../firebaseOptions"));
 
 if (isDevEnvironment()) {
   firebase.firestore().settings({
-    host: "localhost:5003",
+    host: `${new URL(window.location.href).hostname}:5003`,
     ssl: false
   });
 }

@@ -77,6 +77,9 @@ const App = () => {
     };
   }, []);
 
+  const emulatorUi = new URL(new URL(window.location.href).origin);
+  emulatorUi.port = "5001";
+
   const classes = useStyles();
   return <ThemeProvider theme={theme}>
     <CssBaseline />
@@ -189,7 +192,7 @@ const App = () => {
             {
               isDevEnvironment()
                 ? <Link
-                  href="http://localhost:5001"
+                  href={emulatorUi.href}
                   target="_blank"
                   rel="noopener"
                   className={classes.link}
