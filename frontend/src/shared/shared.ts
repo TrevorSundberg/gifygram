@@ -170,7 +170,10 @@ export const abortableJsonFetch = <InputType, OutputType>(
   const promise = (async () => {
     if (isDevEnvironment()) {
       // Serialize fetch in dev because Firestore transactions fail if more than one is going on the emulator.
-      await fetchQueue;
+      try {
+        await fetchQueue;
+      // eslint-disable-next-line no-empty
+      } catch {}
     }
     if (auth === Auth.Required) {
       await signInIfNeeded();
