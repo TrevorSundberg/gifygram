@@ -106,11 +106,14 @@ export const Profile: React.FC = () => {
             );
             setProfileUpdateFetch(profileUpdateFetchPromise);
 
-            const updatedUser = await profileUpdateFetchPromise;
-            if (updatedUser) {
-              setUser(updatedUser);
+            try {
+              const updatedUser = await profileUpdateFetchPromise;
+              if (updatedUser) {
+                setUser(updatedUser);
+              }
+            } finally {
+              setProfileUpdateFetch(null);
             }
-            setProfileUpdateFetch(null);
           }}>
           <TextField
             fullWidth
