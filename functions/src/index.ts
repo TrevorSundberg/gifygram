@@ -28,7 +28,6 @@ import {
   COLLECTION_VIDEOS,
   ClientPost,
   PostData,
-  PostList,
   StoredPost,
   StoredUser,
   padInteger
@@ -64,13 +63,6 @@ interface KeyValueStore {
   ): Promise<void>;
 
   delete(key: string): Promise<void>;
-
-  list(options: {
-    prefix?: string;
-    limit?: number;
-  }): Promise<{
-    keys: { name: string; expiration?: number }[];
-  }>;
 }
 
 let db: KeyValueStore = undefined as any;
@@ -81,12 +73,7 @@ const setKeyValueStore = (kvStore: KeyValueStore) => {
 type UserId = string;
 type PostId = string;
 type IP = string;
-type SortKey = string;
 
-const dbprefixThreadPost = (threadId: PostId) =>
-  `thread.post:${threadId}:`;
-const dbkeyThreadPost = (threadId: PostId, sortKey: SortKey, postId: PostId) =>
-  `thread.post:${threadId}:${sortKey}|${postId}`;
 const dbkeyPostLiked = (userId: UserId, postId: PostId) =>
   `post.liked:${userId}:${postId}`;
 const dbkeyPostLikes = (postId: PostId) =>
@@ -191,10 +178,7 @@ const dbDeletePost = async (post: StoredPost): Promise<void> => {
     db.delete(dbkeyThreadViews(postId)),
 
     docAnimation(postId).delete(),
-    docVideo(postId).delete(),
-
-    db.delete(dbkeyThreadPost(API_ALL_THREADS_ID, post.sortKey, postId)),
-    db.delete(dbkeyThreadPost(post.threadId, post.sortKey, postId))
+    docVideo(postId).delete()
   ]);
 };
 
@@ -250,13 +234,9 @@ const dbModifyPostLiked = async (userId: UserId, postId: PostId, newValue: boole
       const trendingSortKey = computeTrendingSortKey(likesInfo);
       await Promise.all([
         db.put(likedKey, JSON.stringify(newUserLikedInfo)),
-        db.put(likesKey, JSON.stringify(likesInfo)),
-        db.put(
-          dbkeyThreadPost(API_TRENDING_THREADS_ID, trendingSortKey, postId),
-          TRUE_VALUE,
-          {expirationTtl: SECONDS_PER_DAY}
-        )
+        db.put(likesKey, JSON.stringify(likesInfo))
       ]);
+      console.log("TODO: MODIFY TRENDING", API_TRENDING_THREADS_ID, SECONDS_PER_DAY, trendingSortKey);
     } else {
       likesInfo.likes = Math.max(0, likesInfo.likes - 1);
       if (likesInfo.likes === 0) {
@@ -290,30 +270,6 @@ const dbAddView = async (threadId: PostId, ip: IP): Promise<void> => {
   }
 };
 
-const getBarIds = (list: {keys: { name: string }[]}) => {
-  const ids = list.keys.map((key) => key.name.split("|")[1]);
-  // Prevent duplicate ids.
-  const seenIds: Record<string, boolean> = {};
-  return ids.filter((id) => {
-    if (seenIds[id]) {
-      return false;
-    }
-    seenIds[id] = true;
-    return true;
-  });
-};
-
-const getStoredPostsFromIds = async (ids: string[]): Promise<StoredPost[]> => {
-  const posts = await Promise.all(ids.map(dbGetPost));
-  return posts.filter((post): post is StoredPost => Boolean(post));
-};
-
-const dbListPosts = async (postList: PostList): Promise<StoredPost[]> =>
-  getStoredPostsFromIds(getBarIds(await db.list({
-    prefix: dbprefixThreadPost(postList.threadId),
-    limit: postList.threadId === API_ALL_THREADS_ID ? 20 : undefined
-  })).slice(0, postList.threadId === API_TRENDING_THREADS_ID ? 4 : undefined));
-
 const dbListAmendedPosts =
   async (authedUserOptional: StoredUser | null, queries: AmendedQuery[]): Promise<AmendedPost[]> =>
     Promise.all(queries.map(async (query) => {
@@ -341,8 +297,6 @@ const CONTENT_TYPE_VIDEO_MP4 = "video/mp4";
 const CONTENT_TYPE_IMAGE_JPEG = "image/jpeg";
 
 const CACHE_CONTROL_IMMUTABLE = "public,max-age=31536000,immutable";
-
-const sortKeyNewToOld = () => padInteger(Number.MAX_SAFE_INTEGER - Date.now());
 
 const parseBinaryChunks = (buffer: Buffer) => {
   const result: Buffer[] = [];
@@ -507,7 +461,7 @@ interface PostCreateGeneric {
 
 const postCreate = async (
   input: RequestInput<PostCreateGeneric>,
-  createThread: boolean,
+  allowCreateThread: boolean,
   hasTitle: boolean,
   userdata: PostData) => {
   const user = await input.requireAuthedUser();
@@ -516,9 +470,8 @@ const postCreate = async (
   const {message, replyId} = input.json;
   const id = uuid();
 
-  const newToOld = sortKeyNewToOld();
   const threadId = await (async () => {
-    if (createThread && !replyId) {
+    if (allowCreateThread && !replyId) {
       return id;
     }
     const replyPost = await dbExpectPost(expect("replyId", replyId));
@@ -527,24 +480,17 @@ const postCreate = async (
 
   const post: StoredPost = {
     id,
+    isThread: threadId === id,
     threadId,
     title,
     message,
     userdata,
     userId: user.id,
     replyId,
-    sortKey: newToOld,
     dateMsSinceEpoch: Date.now()
   };
 
-  await Promise.all([
-    // If this post is creating a thread...
-    post.threadId === post.id
-      ? db.put(dbkeyThreadPost(API_ALL_THREADS_ID, post.sortKey, post.id), TRUE_VALUE)
-      : null,
-    db.put(dbkeyThreadPost(post.threadId, post.sortKey, post.id), TRUE_VALUE),
-    docPost(post.id).create(post)
-  ]);
+  await docPost(post.id).create(post);
 
   // We return what the post would actually look like if it were listed (for quick display in React).
   const result: ClientPost = {
@@ -574,7 +520,26 @@ addHandler(API_POST_LIST, async (input) => {
     await dbAddView(threadId, input.request.ip);
   }
 
-  const result = await dbListPosts(input.json);
+  const postCollection = store.collection(COLLECTION_POSTS);
+
+  const postQueries = (() => {
+    switch (input.json.threadId) {
+      case API_ALL_THREADS_ID:
+        return postCollection.
+          where("isThread", "==", true).
+          limit(20);
+      case API_TRENDING_THREADS_ID:
+        return postCollection.
+          where("isThread", "==", true).
+          limit(3);
+      default:
+        return postCollection.
+          where("threadId", "==", input.json.threadId);
+    }
+  })();
+
+  const postDocs = await postQueries.orderBy("dateMsSinceEpoch", "desc").get();
+  const result = postDocs.docs.map((snapshot) => snapshot.data()) as StoredPost[];
   return {result};
 });
 
@@ -840,18 +805,6 @@ setKeyValueStore({
       return JSON.parse(string);
     }
     return string;
-  },
-  list: async (options: {prefix?: string;limit?: number}):
-  Promise<{keys: { name: string; expiration?: number }[]}> => {
-    const prefix = options && options.prefix || "";
-    const limit = options && options.limit || 1000;
-    const documents = await store.collection("collection").listDocuments();
-    return {
-      keys: documents.map((document) => ({
-        name: document.id
-      })).filter((value) => value.name.startsWith(prefix)).
-        slice(0, limit)
-    };
   },
   put: async (key, value) => {
     await store.collection("collection").doc(key).

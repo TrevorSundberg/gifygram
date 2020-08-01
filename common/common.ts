@@ -86,13 +86,13 @@ export interface PostList {
 
 export interface StoredPost {
   id: string;
+  isThread: boolean;
   threadId: string;
   title: string | null;
   message: string;
   userdata: PostData;
   userId: string;
   replyId: string | null;
-  sortKey: string;
   dateMsSinceEpoch: number;
 }
 
