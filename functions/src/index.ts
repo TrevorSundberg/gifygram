@@ -1,4 +1,5 @@
 import * as admin from "firebase-admin";
+import * as crypto from "crypto";
 import * as firestore from "@google-cloud/firestore";
 import * as functions from "firebase-functions";
 import {
@@ -222,7 +223,7 @@ interface RawRequest {
 
   url: URL;
 
-  ip: string;
+  ipHash: string;
 
   authorization: string | null;
 
@@ -427,7 +428,7 @@ addHandler(API_POST_LIST, async (input) => {
 
   // If this is a specific thread, then track views for it.
   if (threadId !== API_ALL_THREADS_ID && threadId !== API_TRENDING_THREADS_ID) {
-    await dbAddView(threadId, input.request.ip);
+    await dbAddView(threadId, input.request.ipHash);
   }
 
   const postCollection = store.collection(COLLECTION_POSTS);
@@ -728,8 +729,10 @@ delete (global as any).window;
 
 export const requests = functions.https.onRequest(async (request, response) => {
   const apiIndex = request.originalUrl.indexOf("/api/");
+  const ipHasher = crypto.createHash("sha256");
+  ipHasher.update(request.ip || request.header("host") || request.header("origin") || "");
   const output = await handle({
-    ip: request.ip || "127.0.0.1",
+    ipHash: ipHasher.digest("hex"),
     authorization: request.headers.authorization || null,
     body: request.rawBody || Buffer.alloc(0),
     method: request.method,
