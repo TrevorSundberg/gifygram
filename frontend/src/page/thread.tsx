@@ -52,11 +52,13 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       userId: "",
       replyId: null,
       dateMsSinceEpoch: Date.now(),
+      likes: 0,
+      likesSecondsFromBirthAverage: 0,
+      trendingScore: 0,
+      views: 0,
       username: "",
       avatarId: null,
       liked: false,
-      likes: 0,
-      views: 0,
       canDelete: false,
       cached: true
     });
@@ -80,8 +82,6 @@ export const Thread: React.FC<ThreadProps> = (props) => {
           username: "",
           avatarId: null,
           liked: false,
-          likes: 0,
-          views: 0,
           canDelete: false
         })));
         setStoredPostArrays([...storedPostArrays, postList]);
@@ -102,8 +102,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
     const fetches = storedPostArrays.map((storedPosts) => {
       const queries: AmendedQuery[] = storedPosts.map((storedPost) => ({
         id: storedPost.id,
-        userId: storedPost.userId,
-        requestViews: storedPost.id === storedPost.threadId
+        userId: storedPost.userId
       }));
       const amendedListFetch = abortableJsonFetch(API_AMENDED_LIST, Auth.Optional, {queries});
       amendedListFetch.then((amendedList) => {

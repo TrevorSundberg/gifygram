@@ -9,15 +9,10 @@ export const COLLECTION_AVATARS = "avatars";
 export const COLLECTION_VIDEOS = "videos";
 export const COLLECTION_ANIMATIONS = "animations";
 export const COLLECTION_POSTS = "posts";
+export const COLLECTION_LIKED = "liked";
 
 /** Mark that we're doing something only to be backwards compatable with the database */
 export const oldVersion = <T>(value: T) => value;
-
-// `${Number.MAX_SAFE_INTEGER}`.length;
-const MAX_NUMBER_LENGTH_BASE_10 = 16;
-
-export const padInteger = (number: number) => Math.floor(number).toString().
-  padStart(MAX_NUMBER_LENGTH_BASE_10, "0");
 
 export type Empty = {};
 
@@ -94,6 +89,10 @@ export interface StoredPost {
   userId: string;
   replyId: string | null;
   dateMsSinceEpoch: number;
+  likes: number;
+  likesSecondsFromBirthAverage: number;
+  trendingScore: number;
+  views: number;
 }
 
 export interface ThreadPost {
@@ -105,7 +104,6 @@ export type StoredThread = StoredPost & ThreadPost;
 export interface AmendedQuery {
   id: string;
   userId: string;
-  requestViews: boolean;
 }
 
 export interface AmendedList {
@@ -117,8 +115,6 @@ export interface AmendedPost {
   username: string;
   avatarId: string | null;
   liked: boolean;
-  likes: number;
-  views: number | null;
   canDelete: boolean;
 }
 

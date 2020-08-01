@@ -23,14 +23,14 @@ import {
   AttributedSource,
   COLLECTION_ANIMATIONS,
   COLLECTION_AVATARS,
+  COLLECTION_LIKED,
   COLLECTION_POSTS,
   COLLECTION_USERS,
   COLLECTION_VIDEOS,
   ClientPost,
   PostData,
   StoredPost,
-  StoredUser,
-  padInteger
+  StoredUser
 } from "../../common/common";
 import {TEST_EMAIL} from "../../common/test";
 import {TextDecoder} from "util";
@@ -74,10 +74,6 @@ type UserId = string;
 type PostId = string;
 type IP = string;
 
-const dbkeyPostLiked = (userId: UserId, postId: PostId) =>
-  `post.liked:${userId}:${postId}`;
-const dbkeyPostLikes = (postId: PostId) =>
-  `post.likes:${postId}`;
 const dbkeyThreadViews = (threadId: PostId) =>
   `thread.views:${threadId}`;
 const dbkeyThreadView = (threadId: PostId, ip: IP) =>
@@ -172,11 +168,9 @@ const docAnimation = (postId: PostId) => store.collection(COLLECTION_ANIMATIONS)
 const dbDeletePost = async (post: StoredPost): Promise<void> => {
   // We don't delete the individual views/likes/replies, just the counts (unbounded operations).
   const postId = post.id;
+  // TODO(Trevor): Need to remove viewed and liked entries for this post (and child posts if this is a thread).
   await Promise.all([
     docPost(postId).delete(),
-    db.delete(dbkeyPostLikes(postId)),
-    db.delete(dbkeyThreadViews(postId)),
-
     docAnimation(postId).delete(),
     docVideo(postId).delete()
   ]);
@@ -185,79 +179,19 @@ const dbDeletePost = async (post: StoredPost): Promise<void> => {
 // We use a custom epoch to avoid massive floating point numbers, especially when averaging.
 const BIRTH_MS = 1593820800000;
 
-interface LikesInfo {
-  likes: number;
-  secondsFromBirthAverage: number;
-}
-
 interface UserLikedInfo {
   secondsFromBirth: number;
 }
 
-const dbGetPostLiked = async (userId: UserId, postId: PostId): Promise<boolean> =>
-  await db.get(dbkeyPostLiked(userId, postId)) !== null;
-
-const dbGetPostLikes = async (postId: PostId): Promise<number> => {
-  const likesInfo = await db.get<LikesInfo>(dbkeyPostLikes(postId), "json");
-  return likesInfo ? likesInfo.likes : 0;
-};
-
 const map0To1Asymptote = (x: number) => -1 / (Math.max(x, 0) + 1) ** 2 + 1;
 
-const computeTrendingScore = (likesInfo: LikesInfo) => {
+const computeTrendingScore = (post: StoredPost) => {
   const secondsAddedPerLike = 100;
-  const likeSeconds = likesInfo.likes * secondsAddedPerLike;
+  const likeSeconds = post.likes * secondsAddedPerLike;
   const addedSeconds = map0To1Asymptote(likeSeconds / SECONDS_PER_DAY) * SECONDS_PER_DAY;
   // The || 0 is to protect against NaN for any reason
-  return likesInfo.secondsFromBirthAverage + addedSeconds || 0;
+  return post.likesSecondsFromBirthAverage + addedSeconds || 0;
 };
-
-const computeTrendingSortKey = (likesInfo: LikesInfo) =>
-  padInteger(Number.MAX_SAFE_INTEGER - computeTrendingScore(likesInfo));
-
-const dbModifyPostLiked = async (userId: UserId, postId: PostId, newValue: boolean): Promise<number> => {
-  const likedKey = dbkeyPostLiked(userId, postId);
-  const userLikedInfo = await db.get<UserLikedInfo>(likedKey, "json");
-  const oldValue = Boolean(userLikedInfo);
-
-  const likesKey = dbkeyPostLikes(postId);
-  const likesInfo: LikesInfo =
-    await db.get<LikesInfo>(likesKey, "json") ||
-    {likes: 0, secondsFromBirthAverage: 0};
-  if (newValue !== oldValue) {
-    if (newValue) {
-      const secondsFromBirth = (Date.now() - BIRTH_MS) / 1000;
-      const newUserLikedInfo = {secondsFromBirth};
-      likesInfo.secondsFromBirthAverage =
-        (likesInfo.secondsFromBirthAverage * likesInfo.likes + secondsFromBirth) / (likesInfo.likes + 1);
-      ++likesInfo.likes;
-      const trendingSortKey = computeTrendingSortKey(likesInfo);
-      await Promise.all([
-        db.put(likedKey, JSON.stringify(newUserLikedInfo)),
-        db.put(likesKey, JSON.stringify(likesInfo))
-      ]);
-      console.log("TODO: MODIFY TRENDING", API_TRENDING_THREADS_ID, SECONDS_PER_DAY, trendingSortKey);
-    } else {
-      likesInfo.likes = Math.max(0, likesInfo.likes - 1);
-      if (likesInfo.likes === 0) {
-        likesInfo.secondsFromBirthAverage = 0;
-      } else {
-        const secondsFromBirthAverageNew =
-          (likesInfo.secondsFromBirthAverage * (likesInfo.likes + 1) - userLikedInfo!.secondsFromBirth) /
-           likesInfo.likes;
-        likesInfo.secondsFromBirthAverage = Math.max(0, secondsFromBirthAverageNew);
-      }
-      await Promise.all([
-        db.delete(likedKey),
-        db.put(likesKey, JSON.stringify(likesInfo))
-      ]);
-    }
-  }
-  return likesInfo.likes;
-};
-
-const dbGetThreadViews = async (threadId: PostId): Promise<number> =>
-  parseInt(await db.get(dbkeyThreadViews(threadId)) || "0", 10);
 
 const dbAddView = async (threadId: PostId, ip: IP): Promise<void> => {
   const viewKey = dbkeyThreadView(threadId, ip);
@@ -270,6 +204,7 @@ const dbAddView = async (threadId: PostId, ip: IP): Promise<void> => {
   }
 };
 
+const docPostLiked = (userId: UserId, postId: PostId) => store.collection(COLLECTION_LIKED).doc(`${userId}_${postId}`);
 const dbListAmendedPosts =
   async (authedUserOptional: StoredUser | null, queries: AmendedQuery[]): Promise<AmendedPost[]> =>
     Promise.all(queries.map(async (query) => {
@@ -279,12 +214,8 @@ const dbListAmendedPosts =
         username: user ? user.username : "",
         avatarId: user ? user.avatarId : null,
         liked: authedUserOptional
-          ? await dbGetPostLiked(authedUserOptional.id, query.id)
+          ? (await docPostLiked(authedUserOptional.id, query.id).get()).exists
           : false,
-        likes: await dbGetPostLikes(query.id),
-        views: query.requestViews
-          ? await dbGetThreadViews(query.id)
-          : null,
         canDelete: dbUserHasPermission(authedUserOptional, query.userId)
       };
     }));
@@ -487,7 +418,11 @@ const postCreate = async (
     userdata,
     userId: user.id,
     replyId,
-    dateMsSinceEpoch: Date.now()
+    dateMsSinceEpoch: Date.now(),
+    likes: 0,
+    likesSecondsFromBirthAverage: 0,
+    trendingScore: 0,
+    views: 0
   };
 
   await docPost(post.id).create(post);
@@ -659,13 +594,39 @@ addHandler(API_PROFILE_AVATAR_UPDATE, async (input) => {
 addHandler(API_POST_LIKE, async (input) => {
   const postId = input.json.id;
   const newValue = input.json.liked;
-  const [user] = await Promise.all([
-    input.requireAuthedUser(),
-    // Validate that the post exists (we don't use the result however).
-    dbExpectPost(postId)
-  ]);
+  const user = await input.requireAuthedUser();
 
-  const likes = await dbModifyPostLiked(user.id, postId, newValue);
+  const doc = docPostLiked(user.id, postId);
+  const likes = await store.runTransaction(async (transaction) => {
+    const postLikedDoc = await transaction.get(doc);
+    const oldValue = postLikedDoc.exists;
+    const post = expect("post", (await transaction.get(docPost(postId))).data()) as StoredPost;
+    if (newValue !== oldValue) {
+      if (newValue) {
+        const secondsFromBirth = (Date.now() - BIRTH_MS) / 1000;
+        const newUserLikedInfo = {secondsFromBirth};
+        post.likesSecondsFromBirthAverage =
+        (post.likesSecondsFromBirthAverage * post.likes + secondsFromBirth) / (post.likes + 1);
+        ++post.likes;
+        await transaction.create(doc, newUserLikedInfo);
+      } else {
+        --post.likes;
+        if (post.likes === 0) {
+          post.likesSecondsFromBirthAverage = 0;
+        } else {
+          const userLikedInfo = postLikedDoc.data() as UserLikedInfo;
+          const likesSecondsFromBirthAverageNew =
+          (post.likesSecondsFromBirthAverage * (post.likes + 1) - userLikedInfo!.secondsFromBirth) /
+           post.likes;
+          post.likesSecondsFromBirthAverage = Math.max(0, likesSecondsFromBirthAverageNew);
+        }
+        await transaction.delete(doc);
+      }
+      post.trendingScore = computeTrendingScore(post);
+      await transaction.update(docPost(postId), post);
+    }
+    return post.likes;
+  });
   return {result: {likes}};
 });
 
