@@ -10,6 +10,7 @@ export const COLLECTION_VIDEOS = "videos";
 export const COLLECTION_ANIMATIONS = "animations";
 export const COLLECTION_POSTS = "posts";
 export const COLLECTION_LIKED = "liked";
+export const COLLECTION_VIEWED = "viewed";
 
 /** Mark that we're doing something only to be backwards compatable with the database */
 export const oldVersion = <T>(value: T) => value;

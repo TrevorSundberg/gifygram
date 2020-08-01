@@ -1,4 +1,5 @@
 import * as admin from "firebase-admin";
+import * as firestore from "@google-cloud/firestore";
 import * as functions from "firebase-functions";
 import {
   API_ALL_THREADS_ID,
@@ -27,6 +28,7 @@ import {
   COLLECTION_POSTS,
   COLLECTION_USERS,
   COLLECTION_VIDEOS,
+  COLLECTION_VIEWED,
   ClientPost,
   PostData,
   StoredPost,
@@ -47,39 +49,10 @@ const expect = <T>(name: string, value: T | null | undefined | false) => {
   return value;
 };
 
-type KeyValue<Value> = Promise<Value | null>
-
-interface KeyValueStore {
-  get(key: string): KeyValue<string>;
-  get<ExpectedValue = unknown>(key: string, type: "json"): KeyValue<ExpectedValue>;
-
-  put(
-    key: string,
-    value: string,
-    options?: {
-      expiration?: string | number;
-      expirationTtl?: string | number;
-    },
-  ): Promise<void>;
-
-  delete(key: string): Promise<void>;
-}
-
-let db: KeyValueStore = undefined as any;
-const setKeyValueStore = (kvStore: KeyValueStore) => {
-  db = kvStore;
-};
-
 type UserId = string;
 type PostId = string;
 type IP = string;
 
-const dbkeyThreadViews = (threadId: PostId) =>
-  `thread.views:${threadId}`;
-const dbkeyThreadView = (threadId: PostId, ip: IP) =>
-  `thread.view:${threadId}:${ip}`;
-
-const TRUE_VALUE = "1";
 const SECONDS_PER_DAY = 86400;
 
 const dbUserHasPermission = (actingUser: StoredUser | null, owningUserId: string) =>
@@ -194,13 +167,15 @@ const computeTrendingScore = (post: StoredPost) => {
 };
 
 const dbAddView = async (threadId: PostId, ip: IP): Promise<void> => {
-  const viewKey = dbkeyThreadView(threadId, ip);
-  const hasViewed = Boolean(await db.get(viewKey));
-  if (!hasViewed) {
-    await db.put(viewKey, TRUE_VALUE);
-    const viewsKey = dbkeyThreadViews(threadId);
-    const prevLikes = parseInt(await db.get(viewsKey) || "0", 10);
-    await db.put(viewsKey, `${prevLikes + 1}`);
+  try {
+    await store.runTransaction(async (transaction) => {
+      transaction.create(store.collection(COLLECTION_VIEWED).doc(`${threadId}_${ip}`), {});
+      transaction.update(docPost(threadId), {views: admin.firestore.FieldValue.increment(1)});
+    });
+  } catch (err) {
+    if (err.code !== firestore.GrpcStatus.ALREADY_EXISTS) {
+      throw err;
+    }
   }
 };
 
@@ -451,7 +426,7 @@ addHandler(API_POST_LIST, async (input) => {
   const {threadId} = input.json;
 
   // If this is a specific thread, then track views for it.
-  if (threadId !== API_ALL_THREADS_ID) {
+  if (threadId !== API_ALL_THREADS_ID && threadId !== API_TRENDING_THREADS_ID) {
     await dbAddView(threadId, input.request.ip);
   }
 
@@ -750,28 +725,6 @@ const handle = async (request: RawRequest): Promise<RequestOutput<any>> => {
 
 // See firebase/functions/node_modules/@google-cloud/firestore/build/src/v1/firestore_client.js isBrowser checks
 delete (global as any).window;
-
-setKeyValueStore({
-  delete: (() => 0) as any,
-  get: async (key: string, type?: "json"): Promise<string | null | any> => {
-    const document = await store.collection("collection").doc(key).
-      get();
-    const data = document.data() as {buffer: Buffer} | undefined;
-    if (!data) {
-      return null;
-    }
-    const {buffer} = data;
-    const string = buffer.toString();
-    if (type === "json") {
-      return JSON.parse(string);
-    }
-    return string;
-  },
-  put: async (key, value) => {
-    await store.collection("collection").doc(key).
-      set({buffer: Buffer.from(value)});
-  }
-});
 
 export const requests = functions.https.onRequest(async (request, response) => {
   const apiIndex = request.originalUrl.indexOf("/api/");
