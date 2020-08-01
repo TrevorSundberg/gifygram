@@ -141,7 +141,7 @@ const dbPutUser = async (user: StoredUser, allowNameNumbers: boolean): Promise<v
         throw new Error(`The username ${user.username} was already taken`);
       }
     }
-    await transaction.set(docUser(user.id), user);
+    transaction.set(docUser(user.id), user);
   });
 };
 
@@ -579,13 +579,13 @@ addHandler(API_PROFILE_AVATAR_UPDATE, async (input) => {
     const userDoc = await transaction.get(userRef);
     const storedUser = userDoc.data() as StoredUser;
     if (storedUser.avatarId) {
-      await transaction.delete(docAvatar(storedUser.avatarId));
+      transaction.delete(docAvatar(storedUser.avatarId));
     }
     const newAvatar = store.collection(COLLECTION_AVATARS).doc();
-    await transaction.create(newAvatar, {
+    transaction.create(newAvatar, {
       buffer: Buffer.from(imageData)
     });
-    await transaction.update(userRef, {avatarId: newAvatar.id});
+    transaction.update(userRef, {avatarId: newAvatar.id});
     return newAvatar.id;
   });
   return {result: {...user, avatarId}};
@@ -608,7 +608,7 @@ addHandler(API_POST_LIKE, async (input) => {
         post.likesSecondsFromBirthAverage =
         (post.likesSecondsFromBirthAverage * post.likes + secondsFromBirth) / (post.likes + 1);
         ++post.likes;
-        await transaction.create(doc, newUserLikedInfo);
+        transaction.create(doc, newUserLikedInfo);
       } else {
         --post.likes;
         if (post.likes === 0) {
@@ -620,10 +620,10 @@ addHandler(API_POST_LIKE, async (input) => {
            post.likes;
           post.likesSecondsFromBirthAverage = Math.max(0, likesSecondsFromBirthAverageNew);
         }
-        await transaction.delete(doc);
+        transaction.delete(doc);
       }
       post.trendingScore = computeTrendingScore(post);
-      await transaction.update(docPost(postId), post);
+      transaction.update(docPost(postId), post);
     }
     return post.likes;
   });
