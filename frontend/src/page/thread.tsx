@@ -31,6 +31,8 @@ interface ThreadProps {
   history: import("history").History;
 }
 
+const EMPTY_USERNAME = "\u3000";
+
 export const Thread: React.FC<ThreadProps> = (props) => {
   const isThreadList = props.threadId === API_ALL_THREADS_ID || props.threadId === API_TRENDING_THREADS_ID;
   const isSpecificThread = !isThreadList;
@@ -56,7 +58,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       likesSecondsFromBirthAverage: 0,
       trendingScore: 0,
       views: 0,
-      username: "",
+      username: EMPTY_USERNAME,
       avatarId: null,
       liked: false,
       canDelete: false,
@@ -79,7 +81,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
         setPosts(postList.map((storedPost) => ({
           ...storedPost,
           // This is a special space that still takes up room.
-          username: "\u3000",
+          username: EMPTY_USERNAME,
           avatarId: null,
           liked: false,
           canDelete: false
