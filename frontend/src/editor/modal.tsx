@@ -1,7 +1,7 @@
 import "./modal.css";
+import {Deferred, NonAlertingError} from "../shared/shared";
 import Button from "@material-ui/core/Button";
 import CloseIcon from "@material-ui/icons/Close";
-import {Deferred} from "../shared/shared";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -176,22 +176,25 @@ export class Modal {
 const displayError = (error: any) => {
   // Only show the error if we're not already showing another modal.
   if (allModals.length === 0) {
+    const getError = (errorClass: Error) => errorClass instanceof NonAlertingError ? null : errorClass.message;
     const message = (() => {
       if (error instanceof Error) {
-        return error.message;
+        return getError(error);
       }
       if (error instanceof PromiseRejectionEvent) {
         if (error.reason instanceof Error) {
-          return error.reason.message;
+          return getError(error.reason);
         }
         return `${error.reason}`;
       }
       return `${error}`;
     })();
 
-    Modal.messageBox("Error", message);
+    if (message) {
+      Modal.messageBox("Error", message);
+    }
   }
 };
 
 window.onunhandledrejection = (error) => displayError(error);
-window.onerror = (message, source, lineno, colno, error) => displayError(error);
+window.onerror = (message, source, lineno, colno, error) => displayError(error || message);

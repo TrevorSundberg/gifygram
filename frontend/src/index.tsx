@@ -12,6 +12,7 @@ import {
   Deferred,
   EVENT_MENU_OPEN,
   EVENT_REQUEST_LOGIN,
+  NonAlertingError,
   RequestLoginEvent,
   isDevEnvironment,
   signInIfNeeded
@@ -211,7 +212,7 @@ const App = () => {
       <LoginDialog
         open={Boolean(showLoginDeferred)}
         onClose={() => {
-          showLoginDeferred.reject(new Error("The login was cancelled"));
+          showLoginDeferred.reject(new NonAlertingError("The login was cancelled"));
           setShowLoginDeferred(null);
         }}
         onSignInFailure={(message) => {

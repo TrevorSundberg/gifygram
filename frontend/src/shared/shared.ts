@@ -121,6 +121,7 @@ export const intersectAndMergeLists = <A extends MergableItem, B extends Mergabl
   return result;
 };
 
+export class NonAlertingError extends Error {}
 
 export interface ResponseJson {
   err?: string;
