@@ -79,7 +79,8 @@ export const Thread: React.FC<ThreadProps> = (props) => {
         }
         setPosts(postList.map((storedPost) => ({
           ...storedPost,
-          username: "",
+          // This is a special space that still takes up room.
+          username: "\u3000",
           avatarId: null,
           liked: false,
           canDelete: false
