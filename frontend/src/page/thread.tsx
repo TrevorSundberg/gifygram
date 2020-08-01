@@ -8,13 +8,14 @@ import {
   ClientPost,
   StoredPost
 } from "../../../common/common";
-import {AbortablePromise, Auth, abortableJsonFetch, cancel, makeLocalUrl} from "../shared/shared";
 import {
-  cacheAdd,
-  cacheGetArrayOrDefault,
-  cacheMergeIntoArray,
-  intersectAndMergeLists
-} from "../shared/cache";
+  AbortablePromise,
+  Auth,
+  abortableJsonFetch,
+  cancel,
+  intersectAndMergeLists,
+  makeLocalUrl
+} from "../shared/shared";
 import Box from "@material-ui/core/Box";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
@@ -31,13 +32,12 @@ interface ThreadProps {
 }
 
 export const Thread: React.FC<ThreadProps> = (props) => {
-  // Try to load the posts from the cache.
-  const cachedPosts = cacheGetArrayOrDefault<ClientPost>(props.threadId);
   const isThreadList = props.threadId === API_ALL_THREADS_ID || props.threadId === API_TRENDING_THREADS_ID;
   const isSpecificThread = !isThreadList;
   // If we're on a specific thread, create a psuedo post for the first post that includes the video (loads quicker).
-  if (isSpecificThread && !cachedPosts.find((post) => post.id === props.threadId)) {
-    cachedPosts.push({
+  const psuedoPosts: ClientPost[] = [];
+  if (isSpecificThread) {
+    psuedoPosts.push({
       id: props.threadId,
       isThread: true,
       threadId: props.threadId,
@@ -63,7 +63,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       cached: true
     });
   }
-  const [posts, setPosts] = React.useState<ClientPost[]>(cachedPosts);
+  const [posts, setPosts] = React.useState<ClientPost[]>(psuedoPosts);
 
   const [storedPostArrays, setStoredPostArrays] = React.useState<StoredPost[][]>([]);
 
@@ -73,7 +73,6 @@ export const Thread: React.FC<ThreadProps> = (props) => {
     });
     postListFetch.then((postList) => {
       if (postList) {
-        cacheMergeIntoArray(props.threadId, postList);
         if (isSpecificThread) {
           postList.reverse();
         }
@@ -197,7 +196,6 @@ export const Thread: React.FC<ThreadProps> = (props) => {
 
                 const newPost = await postCreateFetchPromise;
                 if (newPost) {
-                  cacheAdd(newPost.threadId, newPost);
                   // Append our post to the end.
                   setPosts((previous) => [
                     ...previous,

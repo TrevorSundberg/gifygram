@@ -3,7 +3,6 @@ import "@fortawesome/fontawesome-free/css/solid.css";
 import "@fortawesome/fontawesome-free/css/brands.css";
 import "./editor.css";
 import {
-  API_ALL_THREADS_ID,
   API_ANIMATION_CREATE,
   API_ANIMATION_JSON
 } from "../../../common/common";
@@ -31,7 +30,6 @@ import {Utility} from "./utility";
 import {VideoEncoder} from "./videoEncoder";
 import {VideoEncoderH264MP4} from "./videoEncoderH264MP4";
 import {VideoPlayer} from "./videoPlayer";
-import {cacheAdd} from "../shared/cache";
 import svgToMiniDataURI from "mini-svg-data-uri";
 
 export class Editor {
@@ -233,14 +231,9 @@ export class Editor {
           blob
         );
 
-        // Since this is creating both a post inside a thread (may be itself), cache it within that thread.
-        cacheAdd(post.threadId, post);
-
         // If the user goes back to the editor in history, they'll be editing a remix of their post.
         history.replace(makeLocalUrl("/editor", {remixId: post.id}));
         if (post.id === post.threadId) {
-          // Since this is creating a thread, also add it to the thread cache.
-          cacheAdd(API_ALL_THREADS_ID, post);
           history.push(makeLocalUrl("/thread", {threadId: post.threadId}));
         } else {
           history.push(makeLocalUrl("/thread", {threadId: post.threadId}, post.id));
