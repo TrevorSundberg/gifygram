@@ -76,7 +76,7 @@ export interface AnimationCreate {
   height: number;
 }
 
-export interface PostList {
+export interface ViewedThread {
   threadId: string;
 }
 
@@ -237,9 +237,9 @@ export const API_POST_CREATE = new Api<PostCreate, ClientPost>(
   "/api/post/create",
   require("../ts-schema-loader/dist/main.js!./common.ts?PostCreate")
 );
-export const API_POST_LIST = new Api<PostList, StoredPost[]>(
-  "/api/post/list",
-  require("../ts-schema-loader/dist/main.js!./common.ts?PostList")
+export const API_VIEWED_THREAD = new Api<ViewedThread, Empty>(
+  "/api/thread/viewed",
+  require("../ts-schema-loader/dist/main.js!./common.ts?ViewedThread")
 );
 export const API_AMENDED_LIST = new Api<AmendedList, AmendedPost[]>(
   "/api/amended/list",

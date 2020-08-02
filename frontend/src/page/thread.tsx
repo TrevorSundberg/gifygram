@@ -2,15 +2,17 @@ import {
   API_ALL_THREADS_ID,
   API_AMENDED_LIST,
   API_POST_CREATE,
-  API_POST_LIST,
   API_TRENDING_THREADS_ID,
+  API_VIEWED_THREAD,
   AmendedQuery,
+  COLLECTION_POSTS,
   ClientPost,
   StoredPost
 } from "../../../common/common";
 import {
   AbortablePromise,
   Auth,
+  abortable,
   abortableJsonFetch,
   cancel,
   intersectAndMergeLists,
@@ -24,6 +26,7 @@ import {Post} from "./post";
 import React from "react";
 import {SubmitButton} from "./submitButton";
 import TextField from "@material-ui/core/TextField";
+import {store} from "../shared/firebase";
 
 interface ThreadProps {
   // If this is set to API_ALL_THREADS_ID then it means we're listing all threads.
@@ -70,11 +73,37 @@ export const Thread: React.FC<ThreadProps> = (props) => {
   const [storedPostArrays, setStoredPostArrays] = React.useState<StoredPost[][]>([]);
 
   React.useEffect(() => {
-    const postListFetch = abortableJsonFetch(API_POST_LIST, Auth.Optional, {
-      threadId: props.threadId
-    });
-    postListFetch.then((postList) => {
-      if (postList) {
+    if (isSpecificThread) {
+    // Let the server know that we viewed this thread (don't need to do anything with the result).
+      abortableJsonFetch(API_VIEWED_THREAD, Auth.Optional, {
+        threadId: props.threadId
+      });
+    }
+    const postCollection = store.collection(COLLECTION_POSTS);
+
+    const postQueries = (() => {
+      switch (props.threadId) {
+        case API_ALL_THREADS_ID:
+          return postCollection.
+            where("isThread", "==", true).
+            orderBy("dateMsSinceEpoch", "desc").
+            limit(20);
+        case API_TRENDING_THREADS_ID:
+          return postCollection.
+            where("isThread", "==", true).
+            orderBy("trendingScore", "desc").
+            limit(6);
+        default:
+          return postCollection.
+            where("threadId", "==", props.threadId).
+            orderBy("dateMsSinceEpoch", "desc");
+      }
+    })();
+
+    const postListPromise = abortable(postQueries.get());
+    postListPromise.then((postDocs) => {
+      if (postDocs) {
+        const postList = postDocs.docs.map((snapshot) => snapshot.data()) as StoredPost[];
         if (isSpecificThread) {
           postList.reverse();
         }
@@ -91,7 +120,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
     });
 
     return () => {
-      cancel(postListFetch);
+      cancel(postListPromise);
     };
   }, []);
 

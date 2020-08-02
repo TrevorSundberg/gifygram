@@ -3,7 +3,6 @@ import * as crypto from "crypto";
 import * as firestore from "@google-cloud/firestore";
 import * as functions from "firebase-functions";
 import {
-  API_ALL_THREADS_ID,
   API_AMENDED_LIST,
   API_ANIMATION_CREATE,
   API_ANIMATION_JSON,
@@ -13,11 +12,10 @@ import {
   API_POST_CREATE,
   API_POST_DELETE,
   API_POST_LIKE,
-  API_POST_LIST,
   API_PROFILE_AVATAR,
   API_PROFILE_AVATAR_UPDATE,
   API_PROFILE_UPDATE,
-  API_TRENDING_THREADS_ID,
+  API_VIEWED_THREAD,
   AmendedPost,
   AmendedQuery,
   AnimationData,
@@ -423,38 +421,9 @@ const postCreate = async (
 
 addHandler(API_POST_CREATE, async (input) => postCreate(input, false, false, {type: "comment"}));
 
-addHandler(API_POST_LIST, async (input) => {
-  const {threadId} = input.json;
-
-  // If this is a specific thread, then track views for it.
-  if (threadId !== API_ALL_THREADS_ID && threadId !== API_TRENDING_THREADS_ID) {
-    await dbAddView(threadId, input.request.ipHash);
-  }
-
-  const postCollection = store.collection(COLLECTION_POSTS);
-
-  const postQueries = (() => {
-    switch (input.json.threadId) {
-      case API_ALL_THREADS_ID:
-        return postCollection.
-          where("isThread", "==", true).
-          orderBy("dateMsSinceEpoch", "desc").
-          limit(20);
-      case API_TRENDING_THREADS_ID:
-        return postCollection.
-          where("isThread", "==", true).
-          orderBy("trendingScore", "desc").
-          limit(6);
-      default:
-        return postCollection.
-          where("threadId", "==", input.json.threadId).
-          orderBy("dateMsSinceEpoch", "desc");
-    }
-  })();
-
-  const postDocs = await postQueries.get();
-  const result = postDocs.docs.map((snapshot) => snapshot.data()) as StoredPost[];
-  return {result};
+addHandler(API_VIEWED_THREAD, async (input) => {
+  await dbAddView(input.json.threadId, input.request.ipHash);
+  return {result: {}};
 });
 
 addHandler(API_AMENDED_LIST, async (input) => {
