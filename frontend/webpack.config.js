@@ -79,8 +79,8 @@ module.exports = {
   optimization: {
   },
   output: {
-    chunkFilename: "[name]-[chunkhash].js",
-    filename: "[name]-[hash].js",
+    chunkFilename: "public/[name]-[chunkhash].js",
+    filename: "public/[name]-[hash].js",
     path: path.join(
       __dirname,
       "../public"

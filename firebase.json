@@ -50,10 +50,10 @@
     ],
     "headers": [
       {
-        "source": "!/{public,requests}/**",
+        "source": "{/*,/}",
         "headers": [
           {
-            "key": "Cache-Control",
+            "key": "cache-control",
             "value": "max-age=0"
           }
         ]
@@ -62,7 +62,7 @@
         "source": "/public/**",
         "headers": [
           {
-            "key": "Cache-Control",
+            "key": "cache-control",
             "value": "public,max-age=31536000,immutable"
           }
         ]
