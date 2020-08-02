@@ -27,6 +27,20 @@
           "order": "DESCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isThread",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "trendingScore",
+          "order": "DESCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []

@@ -443,8 +443,8 @@ addHandler(API_POST_LIST, async (input) => {
       case API_TRENDING_THREADS_ID:
         return postCollection.
           where("isThread", "==", true).
-          orderBy("dateMsSinceEpoch", "desc").
-          limit(3);
+          orderBy("trendingScore", "desc").
+          limit(6);
       default:
         return postCollection.
           where("threadId", "==", input.json.threadId).
