@@ -168,17 +168,46 @@ DONE - Add username sanitization and checking
 DONE - Integrate google analytics to get stats tracking
 DONE - Loading screen for picking background video
 DONE - Usage ajv and typescript schemas or something similar to validate searialized json data (client loading and server)
+DONE - First remove all the old code
+DONE - Move auth over
+DONE - Maybe setup hosting emulator
+DONE - Remove options and access control headers
+DONE - Fix tests to run on firebasew
+DONE - Update all the ports used by the hosting emulator (and webpack dev server) 5000 and up...
+DONE - Add is dev environment check back, and in production don't allow posts from test user
+DONE - Turn all ArrayBuffer on the server to just Buffer
+DONE - Read and profile user using firestore rather than db functions
+DONE - Remove cache.ts since it's not needed
+DONE - Bug: Once you've closed login you can't do it again
+DONE - Refactor handlers to be independent of Workers
+DONE - Hook up the gifygram.com domain to point at it (buy a new service?)
+DONE - When we pick a username is has to be unique
+DONE - Move all the database code back into handlers
+DONE - Put likes and views directly on the post itself - remove them from metadata
+DONE - Remove list cache
+DONE - Make sure Firefox works
+DONE - Hook up firebase analytics
+DONE - Import main video from disk
+DONE - Import sprite from disk
+DONE - Remove replying to for now
+DONE - Start all sprites & text in the center and auto keyframe them
+DONE - Use the same font for text in editor as we do for our logo (Arvo)
 
- - Remove cache.ts since it's not needed
- - Refactor handlers to be independent of Workers
- - Hook up the gifygram.com domain to point at it (buy a new service?)
+ - Make editor load in async so we reduce main.js size (most people will just browse)
+ - Bug: Clear keyframes in range does ALL keyframes, not just selected object keyframes
+ - Warnings on all buttons that require a selection
+ - Should we just put docAnimation/docVideo under then post itself?
+ - Put deletes into transaction & delete views / likes
+ - Rename the repo
+ - Confirmation of destructive action on leaving editor (unsaved changes)
+ - Tutorial video for animator
  - Agree privacy / etc
  - Link user ids in thread/threads to profile page (/user/someone)
  - Tags/keywords
  - Infinite scrolling using CSS grid
- - Flag post or comment (approximate, non-atomic and underestimate + actual flag by user)
+ - Flag post or comment
  - Admin view only flagged posts
- - Search by single tag (up to 1000) + multiple tags is a reduce operation
+ - Search by tag
  - View a user profile
  - Points for user profile
  - Show posts on a user profile
@@ -187,6 +216,16 @@ DONE - Usage ajv and typescript schemas or something similar to validate searial
  - Replies are tabbed in (just one level)
  - Ability to type @someone in comments
  - Timestamp or "minutes ago" on comments / animation posts
+ - No empty comments
+
+ - Animation tutorial
+ - Picking the background video
+ - Adding a sprite
+ - Animating the sprite from one position to another
+ - Adding text
+ - Deleting an object
+ - Motion tracking
+ - Post your animation
 
  - Get a staging environment
  - Get individual dev environments for testing (copy of database?)
@@ -204,9 +243,6 @@ DONE - Usage ajv and typescript schemas or something similar to validate searial
  - Customize text styles (font, color, outline, etc)
 
  - Scenejs Keyframe bug where it doesn't seek correctly: min repro and report it
-
- - Import main video from disk
- - Import sprite from disk
 
  - Hire animators and meme creators to create stupid meme content
 
