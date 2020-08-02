@@ -225,15 +225,18 @@ export const Thread: React.FC<ThreadProps> = (props) => {
                 });
                 setPostCreateFetch(postCreateFetchPromise);
 
-                const newPost = await postCreateFetchPromise;
-                if (newPost) {
+                try {
+                  const newPost = await postCreateFetchPromise;
+                  if (newPost) {
                   // Append our post to the end.
-                  setPosts((previous) => [
-                    ...previous,
-                    newPost
-                  ]);
+                    setPosts((previous) => [
+                      ...previous,
+                      newPost
+                    ]);
+                  }
+                } finally {
+                  setPostCreateFetch(null);
                 }
-                setPostCreateFetch(null);
                 setPostMessage("");
               }}>
               <TextField
