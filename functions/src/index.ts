@@ -723,3 +723,10 @@ export const requests = functions.https.onRequest(async (request, response) => {
   response.status(output.status || 200);
   response.send(output.result);
 });
+
+export const scheduledFunction = functions.pubsub.schedule("every 1 minutes").onRun(async () => {
+  console.log("Start warmup");
+  const response = await fetch("https://gifygram.com/requests/api/health");
+  console.log("End warmup", await response.json());
+  return null;
+});
