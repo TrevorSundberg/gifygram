@@ -96,7 +96,7 @@ export class Editor {
     );
 
     getElement("sticker").addEventListener("click", async () => {
-      const attributedSource = await StickerSearch.searchForStickerUrl("sticker");
+      const attributedSource = await StickerSearch.searchForStickerUrl("stickers");
       if (attributedSource) {
         await manager.addWidget({attributedSource, type: "gif"});
       }
@@ -147,7 +147,7 @@ export class Editor {
     });
 
     getElement("video").addEventListener("click", async () => {
-      const attributedSource = await StickerSearch.searchForStickerUrl("video");
+      const attributedSource = await StickerSearch.searchForStickerUrl("gifs");
       if (attributedSource) {
         manager.spinner.show();
         await player.setAttributedSrc(attributedSource);

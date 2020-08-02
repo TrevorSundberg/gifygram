@@ -141,6 +141,7 @@ export const checkResponseJson = <T extends ResponseJson>(json: T) => {
 export type AbortablePromise<T> = Promise<T | null> & {controller: AbortController};
 
 export enum Auth {
+  None,
   Optional,
   Required,
 }
@@ -162,11 +163,12 @@ export const abortable = <T>(promise: Promise<T>, abortController?: AbortControl
 
 let fetchQueue: Promise<any> = Promise.resolve();
 
-export const abortableJsonFetch = <InputType, OutputType>(
-  api: Api<InputType, OutputType>,
+export const abortableJsonFetch = <InputType, OutputType = any>(
+  api: Api<InputType, OutputType> | string,
   auth: Auth = Auth.Optional,
   params: InputType = null,
-  body: BodyInit = null): AbortablePromise<OutputType> => {
+  body: BodyInit = null,
+  options: RequestInit = null): AbortablePromise<OutputType> => {
   const controller = new AbortController();
   const promise = (async () => {
     if (isDevEnvironment()) {
@@ -179,18 +181,21 @@ export const abortableJsonFetch = <InputType, OutputType>(
     if (auth === Auth.Required) {
       await signInIfNeeded();
     }
-    const authHeaders = firebase.auth().currentUser
+    const authHeaders = firebase.auth().currentUser && auth !== Auth.None
       ? {Authorization: await firebase.auth().currentUser.getIdToken()}
       : null;
     try {
-      const response = await fetch(makeServerUrl(api, params), {
+      const response = await fetch(typeof api === "string"
+        ? api
+        : makeServerUrl(api, params), {
         signal: controller.signal,
         method: "POST",
         body,
         headers: {
           ...authHeaders,
           "content-type": "application/octet-stream"
-        }
+        },
+        ...options
       });
       return checkResponseJson(await response.json());
     } catch (err) {
