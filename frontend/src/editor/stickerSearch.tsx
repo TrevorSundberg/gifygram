@@ -137,7 +137,7 @@ export class StickerSearch {
           onSelect={(item: any) => defer.resolve(item)}/>,
       dismissable: true,
       fullscreen: true,
-      title: "Sticker Search",
+      titleImageUrl: require("../public/giphy.png").default,
       onShown: () => waitForShow.resolve()
     }).then(() => null);
 

@@ -27,6 +27,7 @@ export interface ModalButton {
 
 export interface ModalOpenParameters {
   title?: string;
+  titleImageUrl?: string;
   dismissable?: boolean;
   fullscreen?: boolean;
   buttons?: ModalButton[];
@@ -103,6 +104,9 @@ export const ModalComponent: React.FC<ModalProps> = (props) => {
   >
     <DialogTitle id="alert-dialog-title">
       {props.title}
+      {props.titleImageUrl
+        ? <img height={48} src={props.titleImageUrl}></img>
+        : null}
       {
         props.dismissable
           ? <IconButton
