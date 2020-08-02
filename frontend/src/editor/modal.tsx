@@ -39,7 +39,7 @@ export interface ModalProps extends ModalOpenParameters {
   defer: Deferred<ModalButton>;
 }
 
-const allModals: ModalProps[] = [];
+export const allModals: ModalProps[] = [];
 let modalIdCounter = 0;
 
 const removeModalInternal = (id: number) => {

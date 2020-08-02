@@ -15,7 +15,7 @@ import {
   isDevEnvironment,
   makeLocalUrl
 } from "../shared/shared";
-import {MODALS_CHANGED, Modal} from "./modal";
+import {MODALS_CHANGED, Modal, allModals} from "./modal";
 import {RenderFrameEvent, Renderer} from "./renderer";
 import $ from "jquery";
 import {Background} from "./background";
@@ -60,7 +60,12 @@ export class Editor {
     const manager = new Manager(background, videoParent, widgetContainer, player, timeline, renderer);
     this.manager = manager;
 
-    this.modalChangedCallback = () => manager.selectWidget(null);
+    this.modalChangedCallback = () => {
+      // Only deselect if we have a modal up.
+      if (allModals.length > 0) {
+        manager.selectWidget(null);
+      }
+    };
     window.addEventListener(MODALS_CHANGED, this.modalChangedCallback);
 
     this.unloadCallback = () => {
