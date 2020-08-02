@@ -81,7 +81,8 @@ export class Editor {
         await player.setAttributedSrc({
           originUrl: "",
           title: "",
-          previewGifUrl: "",
+          previewUrl: "",
+          mimeType: "video/mp4",
           src: isDevEnvironment()
             ? require("../public/sample.webm").default as string
             : require("../public/sample.mp4").default as string
@@ -98,7 +99,7 @@ export class Editor {
     getElement("sticker").addEventListener("click", async () => {
       const attributedSource = await StickerSearch.searchForStickerUrl("stickers");
       if (attributedSource) {
-        await manager.addWidget({attributedSource, type: "gif"});
+        await manager.addWidget({attributedSource});
       }
     });
 
@@ -139,9 +140,10 @@ export class Editor {
           attributedSource: {
             originUrl: "",
             title: "",
-            previewGifUrl: "",
+            previewUrl: "",
+            mimeType: "image/svg+xml",
             src
-          }, type: "svg"
+          }
         });
       }
     });

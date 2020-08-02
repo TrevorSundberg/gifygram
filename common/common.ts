@@ -24,8 +24,9 @@ export type PostComment = {
 export interface AttributedSource {
   originUrl: string;
   title: string;
-  previewGifUrl: string;
+  previewUrl: string;
   src: string;
+  mimeType: string;
 }
 
 export type PostAnimation = {
@@ -166,7 +167,6 @@ export interface Tracks {
 export interface WidgetInit {
   attributedSource: AttributedSource;
   id?: string;
-  type: "gif" | "svg";
 }
 
 export interface AnimationData {

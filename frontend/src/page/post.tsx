@@ -157,7 +157,7 @@ export const Post: React.FC<PostProps> = (props) => {
                         >
                           <MenuItem>
                             <Box mr={1}>
-                              <img src={attributedSource.previewGifUrl} height={24}/>
+                              <img src={attributedSource.previewUrl} height={24}/>
                             </Box>
                             {attributedSource.title}
                           </MenuItem>

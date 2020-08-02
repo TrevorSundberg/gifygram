@@ -184,7 +184,7 @@ export class Manager {
       const img = document.createElement("img");
       img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
       const {src} = init.attributedSource;
-      const image = init.type === "gif" ? new Gif(src) : new StaticImage(src);
+      const image = init.attributedSource.mimeType === "image/gif" ? new Gif(src) : new StaticImage(src);
       Image.setImage(img, image);
       await image.loadPromise;
       const frame = image.getFrameAtTime(0);

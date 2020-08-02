@@ -1,11 +1,12 @@
 import {Auth, Deferred, abortableJsonFetch, cancel} from "../shared/shared";
+import {theme, useStyles} from "../page/style";
 import {AttributedSource} from "../../../common/common";
+import Button from "@material-ui/core/Button";
 import InputBase from "@material-ui/core/InputBase";
 import Masonry from "react-masonry-css";
 import {Modal} from "./modal";
 import React from "react";
 import SearchIcon from "@material-ui/icons/Search";
-import {useStyles} from "../page/style";
 
 export type StickerType = "stickers" | "gifs";
 
@@ -13,7 +14,7 @@ const API_KEY = "s9bgj4fh1ZldOfMHEWrQCekTy0BIKuko";
 
 interface StickerSearchBodyProps {
   type: StickerType;
-  onSelect: (item: any) => void;
+  onSelect: (item: AttributedSource) => void;
 }
 
 export const StickerSearchBody: React.FC<StickerSearchBodyProps> = (props) => {
@@ -44,20 +45,54 @@ export const StickerSearchBody: React.FC<StickerSearchBodyProps> = (props) => {
 
   const classes = useStyles();
   return <div>
-    <div className={classes.search}>
-      <div className={classes.searchIcon}>
-        <SearchIcon />
+    <div style={{display: "flex"}}>
+      <div className={classes.search}>
+        <div className={classes.searchIcon}>
+          <SearchIcon />
+        </div>
+        <InputBase
+          placeholder="Search…"
+          value={searchText}
+          onChange={(event) => setSearchText(event.target.value)}
+          classes={{
+            root: classes.searchInputRoot,
+            input: classes.searchInputInput
+          }}
+          inputProps={{"aria-label": "search"}}
+        />
       </div>
-      <InputBase
-        placeholder="Search…"
-        value={searchText}
-        onChange={(event) => setSearchText(event.target.value)}
-        classes={{
-          root: classes.searchInputRoot,
-          input: classes.searchInputInput
-        }}
-        inputProps={{"aria-label": "search"}}
-      />
+      <Button
+        style={{marginLeft: theme.spacing()}}
+        variant="contained"
+        color="primary"
+        component="label">
+        Upload
+        <input
+          type="file"
+          accept={props.type === "gifs" ? "video/mp4" : "image/gif, image/jpeg, image/png"}
+          style={{display: "none"}}
+          onChange={(event) => {
+            if (event.target.files.length) {
+              const reader = new FileReader();
+              const [file] = event.target.files;
+              reader.readAsDataURL(file);
+              reader.onload = () => {
+                const dataUrl = reader.result as string;
+                props.onSelect({
+                  originUrl: dataUrl,
+                  title: file.name,
+                  previewUrl: dataUrl,
+                  src: dataUrl,
+                  mimeType: file.type
+                });
+              };
+              reader.onerror = () => {
+                throw new Error("Unable to upload file");
+              };
+            }
+          }}
+        />
+      </Button>
     </div>
     <Masonry
       breakpointCols={{
@@ -76,7 +111,13 @@ export const StickerSearchBody: React.FC<StickerSearchBodyProps> = (props) => {
         <img
           className={classes.searchImage}
           src={image.images.fixed_width_downsampled.url}
-          onClick={() => props.onSelect(image)}/>
+          onClick={() => props.onSelect({
+            originUrl: image.url,
+            title: image.title,
+            previewUrl: image.images.preview_gif.url,
+            src: image.images.original[props.type === "stickers" ? "url" : "mp4"] as string,
+            mimeType: "image/gif"
+          })}/>
       </div>)}
     </Masonry>
   </div>;
@@ -87,8 +128,8 @@ export class StickerSearch {
     const modal = new Modal();
     const waitForShow = new Deferred<void>();
 
-    const defer = new Deferred<any>();
-    const modalPromise = modal.open({
+    const defer = new Deferred<AttributedSource>();
+    const modalPromise: Promise<null> = modal.open({
       // eslint-disable-next-line react/display-name
       render: () =>
         <StickerSearchBody
@@ -108,15 +149,6 @@ export class StickerSearch {
     ]);
 
     modal.hide();
-    if (!result) {
-      return null;
-    }
-
-    return {
-      originUrl: result.url,
-      title: result.title,
-      previewGifUrl: result.images.preview_gif.url,
-      src: result.images.original[type === "stickers" ? "url" : "mp4"] as string
-    };
+    return result;
   }
 }
