@@ -61,9 +61,10 @@ import readline from "readline";
   // eslint-disable-next-line no-underscore-dangle
   require("module").Module._initPaths();
 
-  for (;;) {
+  for (let i = 0; ; ++i) {
     await new Promise((resolve) => read.question("Press enter to run the test...\n", resolve));
 
+    process.env.TEST_RUN_NUMBER = String(i);
     // eslint-disable-next-line no-eval
     eval(await fs.promises.readFile(testJsPath, "utf8"));
   }

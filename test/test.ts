@@ -2,6 +2,7 @@ import {TEST_EMAIL, TEST_PASSWORD} from "../common/test";
 import fetch from "node-fetch";
 import puppeteer from "puppeteer";
 
+const RUN_NUMBER = process.env.TEST_RUN_NUMBER;
 const MAIN_URL = "http://localhost:5000/";
 const API_HEALTH_URL = `${MAIN_URL}requests/api/health`;
 
@@ -72,7 +73,7 @@ const getCenter = (rect: Rect): Point => ({
 
     // Add text to the animation.
     await click(page, "#text");
-    await type(page, "#text-input", "TEST");
+    await type(page, "#text-input", `TEST${RUN_NUMBER}`);
     await click(page, "#button-OK");
 
     // Move the newly created text widget to the top left (first frame).
@@ -95,8 +96,8 @@ const getCenter = (rect: Rect): Point => ({
 
     // Post and render the animation.
     await click(page, "#post");
-    await type(page, "#post-title", "This title fills the room!");
-    await type(page, "#post-message", "This is a test of then word wrapping or truncation features.");
+    await type(page, "#post-title", `${RUN_NUMBER} This title takes space!`);
+    await type(page, "#post-message", `${RUN_NUMBER} This is a test of then word wrapping or truncation features.`);
     await click(page, "#button-Post");
 
     // When the login prompt appears click login with Email.
