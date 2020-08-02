@@ -211,8 +211,7 @@ export class Manager {
       event.preventDefault();
       return false;
     };
-    const {video} = this.videoPlayer;
-    element.style.transform = Utility.transformToCss(Utility.centerTransform(video.videoWidth, video.videoHeight));
+    element.style.transform = Utility.transformToCss(Utility.centerTransform(this.videoPlayer.getAspectSize()));
     element.style.clip = "auto";
     this.widgetContainer.appendChild(element);
 
@@ -229,6 +228,7 @@ export class Manager {
     element.addEventListener("mousedown", grabElement, true);
     element.addEventListener("touchstart", grabElement, true);
 
+    this.keyframe(widget.element, "transform");
     this.selectWidget(widget);
     this.spinner.hide();
     return widget;

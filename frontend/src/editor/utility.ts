@@ -65,7 +65,7 @@ export class Utility {
     return Utility.cssToTransform(element.style.transform);
   }
 
-  public static centerTransform (width: number, height: number): Transform {
+  public static centerTransform (size: Size): Transform {
     return {
       rotate: 0,
       scale: [
@@ -73,8 +73,8 @@ export class Utility {
         1
       ],
       translate: [
-        width / 2,
-        height / 2
+        size[0] / 2,
+        size[1] / 2
       ]
     };
   }
