@@ -18,10 +18,12 @@ import {
   intersectAndMergeLists,
   makeLocalUrl
 } from "../shared/shared";
+import {PAGE_WIDTH, theme, useStyles} from "./style";
 import Box from "@material-ui/core/Box";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import {LoginUserIdContext} from "./login";
+import Masonry from "react-masonry-css";
 import {Post} from "./post";
 import React from "react";
 import {SubmitButton} from "./submitButton";
@@ -156,62 +158,67 @@ export const Thread: React.FC<ThreadProps> = (props) => {
     cancel(postCreateFetch);
   }, []);
 
-  return <div style={
-    isThreadList
-      ? {
-        columnCount: 3,
-        columnWidth: "240px",
-        columnGap: "10px"
+  const classes = useStyles();
+
+  const breakpointCols = (() => {
+    if (isThreadList) {
+      const maxColumns = 3;
+      const columnFixedSize = PAGE_WIDTH / maxColumns;
+      const columns: { default: number; [key: number]: number } = {default: maxColumns};
+      for (let i = maxColumns - 1; i >= 1; --i) {
+        columns[(i + 1) * columnFixedSize] = i;
       }
-      : null}>
-    {posts.map((post) => <Post
-      preview={isThreadList}
-      key={post.id}
-      post={post}
-      cardStyle={
-        isThreadList
-          ? {
-            breakInside: "avoid",
-            position: "relative",
-            marginBottom: "10px",
-            overflow: "visible"
-          }
-          : {marginBottom: 4}}
-      videoProps={
-        isThreadList
-          ? {
-            tabIndex: 0,
-            onMouseEnter: (event) => (event.target as HTMLVideoElement).play().catch(() => 0),
-            onMouseLeave: (event) => (event.target as HTMLVideoElement).pause(),
-            onTouchStart: (event) => {
-              const element = event.target as HTMLVideoElement;
-              element.focus({preventScroll: true});
-              element.play().catch(() => 0);
-            },
-            onBlur: (event) => (event.target as HTMLVideoElement).pause()
-          }
-          : {autoPlay: true}}
-      onClick={
-        isThreadList
-          ? () => {
-            props.history.push(makeLocalUrl("/thread", {threadId: post.id}));
-          }
-          : null}
-      history={props.history}
-      onTrashed={() => {
-        if (post.id === post.threadId) {
+      return columns;
+    }
+    return 1;
+  })();
+
+  return <div>
+    <Masonry
+      breakpointCols={breakpointCols}
+      className={classes.masonryGrid}
+      columnClassName={classes.masonryGridColumn}>
+      {posts.map((post) => <Post
+        preview={isThreadList}
+        key={post.id}
+        post={post}
+        cardStyle={{marginBottom: theme.spacing()}}
+        videoProps={
+          isThreadList
+            ? {
+              tabIndex: 0,
+              onMouseEnter: (event) => (event.target as HTMLVideoElement).play().catch(() => 0),
+              onMouseLeave: (event) => (event.target as HTMLVideoElement).pause(),
+              onTouchStart: (event) => {
+                const element = event.target as HTMLVideoElement;
+                element.focus({preventScroll: true});
+                element.play().catch(() => 0);
+              },
+              onBlur: (event) => (event.target as HTMLVideoElement).pause()
+            }
+            : {autoPlay: true}}
+        onClick={
+          isThreadList
+            ? () => {
+              props.history.push(makeLocalUrl("/thread", {threadId: post.id}));
+            }
+            : null}
+        history={props.history}
+        onTrashed={() => {
+          if (post.id === post.threadId) {
           // Deleting the entire thread, so go back to home/root and don't keep this entry in history.
-          props.history.replace(makeLocalUrl("/"));
-        } else {
+            props.history.replace(makeLocalUrl("/"));
+          } else {
           // Remove the post from the list.
-          setPosts((previous) => {
-            const newPosts = [...previous];
-            const index = newPosts.indexOf(post);
-            newPosts.splice(index, 1);
-            return newPosts;
-          });
-        }
-      }}/>)}
+            setPosts((previous) => {
+              const newPosts = [...previous];
+              const index = newPosts.indexOf(post);
+              newPosts.splice(index, 1);
+              return newPosts;
+            });
+          }
+        }}/>)}
+    </Masonry>
     {
       isSpecificThread
         ? <Card>

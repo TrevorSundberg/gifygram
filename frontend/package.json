@@ -42,6 +42,7 @@
     "react-dom": "^16.13.1",
     "react-firebaseui": "^4.1.0",
     "react-giphy-searchbox-stickers": "^1.0.5",
+    "react-masonry-css": "^1.0.14",
     "react-router-dom": "^5.2.0",
     "react-share": "^4.2.0",
     "resize-observer-polyfill": "^1.5.1",

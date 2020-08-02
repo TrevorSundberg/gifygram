@@ -1,12 +1,14 @@
 import {Theme, createMuiTheme, createStyles, makeStyles} from "@material-ui/core/styles";
 
+export const PAGE_WIDTH = 960;
+
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       flexGrow: 1
     },
     pageWidth: {
-      maxWidth: 960,
+      maxWidth: PAGE_WIDTH,
       paddingLeft: theme.spacing(),
       paddingRight: theme.spacing(),
       width: "100%",
@@ -36,6 +38,15 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     cardHeader: {
       display: "grid"
+    },
+    masonryGrid: {
+      display: "flex",
+      marginLeft: "-10px",
+      width: "auto"
+    },
+    masonryGridColumn: {
+      paddingLeft: "10px",
+      backgroundClip: "padding-box"
     }
   }), {index: 1});
 
