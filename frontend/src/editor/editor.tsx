@@ -109,7 +109,7 @@ export class Editor {
     });
 
     const fontPromise = new Promise<any>((resolve, reject) => {
-      const src = require("../public/NotoSans-Regular.ttf").default as string;
+      const src = require("../public/arvo.ttf").default as string;
       TextToSVG.load(src, (err, textToSVG) => {
         if (err) {
           reject(err);
