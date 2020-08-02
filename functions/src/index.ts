@@ -702,7 +702,7 @@ const handle = async (request: RawRequest): Promise<RequestOutput<any>> => {
 // See firebase/functions/node_modules/@google-cloud/firestore/build/src/v1/firestore_client.js isBrowser checks
 delete (global as any).window;
 
-export const requests = functions.https.onRequest(async (request, response) => {
+export const api = functions.https.onRequest(async (request, response) => {
   const apiIndex = request.originalUrl.indexOf("/api/");
   const ipHasher = crypto.createHash("sha256");
   const ipOrHost = request.ip || request.header("x-forwarded-host") || "";
@@ -713,7 +713,7 @@ export const requests = functions.https.onRequest(async (request, response) => {
     body: request.rawBody || Buffer.alloc(0),
     method: request.method,
     range: (request.headers.range as string | undefined) || null,
-    url: new URL(`${request.protocol}://${request.get("host")}${request.originalUrl.substr(apiIndex)}`),
+    url: new URL(`${request.protocol}://${request.get("host")}${request.originalUrl.substr(apiIndex + "/api".length)}`),
     onHandlerNotFound: async () => {
       throw new Error("The onHandlerNotFound is not implemented");
     }
@@ -729,7 +729,7 @@ export const requests = functions.https.onRequest(async (request, response) => {
 
 export const scheduledFunction = functions.pubsub.schedule("every 1 minutes").onRun(async () => {
   console.log("Start warmup");
-  const response = await fetch("https://gifygram.com/requests/api/health");
+  const response = await fetch("https://gifygram.com/api/health");
   console.log("End warmup", await response.json());
   return null;
 });

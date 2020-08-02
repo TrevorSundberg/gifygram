@@ -87,7 +87,7 @@ const applyPathAndParams = (url: URL, path: string, params?: Record<string, any>
 
 export const makeServerUrl = <InputType>(api: Api<InputType, any>, params: InputType = null) => {
   const url = new URL(window.location.origin);
-  applyPathAndParams(url, `/requests${api.pathname}`, params);
+  applyPathAndParams(url, api.pathname, params);
   return url.href;
 };
 

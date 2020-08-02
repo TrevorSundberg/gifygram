@@ -44,8 +44,8 @@
     ],
     "rewrites": [
       {
-        "source": "/requests/**",
-        "function": "requests"
+        "source": "/api/**",
+        "function": "api"
       },
       {
         "source": "**",

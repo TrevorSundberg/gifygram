@@ -4,7 +4,7 @@ import puppeteer from "puppeteer";
 
 const RUN_NUMBER = process.env.TEST_RUN_NUMBER;
 const MAIN_URL = "http://localhost:5000/";
-const API_HEALTH_URL = `${MAIN_URL}requests/api/health`;
+const API_HEALTH_URL = `${MAIN_URL}api/health`;
 
 const waitForHealth = async (url: string) => {
   const timeoutMs = 500;
