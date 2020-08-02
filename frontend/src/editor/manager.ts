@@ -98,7 +98,7 @@ export class Manager {
     const deselectElement = (event: Event) => {
       if (event.target === widgetContainer || event.target === background.canvas) {
         // If we're touching down, only deselect if it's the only touch (we may be dragging the gizmo).
-        if (event instanceof TouchEvent ? event.touches.length === 1 : true) {
+        if (window.TouchEvent && event instanceof TouchEvent ? event.touches.length === 1 : true) {
           this.selectWidget(null);
         }
       }
