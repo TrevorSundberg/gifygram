@@ -92,7 +92,7 @@ const sanitizeOrGenerateUsername = (unsantizedUsername: string) => {
 };
 
 const dbPutUser = async (user: StoredUser, allowNameNumbers: boolean): Promise<void> => {
-  await store.runTransaction(async (transaction) => {
+  const success = await store.runTransaction(async (transaction) => {
     for (;;) {
       const result = await transaction.get(store.collection(COLLECTION_USERS).where("username", "==", user.username));
       if (result.size > 1) {
@@ -110,11 +110,15 @@ const dbPutUser = async (user: StoredUser, allowNameNumbers: boolean): Promise<v
       if (allowNameNumbers) {
         user.username = addRandomNumbersToEnd(user.username);
       } else {
-        throw new Error(`The username ${user.username} was already taken`);
+        return false;
       }
     }
     transaction.set(docUser(user.id), user);
+    return true;
   });
+  if (!success) {
+    throw new Error(`The username ${user.username} was already taken`);
+  }
 };
 
 const docPost = (postId: PostId) => store.collection(COLLECTION_POSTS).doc(postId);
