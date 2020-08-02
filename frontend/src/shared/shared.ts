@@ -197,7 +197,19 @@ export const abortableJsonFetch = <InputType, OutputType = any>(
         },
         ...options
       });
-      return checkResponseJson(await response.json());
+
+      let json: any = null;
+      try {
+        json = await response.json();
+      } catch (err) {
+        if (response.status === 200) {
+          throw err;
+        } else {
+          throw new Error(response.statusText);
+        }
+      }
+
+      return checkResponseJson(json);
     } catch (err) {
       if (err instanceof Error && err.name === "AbortError") {
         return null;
