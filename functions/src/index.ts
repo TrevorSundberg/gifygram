@@ -707,7 +707,7 @@ const handle = async (request: RawRequest): Promise<RequestOutput<any>> => {
 delete (global as any).window;
 
 export const api = functions.https.onRequest(async (request, response) => {
-  const apiIndex = request.originalUrl.indexOf("/api/");
+  const apiIndex = request.originalUrl.lastIndexOf("/api/");
   const ipHasher = crypto.createHash("sha256");
   const ipOrHost = request.ip || request.header("x-forwarded-host") || "";
   ipHasher.update(ipOrHost);
@@ -717,7 +717,7 @@ export const api = functions.https.onRequest(async (request, response) => {
     body: request.rawBody || Buffer.alloc(0),
     method: request.method,
     range: (request.headers.range as string | undefined) || null,
-    url: new URL(`${request.protocol}://${request.get("host")}${request.originalUrl.substr(apiIndex + "/api".length)}`),
+    url: new URL(`${request.protocol}://${request.get("host")}${request.originalUrl.substr(apiIndex)}`),
     onHandlerNotFound: async () => {
       throw new Error("The onHandlerNotFound is not implemented");
     }
