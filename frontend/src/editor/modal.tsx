@@ -1,4 +1,3 @@
-import "./modal.css";
 import {Deferred, NonAlertingError} from "../shared/shared";
 import Button from "@material-ui/core/Button";
 import CloseIcon from "@material-ui/icons/Close";
