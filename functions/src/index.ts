@@ -592,7 +592,10 @@ addHandler(API_FEEDBACK, async (input) => {
   return {result: {}};
 });
 
-addHandler(API_HEALTH, async () => ({result: {}}));
+addHandler(API_HEALTH, async () => {
+  await store.collection(COLLECTION_VIDEOS).doc("health").get();
+  return {result: {}};
+});
 
 addHandler(API_POST_DELETE, async (input) => {
   const user = await input.requireAuthedUser();
