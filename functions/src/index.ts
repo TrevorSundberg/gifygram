@@ -50,7 +50,7 @@ const expect = <T>(name: string, value: T | null | undefined | false) => {
 
 type UserId = string;
 type PostId = string;
-type IP = string;
+type IPHash = string;
 
 const SECONDS_PER_DAY = 86400;
 
@@ -142,8 +142,35 @@ const docVideo = (postId: PostId) => store.collection(COLLECTION_VIDEOS).doc(pos
 const docAnimation = (postId: PostId) => store.collection(COLLECTION_ANIMATIONS).doc(postId);
 
 const dbDeletePost = async (post: StoredPost): Promise<void> => {
-  // We don't delete the individual views/likes/replies, just the counts (unbounded operations).
   const postId = post.id;
+
+  await store.runTransaction(async (transaction) => {
+    const postDoc = await transaction.get(docPost(postId));
+    const storedPost = postDoc.data() as StoredPost | undefined;
+    if (!storedPost) {
+      return;
+    }
+
+    const likedDocs = await store.collection(COLLECTION_LIKED).where("postId", "==", postId).get();
+    for (const doc of likedDocs.docs) {
+      transaction.delete(doc.ref);
+    }
+    const viewedDocs = await store.collection(COLLECTION_VIEWED).where("threadId", "==", postId).get();
+    for (const doc of viewedDocs.docs) {
+      transaction.delete(doc.ref);
+    }
+    if (storedPost.isThread) {
+      const threadPostDocs = await store.collection(COLLECTION_POSTS).where("threadId", "==", postId).get();
+      for (const doc of threadPostDocs.docs) {
+        transaction.delete(doc.ref);
+      }
+    }
+
+    transaction.delete(docPost(postId));
+    transaction.delete(docAnimation(postId));
+    transaction.delete(docVideo(postId));
+  });
+
   // TODO(Trevor): Need to remove viewed and liked entries for this post (and child posts if this is a thread).
   await Promise.all([
     docPost(postId).delete(),
@@ -156,7 +183,14 @@ const dbDeletePost = async (post: StoredPost): Promise<void> => {
 const BIRTH_MS = 1593820800000;
 
 interface UserLikedInfo {
+  postId: PostId;
+  userId: UserId;
   secondsFromBirth: number;
+}
+
+interface UserViewedInfo {
+  threadId: PostId;
+  ipHash: UserId;
 }
 
 const map0To1Asymptote = (x: number) => -1 / (Math.max(x, 0) + 1) ** 2 + 1;
@@ -169,10 +203,14 @@ const computeTrendingScore = (post: StoredPost) => {
   return post.likesSecondsFromBirthAverage + addedSeconds || 0;
 };
 
-const dbAddView = async (threadId: PostId, ip: IP): Promise<void> => {
+const dbAddView = async (threadId: PostId, ipHash: IPHash): Promise<void> => {
+  const userViewedInfo: UserViewedInfo = {
+    threadId,
+    ipHash
+  };
   try {
     await store.runTransaction(async (transaction) => {
-      transaction.create(store.collection(COLLECTION_VIEWED).doc(`${threadId}_${ip}`), {});
+      transaction.create(store.collection(COLLECTION_VIEWED).doc(`${threadId}_${ipHash}`), userViewedInfo);
       transaction.update(docPost(threadId), {views: admin.firestore.FieldValue.increment(1)});
     });
   } catch (err) {
@@ -182,7 +220,7 @@ const dbAddView = async (threadId: PostId, ip: IP): Promise<void> => {
   }
 };
 
-const docPostLiked = (userId: UserId, postId: PostId) => store.collection(COLLECTION_LIKED).doc(`${userId}_${postId}`);
+const docPostLiked = (postId: PostId, userId: UserId) => store.collection(COLLECTION_LIKED).doc(`${postId}_${userId}`);
 const dbListAmendedPosts =
   async (authedUserOptional: StoredUser | null, queries: AmendedQuery[]): Promise<AmendedPost[]> =>
     Promise.all(queries.map(async (query) => {
@@ -192,7 +230,7 @@ const dbListAmendedPosts =
         username: user ? user.username : "",
         avatarId: user ? user.avatarId : null,
         liked: authedUserOptional
-          ? (await docPostLiked(authedUserOptional.id, query.id).get()).exists
+          ? (await docPostLiked(query.id, authedUserOptional.id).get()).exists
           : false,
         canDelete: dbUserHasPermission(authedUserOptional, query.userId)
       };
@@ -548,7 +586,7 @@ addHandler(API_POST_LIKE, async (input) => {
   const newValue = input.json.liked;
   const user = await input.requireAuthedUser();
 
-  const doc = docPostLiked(user.id, postId);
+  const doc = docPostLiked(postId, user.id);
   const likes = await store.runTransaction(async (transaction) => {
     const postLikedDoc = await transaction.get(doc);
     const oldValue = postLikedDoc.exists;
@@ -556,7 +594,11 @@ addHandler(API_POST_LIKE, async (input) => {
     if (newValue !== oldValue) {
       if (newValue) {
         const secondsFromBirth = (Date.now() - BIRTH_MS) / 1000;
-        const newUserLikedInfo = {secondsFromBirth};
+        const newUserLikedInfo: UserLikedInfo = {
+          postId,
+          userId: user.id,
+          secondsFromBirth
+        };
         post.likesSecondsFromBirthAverage =
         (post.likesSecondsFromBirthAverage * post.likes + secondsFromBirth) / (post.likes + 1);
         ++post.likes;
