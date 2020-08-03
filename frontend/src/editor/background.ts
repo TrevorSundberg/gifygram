@@ -15,9 +15,15 @@ export class Background {
     this.canvas = canvas;
 
     const context = canvas.getContext("2d");
+    let lastKey: string = null;
     const drawVideo = () => {
-      context.filter = "blur(10px)";
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      // Only draw the video again if it changed.
+      const key = `${video.currentSrc}:${video.currentTime}`;
+      if (key !== lastKey) {
+        lastKey = key;
+        context.filter = "blur(10px)";
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      }
     };
     drawVideo();
     parent.prepend(canvas);
