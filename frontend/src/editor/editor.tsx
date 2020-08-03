@@ -332,7 +332,12 @@ export class Editor {
     });
 
     getElement("visibility").addEventListener("click", async () => {
-      manager.attemptToggleVisibility();
+      if (!this.manager.selection) {
+        await Modal.messageBox("Toggle Visibility", "You must have something selected to toggle visibility");
+        return;
+      }
+      const {element} = this.manager.selection.widget;
+      manager.toggleVisibility(element);
     });
 
     getElement("delete").addEventListener("click", async () => {

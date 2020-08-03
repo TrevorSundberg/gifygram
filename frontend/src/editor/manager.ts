@@ -281,13 +281,10 @@ export class Manager {
     }
   }
 
-  public attemptToggleVisibility () {
-    if (this.selection) {
-      const {element} = this.selection.widget;
-      const {style} = element;
-      style.clip = style.clip === "auto" ? "unset" : "auto";
-      this.keyframe(element, "clip");
-    }
+  public toggleVisibility (element: HTMLElement) {
+    const {style} = element;
+    style.clip = style.clip === "auto" ? "unset" : "auto";
+    this.keyframe(element, "clip");
   }
 
   private keyframe (element: HTMLElement, type: "clip" | "transform") {
