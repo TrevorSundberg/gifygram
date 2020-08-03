@@ -18,6 +18,9 @@ export const MAX_OUTPUT_SIZE: Size = [
 export const RELATIVE_WIDGET_SIZE = 400;
 export const RELATIVE_VIDEO_SIZE = 1280;
 
+// Only fired when the editor is visible and focused.
+export const VISIBLE_UPDATE = "visibleUpdate";
+
 export interface Transform {
   rotate: number;
   scale: [number, number];

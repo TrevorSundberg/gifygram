@@ -43,6 +43,8 @@ export class Editor {
 
   private manager: Manager;
 
+  private player: VideoPlayer;
+
   public constructor (parent: HTMLElement, history: import("history").History, remixId?: string) {
     document.documentElement.style.overflow = "hidden";
     this.root = $(require("./editor.html").default).appendTo(parent);
@@ -52,6 +54,7 @@ export class Editor {
     const videoParent = getElement("container") as HTMLDivElement;
     const widgetContainer = getElement("widgets") as HTMLDivElement;
     const player = new VideoPlayer(videoParent, parent);
+    this.player = player;
     const timeline = new Timeline();
     const canvas = getElement("canvas") as HTMLCanvasElement;
     const renderer = new Renderer(canvas, widgetContainer, player, timeline);
@@ -372,6 +375,7 @@ export class Editor {
     }
     this.background.destroy();
     this.manager.destroy();
+    this.player.destroy();
     this.root.remove();
     window.removeEventListener(MODALS_CHANGED, this.modalChangedCallback);
     document.documentElement.style.overflow = null;

@@ -1,6 +1,6 @@
 import "./videoPlayer.css";
 import {AttributedSource, MAX_VIDEO_SIZE} from "../../../common/common";
-import {RELATIVE_VIDEO_SIZE, Size, TimeRange, resizeMinimumKeepAspect} from "./utility";
+import {RELATIVE_VIDEO_SIZE, Size, TimeRange, VISIBLE_UPDATE, resizeMinimumKeepAspect} from "./utility";
 import {Deferred} from "../shared/shared";
 
 interface Point {
@@ -29,6 +29,10 @@ export class VideoPlayer extends EventTarget {
 
   public selectionEndNormalized = 0;
 
+  private blurCallback: () => void;
+
+  private documentVisibilityChangeCallback: () => void;
+
   public constructor (videoParent: HTMLDivElement, controlsParent: HTMLElement) {
     super();
     this.video = document.createElement("video");
@@ -45,6 +49,20 @@ export class VideoPlayer extends EventTarget {
 
     (this.video as any).disableRemotePlayback = true;
     this.video.oncontextmenu = () => false;
+
+    // Battery friendly: on hidden we'll pause the video & animations (manager pauses updates/rendering).
+    this.blurCallback = () => {
+      this.video.pause();
+    };
+    window.addEventListener("blur", this.blurCallback);
+    document.addEventListener("blur", this.blurCallback);
+
+    this.documentVisibilityChangeCallback = () => {
+      if (document.hidden) {
+        this.video.pause();
+      }
+    };
+    document.addEventListener("visibilitychange", this.documentVisibilityChangeCallback);
 
     this.controlsContainer = document.createElement("div");
     this.controlsContainer.className = "videoControlsContainer";
@@ -84,18 +102,18 @@ export class VideoPlayer extends EventTarget {
     this.timeline.appendChild(this.position);
     this.position.className = "videoPosition";
 
-    const updatePosition = () => {
+    const visibleUpdatePosition = () => {
       const interpolant = this.video.currentTime / this.video.duration;
       this.position.style.width = `${interpolant * 100}%`;
     };
-    window.addEventListener("update", updatePosition);
+    window.addEventListener(VISIBLE_UPDATE, visibleUpdatePosition);
 
     const updateTimelineFromPoint = (event: Point, start: boolean) => {
       const rect = this.timeline.getBoundingClientRect();
       const left = event.clientX - rect.left;
       const interpolant = Math.max(Math.min(left / rect.width, 0.9999), 0);
       this.video.currentTime = this.video.duration * interpolant;
-      updatePosition();
+      visibleUpdatePosition();
       if (start) {
         this.selectionStartNormalized = interpolant;
       }
@@ -136,6 +154,12 @@ export class VideoPlayer extends EventTarget {
       this.video.width = this.video.videoWidth;
       this.video.height = this.video.videoHeight;
     });
+  }
+
+  public destroy () {
+    window.removeEventListener("blur", this.blurCallback);
+    document.removeEventListener("blur", this.blurCallback);
+    document.removeEventListener("visibilitychange", this.documentVisibilityChangeCallback);
   }
 
   public getSelectionRangeInOrder (): TimeRange {

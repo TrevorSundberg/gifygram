@@ -1,6 +1,6 @@
 import {AnimationData, Track, WidgetInit} from "../../../common/common";
 import {Gif, Image, StaticImage} from "./image";
-import {RELATIVE_WIDGET_SIZE, Size, Utility, getAspect, resizeMinimumKeepAspect} from "./utility";
+import {RELATIVE_WIDGET_SIZE, Size, Utility, VISIBLE_UPDATE, getAspect, resizeMinimumKeepAspect} from "./utility";
 import {Background} from "./background";
 import {Gizmo} from "./gizmo";
 import {Renderer} from "./renderer";
@@ -89,11 +89,12 @@ export class Manager {
 
     const onUpdate = () => {
       this.requestedAnimationFrame = requestAnimationFrame(onUpdate);
-      window.dispatchEvent(new Event("update"));
+      if (document.hasFocus() && document.visibilityState === "visible") {
+        window.dispatchEvent(new Event(VISIBLE_UPDATE));
+        this.update();
+      }
     };
     onUpdate();
-
-    window.addEventListener("update", () => this.update());
 
     const deselectElement = (event: Event) => {
       if (event.target === widgetContainer || event.target === background.canvas) {
