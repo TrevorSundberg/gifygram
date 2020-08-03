@@ -23,9 +23,9 @@ import AccountBoxIcon from "@material-ui/icons/AccountBox";
 import AppBar from "@material-ui/core/AppBar";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Drawer from "@material-ui/core/Drawer";
-import {EditorComponent} from "./editor/editorComponent";
 import GitHubIcon from "@material-ui/icons/GitHub";
 import HomeIcon from "@material-ui/icons/Home";
 import IconButton from "@material-ui/core/IconButton";
@@ -81,6 +81,8 @@ const App = () => {
   const emulatorUi = new URL(new URL(window.location.href).origin);
   emulatorUi.port = "5001";
 
+  const EditorComponent = React.lazy(() => import("./editor/editorComponent"));
+
   const classes = useStyles();
   return <ThemeProvider theme={theme}>
     <CssBaseline />
@@ -88,7 +90,12 @@ const App = () => {
       <BrowserRouter>
         <Switch>
           <Route path="/editor"
-            render={(prop) => <EditorComponent history={prop.history} remixId={getUrlParam(prop, "remixId")}/>}
+            render={(prop) =>
+              <React.Suspense fallback={<Box display="flex" justifyContent="center">
+                <CircularProgress />
+              </Box>}>
+                <EditorComponent history={prop.history} remixId={getUrlParam(prop, "remixId")}/>
+              </React.Suspense>}
           />
           <Route>
             <div className={classes.toolbar} style={{width: "100%", marginBottom: 10}}>

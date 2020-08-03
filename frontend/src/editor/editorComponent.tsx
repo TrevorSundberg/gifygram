@@ -1,12 +1,12 @@
 import {Editor} from "./editor";
 import React from "react";
 
-export interface EditorProps {
+interface EditorProps {
   remixId?: string;
   history: import("history").History;
 }
 
-export const EditorComponent: React.FC<EditorProps> = (props) => {
+export default ((props) => {
   const div = React.useRef<HTMLDivElement>();
 
   React.useEffect(() => {
@@ -17,4 +17,4 @@ export const EditorComponent: React.FC<EditorProps> = (props) => {
   }, []);
 
   return <div ref={div}></div>;
-};
+}) as React.FC<EditorProps>;
