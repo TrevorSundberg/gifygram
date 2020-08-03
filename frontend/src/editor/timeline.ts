@@ -43,15 +43,19 @@ export class Timeline {
     }
   }
 
-  public deleteKeyframesInRange (range: TimeRange) {
-    for (const track of Object.values(this.tracks)) {
+  public deleteKeyframesInRange (widgetTrackId: string, range: TimeRange) {
+    let result = false;
+    const track = this.tracks[widgetTrackId];
+    if (track) {
       for (const normalizedTimeStr of Object.keys(track)) {
         const normalizedTime = parseFloat(normalizedTimeStr);
         if (normalizedTime >= range[0] && normalizedTime <= range[1]) {
           delete track[normalizedTimeStr];
+          result = true;
         }
       }
     }
+    return result;
   }
 
   public updateTracks () {

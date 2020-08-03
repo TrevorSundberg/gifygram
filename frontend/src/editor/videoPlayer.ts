@@ -27,7 +27,7 @@ export class VideoPlayer extends EventTarget {
 
   public selectionStartNormalized = 0;
 
-  public selectionEndNormalized = 1;
+  public selectionEndNormalized = 0;
 
   public constructor (videoParent: HTMLDivElement, controlsParent: HTMLElement) {
     super();

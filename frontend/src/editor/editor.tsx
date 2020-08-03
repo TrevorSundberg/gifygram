@@ -340,7 +340,23 @@ export class Editor {
     });
 
     getElement("clear").addEventListener("click", async () => {
-      timeline.deleteKeyframesInRange(player.getSelectionRangeInOrder());
+      const {selection} = manager;
+      if (!selection) {
+        await Modal.messageBox("Clear Keyframes", "You must have something selected to delete its key frames");
+        return;
+      }
+      const range = player.getSelectionRangeInOrder();
+      if (range[0] === range[1]) {
+        await Modal.messageBox(
+          "Clear Keyframes",
+          "No keyframes were selected. Click and drag on the timeline to create a blue keyframe selection."
+        );
+        return;
+      }
+      if (!timeline.deleteKeyframesInRange(`#${selection.widget.init.id}`, range)) {
+        await Modal.messageBox("Clear Keyframes", "No keyframes were deleted");
+        return;
+      }
       manager.updateChanges();
     });
   }
