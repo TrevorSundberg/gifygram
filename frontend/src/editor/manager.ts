@@ -229,6 +229,7 @@ export class Manager {
     element.addEventListener("touchstart", grabElement, true);
 
     this.keyframe(widget.element, "transform");
+    this.keyframe(widget.element, "clip");
     this.selectWidget(widget);
     this.spinner.hide();
     return widget;
@@ -289,16 +290,15 @@ export class Manager {
 
   private keyframe (element: HTMLElement, type: "clip" | "transform") {
     const track = this.timeline.tracks[`#${element.id}`];
-    track[this.videoPlayer.getNormalizedCurrentTime()] = (() => {
-      if (type === "clip") {
-        return {
-          clip: element.style.clip
-        };
-      }
-      return {
-        transform: Utility.transformToCss(Utility.getTransform(element))
-      };
-    })();
+    const normalizedTime = this.videoPlayer.getNormalizedCurrentTime();
+    const existingKeyframe = track[normalizedTime];
+
+    const newKeyframe = type === "clip"
+      ? {clip: element.style.clip}
+      : {transform: Utility.transformToCss(Utility.getTransform(element))};
+
+    // If on the same frame where a 'clip' existed you add a 'transform', this keeps both.
+    track[normalizedTime] = {...existingKeyframe, ...newKeyframe};
     this.updateChanges();
   }
 
