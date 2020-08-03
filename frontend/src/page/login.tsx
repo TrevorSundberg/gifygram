@@ -5,7 +5,6 @@ import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import firebase from "firebase/app";
 
 export type LoginUserIdState = undefined | string | null;
-export const LoginUserIdContext = React.createContext<LoginUserIdState>(undefined);
 
 export interface LoginDialogProps {
   open: boolean;

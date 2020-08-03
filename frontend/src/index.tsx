@@ -17,7 +17,7 @@ import {
   isDevEnvironment,
   signInIfNeeded
 } from "./shared/shared";
-import {LoginDialog, LoginUserIdContext, LoginUserIdState} from "./page/login";
+import {LoginDialog, LoginUserIdState} from "./page/login";
 import {theme, useStyles} from "./page/style";
 import AccountBoxIcon from "@material-ui/icons/AccountBox";
 import AppBar from "@material-ui/core/AppBar";
@@ -86,152 +86,159 @@ const App = () => {
   const classes = useStyles();
   return <ThemeProvider theme={theme}>
     <CssBaseline />
-    <LoginUserIdContext.Provider value={loggedInUserId}>
-      <BrowserRouter>
-        <Switch>
-          <Route path="/editor"
-            render={(prop) =>
-              <React.Suspense fallback={<Box display="flex" justifyContent="center">
-                <CircularProgress />
-              </Box>}>
-                <EditorComponent history={prop.history} remixId={getUrlParam(prop, "remixId")}/>
-              </React.Suspense>}
-          />
-          <Route>
-            <div className={classes.toolbar} style={{width: "100%", marginBottom: 10}}>
-              <AppBar position="fixed">
-                <Toolbar className={classes.pageWidth}>
-                  <IconButton
-                    edge="start"
-                    color="inherit"
-                    aria-label="menu"
-                    onClick={() => setMenuOpen(true)}>
-                    <MenuIcon />
-                  </IconButton>
-                  <RouterLink to="/" className={classes.link}>
-                    <Box mr={1}>
-                      <img
-                        style={{verticalAlign: "middle"}}
-                        src={require("./public/icon.png").default}
-                        width="54px"
-                        height="54px"/>
-                    </Box>
-                  </RouterLink>
-                  <Typography noWrap variant="h6" className={classes.title}>
-                    <RouterLink to="/" className={classes.link}>
-                      {require("../title")}
-                    </RouterLink>
-                  </Typography>
-                  <RouterLink to="/editor" className={classes.link}>
-                    <Button id="create" variant="contained" color="secondary">Create</Button>
-                  </RouterLink>
-                </Toolbar>
-              </AppBar>
-            </div>
-            <div className={classes.pageWidth} id="page">
-              <Switch>
-                <Route exact path="/"
-                  render={(prop) =>
-                    <div>
-                      <Typography variant="h4" align="left">
-                        <b>TRENDING</b> Posts
-                      </Typography>
-                      <Thread
-                        history={prop.history}
-                        key={API_TRENDING_THREADS_ID}
-                        threadId={API_TRENDING_THREADS_ID}/>
-                      <Typography variant="h4" align="left">
-                        <b>NEWEST</b> Posts
-                      </Typography>
-                      <Thread history={prop.history} key={API_ALL_THREADS_ID} threadId={API_ALL_THREADS_ID}/>
-                    </div>}
-                />
-                <Route exact path="/thread"
-                  render={(prop) => {
-                    const threadId = getUrlParam(prop, "threadId");
-                    return <Thread history={prop.history} key={threadId} threadId={threadId}/>;
-                  }}
-                />
-                <Route exact path="/profile"
-                  render={() => <Profile/>}
-                />
-              </Switch>
-            </div>
-          </Route>
-        </Switch>
-        <Drawer anchor={"left"} open={menuOpen} onClose={closeMenuCallback}>
-          <List style={{minWidth: "250px"}}>
-            <RouterLink to="/" className={classes.link} onClick={closeMenuCallback}>
-              <ListItem button>
-                <ListItemIcon><HomeIcon/></ListItemIcon>
-                <ListItemText primary={"Home"} />
-              </ListItem>
-            </RouterLink>
-            <RouterLink to="/editor" className={classes.link} onClick={closeMenuCallback}>
-              <ListItem button>
-                <ListItemIcon><MovieIcon/></ListItemIcon>
-                <ListItemText primary={"Create Animation"} />
-              </ListItem>
-            </RouterLink>
-            {
-              loggedInUserId
-                ? <RouterLink to="/profile" className={classes.link} onClick={closeMenuCallback}>
-                  <ListItem button>
-                    <ListItemIcon><AccountBoxIcon/></ListItemIcon>
-                    <ListItemText primary={"Edit Profile"} />
-                  </ListItem>
+    <BrowserRouter>
+      <Switch>
+        <Route path="/editor"
+          render={(prop) =>
+            <React.Suspense fallback={<Box display="flex" justifyContent="center">
+              <CircularProgress />
+            </Box>}>
+              <EditorComponent history={prop.history} remixId={getUrlParam(prop, "remixId")}/>
+            </React.Suspense>}
+        />
+        <Route>
+          <div className={classes.toolbar} style={{width: "100%", marginBottom: 10}}>
+            <AppBar position="fixed">
+              <Toolbar className={classes.pageWidth}>
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  aria-label="menu"
+                  onClick={() => setMenuOpen(true)}>
+                  <MenuIcon />
+                </IconButton>
+                <RouterLink to="/" className={classes.link}>
+                  <Box mr={1}>
+                    <img
+                      style={{verticalAlign: "middle"}}
+                      src={require("./public/icon.png").default}
+                      width="54px"
+                      height="54px"/>
+                  </Box>
                 </RouterLink>
-                : <ListItem button onClick={() => signInIfNeeded().catch(() => 0)}>
-                  <ListItemIcon><PersonIcon/></ListItemIcon>
-                  <ListItemText primary={"Sign In"} />
+                <Typography noWrap variant="h6" className={classes.title}>
+                  <RouterLink to="/" className={classes.link}>
+                    {require("../title")}
+                  </RouterLink>
+                </Typography>
+                <RouterLink to="/editor" className={classes.link}>
+                  <Button id="create" variant="contained" color="secondary">Create</Button>
+                </RouterLink>
+              </Toolbar>
+            </AppBar>
+          </div>
+          <div className={classes.pageWidth} id="page">
+            <Switch>
+              <Route exact path="/"
+                render={(prop) =>
+                  <div>
+                    <Typography variant="h4" align="left">
+                      <b>TRENDING</b> Posts
+                    </Typography>
+                    <Thread
+                      loggedInUserId={loggedInUserId}
+                      history={prop.history}
+                      key={API_TRENDING_THREADS_ID}
+                      threadId={API_TRENDING_THREADS_ID}/>
+                    <Typography variant="h4" align="left">
+                      <b>NEWEST</b> Posts
+                    </Typography>
+                    <Thread
+                      loggedInUserId={loggedInUserId}
+                      history={prop.history}
+                      key={API_ALL_THREADS_ID}
+                      threadId={API_ALL_THREADS_ID}/>
+                  </div>}
+              />
+              <Route exact path="/thread"
+                render={(prop) => {
+                  const threadId = getUrlParam(prop, "threadId");
+                  return <Thread
+                    loggedInUserId={loggedInUserId}
+                    history={prop.history}
+                    key={threadId}
+                    threadId={threadId}/>;
+                }}
+              />
+              <Route exact path="/profile"
+                render={() => <Profile loggedInUserId={loggedInUserId}/>}
+              />
+            </Switch>
+          </div>
+        </Route>
+      </Switch>
+      <Drawer anchor={"left"} open={menuOpen} onClose={closeMenuCallback}>
+        <List style={{minWidth: "250px"}}>
+          <RouterLink to="/" className={classes.link} onClick={closeMenuCallback}>
+            <ListItem button>
+              <ListItemIcon><HomeIcon/></ListItemIcon>
+              <ListItemText primary={"Home"} />
+            </ListItem>
+          </RouterLink>
+          <RouterLink to="/editor" className={classes.link} onClick={closeMenuCallback}>
+            <ListItem button>
+              <ListItemIcon><MovieIcon/></ListItemIcon>
+              <ListItemText primary={"Create Animation"} />
+            </ListItem>
+          </RouterLink>
+          {
+            loggedInUserId
+              ? <RouterLink to="/profile" className={classes.link} onClick={closeMenuCallback}>
+                <ListItem button>
+                  <ListItemIcon><AccountBoxIcon/></ListItemIcon>
+                  <ListItemText primary={"Edit Profile"} />
                 </ListItem>
-            }
-            <Link
-              href="https://github.com/TrevorSundberg/gifygram"
-              target="_blank"
-              rel="noopener"
-              className={classes.link}
-              onClick={closeMenuCallback}>
-              <ListItem button>
-                <ListItemIcon><GitHubIcon/></ListItemIcon>
-                <ListItemText primary={"Visit GitHub"} />
+              </RouterLink>
+              : <ListItem button onClick={() => signInIfNeeded().catch(() => 0)}>
+                <ListItemIcon><PersonIcon/></ListItemIcon>
+                <ListItemText primary={"Sign In"} />
               </ListItem>
-            </Link>
-            {
-              isDevEnvironment()
-                ? <Link
-                  href={emulatorUi.href}
-                  target="_blank"
-                  rel="noopener"
-                  className={classes.link}
-                  onClick={closeMenuCallback}>
-                  <ListItem button>
-                    <ListItemIcon><StorageIcon/></ListItemIcon>
-                    <ListItemText primary={"Open Emulator UI"} />
-                  </ListItem>
-                </Link>
-                : null
-            }
-          </List>
-        </Drawer>
-      </BrowserRouter>
-      <ModalContainer/>
-      <LoginDialog
-        open={Boolean(showLoginDeferred)}
-        onClose={() => {
-          showLoginDeferred.reject(new NonAlertingError("The login was cancelled"));
-          setShowLoginDeferred(null);
-        }}
-        onSignInFailure={(message) => {
-          showLoginDeferred.reject(new Error(message));
-          setShowLoginDeferred(null);
-        }}
-        onSignInSuccess={(uid: string) => {
-          setLoggedInUserId(uid);
-          showLoginDeferred.resolve();
-          setShowLoginDeferred(null);
-        }}/>
-    </LoginUserIdContext.Provider>
+          }
+          <Link
+            href="https://github.com/TrevorSundberg/gifygram"
+            target="_blank"
+            rel="noopener"
+            className={classes.link}
+            onClick={closeMenuCallback}>
+            <ListItem button>
+              <ListItemIcon><GitHubIcon/></ListItemIcon>
+              <ListItemText primary={"Visit GitHub"} />
+            </ListItem>
+          </Link>
+          {
+            isDevEnvironment()
+              ? <Link
+                href={emulatorUi.href}
+                target="_blank"
+                rel="noopener"
+                className={classes.link}
+                onClick={closeMenuCallback}>
+                <ListItem button>
+                  <ListItemIcon><StorageIcon/></ListItemIcon>
+                  <ListItemText primary={"Open Emulator UI"} />
+                </ListItem>
+              </Link>
+              : null
+          }
+        </List>
+      </Drawer>
+    </BrowserRouter>
+    <ModalContainer/>
+    <LoginDialog
+      open={Boolean(showLoginDeferred)}
+      onClose={() => {
+        showLoginDeferred.reject(new NonAlertingError("The login was cancelled"));
+        setShowLoginDeferred(null);
+      }}
+      onSignInFailure={(message) => {
+        showLoginDeferred.reject(new Error(message));
+        setShowLoginDeferred(null);
+      }}
+      onSignInSuccess={(uid: string) => {
+        setLoggedInUserId(uid);
+        showLoginDeferred.resolve();
+        setShowLoginDeferred(null);
+      }}/>
   </ThemeProvider>;
 };
 

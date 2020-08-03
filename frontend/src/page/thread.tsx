@@ -22,7 +22,7 @@ import {PAGE_WIDTH, theme, useStyles} from "./style";
 import Box from "@material-ui/core/Box";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
-import {LoginUserIdContext} from "./login";
+import {LoginUserIdState} from "./login";
 import Masonry from "react-masonry-css";
 import {Post} from "./post";
 import React from "react";
@@ -34,6 +34,7 @@ interface ThreadProps {
   // If this is set to API_ALL_THREADS_ID then it means we're listing all threads.
   threadId: string;
   history: import("history").History;
+  loggedInUserId: LoginUserIdState;
 }
 
 const EMPTY_USERNAME = "\u3000";
@@ -126,10 +127,8 @@ export const Thread: React.FC<ThreadProps> = (props) => {
     };
   }, []);
 
-  const loggedInUserId = React.useContext(LoginUserIdContext);
-
   React.useEffect(() => {
-    if (typeof loggedInUserId === "undefined" || storedPostArrays.length === 0) {
+    if (typeof props.loggedInUserId === "undefined" || storedPostArrays.length === 0) {
       return () => 0;
     }
     const fetches = storedPostArrays.map((storedPosts) => {
@@ -149,7 +148,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
     return () => {
       fetches.forEach(cancel);
     };
-  }, [loggedInUserId, storedPostArrays]);
+  }, [props.loggedInUserId, storedPostArrays]);
 
   const [postMessage, setPostMessage] = React.useState("");
   const [postCreateFetch, setPostCreateFetch] = React.useState<AbortablePromise<StoredPost>>(null);

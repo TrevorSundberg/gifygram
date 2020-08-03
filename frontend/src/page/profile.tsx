@@ -9,22 +9,25 @@ import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Divider from "@material-ui/core/Divider";
-import {LoginUserIdContext} from "./login";
+import {LoginUserIdState} from "./login";
 import React from "react";
 import {SubmitButton} from "./submitButton";
 import TextField from "@material-ui/core/TextField";
 import {UserAvatar} from "./userAvatar";
 import {store} from "../shared/firebase";
 
-export const Profile: React.FC = () => {
+export interface ProfileProps {
+  loggedInUserId: LoginUserIdState;
+}
+
+export const Profile: React.FC<ProfileProps> = (props) => {
   const [user, setUser] = React.useState<StoredUser>(null);
   const [profileUpdateFetch, setProfileUpdateFetch] = React.useState<AbortablePromise<StoredUser>>(null);
   const [userAvatar, setUserAvatar] = React.useState<File>(null);
 
-  const loggedInUserId = React.useContext(LoginUserIdContext);
   React.useEffect(() => {
-    if (loggedInUserId) {
-      const profilePromise = abortable(store.collection(COLLECTION_USERS).doc(loggedInUserId).get());
+    if (props.loggedInUserId) {
+      const profilePromise = abortable(store.collection(COLLECTION_USERS).doc(props.loggedInUserId).get());
       (async () => {
         const profileDoc = await profilePromise;
         if (profileDoc) {
@@ -36,7 +39,7 @@ export const Profile: React.FC = () => {
       };
     }
     return () => 0;
-  }, [loggedInUserId]);
+  }, [props.loggedInUserId]);
 
   React.useEffect(() => () => {
     cancel(profileUpdateFetch);
