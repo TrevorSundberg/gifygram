@@ -192,13 +192,12 @@ DONE - Import sprite from disk
 DONE - Remove replying to for now
 DONE - Start all sprites & text in the center and auto keyframe them
 DONE - Use the same font for text in editor as we do for our logo (Arvo)
+DONE - Bug: Clear keyframes in range does ALL keyframes, not just selected object keyframes
+DONE - Warnings on all buttons that require a selection
+DONE - Put deletes into transaction & delete views / likes / related posts
 
- - Make editor load in async so we reduce main.js size (most people will just browse)
- - Bug: Clear keyframes in range does ALL keyframes, not just selected object keyframes
- - Warnings on all buttons that require a selection
- - Should we just put docAnimation/docVideo under then post itself?
- - Put deletes into transaction & delete views / likes
  - Rename the repo
+ - Make editor load in async so we reduce main.js size (most people will just browse)
  - Confirmation of destructive action on leaving editor (unsaved changes)
  - Tutorial video for animator
  - Agree privacy / etc
@@ -248,6 +247,7 @@ DONE - Use the same font for text in editor as we do for our logo (Arvo)
 
  - Facial recognition
  - Green screening
+ - Frame by frame masking
 
 Sound (postponed):
  - Use media scene and change to playing the scenejs rather than seeking it on every video frame
