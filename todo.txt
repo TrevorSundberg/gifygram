@@ -197,6 +197,8 @@ DONE - Warnings on all buttons that require a selection
 DONE - Put deletes into transaction & delete views / likes / related posts
 DONE - Rename the repo
 
+ - Figure out the whole reply id thing
+ - Refactor CircularProgress spinner into a simple class (centered vertically too)
  - Make editor load in async so we reduce main.js size (most people will just browse)
  - Confirmation of destructive action on leaving editor (unsaved changes)
  - Tutorial video for animator
