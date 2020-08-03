@@ -195,8 +195,8 @@ DONE - Use the same font for text in editor as we do for our logo (Arvo)
 DONE - Bug: Clear keyframes in range does ALL keyframes, not just selected object keyframes
 DONE - Warnings on all buttons that require a selection
 DONE - Put deletes into transaction & delete views / likes / related posts
+DONE - Rename the repo
 
- - Rename the repo
  - Make editor load in async so we reduce main.js size (most people will just browse)
  - Confirmation of destructive action on leaving editor (unsaved changes)
  - Tutorial video for animator

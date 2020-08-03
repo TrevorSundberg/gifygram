@@ -1,5 +1,5 @@
 {
-  "name": "madeitforfun",
+  "name": "gifygram",
   "version": "1.0.0",
   "description": "A stupid website for animating images on top of videos.",
   "scripts": {
@@ -25,15 +25,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TrevorSundberg/madeitforfun.git"
+    "url": "git+https://github.com/TrevorSundberg/gifygram.git"
   },
   "keywords": [],
   "author": "Trevor Sundberg",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/TrevorSundberg/madeitforfun/issues"
+    "url": "https://github.com/TrevorSundberg/gifygram/issues"
   },
-  "homepage": "https://github.com/TrevorSundberg/madeitforfun#readme",
+  "homepage": "https://github.com/TrevorSundberg/gifygram#readme",
   "dependencies": {
     "@types/json-schema": "^7.0.5",
     "@types/node": "^14.0.14",

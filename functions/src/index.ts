@@ -626,7 +626,7 @@ addHandler(API_POST_LIKE, async (input) => {
 
 addHandler(API_FEEDBACK, async (input) => {
   const {title} = input.json;
-  const response = await fetch("https://api.github.com/repos/TrevorSundberg/madeitforfun/issues", {
+  const response = await fetch("https://api.github.com/repos/TrevorSundberg/gifygram/issues", {
     method: "POST",
     body: JSON.stringify({title}),
     headers: {

@@ -7,15 +7,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TrevorSundberg/madeitforfun.git"
+    "url": "git+https://github.com/TrevorSundberg/gifygram.git"
   },
   "keywords": [],
   "author": "Trevor Sundberg",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/TrevorSundberg/madeitforfun/issues"
+    "url": "https://github.com/TrevorSundberg/gifygram/issues"
   },
-  "homepage": "https://github.com/TrevorSundberg/madeitforfun#readme",
+  "homepage": "https://github.com/TrevorSundberg/gifygram#readme",
   "dependencies": {
     "@types/webpack": "^4.41.18",
     "ajv": "^6.12.3",

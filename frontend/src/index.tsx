@@ -180,7 +180,7 @@ const App = () => {
                 </ListItem>
             }
             <Link
-              href="https://github.com/TrevorSundberg/madeitforfun"
+              href="https://github.com/TrevorSundberg/gifygram"
               target="_blank"
               rel="noopener"
               className={classes.link}
