@@ -311,6 +311,11 @@ class RequestInput<T> {
       throw new Error("Attempting to login as test user in production");
     }
 
+    const firebaseUser = await admin.auth().getUser(decodedToken.uid);
+    if (firebaseUser.disabled) {
+      throw new Error("The account has been disabled");
+    }
+
     const existingUser = await dbGetUser(decodedToken.uid);
     if (existingUser) {
       return existingUser;
