@@ -249,7 +249,11 @@ export const Thread: React.FC<ThreadProps> = (props) => {
                 fullWidth
                 disabled={Boolean(postCreateFetch)}
                 label="Comment"
-                inputProps={{maxLength: API_POST_CREATE.props.message.maxLength}}
+                inputProps={{
+                  minLength: API_POST_CREATE.props.message.minLength,
+                  maxLength: API_POST_CREATE.props.message.maxLength
+                }}
+                required
                 value={postMessage}
                 onChange={(e) => {
                   setPostMessage(e.target.value);

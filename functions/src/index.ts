@@ -1,4 +1,5 @@
 import * as admin from "firebase-admin";
+import * as betterAjvErrors from "better-ajv-errors";
 import * as crypto from "crypto";
 import * as firestore from "@google-cloud/firestore";
 import * as functions from "firebase-functions";
@@ -30,6 +31,7 @@ import {
   COLLECTION_VIEWED,
   ClientPost,
   PostData,
+  SchemaValidator,
   StoredPost,
   StoredUser
 } from "../../common/common";
@@ -46,6 +48,19 @@ const expect = <T>(name: string, value: T | null | undefined | false) => {
     throw new Error(`Expected ${name} but got ${value}`);
   }
   return value;
+};
+
+const ajvErrorsToString = (validator: SchemaValidator, json: Record<string, any>) => {
+  const errors = betterAjvErrors(
+    validator.schema,
+    json,
+    validator.errors,
+    {format: "js", indent: null}
+  );
+  if (!errors || errors.length === 0) {
+    return JSON.stringify(validator.errors);
+  }
+  return errors.map((error) => error.error + (error.suggestion ? `\n${error.suggestion}` : "")).join("\n");
 };
 
 type UserId = string;
@@ -496,7 +511,7 @@ addHandler(API_ANIMATION_CREATE, async (input) => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const validator = require("../../ts-schema-loader/dist/main.js!../../common/common.ts?AnimationData");
   if (!validator(animationData)) {
-    throw new Error(`AnimationData was invalid:\n${JSON.stringify(validator.errors)}`);
+    throw new Error(`AnimationData was invalid:\n${ajvErrorsToString(validator, animationData)}`);
   }
 
   const attribution: AttributedSource[] = [
@@ -685,7 +700,7 @@ const handleRequest = async (request: RawRequest): Promise<RequestOutput<any>> =
     }
     const result = handler.api.validator(jsonInput);
     if (!result) {
-      throw new Error(JSON.stringify(handler.api.validator.errors));
+      throw new Error(ajvErrorsToString(handler.api.validator, jsonInput));
     }
 
     const input = new RequestInput<any>(request, jsonInput);

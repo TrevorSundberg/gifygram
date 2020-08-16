@@ -5,7 +5,7 @@ import crypto from "crypto";
 import fs from "fs";
 import util from "util";
 
-const ajv = new Ajv({sourceCode: true});
+const ajv = new Ajv({sourceCode: true, jsonPointers: true});
 
 const settings: TJS.PartialArgs = {
   excludePrivate: true,

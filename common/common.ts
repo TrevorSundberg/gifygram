@@ -41,6 +41,7 @@ export type PostData = PostComment | PostAnimation;
 export interface PostCreate {
 
   /**
+   * @minLength 1
    * @maxLength 1000
    */
   message: string;
@@ -201,7 +202,7 @@ export interface Feedback {
 }
 
 type JSONSchema7 = import("json-schema").JSONSchema7;
-type SchemaValidator = ((input: any) => boolean) & {errors: any[]; schema: JSONSchema7}
+export type SchemaValidator = ((input: any) => boolean) & {errors: any[]; schema: JSONSchema7}
 
 export class Api<InputType extends Record<string, any>, OutputType> {
   public readonly pathname: string;
