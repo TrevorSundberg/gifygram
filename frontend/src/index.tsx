@@ -48,6 +48,8 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import firebase from "firebase/app";
 
+const EditorComponent = React.lazy(() => import("./editor/editorComponent"));
+
 const getUrlParam = (props: { location: import("history").Location }, name: string) =>
   JSON.parse(new URLSearchParams(props.location.search).get(name));
 
@@ -80,8 +82,6 @@ const App = () => {
 
   const emulatorUi = new URL(new URL(window.location.href).origin);
   emulatorUi.port = "5001";
-
-  const EditorComponent = React.lazy(() => import("./editor/editorComponent"));
 
   const classes = useStyles();
   return <ThemeProvider theme={theme}>
