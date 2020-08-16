@@ -30,12 +30,11 @@ import {Utility} from "./utility";
 import {VideoEncoder} from "./videoEncoder";
 import {VideoEncoderH264MP4} from "./videoEncoderH264MP4";
 import {VideoPlayer} from "./videoPlayer";
+import {setHasUnsavedChanges} from "../shared/unload";
 import svgToMiniDataURI from "mini-svg-data-uri";
 
 export class Editor {
   public root: JQuery;
-
-  public unloadCallback: () => void;
 
   public modalChangedCallback: () => void;
 
@@ -70,15 +69,6 @@ export class Editor {
       }
     };
     window.addEventListener(MODALS_CHANGED, this.modalChangedCallback);
-
-    this.unloadCallback = () => {
-      if (manager.hasUnsavedChanges && location.protocol === "https:") {
-        return "Do you want to leave this page and discard your changes?";
-      }
-      // eslint-disable-next-line no-undefined
-      return undefined;
-    };
-    window.onbeforeunload = this.unloadCallback;
 
     (async () => {
       manager.spinner.show();
@@ -241,6 +231,8 @@ export class Editor {
           blob
         );
 
+        setHasUnsavedChanges(false);
+
         // If the user goes back to the editor in history, they'll be editing a remix of their post.
         history.replace(makeLocalUrl("/editor", {remixId: post.id}));
         if (post.id === post.threadId) {
@@ -366,13 +358,11 @@ export class Editor {
         return;
       }
       manager.updateChanges();
+      setHasUnsavedChanges(true);
     });
   }
 
   public destroy () {
-    if (window.onbeforeunload === this.unloadCallback) {
-      window.onbeforeunload = null;
-    }
     this.background.destroy();
     this.manager.destroy();
     this.player.destroy();

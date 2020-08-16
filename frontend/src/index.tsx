@@ -46,6 +46,7 @@ import {ThemeProvider} from "@material-ui/core/styles";
 import {Thread} from "./page/thread";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
+import {UnsavedChangesPrompt} from "./shared/unload";
 import firebase from "firebase/app";
 
 const EditorComponent = React.lazy(() => import("./editor/editorComponent"));
@@ -94,6 +95,7 @@ const App = () => {
               <CircularProgress />
             </Box>}>
               <EditorComponent history={prop.history} remixId={getUrlParam(prop, "remixId")}/>
+              <UnsavedChangesPrompt/>
             </React.Suspense>}
         />
         <Route>

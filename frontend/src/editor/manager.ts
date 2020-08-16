@@ -7,6 +7,7 @@ import {Renderer} from "./renderer";
 import {Spinner} from "./spinner";
 import {Timeline} from "./timeline";
 import {VideoPlayer} from "./videoPlayer";
+import {setHasUnsavedChanges} from "../shared/unload";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const uuidv4: typeof import("uuid/v4") = require("uuid/v4");
 
@@ -40,8 +41,6 @@ export class Manager {
   public updateExternally = false;
 
   public readonly spinner = new Spinner();
-
-  public hasUnsavedChanges = false;
 
   private requestedAnimationFrame: number;
 
@@ -139,11 +138,9 @@ export class Manager {
   public updateChanges () {
     this.timeline.updateTracks();
     this.updateMarkers();
-    this.hasUnsavedChanges = true;
   }
 
   public save (): AnimationData {
-    this.hasUnsavedChanges = false;
     return {
       tracks: JSON.parse(JSON.stringify(this.timeline.tracks)),
       videoAttributedSource: this.videoPlayer.getAttributedSrc(),
@@ -163,7 +160,6 @@ export class Manager {
     this.timeline.setNormalizedTime(1);
     this.timeline.setNormalizedTime(0);
     this.videoPlayer.video.currentTime = 0;
-    this.hasUnsavedChanges = false;
     await this.videoPlayer.loadPromise;
   }
 
@@ -219,6 +215,7 @@ export class Manager {
     const track: Track = {};
     this.timeline.tracks[`#${id}`] = track;
     this.updateChanges();
+    setHasUnsavedChanges(true);
     const widget = new Widget(element, init);
     this.widgets.push(widget);
 
@@ -274,6 +271,7 @@ export class Manager {
     widget.element.remove();
     delete this.timeline.tracks[`#${widget.init.id}`];
     this.updateChanges();
+    setHasUnsavedChanges(true);
     this.widgets.splice(this.widgets.indexOf(widget), 1);
   }
 
@@ -301,10 +299,12 @@ export class Manager {
     // If on the same frame where a 'clip' existed you add a 'transform', this keeps both.
     track[normalizedTime] = {...existingKeyframe, ...newKeyframe};
     this.updateChanges();
+    setHasUnsavedChanges(true);
   }
 
   public destroy () {
     this.selectWidget(null);
     cancelAnimationFrame(this.requestedAnimationFrame);
+    setHasUnsavedChanges(false);
   }
 }
