@@ -23,12 +23,12 @@ import AccountBoxIcon from "@material-ui/icons/AccountBox";
 import AppBar from "@material-ui/core/AppBar";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
-import CircularProgress from "@material-ui/core/CircularProgress";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Drawer from "@material-ui/core/Drawer";
 import GitHubIcon from "@material-ui/icons/GitHub";
 import HomeIcon from "@material-ui/icons/Home";
 import IconButton from "@material-ui/core/IconButton";
+import {IndeterminateProgress} from "./page/progress";
 import Link from "@material-ui/core/Link";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -91,9 +91,7 @@ const App = () => {
       <Switch>
         <Route path="/editor"
           render={(prop) =>
-            <React.Suspense fallback={<Box display="flex" justifyContent="center">
-              <CircularProgress />
-            </Box>}>
+            <React.Suspense fallback={<IndeterminateProgress/>}>
               <EditorComponent history={prop.history} remixId={getUrlParam(prop, "remixId")}/>
               <UnsavedChangesPrompt/>
             </React.Suspense>}
