@@ -403,7 +403,8 @@ const expectFileHeader = (name: string, types: string, buffer: Buffer, possibleH
 interface PostCreateGeneric {
   message: string;
   title?: string;
-  replyId: string | null;
+  threadId?: string;
+  replyId?: string | null | undefined;
 }
 
 const postCreate = async (
@@ -414,12 +415,22 @@ const postCreate = async (
   const user = await input.requireAuthedUser();
 
   const title = hasTitle ? input.json.title || null : null;
-  const {message, replyId} = input.json;
+  const replyId = input.json.replyId || null;
+  const {message} = input.json;
   const id = uuid();
 
   const threadId = await (async () => {
-    if (allowCreateThread && !replyId) {
+    if (allowCreateThread && !input.json.threadId && !replyId) {
       return id;
+    }
+    if (input.json.threadId) {
+      if (replyId) {
+        const replyPost = await dbExpectPost(replyId);
+        if (replyPost.threadId !== input.json.threadId) {
+          throw new Error("Attempting to reply to a post that was in the wrong thread");
+        }
+      }
+      return input.json.threadId;
     }
     const replyPost = await dbExpectPost(expect("replyId", replyId));
     return replyPost.threadId;

@@ -227,7 +227,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
                 e.preventDefault();
                 const postCreateFetchPromise = abortableJsonFetch(API_POST_CREATE, Auth.Required, {
                   message: postMessage,
-                  replyId: props.threadId
+                  threadId: props.threadId
                 });
                 setPostCreateFetch(postCreateFetchPromise);
 

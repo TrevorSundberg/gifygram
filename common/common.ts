@@ -44,7 +44,7 @@ export interface PostCreate {
    * @maxLength 1000
    */
   message: string;
-  replyId: string;
+  threadId: string;
 }
 
 export interface AnimationCreate {
@@ -53,6 +53,8 @@ export interface AnimationCreate {
    * @maxLength 1000
    */
   message: string;
+
+  // This is the video/animation we are remixing (null if we are creating a new thread).
   replyId: string | null;
 
   /**
