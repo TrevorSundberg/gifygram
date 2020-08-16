@@ -126,6 +126,7 @@ export const Profile: React.FC<ProfileProps> = (props) => {
               maxLength,
               pattern: API_PROFILE_UPDATE.props.username.pattern
             }}
+            required
             value={user.username}
             onChange={(e) => {
               setUser({...user, username: e.target.value});
