@@ -15,7 +15,8 @@ import {
   NonAlertingError,
   RequestLoginEvent,
   isDevEnvironment,
-  signInIfNeeded
+  signInIfNeeded,
+  signOut
 } from "./shared/shared";
 import {LoginDialog, LoginUserIdState} from "./page/login";
 import {theme, useStyles} from "./page/style";
@@ -183,12 +184,18 @@ const App = () => {
           </RouterLink>
           {
             loggedInUserId
-              ? <RouterLink to="/profile" className={classes.link} onClick={closeMenuCallback}>
-                <ListItem button>
-                  <ListItemIcon><AccountBoxIcon/></ListItemIcon>
-                  <ListItemText primary={"Edit Profile"} />
+              ? <>
+                <RouterLink to="/profile" className={classes.link} onClick={closeMenuCallback}>
+                  <ListItem button>
+                    <ListItemIcon><AccountBoxIcon/></ListItemIcon>
+                    <ListItemText primary={"Edit Profile"} />
+                  </ListItem>
+                </RouterLink>
+                <ListItem button onClick={() => signOut()}>
+                  <ListItemIcon><PersonIcon/></ListItemIcon>
+                  <ListItemText primary={"Sign Out"} />
                 </ListItem>
-              </RouterLink>
+              </>
               : <ListItem button onClick={() => signInIfNeeded().catch(() => 0)}>
                 <ListItemIcon><PersonIcon/></ListItemIcon>
                 <ListItemText primary={"Sign In"} />

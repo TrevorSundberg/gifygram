@@ -73,6 +73,8 @@ export const signInIfNeeded = async () => {
   await requestLogin.deferredLoginPicked;
 };
 
+export const signOut = () => firebase.auth().signOut();
+
 const applyPathAndParams = (url: URL, path: string, params?: Record<string, any>) => {
   url.pathname = path;
   if (params) {
