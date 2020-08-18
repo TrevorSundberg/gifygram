@@ -83,10 +83,13 @@ export const Post: React.FC<PostProps> = (props) => {
       }
       title={<Typography variant="subtitle1" noWrap>
         {props.post.username}
-        {props.post.replyId && props.post.userdata.type === "animation" ? <span> <Link
-          variant="overline"
-          color="secondary"
-          href={`#${props.post.replyId}`}>Remix of...</Link></span>
+        {props.post.replyId && props.post.userdata.type === "animation"
+          ? <span>
+            <Link
+              variant="overline"
+              color="secondary"
+              href={`#${props.post.replyId}`}>Remix of...</Link>
+          </span>
           : null}
       </Typography>}
       subheader={props.post.userdata.type === "animation" ? props.post.title : props.post.message}
