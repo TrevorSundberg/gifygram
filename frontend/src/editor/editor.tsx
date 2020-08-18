@@ -61,7 +61,7 @@ export class Editor {
       manager.spinner.show();
       if (remixId) {
         const animation = await abortableJsonFetch(API_ANIMATION_JSON, Auth.Optional, {id: remixId});
-        manager.load(animation);
+        await manager.load(animation);
       } else {
         await player.setAttributedSrc({
           originUrl: "",
