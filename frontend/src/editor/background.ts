@@ -18,6 +18,9 @@ export class Background {
     const drawVideo = () => {
       context.filter = "blur(10px)";
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      context.filter = "opacity(30%)";
+      context.fillStyle = "#888";
+      context.fillRect(0, 0, canvas.width, canvas.height);
     };
     drawVideo();
     parent.prepend(canvas);
