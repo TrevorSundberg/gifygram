@@ -60,3 +60,8 @@
 .button:active {
   color: gray;
 }
+
+.moveable-control-box {
+  /* This is lower than the material UI modals */
+  z-index: 1000 !important;
+}

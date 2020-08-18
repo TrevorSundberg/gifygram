@@ -15,11 +15,11 @@ import {
   isDevEnvironment,
   makeLocalUrl
 } from "../shared/shared";
-import {MODALS_CHANGED, Modal, allModals} from "./modal";
 import {RenderFrameEvent, Renderer} from "./renderer";
 import $ from "jquery";
 import {Background} from "./background";
 import {Manager} from "./manager";
+import {Modal} from "./modal";
 import {ModalProgress} from "./modalProgress";
 import React from "react";
 import {StickerSearch} from "./stickerSearch";
@@ -35,8 +35,6 @@ import svgToMiniDataURI from "mini-svg-data-uri";
 
 export class Editor {
   public root: JQuery;
-
-  public modalChangedCallback: () => void;
 
   private background: Background;
 
@@ -58,14 +56,6 @@ export class Editor {
     this.background = background;
     const manager = new Manager(background, videoParent, widgetContainer, player, timeline, renderer);
     this.manager = manager;
-
-    this.modalChangedCallback = () => {
-      // Only deselect if we have a modal up.
-      if (allModals.length > 0) {
-        manager.selectWidget(null);
-      }
-    };
-    window.addEventListener(MODALS_CHANGED, this.modalChangedCallback);
 
     (async () => {
       manager.spinner.show();
@@ -363,7 +353,6 @@ export class Editor {
     this.background.destroy();
     this.manager.destroy();
     this.root.remove();
-    window.removeEventListener(MODALS_CHANGED, this.modalChangedCallback);
     document.documentElement.style.overflow = null;
   }
 }
