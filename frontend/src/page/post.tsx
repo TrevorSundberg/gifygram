@@ -1,3 +1,4 @@
+import * as timeago from "timeago.js";
 import {makeFullLocalUrl, makeLocalUrl} from "../shared/shared";
 import {AnimationVideo} from "./animationVideo";
 import Box from "@material-ui/core/Box";
@@ -91,6 +92,14 @@ export const Post: React.FC<PostProps> = (props) => {
               href={`#${props.post.replyId}`}>Remix of...</Link>
           </span>
           : null}
+        {props.preview
+          ? null
+          : <Typography
+            variant="subtitle2"
+            className={classes.postTime}>
+            {timeago.format(props.post.dateMsSinceEpoch)}
+          </Typography>
+        }
       </Typography>}
       subheader={props.post.userdata.type === "animation" ? props.post.title : props.post.message}
     />

@@ -81,6 +81,11 @@ export const useStyles = makeStyles((theme: Theme) =>
       cursor: "pointer",
       width: "100%",
       verticalAlign: "top"
+    },
+    postTime: {
+      float: "right",
+      marginRight: theme.spacing(),
+      color: theme.palette.text.secondary
     }
   }), {index: 1});
 
