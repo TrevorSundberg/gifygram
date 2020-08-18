@@ -159,6 +159,7 @@ export class Manager {
     this.timeline.setNormalizedTime(0);
     this.videoPlayer.video.currentTime = 0;
     await this.videoPlayer.loadPromise;
+    setHasUnsavedChanges(false);
   }
 
   private update () {
