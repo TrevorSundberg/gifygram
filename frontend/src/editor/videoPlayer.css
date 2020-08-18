@@ -34,7 +34,7 @@
 }
 
 .videoSelection {
-  background-color: #0068da;
+  background-color: #1f61ff;
   position: absolute;
   right: 0px;
   top: 0px;
@@ -50,10 +50,8 @@
 }
 
 .videoMarker {
-  background-color: red;
   position: absolute;
-  width: 1px;
-  outline: 2px solid red;
+  width: 3px;
+  transform: translateX(-1px);
   height: 100%;
-  opacity: 0.5;
 }

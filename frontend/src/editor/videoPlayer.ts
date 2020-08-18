@@ -2,11 +2,14 @@ import "./videoPlayer.css";
 import {AttributedSource, MAX_VIDEO_SIZE} from "../../../common/common";
 import {RELATIVE_VIDEO_SIZE, Size, TimeRange, UPDATE, resizeMinimumKeepAspect} from "./utility";
 import {Deferred} from "../shared/shared";
+import {theme} from "../page/style";
 
 interface Point {
   clientX: number;
   clientY: number;
 }
+
+const MARKER_NORMALIZED_TIME = "time";
 
 export class VideoPlayer extends EventTarget {
   public readonly video: HTMLVideoElement;
@@ -104,6 +107,8 @@ export class VideoPlayer extends EventTarget {
       const selectionRange = this.getSelectionRangeInOrder();
       this.selection.style.left = `${selectionRange[0] * 100}%`;
       this.selection.style.right = `${(1 - selectionRange[1]) * 100}%`;
+
+      this.updateMarkerHighlights();
     };
 
     const onTouchMove = (event: TouchEvent) => {
@@ -167,6 +172,18 @@ export class VideoPlayer extends EventTarget {
     return JSON.parse(this.video.dataset.attributionJson);
   }
 
+  public updateMarkerHighlights () {
+    const selectionRange = this.getSelectionRangeInOrder();
+    for (const marker of this.markers) {
+      const normalizedMarkerTime = parseFloat(marker.dataset[MARKER_NORMALIZED_TIME]);
+      if (normalizedMarkerTime >= selectionRange[0] && normalizedMarkerTime <= selectionRange[1]) {
+        marker.style.backgroundColor = theme.palette.secondary.main;
+      } else {
+        marker.style.backgroundColor = theme.palette.primary.dark;
+      }
+    }
+  }
+
   public setMarkers (normalizedMarkerTimes: number[]) {
     for (const marker of this.markers) {
       marker.remove();
@@ -178,8 +195,11 @@ export class VideoPlayer extends EventTarget {
       this.timeline.appendChild(marker);
       marker.className = "videoMarker";
       marker.style.left = `${normalizedMarkerTime * 100}%`;
+      marker.dataset[MARKER_NORMALIZED_TIME] = String(normalizedMarkerTime);
       this.markers.push(marker);
     }
+
+    this.updateMarkerHighlights();
   }
 
   public getRawSize (): Size {
