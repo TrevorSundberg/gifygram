@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 export const MAX_VIDEO_SIZE = 720;
 
-export const API_ALL_THREADS_ID = "00000000-0000-4000-8000-000000000000";
-export const API_TRENDING_THREADS_ID = "10000000-0000-4000-8000-000000000000";
+export const API_THREAD_LIST_ENDING = "0000000-0000-4000-8000-000000000000";
+export const API_ALL_THREADS_ID = `0${API_THREAD_LIST_ENDING}`;
+export const API_TRENDING_THREADS_ID = `1${API_THREAD_LIST_ENDING}`;
 
 export const COLLECTION_USERS = "users";
 export const COLLECTION_AVATARS = "avatars";

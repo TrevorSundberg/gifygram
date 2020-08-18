@@ -2,6 +2,7 @@ import {
   API_ALL_THREADS_ID,
   API_AMENDED_LIST,
   API_POST_CREATE,
+  API_THREAD_LIST_ENDING,
   API_TRENDING_THREADS_ID,
   API_VIEWED_THREAD,
   AmendedQuery,
@@ -40,7 +41,7 @@ interface ThreadProps {
 const EMPTY_USERNAME = "\u3000";
 
 export const Thread: React.FC<ThreadProps> = (props) => {
-  const isThreadList = props.threadId === API_ALL_THREADS_ID || props.threadId === API_TRENDING_THREADS_ID;
+  const isThreadList = props.threadId.endsWith(API_THREAD_LIST_ENDING);
   const isSpecificThread = !isThreadList;
   // If we're on a specific thread, create a psuedo post for the first post that includes the video (loads quicker).
   const psuedoPosts: ClientPost[] = [];
