@@ -176,7 +176,7 @@ const App = () => {
           </div>
         </Route>
       </Switch>
-      <Drawer anchor={"left"} open={menuOpen} onClose={closeMenuCallback}>
+      <Drawer anchor={"left"} open={menuOpen} onClose={closeMenuCallback} disableScrollLock={true}>
         <List style={{minWidth: "250px"}}>
           <RouterLink to="/" className={classes.link} onClick={closeMenuCallback}>
             <ListItem button>
