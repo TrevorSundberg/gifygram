@@ -15,8 +15,6 @@ import MenuItem from "@material-ui/core/MenuItem";
 import React from "react";
 import Select from "@material-ui/core/Select";
 import {ShareButton} from "./shareButton";
-import TimerIcon from "@material-ui/icons/Timer";
-import Tooltip from "@material-ui/core/Tooltip";
 import {TrashButton} from "./trashButton";
 import Typography from "@material-ui/core/Typography";
 import {UserAvatar} from "./userAvatar";
@@ -64,13 +62,6 @@ export const Post: React.FC<PostProps> = (props) => {
       }
       action={
         <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
-          {props.post.cached
-            ? <Box mr={1}>
-              <Tooltip title="The post is pending">
-                <TimerIcon fontSize="inherit"/>
-              </Tooltip>
-            </Box>
-            : null}
           {
             !props.preview && props.post.canDelete
               ? <Box mr={1}>

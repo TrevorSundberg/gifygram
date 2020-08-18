@@ -71,8 +71,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       username: EMPTY_USERNAME,
       avatarId: null,
       liked: false,
-      canDelete: false,
-      cached: true
+      canDelete: false
     });
   }
   const [posts, setPosts] = React.useState<ClientPost[]>(psuedoPosts);

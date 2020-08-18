@@ -118,7 +118,6 @@ export interface ThreadPost {
 export type StoredThread = StoredPost & ThreadPost;
 
 export interface ClientPost extends StoredPost {
-  cached?: true;
   username: string;
   avatarId: string | null;
   liked: boolean;
