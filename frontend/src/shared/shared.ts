@@ -112,17 +112,6 @@ export interface MergableItem {
   id: string;
 }
 
-export const intersectAndMergeLists = <A extends MergableItem, B extends MergableItem>(a: A[], b: B[]): (A & B)[] => {
-  const result: (A & B)[] = [];
-  for (const aItem of a) {
-    const bItem = b.find((bTest) => bTest.id === aItem.id);
-    if (bItem) {
-      result.push({...aItem, ...bItem});
-    }
-  }
-  return result;
-};
-
 export class NonAlertingError extends Error {}
 
 export interface ResponseJson {

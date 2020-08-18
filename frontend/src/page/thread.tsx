@@ -1,15 +1,18 @@
 import {
   API_ALL_THREADS_ID,
-  API_AMENDED_LIST,
   API_POST_CREATE,
   API_REMIXED_THREADS_ID,
   API_THREAD_LIST_ENDING,
   API_TRENDING_THREADS_ID,
   API_VIEWED_THREAD,
-  AmendedQuery,
+  COLLECTION_LIKED,
   COLLECTION_POSTS,
+  COLLECTION_USERS,
   ClientPost,
-  StoredPost
+  StoredPost,
+  StoredUser,
+  makeLikedKey,
+  userHasPermission
 } from "../../../common/common";
 import {
   AbortablePromise,
@@ -17,7 +20,6 @@ import {
   abortable,
   abortableJsonFetch,
   cancel,
-  intersectAndMergeLists,
   makeLocalUrl
 } from "../shared/shared";
 import {PAGE_WIDTH, theme, useStyles} from "./style";
@@ -75,7 +77,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
   }
   const [posts, setPosts] = React.useState<ClientPost[]>(psuedoPosts);
 
-  const [storedPostArrays, setStoredPostArrays] = React.useState<StoredPost[][]>([]);
+  const [storedPosts, setStoredPosts] = React.useState<StoredPost[]>([]);
 
   React.useEffect(() => {
     if (isSpecificThread) {
@@ -122,9 +124,9 @@ export const Thread: React.FC<ThreadProps> = (props) => {
           username: EMPTY_USERNAME,
           avatarId: null,
           liked: false,
-          canDelete: false
+          canDelete: storedPost.userId === props.loggedInUserId
         })));
-        setStoredPostArrays([...storedPostArrays, postList]);
+        setStoredPosts(postList);
       }
     });
 
@@ -134,27 +136,38 @@ export const Thread: React.FC<ThreadProps> = (props) => {
   }, []);
 
   React.useEffect(() => {
-    if (typeof props.loggedInUserId === "undefined" || storedPostArrays.length === 0) {
+    if (typeof props.loggedInUserId === "undefined" || storedPosts.length === 0) {
       return () => 0;
     }
-    const fetches = storedPostArrays.map((storedPosts) => {
-      const queries: AmendedQuery[] = storedPosts.map((storedPost) => ({
-        id: storedPost.id,
-        userId: storedPost.userId
+    const amendedPostPromise = abortable((async () => {
+      const loggedInUser = props.loggedInUserId
+        ? (await store.collection(COLLECTION_USERS).doc(props.loggedInUserId).get()).data() as StoredUser
+        : null;
+
+      const clientPosts: ClientPost[] = await Promise.all(storedPosts.map(async (storedPost) => {
+        const userDoc = await store.collection(COLLECTION_USERS).doc(storedPost.userId).get();
+        const user = userDoc.data() as StoredUser | undefined;
+        return {
+          ...storedPost,
+          username: user ? user.username : "",
+          avatarId: user ? user.avatarId : null,
+          liked: props.loggedInUserId
+            ? (await store.collection(COLLECTION_LIKED).doc(makeLikedKey(
+              storedPost.id,
+              props.loggedInUserId
+            )).get()).exists
+            : false,
+          canDelete: userHasPermission(loggedInUser, storedPost.userId)
+        };
       }));
-      const amendedListFetch = abortableJsonFetch(API_AMENDED_LIST, Auth.Optional, {queries});
-      amendedListFetch.then((amendedList) => {
-        if (amendedList) {
-          setPosts(intersectAndMergeLists(posts, amendedList));
-        }
-      });
-      return amendedListFetch;
-    });
+
+      setPosts(clientPosts);
+    })());
 
     return () => {
-      fetches.forEach(cancel);
+      cancel(amendedPostPromise);
     };
-  }, [props.loggedInUserId, storedPostArrays]);
+  }, [props.loggedInUserId, storedPosts]);
 
   const [postMessage, setPostMessage] = React.useState("");
   const [postCreateFetch, setPostCreateFetch] = React.useState<AbortablePromise<StoredPost>>(null);

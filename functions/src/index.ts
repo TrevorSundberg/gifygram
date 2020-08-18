@@ -4,7 +4,6 @@ import * as crypto from "crypto";
 import * as firestore from "@google-cloud/firestore";
 import * as functions from "firebase-functions";
 import {
-  API_AMENDED_LIST,
   API_ANIMATION_CREATE,
   API_ANIMATION_JSON,
   API_ANIMATION_VIDEO,
@@ -17,8 +16,6 @@ import {
   API_PROFILE_AVATAR_UPDATE,
   API_PROFILE_UPDATE,
   API_VIEWED_THREAD,
-  AmendedPost,
-  AmendedQuery,
   AnimationData,
   Api,
   AttributedSource,
@@ -34,7 +31,9 @@ import {
   PostType,
   SchemaValidator,
   StoredPost,
-  StoredUser
+  StoredUser,
+  makeLikedKey,
+  userHasPermission
 } from "../../common/common";
 import {TEST_EMAIL} from "../../common/test";
 import {TextDecoder} from "util";
@@ -69,11 +68,6 @@ type PostId = string;
 type IPHash = string;
 
 const SECONDS_PER_DAY = 86400;
-
-const dbUserHasPermission = (actingUser: StoredUser | null, owningUserId: string) =>
-  actingUser
-    ? owningUserId === actingUser.id || actingUser.role === "admin"
-    : false;
 
 const docUser = (userId: UserId) => store.collection(COLLECTION_USERS).doc(userId);
 const dbGetUser = async (userId: UserId): Promise<StoredUser | null> => {
@@ -235,22 +229,6 @@ const dbAddView = async (threadId: PostId, ipHash: IPHash): Promise<void> => {
     }
   }
 };
-
-const docPostLiked = (postId: PostId, userId: UserId) => store.collection(COLLECTION_LIKED).doc(`${postId}_${userId}`);
-const dbListAmendedPosts =
-  async (authedUserOptional: StoredUser | null, queries: AmendedQuery[]): Promise<AmendedPost[]> =>
-    Promise.all(queries.map(async (query) => {
-      const user = await dbGetUser(query.userId);
-      return {
-        id: query.id,
-        username: user ? user.username : "",
-        avatarId: user ? user.avatarId : null,
-        liked: authedUserOptional
-          ? (await docPostLiked(query.id, authedUserOptional.id).get()).exists
-          : false,
-        canDelete: dbUserHasPermission(authedUserOptional, query.userId)
-      };
-    }));
 
 const isDevEnvironment = () => process.env.FUNCTIONS_EMULATOR === "true";
 
@@ -510,11 +488,6 @@ addHandler(API_VIEWED_THREAD, async (input) => {
   return {result: {}};
 });
 
-addHandler(API_AMENDED_LIST, async (input) => {
-  const result = await dbListAmendedPosts(await input.getAuthedUser(), input.json.queries);
-  return {result};
-});
-
 addHandler(API_ANIMATION_CREATE, async (input) => {
   const [
     jsonBinary,
@@ -628,7 +601,7 @@ addHandler(API_POST_LIKE, async (input) => {
   const newValue = input.json.liked;
   const user = await input.requireAuthedUser();
 
-  const doc = docPostLiked(postId, user.id);
+  const doc = store.collection(COLLECTION_LIKED).doc(makeLikedKey(postId, user.id));
   const likes = await store.runTransaction(async (transaction) => {
     const postLikedDoc = await transaction.get(doc);
     const oldValue = postLikedDoc.exists;
@@ -690,7 +663,7 @@ addHandler(API_POST_DELETE, async (input) => {
   const postId = input.json.id;
 
   const post = await dbExpectPost(postId);
-  if (!dbUserHasPermission(user, post.userId)) {
+  if (!userHasPermission(user, post.userId)) {
     throw new Error("Attempting to delete post that did not belong to the user");
   }
 

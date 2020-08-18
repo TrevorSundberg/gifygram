@@ -17,6 +17,13 @@ export const COLLECTION_VIEWED = "viewed";
 /** Mark that we're doing something only to be backwards compatable with the database */
 export const oldVersion = <T>(value: T) => value;
 
+export const makeLikedKey = (postId: string, userId: string) => `${postId}_${userId}`;
+
+export const userHasPermission = (actingUser: StoredUser | null, owningUserId: string) =>
+  actingUser
+    ? owningUserId === actingUser.id || actingUser.role === "admin"
+    : false;
+
 export type Empty = {};
 
 export type PostComment = {
@@ -110,25 +117,12 @@ export interface ThreadPost {
 
 export type StoredThread = StoredPost & ThreadPost;
 
-export interface AmendedQuery {
-  id: string;
-  userId: string;
-}
-
-export interface AmendedList {
-  queries: AmendedQuery[];
-}
-
-export interface AmendedPost {
-  id: string;
+export interface ClientPost extends StoredPost {
+  cached?: true;
   username: string;
   avatarId: string | null;
   liked: boolean;
   canDelete: boolean;
-}
-
-export interface ClientPost extends StoredPost, AmendedPost {
-  cached?: true;
 }
 
 export type ClientThread = ClientPost & ThreadPost;
@@ -247,10 +241,6 @@ export const API_POST_CREATE = new Api<PostCreate, ClientPost>(
 export const API_VIEWED_THREAD = new Api<ViewedThread, Empty>(
   "/api/thread/viewed",
   require("../ts-schema-loader/dist/main.js!./common.ts?ViewedThread")
-);
-export const API_AMENDED_LIST = new Api<AmendedList, AmendedPost[]>(
-  "/api/amended/list",
-  require("../ts-schema-loader/dist/main.js!./common.ts?AmendedList")
 );
 export const API_POST_LIKE = new Api<PostLikeInput, PostLike>(
   "/api/post/like",
