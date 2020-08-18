@@ -194,6 +194,9 @@ export class Editor {
     };
 
     const makePost = async (title: string, message: string) => {
+      // Since we use 'updateExternally', any widget won't be updated, so just deselect for now.
+      this.manager.selectWidget(null);
+
       const result = await render();
       if (result) {
         const jsonBuffer = new TextEncoder().encode(JSON.stringify(manager.save()));
