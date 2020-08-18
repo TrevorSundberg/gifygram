@@ -199,8 +199,21 @@ DONE - Rename the repo
 DONE - Refactor CircularProgress spinner into a simple class (centered vertically too)
 DONE - Make editor load in async so we reduce main.js size (most people will just browse)
 DONE - Confirmation of destructive action on leaving editor (unsaved changes)
+DONE - Figure out the whole reply id thing
+DONE - No empty comments
+DONE - Ensure background never hides buttons in editor
+DONE - Highlight key frames as they are selected
+DONE - Ability to replace or change text (interchange too)
+DONE - Bug: On load does not clear confirmation of destructive action
+DONE - Scenejs Keyframe bug where it doesn't seek correctly
+DONE - Timestamp or "minutes ago" on comments / animation posts
+DONE - Make remixes appear on the front page
+DONE - Need to make front page remix link use a hashtag to scroll to the post
+DONE - Need to track views per remix (use url hash)
+DONE - Turn amended requests into direct firebase db access if possible
+DONE - Redirect madeitfor.fun to gifygram.com
+DONE - Remove the whole cached boolean and pending icon
 
- - Figure out the whole reply id thing
  - Tutorial video for animator
  - Agree privacy / etc
  - Link user ids in thread/threads to profile page (/user/someone)
@@ -216,8 +229,6 @@ DONE - Confirmation of destructive action on leaving editor (unsaved changes)
  - Reply button on the comments like Scratch
  - Replies are tabbed in (just one level)
  - Ability to type @someone in comments
- - Timestamp or "minutes ago" on comments / animation posts
- - No empty comments
 
  - Animation tutorial
  - Picking the background video
@@ -242,8 +253,6 @@ DONE - Confirmation of destructive action on leaving editor (unsaved changes)
  - Double click or double tap or tap + hold actions to change text or image
  - Export dialog (gif, mp4, webm), fps, max size / keep aspect, etc...
  - Customize text styles (font, color, outline, etc)
-
- - Scenejs Keyframe bug where it doesn't seek correctly: min repro and report it
 
  - Hire animators and meme creators to create stupid meme content
 
