@@ -2,6 +2,10 @@ let lastHash = "";
 
 const onHashChange = () => {
   const savedHash = location.hash;
+  if (!savedHash) {
+    lastHash = savedHash;
+    return;
+  }
   const element = document.getElementById(savedHash.slice(1));
   if (!element) {
     return;
