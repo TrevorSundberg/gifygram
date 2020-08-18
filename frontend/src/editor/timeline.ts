@@ -1,5 +1,4 @@
 import Scene, {Frame} from "scenejs";
-import {TimeRange} from "./utility";
 import {Tracks} from "../../../common/common";
 
 export class TimelineEvent extends Event {
@@ -14,12 +13,10 @@ export class TimelineEvent extends Event {
 export class Timeline {
   private scene: Scene;
 
-  public tracks: Tracks = {};
-
   private normalizedTime = 0;
 
   public constructor () {
-    this.updateTracks();
+    this.updateTracks({});
     this.scene.on("animate", (event) => {
       // eslint-disable-next-line guard-for-in
       for (const selector in event.frames) {
@@ -43,23 +40,8 @@ export class Timeline {
     }
   }
 
-  public deleteKeyframesInRange (widgetTrackId: string, range: TimeRange) {
-    let result = false;
-    const track = this.tracks[widgetTrackId];
-    if (track) {
-      for (const normalizedTimeStr of Object.keys(track)) {
-        const normalizedTime = parseFloat(normalizedTimeStr);
-        if (normalizedTime >= range[0] && normalizedTime <= range[1]) {
-          delete track[normalizedTimeStr];
-          result = true;
-        }
-      }
-    }
-    return result;
-  }
-
-  public updateTracks () {
-    this.scene = new Scene(this.tracks, {
+  public updateTracks (tracks: Tracks) {
+    this.scene = new Scene(tracks, {
       easing: "linear",
       selector: true
     });

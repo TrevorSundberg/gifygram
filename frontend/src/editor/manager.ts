@@ -1,6 +1,6 @@
-import {AnimationData, Track, WidgetInit} from "../../../common/common";
+import {AnimationData, Track, Tracks, WidgetInit} from "../../../common/common";
 import {Gif, Image, StaticImage} from "./image";
-import {RELATIVE_WIDGET_SIZE, Size, UPDATE, Utility, getAspect, resizeMinimumKeepAspect} from "./utility";
+import {RELATIVE_WIDGET_SIZE, Size, TimeRange, UPDATE, Utility, getAspect, resizeMinimumKeepAspect} from "./utility";
 import {Background} from "./background";
 import {Gizmo} from "./gizmo";
 import {Renderer} from "./renderer";
@@ -10,6 +10,8 @@ import {VideoPlayer} from "./videoPlayer";
 import {setHasUnsavedChanges} from "../shared/unload";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const uuidv4: typeof import("uuid/v4") = require("uuid/v4");
+
+const FakeFrameTime = -1;
 
 export type ElementFactory = (id: string) => Promise<HTMLElement>;
 
@@ -26,6 +28,8 @@ export class Widget {
 }
 
 export class Manager {
+  private tracks: Tracks = {};
+
   private widgetContainer: HTMLDivElement;
 
   private videoPlayer: VideoPlayer;
@@ -126,7 +130,7 @@ export class Manager {
 
   public updateMarkers () {
     if (this.selection) {
-      const track = this.timeline.tracks[`#${this.selection.widget.element.id}`];
+      const track = this.tracks[`#${this.selection.widget.element.id}`];
       this.videoPlayer.setMarkers(Object.keys(track).map((str) => parseFloat(str)));
     } else {
       this.videoPlayer.setMarkers([]);
@@ -134,13 +138,30 @@ export class Manager {
   }
 
   public updateChanges () {
-    this.timeline.updateTracks();
+    const tracksCopy: Tracks = JSON.parse(JSON.stringify(this.tracks));
+    for (const track of Object.values(tracksCopy)) {
+      let hasTransform = false;
+
+      for (const keyframe of Object.values(track)) {
+        if (keyframe.transform) {
+          hasTransform = true;
+        }
+      }
+
+      // It's better to always have a frame of visibility so that the user can add a keyframe that hides it.
+      track[FakeFrameTime] = {clip: "auto"};
+      if (!hasTransform) {
+        track[FakeFrameTime].transform = this.centerTransform();
+      }
+    }
+
+    this.timeline.updateTracks(tracksCopy);
     this.updateMarkers();
   }
 
   public save (): AnimationData {
     return {
-      tracks: JSON.parse(JSON.stringify(this.timeline.tracks)),
+      tracks: JSON.parse(JSON.stringify(this.tracks)),
       videoAttributedSource: this.videoPlayer.getAttributedSrc(),
       widgets: this.widgets.map((widget) => JSON.parse(JSON.stringify(widget.init)))
     };
@@ -152,7 +173,7 @@ export class Manager {
     for (const init of data.widgets) {
       await this.addWidget(init);
     }
-    this.timeline.tracks = data.tracks;
+    this.tracks = data.tracks;
     this.updateChanges();
     // Force a change so everything updates
     this.timeline.setNormalizedTime(1);
@@ -172,6 +193,10 @@ export class Manager {
       this.selection.update();
     }
     this.renderer.drawFrame(this.videoPlayer.video.currentTime, false);
+  }
+
+  private centerTransform () {
+    return Utility.transformToCss(Utility.centerTransform(this.videoPlayer.getAspectSize()));
   }
 
   public async addWidget (init: WidgetInit): Promise<Widget> {
@@ -196,7 +221,7 @@ export class Manager {
       // Replace the current widget if any is selected.
       if (this.selection) {
         init.id = this.selection.widget.init.id;
-        track = this.timeline.tracks[`#${init.id}`];
+        track = this.tracks[`#${init.id}`];
         this.destroyWidget(this.selection.widget);
       } else {
         init.id = `id-${uuidv4()}`;
@@ -204,7 +229,7 @@ export class Manager {
     }
 
     const {id} = init;
-    if (this.timeline.tracks[`#${id}`]) {
+    if (this.tracks[`#${id}`]) {
       this.spinner.hide();
       throw new Error(`Widget id already exists: ${id}`);
     }
@@ -216,11 +241,11 @@ export class Manager {
       event.preventDefault();
       return false;
     };
-    element.style.transform = Utility.transformToCss(Utility.centerTransform(this.videoPlayer.getAspectSize()));
+    element.style.transform = this.centerTransform();
     element.style.clip = "auto";
     this.widgetContainer.appendChild(element);
 
-    this.timeline.tracks[`#${id}`] = track;
+    this.tracks[`#${id}`] = track;
     this.updateChanges();
     setHasUnsavedChanges(true);
     const widget = new Widget(element, init);
@@ -233,8 +258,6 @@ export class Manager {
     element.addEventListener("mousedown", grabElement, true);
     element.addEventListener("touchstart", grabElement, true);
 
-    this.keyframe(widget.element, "transform");
-    this.keyframe(widget.element, "clip");
     this.selectWidget(widget);
     this.spinner.hide();
     return widget;
@@ -276,7 +299,7 @@ export class Manager {
       this.selectWidget(null);
     }
     widget.element.remove();
-    delete this.timeline.tracks[`#${widget.init.id}`];
+    delete this.tracks[`#${widget.init.id}`];
     this.updateChanges();
     setHasUnsavedChanges(true);
     this.widgets.splice(this.widgets.indexOf(widget), 1);
@@ -295,7 +318,7 @@ export class Manager {
   }
 
   private keyframe (element: HTMLElement, type: "clip" | "transform") {
-    const track = this.timeline.tracks[`#${element.id}`];
+    const track = this.tracks[`#${element.id}`];
     const normalizedTime = this.videoPlayer.getNormalizedCurrentTime();
     const existingKeyframe = track[normalizedTime];
 
@@ -307,6 +330,22 @@ export class Manager {
     track[normalizedTime] = {...existingKeyframe, ...newKeyframe};
     this.updateChanges();
     setHasUnsavedChanges(true);
+  }
+
+
+  public deleteKeyframesInRange (widgetTrackId: string, range: TimeRange) {
+    let result = false;
+    const track = this.tracks[widgetTrackId];
+    if (track) {
+      for (const normalizedTimeStr of Object.keys(track)) {
+        const normalizedTime = parseFloat(normalizedTimeStr);
+        if (normalizedTime >= range[0] && normalizedTime <= range[1]) {
+          delete track[normalizedTimeStr];
+          result = true;
+        }
+      }
+    }
+    return result;
   }
 
   public destroy () {

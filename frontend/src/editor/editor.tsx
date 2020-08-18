@@ -343,7 +343,7 @@ export class Editor {
         );
         return;
       }
-      if (!timeline.deleteKeyframesInRange(`#${selection.widget.init.id}`, range)) {
+      if (!manager.deleteKeyframesInRange(`#${selection.widget.init.id}`, range)) {
         await Modal.messageBox("Clear Keyframes", "No keyframes were deleted");
         return;
       }
