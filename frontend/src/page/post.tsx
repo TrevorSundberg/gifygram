@@ -85,12 +85,12 @@ export const Post: React.FC<PostProps> = (props) => {
       title={<Typography variant="subtitle1" noWrap>
         {props.post.username}
         {props.post.replyId && props.post.userdata.type === "animation"
-          ? <span>
+          ? <Box component="span" ml={1}>
             <Link
               variant="overline"
               color="secondary"
               href={`#${props.post.replyId}`}>Remix of...</Link>
-          </span>
+          </Box>
           : null}
         {props.preview
           ? null
