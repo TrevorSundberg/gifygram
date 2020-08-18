@@ -41,6 +41,12 @@ export abstract class VideoSeeker {
       }
       frame.progress = frame.currentTime / video.duration;
       await this.onFrame(frame);
+
+      // It's possible that while awaiting we got cancelled and the running promise was removed.
+      if (!this.runningPromise) {
+        return;
+      }
+
       if (frame.currentTime + FRAME_TIME > video.duration) {
         this.runningPromise.resolve(true);
       }
