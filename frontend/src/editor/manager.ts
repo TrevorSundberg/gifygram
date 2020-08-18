@@ -191,9 +191,18 @@ export class Manager {
       return img;
     })();
 
+    let track: Track = {};
     if (!init.id) {
-      init.id = `id-${uuidv4()}`;
+      // Replace the current widget if any is selected.
+      if (this.selection) {
+        init.id = this.selection.widget.init.id;
+        track = this.timeline.tracks[`#${init.id}`];
+        this.destroyWidget(this.selection.widget);
+      } else {
+        init.id = `id-${uuidv4()}`;
+      }
     }
+
     const {id} = init;
     if (this.timeline.tracks[`#${id}`]) {
       this.spinner.hide();
@@ -211,7 +220,6 @@ export class Manager {
     element.style.clip = "auto";
     this.widgetContainer.appendChild(element);
 
-    const track: Track = {};
     this.timeline.tracks[`#${id}`] = track;
     this.updateChanges();
     setHasUnsavedChanges(true);
