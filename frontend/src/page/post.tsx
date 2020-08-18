@@ -81,25 +81,29 @@ export const Post: React.FC<PostProps> = (props) => {
           <LikeButton post={props.post}/>
         </div>
       }
-      title={<Typography variant="subtitle1" noWrap>
-        {props.post.username}
-        {props.post.type === "remix" && !props.preview
-          ? <Box component="span" ml={1}>
-            <Link
-              variant="overline"
-              color="secondary"
-              href={`#${props.post.replyId}`}>Remix of...</Link>
-          </Box>
-          : null}
+      title={<>
+        <Typography
+          variant="subtitle1"
+          className={classes.username}
+          noWrap>
+          {props.post.username}
+          {props.post.type === "remix" && !props.preview
+            ? <Box component="span" ml={1}>
+              <Link
+                variant="overline"
+                color="secondary"
+                href={`#${props.post.replyId}`}>Remix of...</Link>
+            </Box>
+            : null}
+        </Typography>
         {props.preview
           ? null
           : <Typography
             variant="subtitle2"
             className={classes.postTime}>
             {timeago.format(props.post.dateMsSinceEpoch)}
-          </Typography>
-        }
-      </Typography>}
+          </Typography>}
+      </>}
       subheader={props.post.userdata.type === "animation" ? props.post.title : props.post.message}
     />
     {
