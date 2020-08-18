@@ -35,7 +35,6 @@ interface PostProps {
 }
 
 export const Post: React.FC<PostProps> = (props) => {
-  const isThread = props.post.threadId === props.post.id;
   const classes = useStyles();
   return <Card
     key={props.post.id}
@@ -84,7 +83,7 @@ export const Post: React.FC<PostProps> = (props) => {
       }
       title={<Typography variant="subtitle1" noWrap>
         {props.post.username}
-        {props.post.replyId && props.post.userdata.type === "animation"
+        {props.post.type === "remix" && !props.preview
           ? <Box component="span" ml={1}>
             <Link
               variant="overline"
@@ -134,7 +133,7 @@ export const Post: React.FC<PostProps> = (props) => {
               Remix
             </Button>
             {
-              isThread
+              props.post.type === "thread" || props.post.type === "remix"
                 ? <Box ml={1}>
                   <Typography variant={props.preview ? "caption" : "body2"} color={"textSecondary"} component="p">
                     {props.preview

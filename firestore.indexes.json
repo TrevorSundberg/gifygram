@@ -5,7 +5,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "isThread",
+          "fieldPath": "type",
           "order": "ASCENDING"
         },
         {
@@ -33,7 +33,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "isThread",
+          "fieldPath": "type",
           "order": "ASCENDING"
         },
         {

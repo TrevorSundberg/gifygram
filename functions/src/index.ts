@@ -31,6 +31,7 @@ import {
   COLLECTION_VIEWED,
   ClientPost,
   PostData,
+  PostType,
   SchemaValidator,
   StoredPost,
   StoredUser
@@ -174,7 +175,7 @@ const dbDeletePost = async (post: StoredPost): Promise<void> => {
     for (const doc of viewedDocs.docs) {
       transaction.delete(doc.ref);
     }
-    if (storedPost.isThread) {
+    if (storedPost.type === "thread") {
       const threadPostDocs = await store.collection(COLLECTION_POSTS).where("threadId", "==", postId).get();
       for (const doc of threadPostDocs.docs) {
         transaction.delete(doc.ref);
@@ -456,9 +457,19 @@ const postCreate = async (
     return replyPost.threadId;
   })();
 
+  const type: PostType = (() => {
+    if (threadId === id) {
+      return "thread";
+    }
+    if (userdata.type === "animation") {
+      return "remix";
+    }
+    return "comment";
+  })();
+
   const post: StoredPost = {
     id,
-    isThread: threadId === id,
+    type,
     threadId,
     title,
     message,

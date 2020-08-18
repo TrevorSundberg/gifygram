@@ -1,7 +1,7 @@
 import "./shared/firebase";
 import "./page/fonts.css";
 import "./page/hashScroll";
-import {API_ALL_THREADS_ID, API_TRENDING_THREADS_ID} from "../../common/common";
+import {API_ALL_THREADS_ID, API_REMIXED_THREADS_ID, API_TRENDING_THREADS_ID} from "../../common/common";
 import {
   BrowserRouter,
   Route,
@@ -149,6 +149,14 @@ const App = () => {
                       history={prop.history}
                       key={API_ALL_THREADS_ID}
                       threadId={API_ALL_THREADS_ID}/>
+                    <Typography variant="h4" align="left">
+                      <b>REMIXED</b> Posts
+                    </Typography>
+                    <Thread
+                      loggedInUserId={loggedInUserId}
+                      history={prop.history}
+                      key={API_REMIXED_THREADS_ID}
+                      threadId={API_REMIXED_THREADS_ID}/>
                   </div>}
               />
               <Route exact path="/thread"

@@ -2,6 +2,7 @@ import {
   API_ALL_THREADS_ID,
   API_AMENDED_LIST,
   API_POST_CREATE,
+  API_REMIXED_THREADS_ID,
   API_THREAD_LIST_ENDING,
   API_TRENDING_THREADS_ID,
   API_VIEWED_THREAD,
@@ -48,7 +49,7 @@ export const Thread: React.FC<ThreadProps> = (props) => {
   if (isSpecificThread) {
     psuedoPosts.push({
       id: props.threadId,
-      isThread: true,
+      type: "thread",
       threadId: props.threadId,
       title: "",
       message: "",
@@ -78,10 +79,9 @@ export const Thread: React.FC<ThreadProps> = (props) => {
 
   React.useEffect(() => {
     if (isSpecificThread) {
-    // Let the server know that we viewed this thread (don't need to do anything with the result).
-      abortableJsonFetch(API_VIEWED_THREAD, Auth.Optional, {
-        threadId: props.threadId
-      });
+      // Let the server know that we viewed this thread or remix (don't need to do anything with the result).
+      const threadId = location.hash ? location.hash.slice(1) : props.threadId;
+      abortableJsonFetch(API_VIEWED_THREAD, Auth.Optional, {threadId});
     }
     const postCollection = store.collection(COLLECTION_POSTS);
 
@@ -89,14 +89,19 @@ export const Thread: React.FC<ThreadProps> = (props) => {
       switch (props.threadId) {
         case API_ALL_THREADS_ID:
           return postCollection.
-            where("isThread", "==", true).
+            where("type", "==", "thread").
             orderBy("dateMsSinceEpoch", "desc").
             limit(20);
         case API_TRENDING_THREADS_ID:
           return postCollection.
-            where("isThread", "==", true).
+            where("type", "==", "thread").
             orderBy("trendingScore", "desc").
             limit(6);
+        case API_REMIXED_THREADS_ID:
+          return postCollection.
+            where("type", "==", "remix").
+            orderBy("dateMsSinceEpoch", "desc").
+            limit(20);
         default:
           return postCollection.
             where("threadId", "==", props.threadId).
@@ -200,7 +205,8 @@ export const Thread: React.FC<ThreadProps> = (props) => {
         onClick={
           isThreadList
             ? () => {
-              props.history.push(makeLocalUrl("/thread", {threadId: post.id}));
+              const hash = post.type === "remix" ? post.id : undefined;
+              props.history.push(makeLocalUrl("/thread", {threadId: post.threadId}, hash));
             }
             : null}
         history={props.history}
