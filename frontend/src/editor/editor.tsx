@@ -44,7 +44,7 @@ export class Editor {
     document.documentElement.style.overflow = "hidden";
     this.root = $(require("./editor.html").default).appendTo(parent);
 
-    const getElement = (name: string) => this.root.find(`#${name}`).get(0);
+    const getElement = (name: string) => parent.querySelector(`#${name}`);
 
     const videoParent = getElement("container") as HTMLDivElement;
     const widgetContainer = getElement("widgets") as HTMLDivElement;

@@ -21,6 +21,7 @@
   left: 0px;
   height: 100%;
   width: 15vmin;
+  font-size: 9vmin;
   text-align: center;
   transform: scale(0.9);
 }

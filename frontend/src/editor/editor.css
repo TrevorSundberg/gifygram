@@ -45,11 +45,11 @@
 
 .button {
   display: block;
-  font-size: 9vmin;
-  height: 9.75vmin;
+  font-size: 8.5vh;
   color: white;
   text-align: center;
   text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.25);
+  filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.25));
 }
 
 .button:hover {
