@@ -28,7 +28,7 @@
     "firebase": "^7.17.1",
     "gif-encoder": "^0.7.2",
     "gif-frames": "^1.0.1",
-    "h264-mp4-encoder": "^1.0.8",
+    "h264-mp4-encoder": "^1.0.12",
     "html-webpack-plugin": "^3.2.0",
     "jquery": "^3.4.1",
     "jsfeat": "0.0.8",
