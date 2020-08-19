@@ -7,7 +7,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import IconButton from "@material-ui/core/IconButton";
 import React from "react";
-import {Typography} from "@material-ui/core";
+import Typography from "@material-ui/core/Typography";
 import {useStyles} from "../page/style";
 
 export const MODALS_CHANGED = "modalsChanged";
