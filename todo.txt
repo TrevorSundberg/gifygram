@@ -213,6 +213,9 @@ DONE - Need to track views per remix (use url hash)
 DONE - Turn amended requests into direct firebase db access if possible
 DONE - Redirect madeitfor.fun to gifygram.com
 DONE - Remove the whole cached boolean and pending icon
+DONE - Bug: Motion tracked object gets deselected on occasio
+DONE - Custom dialog for listing stickers / videos
+DONE - Replace the buttons with material ui buttons
 
  - Tutorial video for animator
  - Agree privacy / etc
@@ -229,6 +232,7 @@ DONE - Remove the whole cached boolean and pending icon
  - Reply button on the comments like Scratch
  - Replies are tabbed in (just one level)
  - Ability to type @someone in comments
+ - Remove Font Awesome (play/pause button is the only usage)
 
  - Animation tutorial
  - Picking the background video
@@ -244,13 +248,10 @@ DONE - Remove the whole cached boolean and pending icon
  - Get publish to production using CI and npm version ...
  - Get tests running on CI builds (docker/puppeteer)
 
- - Bug: Motion tracked object gets deselected on occasion
  - Bug: Motion track first/last frame is offset (almost like it's wrapping first/last)
  - Bug: Widgets after encoding does not always match current video frame (widgets in wrong position)
  - Visiblity toggle kinda sucks in animator, we should just make it a timeline thing
- - Custom dialog for listing stickers / videos
  - Import main video from youtube (clip the video)
- - Double click or double tap or tap + hold actions to change text or image
  - Export dialog (gif, mp4, webm), fps, max size / keep aspect, etc...
  - Customize text styles (font, color, outline, etc)
 
