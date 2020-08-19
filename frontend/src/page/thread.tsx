@@ -159,9 +159,14 @@ export const Thread: React.FC<ThreadProps> = (props) => {
           canDelete: userHasPermission(loggedInUser, storedPost.userId)
         };
       }));
-
-      setPosts(clientPosts);
+      return clientPosts;
     })());
+
+    amendedPostPromise.then((clientPosts) => {
+      if (clientPosts) {
+        setPosts(clientPosts);
+      }
+    });
 
     return () => {
       cancel(amendedPostPromise);
