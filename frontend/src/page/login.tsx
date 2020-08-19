@@ -21,7 +21,6 @@ export const LoginDialog: React.FC<LoginDialogProps> = (props) => <Dialog
     callbacks: {
       signInFailure: (error) => props.onSignInFailure(error.message),
       signInSuccessWithAuthResult: (result) => {
-        console.log(result);
         props.onSignInSuccess(result.user.uid);
         return false;
       }
