@@ -173,6 +173,7 @@ export class Manager {
     for (const init of data.widgets) {
       await this.addWidget(init);
     }
+    this.selectWidget(null);
     this.tracks = data.tracks;
     this.updateChanges();
     // Force a change so everything updates
