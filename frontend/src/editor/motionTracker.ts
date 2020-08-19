@@ -34,7 +34,7 @@ export class MotionTracker extends VideoSeeker {
 
   private readonly maxIterations = 50;
 
-  private readonly epsilon = 0.001;
+  private readonly epsilon = 0.1;
 
   private readonly minEigen = 0.0001;
 
