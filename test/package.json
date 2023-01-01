@@ -8,9 +8,9 @@
     "@types/puppeteer": "^3.0.1",
     "node-fetch": "^2.6.0",
     "puppeteer": "^5.1.0",
-    "ts-loader": "^8.0.0",
-    "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.12",
+    "ts-loader": "^8.4.0",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
     "webpack-node-externals": "^2.5.0"
   }
 }
