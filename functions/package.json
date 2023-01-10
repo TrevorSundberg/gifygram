@@ -13,7 +13,7 @@
     "@types/node-fetch": "^2.5.7",
     "ajv": "^6.12.3",
     "better-ajv-errors": "^0.6.7",
-    "firebase-admin": "^9.0.0",
+    "firebase-admin": "^11.4.1",
     "firebase-functions": "^3.9.0",
     "node-fetch": "^2.6.0",
     "uuidv4": "^6.2.0"
